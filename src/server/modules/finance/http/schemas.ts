@@ -24,7 +24,7 @@ export const createCategorySchema = z.object({
   type: z.enum(['INCOME', 'EXPENSE'], { message: 'Tipo deve ser INCOME ou EXPENSE' }),
   icon: z.string().max(50).optional(),
   color: z.string().max(20).optional(),
-  parentId: z.string().optional(),
+  parentId: z.string().nullable().optional(),
 })
 
 export const updateCategorySchema = z.object({

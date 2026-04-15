@@ -99,7 +99,11 @@ export function DashboardGrid({ data, widgets: initialWidgets }: Props) {
       }),
     })
 
+    if (!res.ok) return
+
     const { data: widget } = await res.json()
+    if (!widget) return
+
     setWidgets((prev) => [
       ...prev,
       { id: widget.id, type: widget.type, x: widget.x, y: widget.y, w: widget.w, h: widget.h },

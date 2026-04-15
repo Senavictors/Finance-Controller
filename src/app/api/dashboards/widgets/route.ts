@@ -14,10 +14,11 @@ export async function POST(request: NextRequest) {
       h: number
     }
 
-    const dashboard = await prisma.dashboard.findUnique({ where: { userId } })
-    if (!dashboard) {
-      return NextResponse.json({ error: 'Dashboard nao encontrado' }, { status: 404 })
-    }
+    const dashboard = await prisma.dashboard.upsert({
+      where: { userId },
+      update: {},
+      create: { userId },
+    })
 
     const widget = await prisma.dashboardWidget.create({
       data: {
