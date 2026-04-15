@@ -96,11 +96,9 @@ export function AccountForm({ account, open, onOpenChange }: AccountFormProps) {
   }
 
   const trigger = !isControlled ? (
-    <DialogTrigger>
-      <Button>
-        <Plus className="mr-1.5 size-4" />
-        Nova Conta
-      </Button>
+    <DialogTrigger render={<Button />}>
+      <Plus className="mr-1.5 size-4" />
+      Nova Conta
     </DialogTrigger>
   ) : null
 

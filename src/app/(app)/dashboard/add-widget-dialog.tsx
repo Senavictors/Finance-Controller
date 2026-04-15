@@ -25,11 +25,9 @@ export function AddWidgetDialog({ existingTypes, onAdd }: Props) {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger>
-        <Button variant="outline" size="sm" className="rounded-full">
-          <Plus className="mr-1.5 size-4" />
-          Adicionar Widget
-        </Button>
+      <DialogTrigger render={<Button variant="outline" size="sm" className="rounded-full" />}>
+        <Plus className="mr-1.5 size-4" />
+        Adicionar Widget
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>

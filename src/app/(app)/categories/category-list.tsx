@@ -91,10 +91,8 @@ function CategoryRow({
           )}
         </div>
         <DropdownMenu>
-          <DropdownMenuTrigger>
-            <Button variant="ghost" size="icon-xs">
-              <MoreVertical className="size-4" />
-            </Button>
+          <DropdownMenuTrigger render={<Button variant="ghost" size="icon-xs" />}>
+            <MoreVertical className="size-4" />
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             <DropdownMenuItem onClick={() => setEditOpen(true)}>

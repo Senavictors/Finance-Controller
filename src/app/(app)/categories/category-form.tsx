@@ -97,11 +97,9 @@ export function CategoryForm({ category, categories, open, onOpenChange }: Categ
   }
 
   const trigger = !isControlled ? (
-    <DialogTrigger>
-      <Button>
-        <Plus className="mr-1.5 size-4" />
-        Nova Categoria
-      </Button>
+    <DialogTrigger render={<Button />}>
+      <Plus className="mr-1.5 size-4" />
+      Nova Categoria
     </DialogTrigger>
   ) : null
 

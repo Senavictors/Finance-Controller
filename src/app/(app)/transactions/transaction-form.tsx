@@ -101,11 +101,9 @@ export function TransactionForm({ accounts, categories }: Props) {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger>
-        <Button>
-          <Plus className="mr-1.5 size-4" />
-          Nova Transacao
-        </Button>
+      <DialogTrigger render={<Button />}>
+        <Plus className="mr-1.5 size-4" />
+        Nova Transacao
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>

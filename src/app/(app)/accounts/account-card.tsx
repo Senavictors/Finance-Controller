@@ -64,10 +64,12 @@ export function AccountCard({ account }: { account: Account }) {
             </div>
           </div>
           <DropdownMenu>
-            <DropdownMenuTrigger>
-              <button className="flex size-8 items-center justify-center rounded-full text-gray-400 opacity-0 transition-opacity group-hover:opacity-100 hover:bg-gray-100">
-                <MoreVertical className="size-4" />
-              </button>
+            <DropdownMenuTrigger
+              render={
+                <button className="flex size-8 items-center justify-center rounded-full text-gray-400 opacity-0 transition-opacity group-hover:opacity-100 hover:bg-gray-100" />
+              }
+            >
+              <MoreVertical className="size-4" />
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuItem onClick={() => setEditOpen(true)}>
