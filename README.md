@@ -137,16 +137,16 @@ finance-controller/
 
 ## Stack e Decisoes Tecnicas
 
-| Camada     | Tecnologia                        |
-| ---------- | --------------------------------- |
-| Framework  | Next.js 16 (App Router)           |
-| Linguagem  | TypeScript                        |
-| Styling    | Tailwind CSS v4 + shadcn/ui       |
-| Banco      | PostgreSQL                        |
-| ORM        | Prisma 7                          |
-| Validacao  | Zod                               |
-| Auth       | Custom (sessoes server-side)      |
-| Graficos   | Recharts                          |
+| Camada    | Tecnologia                   |
+| --------- | ---------------------------- |
+| Framework | Next.js 16 (App Router)      |
+| Linguagem | TypeScript                   |
+| Styling   | Tailwind CSS v4 + shadcn/ui  |
+| Banco     | PostgreSQL                   |
+| ORM       | Prisma 7                     |
+| Validacao | Zod                          |
+| Auth      | Custom (sessoes server-side) |
+| Graficos  | Recharts                     |
 
 ### Por que essas escolhas?
 
@@ -307,20 +307,20 @@ npx prisma studio      # GUI do banco de dados
 
 ## API Routes
 
-| Metodo   | Rota                          | Descricao                   |
-| -------- | ----------------------------- | --------------------------- |
-| POST     | `/api/auth/register`          | Criar conta                 |
-| POST     | `/api/auth/login`             | Login                       |
-| POST     | `/api/auth/logout`            | Logout                      |
-| GET      | `/api/auth/me`                | Usuario autenticado         |
-| GET/POST | `/api/accounts`               | Listar / criar conta        |
-| GET/PUT/DELETE | `/api/accounts/[id]`     | Detalhe / editar / deletar  |
-| GET/POST | `/api/categories`             | Listar / criar categoria    |
-| GET/PUT/DELETE | `/api/categories/[id]`   | Detalhe / editar / deletar  |
-| GET/POST | `/api/transactions`           | Listar / criar transacao    |
-| GET/PUT/DELETE | `/api/transactions/[id]` | Detalhe / editar / deletar  |
-| POST     | `/api/transactions/transfer`  | Transferencia entre contas  |
-| GET      | `/api/analytics/summary`      | Resumo financeiro mensal    |
+| Metodo         | Rota                         | Descricao                  |
+| -------------- | ---------------------------- | -------------------------- |
+| POST           | `/api/auth/register`         | Criar conta                |
+| POST           | `/api/auth/login`            | Login                      |
+| POST           | `/api/auth/logout`           | Logout                     |
+| GET            | `/api/auth/me`               | Usuario autenticado        |
+| GET/POST       | `/api/accounts`              | Listar / criar conta       |
+| GET/PUT/DELETE | `/api/accounts/[id]`         | Detalhe / editar / deletar |
+| GET/POST       | `/api/categories`            | Listar / criar categoria   |
+| GET/PUT/DELETE | `/api/categories/[id]`       | Detalhe / editar / deletar |
+| GET/POST       | `/api/transactions`          | Listar / criar transacao   |
+| GET/PUT/DELETE | `/api/transactions/[id]`     | Detalhe / editar / deletar |
+| POST           | `/api/transactions/transfer` | Transferencia entre contas |
+| GET            | `/api/analytics/summary`     | Resumo financeiro mensal   |
 
 ---
 

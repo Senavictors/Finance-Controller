@@ -56,3 +56,11 @@ and this project adheres to [Conventional Commits](https://www.conventionalcommi
 - Empty states com icones grandes e mensagens descritivas
 - Auth pages com logo e visual mais sofisticado
 - Tipografia tracking-tight em toda a interface
+- Dashboard customizavel com react-grid-layout (drag-and-drop + resize)
+- 6 widgets independentes: saldo, receitas/despesas, categorias donut, contas, transacoes recentes, contagem
+- Modo edicao com drag handle, botao remover e dialog adicionar widget
+- Modelos Dashboard + DashboardWidget no Prisma para persistencia de layout
+- API routes para dashboard: GET/PUT layout, POST/DELETE widgets
+- Widget registry extensivel para adicionar novos tipos
+- Fonte trocada de Geist para Inter (weights 300-700)
+- ADR-005: Dashboard customizavel

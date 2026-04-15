@@ -2,6 +2,7 @@ import { validateSession } from '@/server/auth/session'
 import { prisma } from '@/server/db'
 import { redirect } from 'next/navigation'
 import { DashboardClient } from './dashboard-client'
+import { DEFAULT_WIDGETS } from './widgets/registry'
 
 type Props = {
   searchParams: Promise<Record<string, string | string[] | undefined>>
@@ -22,38 +23,42 @@ export default async function DashboardPage({ searchParams }: Props) {
   const prevFrom = new Date(year, month - 2, 1)
   const prevTo = new Date(year, month - 1, 0, 23, 59, 59, 999)
 
-  const user = await prisma.user.findUnique({
-    where: { id: session.userId },
-    select: { name: true },
-  })
-
-  const [transactions, prevTransactions, accounts, categories, recentTx] = await Promise.all([
-    prisma.transaction.findMany({
-      where: { userId: session.userId, date: { gte: from, lte: to } },
-      select: { type: true, amount: true, categoryId: true, accountId: true },
-    }),
-    prisma.transaction.findMany({
-      where: { userId: session.userId, date: { gte: prevFrom, lte: prevTo } },
-      select: { type: true, amount: true },
-    }),
-    prisma.account.findMany({
-      where: { userId: session.userId, isArchived: false },
-      select: { id: true, name: true, color: true, initialBalance: true },
-    }),
-    prisma.category.findMany({
-      where: { userId: session.userId, type: 'EXPENSE' },
-      select: { id: true, name: true, color: true },
-    }),
-    prisma.transaction.findMany({
-      where: { userId: session.userId },
-      include: {
-        account: { select: { name: true, color: true } },
-        category: { select: { name: true, color: true } },
-      },
-      orderBy: { date: 'desc' },
-      take: 5,
-    }),
-  ])
+  const [user, transactions, prevTransactions, accounts, categories, recentTx, dashboard] =
+    await Promise.all([
+      prisma.user.findUnique({
+        where: { id: session.userId },
+        select: { name: true },
+      }),
+      prisma.transaction.findMany({
+        where: { userId: session.userId, date: { gte: from, lte: to } },
+        select: { type: true, amount: true, categoryId: true, accountId: true },
+      }),
+      prisma.transaction.findMany({
+        where: { userId: session.userId, date: { gte: prevFrom, lte: prevTo } },
+        select: { type: true, amount: true },
+      }),
+      prisma.account.findMany({
+        where: { userId: session.userId, isArchived: false },
+        select: { id: true, name: true, color: true, initialBalance: true },
+      }),
+      prisma.category.findMany({
+        where: { userId: session.userId, type: 'EXPENSE' },
+        select: { id: true, name: true, color: true },
+      }),
+      prisma.transaction.findMany({
+        where: { userId: session.userId },
+        include: {
+          account: { select: { name: true, color: true } },
+          category: { select: { name: true, color: true } },
+        },
+        orderBy: { date: 'desc' },
+        take: 5,
+      }),
+      prisma.dashboard.findUnique({
+        where: { userId: session.userId },
+        include: { widgets: { orderBy: { createdAt: 'asc' } } },
+      }),
+    ])
 
   const totalIncome = transactions
     .filter((t) => t.type === 'INCOME')
@@ -95,25 +100,38 @@ export default async function DashboardPage({ searchParams }: Props) {
     }
   })
 
+  const widgets =
+    dashboard?.widgets.map((w) => ({
+      id: w.id,
+      type: w.type,
+      x: w.x,
+      y: w.y,
+      w: w.w,
+      h: w.h,
+    })) ?? DEFAULT_WIDGETS.map((w, i) => ({ id: `default-${i}`, ...w }))
+
   return (
     <DashboardClient
-      userName={user?.name ?? 'Usuario'}
-      totalIncome={totalIncome}
-      totalExpenses={totalExpenses}
-      incomeVariation={incomeVar}
-      expenseVariation={expenseVar}
-      transactionCount={transactions.length}
-      expensesByCategory={expensesByCategory}
-      balanceByAccount={balanceByAccount}
-      recentTransactions={recentTx.map((tx) => ({
-        id: tx.id,
-        description: tx.description,
-        amount: tx.amount,
-        type: tx.type,
-        date: tx.date.toISOString(),
-        account: tx.account,
-        category: tx.category,
-      }))}
+      data={{
+        userName: user?.name ?? 'Usuario',
+        totalIncome,
+        totalExpenses,
+        incomeVariation: incomeVar,
+        expenseVariation: expenseVar,
+        transactionCount: transactions.length,
+        expensesByCategory,
+        balanceByAccount,
+        recentTransactions: recentTx.map((tx) => ({
+          id: tx.id,
+          description: tx.description,
+          amount: tx.amount,
+          type: tx.type,
+          date: tx.date.toISOString(),
+          account: tx.account,
+          category: tx.category,
+        })),
+      }}
+      widgets={widgets}
     />
   )
 }

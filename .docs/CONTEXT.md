@@ -4,45 +4,41 @@
 
 ## Current Phase
 
-**Phase 4: Dashboard MVP + Redesign Visual** — Completa.
+**Phase 5: Dashboard Customizavel** — Completa.
 
 ## What Exists
 
-- Next.js 16 App Router with TypeScript
-- Tailwind CSS v4 com tema refinado inspirado em Apex Holdings (cantos arredondados 1rem+, sombras suaves, gradientes sutis)
+- Next.js 16 App Router + TypeScript + Inter font
+- Tailwind CSS v4 com tema Apex Holdings (cantos 2rem+, sombras, gradientes)
 - shadcn/ui (Base UI) com componentes completos
-- Prisma 7 configurado para PostgreSQL
-- **Autenticacao**: bcrypt, sessoes server-side, HttpOnly cookies, rate limiting
-- **Nucleo Financeiro**: Account, Category (hierarquica), Transaction, Transfer
-- **Dashboard completo**: Hero card com saldo, stat cards com variacao, BarChart receitas x despesas (Recharts), DonutChart gastos por categoria, saldo por conta, ultimas transacoes
-- **Analytics API**: `/api/analytics/summary?month=YYYY-MM`
-- **Layout refinado**: Sidebar com active state primary, topbar com period pill, mobile sheet
-- **Paginas polidas**: Empty states com icones, cards com sombras, tipografia tracking-tight
-- **Landing page**: Hero com CTA e branding
-- **Auth pages**: Logo no topo, design mais sofisticado
+- Prisma 7 + PostgreSQL (com adapter)
+- **Auth**: bcrypt, sessions, cookies, rate limiting
+- **Financeiro**: Account, Category, Transaction, Transfer
+- **Dashboard customizavel**: react-grid-layout com drag/resize
+  - 6 tipos de widgets (balance, income-expenses, expenses-by-category, accounts, recent-transactions, transactions-count)
+  - Modo edicao toggle com drag handle e botoes remover/adicionar
+  - Layout persistido no banco por usuario (Dashboard + DashboardWidget models)
+  - Widget registry extensivel
+- **22 API routes** (auth, accounts, categories, transactions, analytics, dashboards)
+- **Recharts** para graficos (BarChart, PieChart)
 
 ## What's Next
 
-**Phase 5: Dashboard Customizavel**
+**Phase 6: Recorrencias e Automacoes**
 
-- Modelo `dashboards` + `dashboard_widgets`
-- Grid drag/resizable com react-grid-layout
-- Persistir layout e configuracoes por usuario
-- UI para adicionar/remover/salvar widgets
+- `recurring_rules` (mensal, semanal, etc.)
+- Job para aplicar regras vencidas e criar transacoes
+- Log de execucao
+- UI para gerenciar regras recorrentes
 
-## Database State
+## Database Models
 
-- Models: User, Session, Account, Category, Transaction
-- **Migrations not applied yet** — need running PostgreSQL
-- Enums: AccountType, CategoryType, TransactionType
-
-## API Routes
-
-19 rotas no total (auth 4, accounts 5, categories 4, transactions 5+transfer, analytics 1)
+User, Session, Account, Category, Transaction, Dashboard, DashboardWidget
 
 ## Key Decisions
 
 - [ADR-001](decisions/ADR-001-tech-stack.md): Tech stack
 - [ADR-002](decisions/ADR-002-amount-in-cents.md): Amounts in cents
-- [ADR-003](decisions/ADR-003-auth-approach.md): Custom auth with server-side sessions
-- [ADR-004](decisions/ADR-004-transfer-strategy.md): Transfers as linked transaction pairs
+- [ADR-003](decisions/ADR-003-auth-approach.md): Custom auth
+- [ADR-004](decisions/ADR-004-transfer-strategy.md): Transfers as linked pairs
+- [ADR-005](decisions/ADR-005-customizable-dashboard.md): Customizable dashboard

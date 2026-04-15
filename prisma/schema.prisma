@@ -19,6 +19,7 @@ model User {
   accounts     Account[]
   categories   Category[]
   transactions Transaction[]
+  dashboard    Dashboard?
 
   @@map("users")
 }
@@ -127,4 +128,33 @@ model Transaction {
   @@index([date])
   @@index([transferId])
   @@map("transactions")
+}
+
+model Dashboard {
+  id        String   @id @default(cuid())
+  userId    String   @unique @map("user_id")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  user    User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  widgets DashboardWidget[]
+
+  @@map("dashboards")
+}
+
+model DashboardWidget {
+  id          String   @id @default(cuid())
+  dashboardId String   @map("dashboard_id")
+  type        String
+  config      Json     @default("{}")
+  x           Int      @default(0)
+  y           Int      @default(0)
+  w           Int      @default(6)
+  h           Int      @default(4)
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  dashboard Dashboard @relation(fields: [dashboardId], references: [id], onDelete: Cascade)
+
+  @@index([dashboardId])
+  @@map("dashboard_widgets")
 }

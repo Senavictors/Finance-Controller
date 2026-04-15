@@ -1,0 +1,66 @@
+import type { WidgetDefinition } from './types'
+
+export const widgetRegistry: WidgetDefinition[] = [
+  {
+    type: 'balance',
+    label: 'Saldo do Mes',
+    description: 'Card hero com saldo mensal e variacao',
+    defaultW: 5,
+    defaultH: 6,
+    minW: 4,
+    minH: 4,
+  },
+  {
+    type: 'income-expenses',
+    label: 'Receitas x Despesas',
+    description: 'Comparativo com grafico de barras',
+    defaultW: 7,
+    defaultH: 6,
+    minW: 4,
+    minH: 4,
+  },
+  {
+    type: 'expenses-by-category',
+    label: 'Gastos por Categoria',
+    description: 'Donut chart com distribuicao de despesas',
+    defaultW: 8,
+    defaultH: 5,
+    minW: 4,
+    minH: 4,
+  },
+  {
+    type: 'accounts',
+    label: 'Saldo por Conta',
+    description: 'Lista de contas com saldo atual',
+    defaultW: 4,
+    defaultH: 5,
+    minW: 3,
+    minH: 3,
+  },
+  {
+    type: 'recent-transactions',
+    label: 'Ultimas Transacoes',
+    description: 'Lista das 5 transacoes mais recentes',
+    defaultW: 12,
+    defaultH: 5,
+    minW: 6,
+    minH: 3,
+  },
+  {
+    type: 'transactions-count',
+    label: 'Contagem de Transacoes',
+    description: 'Total de transacoes no mes',
+    defaultW: 4,
+    defaultH: 3,
+    minW: 3,
+    minH: 2,
+  },
+]
+
+export const DEFAULT_WIDGETS = [
+  { type: 'balance', x: 0, y: 0, w: 5, h: 6 },
+  { type: 'income-expenses', x: 5, y: 0, w: 7, h: 6 },
+  { type: 'expenses-by-category', x: 0, y: 6, w: 8, h: 5 },
+  { type: 'accounts', x: 8, y: 6, w: 4, h: 5 },
+  { type: 'recent-transactions', x: 0, y: 11, w: 12, h: 5 },
+]
