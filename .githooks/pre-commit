@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+EXPECTED_NAME="Senavictors"
+EXPECTED_EMAIL="victorsena760@gmail.com"
+
+ACTUAL_NAME=$(git config user.name)
+ACTUAL_EMAIL=$(git config user.email)
+
+if [ "$ACTUAL_NAME" != "$EXPECTED_NAME" ] || [ "$ACTUAL_EMAIL" != "$EXPECTED_EMAIL" ]; then
+  echo "ERROR: Commit identity mismatch!"
+  echo "  Expected: $EXPECTED_NAME <$EXPECTED_EMAIL>"
+  echo "  Got:      $ACTUAL_NAME <$ACTUAL_EMAIL>"
+  echo ""
+  echo "Fix with:"
+  echo "  git config --local user.name \"$EXPECTED_NAME\""
+  echo "  git config --local user.email \"$EXPECTED_EMAIL\""
+  exit 1
+fi
