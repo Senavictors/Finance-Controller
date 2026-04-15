@@ -17,3 +17,12 @@ and this project adheres to [Conventional Commits](https://www.conventionalcommi
 - Project folder structure (route groups, server modules)
 - Documentation structure (.docs/ with ADRs, tasks, vision, architecture)
 - Pre-commit hook for git identity enforcement
+- Custom server-side authentication (bcrypt + database sessions)
+- Auth API routes: register, login, logout, me
+- Zod validation schemas for auth inputs
+- In-memory rate limiting on login endpoint
+- Next.js middleware for route protection (auth redirects)
+- Login and register pages with form validation
+- Dashboard placeholder page (authenticated)
+- Session model in Prisma schema
+- ADR-003: Auth approach decision
