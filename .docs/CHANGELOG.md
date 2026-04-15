@@ -70,3 +70,11 @@ and this project adheres to [Conventional Commits](https://www.conventionalcommi
 - Pagina de recorrencias com lista, form, toggle ativar/pausar, botao aplicar
 - Item "Recorrencias" na sidebar com icone RefreshCw
 - ADR-006: Recurring rules with manual apply
+- Seed script com dados demo realistas (prisma/seed.ts)
+- Usuario demo: demo@finance.com / demo1234 (5 contas, 12 categorias, ~80 transacoes)
+- Pagina de configuracoes com botao "Resetar dados demo"
+- API reset-demo que recria dados ficticios para o usuario atual
+- Landing page completa: hero, 6 feature cards, tech stack badges, footer
+- GitHub Actions CI (lint + format:check + build)
+- README.md com setup, tech stack, roadmap, estrutura de pastas
+- ADR-007: Demo seed data

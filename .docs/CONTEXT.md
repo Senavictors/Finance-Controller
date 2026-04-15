@@ -4,33 +4,24 @@
 
 ## Current Phase
 
-**Phase 6: Recorrencias e Automacoes** — Completa.
+**Phase 7: Portfolio e Empacotamento** — Completa. Todas as 7 phases implementadas.
 
 ## What Exists
 
 - Next.js 16 App Router + TypeScript + Inter font
 - Tailwind CSS v4 com tema Apex Holdings
-- shadcn/ui (Base UI) com componentes completos
+- shadcn/ui (Base UI)
 - Prisma 7 + PostgreSQL
 - **Auth**: bcrypt, sessions, cookies, rate limiting
 - **Financeiro**: Account, Category, Transaction, Transfer
 - **Dashboard customizavel**: react-grid-layout, 6 widgets, layout persistido
-- **Recorrencias**: RecurringRule (4 frequencias) + RecurringLog + apply idempotente
-  - CRUD de regras recorrentes
-  - Endpoint apply que cria transacoes pendentes automaticamente
-  - Idempotencia via logs (nao duplica)
-  - UI com lista, form, toggle ativar/pausar, botao aplicar
-- **25 API routes** (auth, accounts, categories, transactions, analytics, dashboards, recurring-rules)
-- **Recharts** para graficos
-
-## What's Next
-
-**Phase 7: Portfolio e Empacotamento**
-
-- "Modo demo" com seed de dados ficticios + botao reset
-- Pagina publica com screenshots e descricao tecnica
-- CI no GitHub (lint + build)
-- Checklist de deploy (Vercel/Netlify)
+- **Recorrencias**: RecurringRule + RecurringLog + apply idempotente
+- **Seed demo**: script com dados ficticios (demo@finance.com / demo1234)
+- **Reset demo**: botao em /settings que recria dados
+- **Landing page**: hero + features + tech stack + footer
+- **CI**: GitHub Actions (lint + format:check + build)
+- **README**: completo com setup, tech stack, roadmap
+- **25 API routes**, 9 models, 7 ADRs
 
 ## Database Models
 
@@ -43,4 +34,5 @@ User, Session, Account, Category, Transaction, Dashboard, DashboardWidget, Recur
 - [ADR-003](decisions/ADR-003-auth-approach.md): Custom auth
 - [ADR-004](decisions/ADR-004-transfer-strategy.md): Transfers as linked pairs
 - [ADR-005](decisions/ADR-005-customizable-dashboard.md): Customizable dashboard
-- [ADR-006](decisions/ADR-006-recurring-rules.md): Recurring rules with manual apply
+- [ADR-006](decisions/ADR-006-recurring-rules.md): Recurring rules
+- [ADR-007](decisions/ADR-007-demo-seed.md): Demo seed data
