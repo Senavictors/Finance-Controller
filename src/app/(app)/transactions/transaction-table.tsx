@@ -1,23 +1,14 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table'
 import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { MoreVertical, Trash2 } from 'lucide-react'
+import { MoreVertical, Trash2, TrendingUp, TrendingDown, ArrowLeftRight } from 'lucide-react'
 import { formatCurrency, formatDate } from '@/lib/format'
 import { cn } from '@/lib/utils'
 
@@ -45,89 +36,99 @@ export function TransactionTable({ transactions }: { transactions: Transaction[]
   }
 
   return (
-    <Table>
-      <TableHeader>
-        <TableRow>
-          <TableHead>Data</TableHead>
-          <TableHead>Descricao</TableHead>
-          <TableHead>Categoria</TableHead>
-          <TableHead>Conta</TableHead>
-          <TableHead className="text-right">Valor</TableHead>
-          <TableHead className="w-10" />
-        </TableRow>
-      </TableHeader>
-      <TableBody>
-        {transactions.map((tx) => (
-          <TableRow key={tx.id}>
-            <TableCell className="text-muted-foreground">{formatDate(tx.date)}</TableCell>
-            <TableCell>
+    <div className="divide-y divide-gray-100">
+      {transactions.map((tx) => (
+        <div
+          key={tx.id}
+          className="flex items-center justify-between px-6 py-4 transition-colors hover:bg-gray-50/50"
+        >
+          <div className="flex items-center gap-4">
+            <div
+              className={cn(
+                'flex size-10 items-center justify-center rounded-xl',
+                tx.type === 'INCOME' && 'bg-emerald-100',
+                tx.type === 'EXPENSE' && 'bg-red-100',
+                tx.type === 'TRANSFER' && 'bg-gray-100',
+              )}
+            >
+              {tx.type === 'INCOME' ? (
+                <TrendingUp className="size-4 text-emerald-600" />
+              ) : tx.type === 'EXPENSE' ? (
+                <TrendingDown className="size-4 text-red-600" />
+              ) : (
+                <ArrowLeftRight className="size-4 text-gray-500" />
+              )}
+            </div>
+            <div>
               <div className="flex items-center gap-2">
-                {tx.description}
+                <p className="text-sm font-medium text-gray-900">{tx.description}</p>
                 {tx.transferId && (
-                  <Badge variant="secondary" className="text-xs">
+                  <Badge variant="secondary" className="text-[10px]">
                     Transfer
                   </Badge>
                 )}
               </div>
-            </TableCell>
-            <TableCell>
-              {tx.category ? (
-                <div className="flex items-center gap-1.5">
-                  {tx.category.color && (
+              <div className="mt-0.5 flex items-center gap-2 text-xs text-gray-400">
+                <span>{formatDate(tx.date)}</span>
+                <span>&middot;</span>
+                <div className="flex items-center gap-1">
+                  {tx.account.color && (
                     <span
-                      className="size-2.5 rounded-full"
-                      style={{ backgroundColor: tx.category.color }}
+                      className="size-2 rounded-full"
+                      style={{ backgroundColor: tx.account.color }}
                     />
                   )}
-                  <span className="text-sm">{tx.category.name}</span>
+                  <span>{tx.account.name}</span>
                 </div>
-              ) : (
-                <span className="text-muted-foreground">—</span>
-              )}
-            </TableCell>
-            <TableCell>
-              <div className="flex items-center gap-1.5">
-                {tx.account.color && (
-                  <span
-                    className="size-2.5 rounded-full"
-                    style={{ backgroundColor: tx.account.color }}
-                  />
+                {tx.category && (
+                  <>
+                    <span>&middot;</span>
+                    <div className="flex items-center gap-1">
+                      {tx.category.color && (
+                        <span
+                          className="size-2 rounded-full"
+                          style={{ backgroundColor: tx.category.color }}
+                        />
+                      )}
+                      <span>{tx.category.name}</span>
+                    </div>
+                  </>
                 )}
-                <span className="text-sm">{tx.account.name}</span>
               </div>
-            </TableCell>
-            <TableCell
+            </div>
+          </div>
+
+          <div className="flex items-center gap-3">
+            <span
               className={cn(
-                'text-right font-medium',
-                tx.type === 'INCOME' && 'text-success',
-                tx.type === 'EXPENSE' && 'text-destructive',
-                tx.type === 'TRANSFER' && 'text-muted-foreground',
+                'text-sm font-semibold',
+                tx.type === 'INCOME' && 'text-emerald-600',
+                tx.type === 'EXPENSE' && 'text-red-600',
+                tx.type === 'TRANSFER' && 'text-gray-500',
               )}
             >
               {tx.type === 'EXPENSE' ? '- ' : tx.type === 'INCOME' ? '+ ' : ''}
               {formatCurrency(tx.amount)}
-            </TableCell>
-            <TableCell>
-              <DropdownMenu>
-                <DropdownMenuTrigger>
-                  <Button variant="ghost" size="icon-xs">
-                    <MoreVertical className="size-4" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <DropdownMenuItem
-                    onClick={() => handleDelete(tx.id, !!tx.transferId)}
-                    className="text-destructive"
-                  >
-                    <Trash2 className="mr-2 size-3.5" />
-                    Excluir
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </TableCell>
-          </TableRow>
-        ))}
-      </TableBody>
-    </Table>
+            </span>
+            <DropdownMenu>
+              <DropdownMenuTrigger>
+                <button className="flex size-8 items-center justify-center rounded-full text-gray-400 hover:bg-gray-100">
+                  <MoreVertical className="size-4" />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem
+                  onClick={() => handleDelete(tx.id, !!tx.transferId)}
+                  className="text-destructive"
+                >
+                  <Trash2 className="mr-2 size-3.5" />
+                  Excluir
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+        </div>
+      ))}
+    </div>
   )
 }
