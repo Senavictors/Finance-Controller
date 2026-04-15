@@ -86,3 +86,54 @@ export const createTransferSchema = z
   })
 
 export type CreateTransferInput = z.infer<typeof createTransferSchema>
+
+// ── Recurring Rule ───────────────────────────────────────
+
+export const createRecurringRuleSchema = z
+  .object({
+    accountId: z.string({ error: 'Conta obrigatoria' }),
+    categoryId: z.string().nullable().optional(),
+    type: z.enum(['INCOME', 'EXPENSE'], { message: 'Tipo deve ser INCOME ou EXPENSE' }),
+    amount: z.number().int().positive('Valor deve ser positivo'),
+    description: z.string().min(1, 'Descricao obrigatoria').max(255),
+    notes: z.string().max(1000).optional(),
+    frequency: z.enum(['DAILY', 'WEEKLY', 'MONTHLY', 'YEARLY'], {
+      message: 'Frequencia invalida',
+    }),
+    dayOfMonth: z.number().int().min(1).max(31).optional(),
+    dayOfWeek: z.number().int().min(0).max(6).optional(),
+    startDate: z.coerce.date({ message: 'Data de inicio invalida' }),
+    endDate: z.coerce.date().optional(),
+  })
+  .refine(
+    (data) => {
+      if (data.frequency === 'MONTHLY' && data.dayOfMonth == null) return false
+      return true
+    },
+    { message: 'Dia do mes obrigatorio para frequencia mensal', path: ['dayOfMonth'] },
+  )
+  .refine(
+    (data) => {
+      if (data.frequency === 'WEEKLY' && data.dayOfWeek == null) return false
+      return true
+    },
+    { message: 'Dia da semana obrigatorio para frequencia semanal', path: ['dayOfWeek'] },
+  )
+
+export const updateRecurringRuleSchema = z.object({
+  accountId: z.string().optional(),
+  categoryId: z.string().nullable().optional(),
+  type: z.enum(['INCOME', 'EXPENSE']).optional(),
+  amount: z.number().int().positive('Valor deve ser positivo').optional(),
+  description: z.string().min(1).max(255).optional(),
+  notes: z.string().max(1000).nullable().optional(),
+  frequency: z.enum(['DAILY', 'WEEKLY', 'MONTHLY', 'YEARLY']).optional(),
+  dayOfMonth: z.number().int().min(1).max(31).nullable().optional(),
+  dayOfWeek: z.number().int().min(0).max(6).nullable().optional(),
+  startDate: z.coerce.date().optional(),
+  endDate: z.coerce.date().nullable().optional(),
+  isActive: z.boolean().optional(),
+})
+
+export type CreateRecurringRuleInput = z.infer<typeof createRecurringRuleSchema>
+export type UpdateRecurringRuleInput = z.infer<typeof updateRecurringRuleSchema>

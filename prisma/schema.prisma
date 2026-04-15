@@ -15,11 +15,12 @@ model User {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
-  sessions     Session[]
-  accounts     Account[]
-  categories   Category[]
-  transactions Transaction[]
-  dashboard    Dashboard?
+  sessions       Session[]
+  accounts       Account[]
+  categories     Category[]
+  transactions   Transaction[]
+  dashboard      Dashboard?
+  recurringRules RecurringRule[]
 
   @@map("users")
 }
@@ -76,8 +77,9 @@ model Account {
   createdAt      DateTime    @default(now()) @map("created_at")
   updatedAt      DateTime    @updatedAt @map("updated_at")
 
-  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
-  transactions Transaction[]
+  user           User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  transactions   Transaction[]
+  recurringRules RecurringRule[]
 
   @@index([userId])
   @@map("accounts")
@@ -94,10 +96,11 @@ model Category {
   createdAt DateTime     @default(now()) @map("created_at")
   updatedAt DateTime     @updatedAt @map("updated_at")
 
-  user     User        @relation(fields: [userId], references: [id], onDelete: Cascade)
-  parent   Category?   @relation("CategoryHierarchy", fields: [parentId], references: [id], onDelete: SetNull)
-  children Category[]  @relation("CategoryHierarchy")
-  transactions Transaction[]
+  user           User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  parent         Category?       @relation("CategoryHierarchy", fields: [parentId], references: [id], onDelete: SetNull)
+  children       Category[]      @relation("CategoryHierarchy")
+  transactions   Transaction[]
+  recurringRules RecurringRule[]
 
   @@index([userId])
   @@index([parentId])
@@ -157,4 +160,56 @@ model DashboardWidget {
 
   @@index([dashboardId])
   @@map("dashboard_widgets")
+}
+
+enum RecurringFrequency {
+  DAILY
+  WEEKLY
+  MONTHLY
+  YEARLY
+
+  @@map("recurring_frequency")
+}
+
+model RecurringRule {
+  id          String             @id @default(cuid())
+  userId      String             @map("user_id")
+  accountId   String             @map("account_id")
+  categoryId  String?            @map("category_id")
+  type        TransactionType
+  amount      Int
+  description String
+  notes       String?
+  frequency   RecurringFrequency
+  dayOfMonth  Int?               @map("day_of_month")
+  dayOfWeek   Int?               @map("day_of_week")
+  startDate   DateTime           @map("start_date")
+  endDate     DateTime?          @map("end_date")
+  isActive    Boolean            @default(true) @map("is_active")
+  lastApplied DateTime?          @map("last_applied")
+  createdAt   DateTime           @default(now()) @map("created_at")
+  updatedAt   DateTime           @updatedAt @map("updated_at")
+
+  user     User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  account  Account        @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  category Category?      @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  logs     RecurringLog[]
+
+  @@index([userId])
+  @@map("recurring_rules")
+}
+
+model RecurringLog {
+  id              String   @id @default(cuid())
+  recurringRuleId String   @map("recurring_rule_id")
+  transactionId   String?  @map("transaction_id")
+  appliedDate     DateTime @map("applied_date")
+  status          String
+  error           String?
+  createdAt       DateTime @default(now()) @map("created_at")
+
+  rule RecurringRule @relation(fields: [recurringRuleId], references: [id], onDelete: Cascade)
+
+  @@index([recurringRuleId])
+  @@map("recurring_logs")
 }

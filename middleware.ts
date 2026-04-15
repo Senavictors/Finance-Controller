@@ -3,7 +3,14 @@ import { NextRequest, NextResponse } from 'next/server'
 const SESSION_COOKIE_NAME = 'fc_session'
 
 const AUTH_ROUTES = ['/login', '/register']
-const PROTECTED_ROUTES = ['/dashboard', '/transactions', '/accounts', '/categories', '/settings']
+const PROTECTED_ROUTES = [
+  '/dashboard',
+  '/transactions',
+  '/accounts',
+  '/categories',
+  '/recurring',
+  '/settings',
+]
 
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl

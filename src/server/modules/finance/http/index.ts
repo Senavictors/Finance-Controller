@@ -16,4 +16,8 @@ export {
   type UpdateTransactionInput,
   type TransactionQuery,
   type CreateTransferInput,
+  createRecurringRuleSchema,
+  updateRecurringRuleSchema,
+  type CreateRecurringRuleInput,
+  type UpdateRecurringRuleInput,
 } from './schemas'

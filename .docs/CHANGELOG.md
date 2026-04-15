@@ -64,3 +64,9 @@ and this project adheres to [Conventional Commits](https://www.conventionalcommi
 - Widget registry extensivel para adicionar novos tipos
 - Fonte trocada de Geist para Inter (weights 300-700)
 - ADR-005: Dashboard customizavel
+- Regras recorrentes: RecurringRule (DAILY/WEEKLY/MONTHLY/YEARLY) + RecurringLog
+- CRUD de regras recorrentes com validacao de frequencia
+- Endpoint apply idempotente que cria transacoes pendentes automaticamente
+- Pagina de recorrencias com lista, form, toggle ativar/pausar, botao aplicar
+- Item "Recorrencias" na sidebar com icone RefreshCw
+- ADR-006: Recurring rules with manual apply

@@ -4,36 +4,37 @@
 
 ## Current Phase
 
-**Phase 5: Dashboard Customizavel** — Completa.
+**Phase 6: Recorrencias e Automacoes** — Completa.
 
 ## What Exists
 
 - Next.js 16 App Router + TypeScript + Inter font
-- Tailwind CSS v4 com tema Apex Holdings (cantos 2rem+, sombras, gradientes)
+- Tailwind CSS v4 com tema Apex Holdings
 - shadcn/ui (Base UI) com componentes completos
-- Prisma 7 + PostgreSQL (com adapter)
+- Prisma 7 + PostgreSQL
 - **Auth**: bcrypt, sessions, cookies, rate limiting
 - **Financeiro**: Account, Category, Transaction, Transfer
-- **Dashboard customizavel**: react-grid-layout com drag/resize
-  - 6 tipos de widgets (balance, income-expenses, expenses-by-category, accounts, recent-transactions, transactions-count)
-  - Modo edicao toggle com drag handle e botoes remover/adicionar
-  - Layout persistido no banco por usuario (Dashboard + DashboardWidget models)
-  - Widget registry extensivel
-- **22 API routes** (auth, accounts, categories, transactions, analytics, dashboards)
-- **Recharts** para graficos (BarChart, PieChart)
+- **Dashboard customizavel**: react-grid-layout, 6 widgets, layout persistido
+- **Recorrencias**: RecurringRule (4 frequencias) + RecurringLog + apply idempotente
+  - CRUD de regras recorrentes
+  - Endpoint apply que cria transacoes pendentes automaticamente
+  - Idempotencia via logs (nao duplica)
+  - UI com lista, form, toggle ativar/pausar, botao aplicar
+- **25 API routes** (auth, accounts, categories, transactions, analytics, dashboards, recurring-rules)
+- **Recharts** para graficos
 
 ## What's Next
 
-**Phase 6: Recorrencias e Automacoes**
+**Phase 7: Portfolio e Empacotamento**
 
-- `recurring_rules` (mensal, semanal, etc.)
-- Job para aplicar regras vencidas e criar transacoes
-- Log de execucao
-- UI para gerenciar regras recorrentes
+- "Modo demo" com seed de dados ficticios + botao reset
+- Pagina publica com screenshots e descricao tecnica
+- CI no GitHub (lint + build)
+- Checklist de deploy (Vercel/Netlify)
 
 ## Database Models
 
-User, Session, Account, Category, Transaction, Dashboard, DashboardWidget
+User, Session, Account, Category, Transaction, Dashboard, DashboardWidget, RecurringRule, RecurringLog
 
 ## Key Decisions
 
@@ -42,3 +43,4 @@ User, Session, Account, Category, Transaction, Dashboard, DashboardWidget
 - [ADR-003](decisions/ADR-003-auth-approach.md): Custom auth
 - [ADR-004](decisions/ADR-004-transfer-strategy.md): Transfers as linked pairs
 - [ADR-005](decisions/ADR-005-customizable-dashboard.md): Customizable dashboard
+- [ADR-006](decisions/ADR-006-recurring-rules.md): Recurring rules with manual apply
