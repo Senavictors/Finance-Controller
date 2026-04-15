@@ -3,6 +3,7 @@ import { prisma } from '@/server/db'
 import { redirect } from 'next/navigation'
 import { CategoryList } from './category-list'
 import { CategoryForm } from './category-form'
+import { Tag } from 'lucide-react'
 
 export default async function CategoriesPage() {
   const session = await validateSession()
@@ -20,28 +21,61 @@ export default async function CategoriesPage() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold">Categorias</h1>
+        <h1 className="text-2xl font-semibold tracking-tight">Categorias</h1>
         <CategoryForm categories={categories} />
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-2">
-        <div className="space-y-3">
-          <h2 className="text-success text-lg font-semibold">Receitas</h2>
-          {incomeCategories.length === 0 ? (
-            <p className="text-muted-foreground text-sm">Nenhuma categoria de receita.</p>
-          ) : (
-            <CategoryList categories={incomeCategories} allCategories={categories} />
-          )}
+      {categories.length === 0 ? (
+        <div className="border-border/60 flex flex-col items-center justify-center rounded-3xl border border-dashed py-16">
+          <div className="bg-muted flex size-14 items-center justify-center rounded-2xl">
+            <Tag className="text-muted-foreground size-6" />
+          </div>
+          <p className="text-muted-foreground mt-4 text-sm font-medium">
+            Nenhuma categoria cadastrada
+          </p>
+          <p className="text-muted-foreground/60 mt-1 text-xs">
+            Crie categorias para organizar suas transacoes
+          </p>
         </div>
-        <div className="space-y-3">
-          <h2 className="text-destructive text-lg font-semibold">Despesas</h2>
-          {expenseCategories.length === 0 ? (
-            <p className="text-muted-foreground text-sm">Nenhuma categoria de despesa.</p>
-          ) : (
-            <CategoryList categories={expenseCategories} allCategories={categories} />
-          )}
+      ) : (
+        <div className="grid gap-6 lg:grid-cols-2">
+          <Card title="Receitas" color="text-success">
+            {incomeCategories.length === 0 ? (
+              <p className="text-muted-foreground px-3 py-4 text-sm">
+                Nenhuma categoria de receita
+              </p>
+            ) : (
+              <CategoryList categories={incomeCategories} allCategories={categories} />
+            )}
+          </Card>
+          <Card title="Despesas" color="text-destructive">
+            {expenseCategories.length === 0 ? (
+              <p className="text-muted-foreground px-3 py-4 text-sm">
+                Nenhuma categoria de despesa
+              </p>
+            ) : (
+              <CategoryList categories={expenseCategories} allCategories={categories} />
+            )}
+          </Card>
         </div>
-      </div>
+      )}
+    </div>
+  )
+}
+
+function Card({
+  title,
+  color,
+  children,
+}: {
+  title: string
+  color: string
+  children: React.ReactNode
+}) {
+  return (
+    <div className="border-border/50 bg-card rounded-2xl border p-4 shadow-sm">
+      <h2 className={`mb-3 text-sm font-semibold tracking-wider uppercase ${color}`}>{title}</h2>
+      {children}
     </div>
   )
 }

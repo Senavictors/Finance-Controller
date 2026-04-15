@@ -39,3 +39,20 @@ and this project adheres to [Conventional Commits](https://www.conventionalcommi
 - Dashboard with summary cards (accounts, categories, transactions count)
 - Currency formatting utilities (formatCurrency, parseCents)
 - ADR-004: Transfer strategy (linked transaction pairs)
+- Analytics API endpoint (/api/analytics/summary) with income/expense aggregation
+- Dashboard completo: hero card com saldo, stat cards com variacao, graficos Recharts
+- Grafico de barras receitas x despesas (Recharts BarChart)
+- Grafico donut de gastos por categoria (Recharts PieChart)
+- Saldo por conta e ultimas transacoes no dashboard
+- Landing page com hero, branding e CTAs
+
+### Changed
+
+- Redesign visual completo inspirado em Apex Holdings dashboard
+- Theme atualizado: radius 1rem, sombras suaves, gradientes sutis, background warm gray
+- Sidebar refinada: active state primary com sombra, icone/logo, separador
+- Topbar: period pill com estilo toggle, avatar placeholder
+- Cards com cantos mais arredondados e sombras
+- Empty states com icones grandes e mensagens descritivas
+- Auth pages com logo e visual mais sofisticado
+- Tipografia tracking-tight em toda a interface

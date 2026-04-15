@@ -5,6 +5,7 @@ import { TransactionTable } from './transaction-table'
 import { TransactionFilters } from './transaction-filters'
 import { TransactionForm } from './transaction-form'
 import { Pagination } from './pagination'
+import { ArrowLeftRight } from 'lucide-react'
 
 type Props = {
   searchParams: Promise<Record<string, string | string[] | undefined>>
@@ -66,19 +67,33 @@ export default async function TransactionsPage({ searchParams }: Props) {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold">Transacoes</h1>
+        <h1 className="text-2xl font-semibold tracking-tight">Transacoes</h1>
         <TransactionForm accounts={accounts} categories={categories} />
       </div>
 
       <TransactionFilters accounts={accounts} categories={categories} />
 
       {transactions.length === 0 ? (
-        <p className="text-muted-foreground">Nenhuma transacao encontrada.</p>
+        <div className="border-border/60 flex flex-col items-center justify-center rounded-3xl border border-dashed py-16">
+          <div className="bg-muted flex size-14 items-center justify-center rounded-2xl">
+            <ArrowLeftRight className="text-muted-foreground size-6" />
+          </div>
+          <p className="text-muted-foreground mt-4 text-sm font-medium">
+            Nenhuma transacao encontrada
+          </p>
+          <p className="text-muted-foreground/60 mt-1 text-xs">
+            Registre uma transacao para comecar
+          </p>
+        </div>
       ) : (
-        <>
+        <div className="border-border/50 bg-card rounded-2xl border shadow-sm">
           <TransactionTable transactions={transactions} />
-          {totalPages > 1 && <Pagination currentPage={page} totalPages={totalPages} />}
-        </>
+          {totalPages > 1 && (
+            <div className="border-border/50 border-t p-4">
+              <Pagination currentPage={page} totalPages={totalPages} />
+            </div>
+          )}
+        </div>
       )}
     </div>
   )

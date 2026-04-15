@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { LayoutDashboard, ArrowLeftRight, Tag, Wallet, Settings } from 'lucide-react'
+import { LayoutDashboard, ArrowLeftRight, Tag, Wallet, Settings, TrendingUp } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 const navItems = [
@@ -17,18 +17,19 @@ export function Sidebar({ className }: { className?: string }) {
   const pathname = usePathname()
 
   return (
-    <aside
-      className={cn(
-        'border-sidebar-border bg-sidebar flex h-full w-64 flex-col border-r',
-        className,
-      )}
-    >
-      <div className="border-sidebar-border flex h-14 items-center border-b px-4">
-        <Link href="/dashboard" className="text-sidebar-primary text-lg font-bold">
+    <aside className={cn('bg-sidebar flex h-full w-64 flex-col', className)}>
+      <div className="flex h-16 items-center gap-3 px-5">
+        <div className="bg-primary shadow-primary/25 flex size-9 items-center justify-center rounded-xl shadow-lg">
+          <TrendingUp className="text-primary-foreground size-4" />
+        </div>
+        <Link href="/dashboard" className="text-foreground text-base font-semibold tracking-tight">
           Finance Controller
         </Link>
       </div>
-      <nav className="flex flex-1 flex-col gap-1 p-3">
+
+      <div className="bg-sidebar-border mx-4 h-px" />
+
+      <nav className="flex flex-1 flex-col gap-1 px-3 py-4">
         {navItems.map((item) => {
           const isActive = pathname.startsWith(item.href)
           return (
@@ -36,13 +37,13 @@ export function Sidebar({ className }: { className?: string }) {
               key={item.href}
               href={item.href}
               className={cn(
-                'flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors',
+                'flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all',
                 isActive
-                  ? 'bg-sidebar-accent text-sidebar-accent-foreground'
-                  : 'text-sidebar-foreground hover:bg-sidebar-accent/50',
+                  ? 'bg-primary text-primary-foreground shadow-primary/20 shadow-md'
+                  : 'text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground',
               )}
             >
-              <item.icon className="size-4" />
+              <item.icon className="size-[18px]" />
               {item.label}
             </Link>
           )
