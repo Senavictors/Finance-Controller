@@ -26,3 +26,16 @@ and this project adheres to [Conventional Commits](https://www.conventionalcommi
 - Dashboard placeholder page (authenticated)
 - Session model in Prisma schema
 - ADR-003: Auth approach decision
+- Financial models: Account (6 types), Category (hierarchical), Transaction
+- Account CRUD API with create/read/update/delete
+- Category CRUD API with hierarchy validation and transaction protection
+- Transaction CRUD API with filters, pagination, and search
+- Transfer endpoint creating atomic linked transaction pairs
+- Zod validation schemas for all financial entities
+- App layout with sidebar navigation and period selector (month)
+- Accounts page with card grid and create/edit dialog
+- Categories page with hierarchical list and INCOME/EXPENSE sections
+- Transactions page with table, filters, pagination, and create/transfer dialog
+- Dashboard with summary cards (accounts, categories, transactions count)
+- Currency formatting utilities (formatCurrency, parseCents)
+- ADR-004: Transfer strategy (linked transaction pairs)

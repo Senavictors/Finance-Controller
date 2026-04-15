@@ -4,52 +4,63 @@
 
 ## Current Phase
 
-**Phase 2: Authentication** — Complete. Custom server-side session auth implemented.
+**Phase 3: Nucleo Financeiro** — Completa. CRUD de contas, categorias, transacoes e transferencias implementado.
 
 ## What Exists
 
 - Next.js 16 App Router with TypeScript
 - Tailwind CSS v4 with blue/teal theme tokens (no purple), dark mode via `.dark` class
-- shadcn/ui (Radix) with base components: button, card, input, label
-- Prisma 7 configured for PostgreSQL with User + Session models
-- ESLint + Prettier
-- **Authentication system**:
-  - bcrypt password hashing (cost 12)
-  - Server-side sessions with HttpOnly cookies (7-day expiry)
-  - Auth guard (`requireAuth()`) for Route Handlers
-  - In-memory rate limiting on login (5 attempts / 15 min)
-  - Zod validation schemas for register/login
-- **API Routes**: `/api/auth/{register,login,logout,me}`
-- **Middleware**: Route protection (redirects unauthenticated users to /login, authenticated to /dashboard)
-- **UI Pages**: Login, Register (with forms), Dashboard placeholder
-- Project folder structure and documentation
+- shadcn/ui (Base UI) with components: button, card, input, label, dialog, select, badge, table, dropdown-menu, separator, sheet, scroll-area
+- Prisma 7 configured for PostgreSQL
+- **Authentication**: bcrypt, server-side sessions, HttpOnly cookies, rate limiting
+- **Financial Models**: Account (6 types), Category (hierarchical), Transaction, Transfer (par linkado)
+- **API Routes**: auth (4), accounts (5), categories (4), transactions (5 + transfer)
+- **App Layout**: Sidebar + Topbar with period selector (month)
+- **UI Pages**: Dashboard (summary cards), Accounts (grid + create/edit dialog), Categories (hierarchical list + create/edit), Transactions (table + filters + pagination + create/transfer dialog)
+- Utility: `formatCurrency()`, `formatDate()`, `parseCents()`
 
 ## What's Next
 
-**Phase 3: Financial Core**
+**Phase 4: Dashboard MVP**
 
-- CRUD de contas (accounts)
-- CRUD de categorias (com hierarquia parentId)
-- CRUD de transacoes (lista + filtros por periodo)
-- Transferencias (2 transacoes + link via transferId)
+- Dashboard com cards de saldo por conta
+- Graficos: gasto por categoria, receitas x despesas (linha temporal)
+- Endpoint agregador `/api/analytics/summary`
+- Chart.js ou Recharts
 
 ## Database State
 
-- Models: `User`, `Session`
-- **Migrations not applied yet** — need a running PostgreSQL instance
-- Session model has indexes on `token` and `userId`
+- Models: User, Session, Account, Category, Transaction
+- **Migrations not applied yet** — need running PostgreSQL
+- Enums: AccountType, CategoryType, TransactionType
+- Indexes on userId, token, accountId, categoryId, date, transferId
 
 ## API Routes
 
-| Route                | Method | Auth | Description                         |
-| -------------------- | ------ | ---- | ----------------------------------- |
-| `/api/auth/register` | POST   | No   | Create user + session               |
-| `/api/auth/login`    | POST   | No   | Verify credentials + create session |
-| `/api/auth/logout`   | POST   | No   | Destroy session + clear cookie      |
-| `/api/auth/me`       | GET    | Yes  | Return current user                 |
+| Route                        | Method | Auth | Description                                  |
+| ---------------------------- | ------ | ---- | -------------------------------------------- |
+| `/api/auth/register`         | POST   | No   | Create user + session                        |
+| `/api/auth/login`            | POST   | No   | Verify credentials + create session          |
+| `/api/auth/logout`           | POST   | No   | Destroy session + clear cookie               |
+| `/api/auth/me`               | GET    | Yes  | Return current user                          |
+| `/api/accounts`              | GET    | Yes  | List accounts                                |
+| `/api/accounts`              | POST   | Yes  | Create account                               |
+| `/api/accounts/:id`          | GET    | Yes  | Get account                                  |
+| `/api/accounts/:id`          | PATCH  | Yes  | Update account                               |
+| `/api/accounts/:id`          | DELETE | Yes  | Delete account (cascades transactions)       |
+| `/api/categories`            | GET    | Yes  | List categories (filter ?type=)              |
+| `/api/categories`            | POST   | Yes  | Create category                              |
+| `/api/categories/:id`        | PATCH  | Yes  | Update category                              |
+| `/api/categories/:id`        | DELETE | Yes  | Delete category (blocks if has transactions) |
+| `/api/transactions`          | GET    | Yes  | List transactions (filters + pagination)     |
+| `/api/transactions`          | POST   | Yes  | Create transaction                           |
+| `/api/transactions/:id`      | PATCH  | Yes  | Update transaction (blocks transfers)        |
+| `/api/transactions/:id`      | DELETE | Yes  | Delete transaction (transfers delete pair)   |
+| `/api/transactions/transfer` | POST   | Yes  | Create transfer (2 atomic transactions)      |
 
 ## Key Decisions
 
-- [ADR-001](decisions/ADR-001-tech-stack.md): Tech stack (Next.js + Prisma + PostgreSQL)
-- [ADR-002](decisions/ADR-002-amount-in-cents.md): Amounts stored as cents (integer)
+- [ADR-001](decisions/ADR-001-tech-stack.md): Tech stack
+- [ADR-002](decisions/ADR-002-amount-in-cents.md): Amounts in cents
 - [ADR-003](decisions/ADR-003-auth-approach.md): Custom auth with server-side sessions
+- [ADR-004](decisions/ADR-004-transfer-strategy.md): Transfers as linked transaction pairs

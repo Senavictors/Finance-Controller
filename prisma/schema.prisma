@@ -15,7 +15,10 @@ model User {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
-  sessions Session[]
+  sessions     Session[]
+  accounts     Account[]
+  categories   Category[]
+  transactions Transaction[]
 
   @@map("users")
 }
@@ -32,4 +35,96 @@ model Session {
   @@index([token])
   @@index([userId])
   @@map("sessions")
+}
+
+enum AccountType {
+  WALLET
+  CHECKING
+  SAVINGS
+  CREDIT_CARD
+  INVESTMENT
+  OTHER
+
+  @@map("account_type")
+}
+
+enum CategoryType {
+  INCOME
+  EXPENSE
+
+  @@map("category_type")
+}
+
+enum TransactionType {
+  INCOME
+  EXPENSE
+  TRANSFER
+
+  @@map("transaction_type")
+}
+
+model Account {
+  id             String      @id @default(cuid())
+  userId         String      @map("user_id")
+  name           String
+  type           AccountType
+  initialBalance Int         @default(0) @map("initial_balance")
+  color          String?
+  icon           String?
+  isArchived     Boolean     @default(false) @map("is_archived")
+  createdAt      DateTime    @default(now()) @map("created_at")
+  updatedAt      DateTime    @updatedAt @map("updated_at")
+
+  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  transactions Transaction[]
+
+  @@index([userId])
+  @@map("accounts")
+}
+
+model Category {
+  id        String       @id @default(cuid())
+  userId    String       @map("user_id")
+  name      String
+  type      CategoryType
+  icon      String?
+  color     String?
+  parentId  String?      @map("parent_id")
+  createdAt DateTime     @default(now()) @map("created_at")
+  updatedAt DateTime     @updatedAt @map("updated_at")
+
+  user     User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  parent   Category?   @relation("CategoryHierarchy", fields: [parentId], references: [id], onDelete: SetNull)
+  children Category[]  @relation("CategoryHierarchy")
+  transactions Transaction[]
+
+  @@index([userId])
+  @@index([parentId])
+  @@map("categories")
+}
+
+model Transaction {
+  id          String          @id @default(cuid())
+  userId      String          @map("user_id")
+  accountId   String          @map("account_id")
+  categoryId  String?         @map("category_id")
+  type        TransactionType
+  amount      Int
+  description String
+  notes       String?
+  date        DateTime
+  transferId  String?         @map("transfer_id")
+  createdAt   DateTime        @default(now()) @map("created_at")
+  updatedAt   DateTime        @updatedAt @map("updated_at")
+
+  user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  account  Account   @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  category Category? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+
+  @@index([userId])
+  @@index([accountId])
+  @@index([categoryId])
+  @@index([date])
+  @@index([transferId])
+  @@map("transactions")
 }
