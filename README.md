@@ -301,7 +301,7 @@ erDiagram
 
     Dashboard {
         string id PK
-        string userId FK-UK
+        string userId UK
     }
 
     DashboardWidget {
