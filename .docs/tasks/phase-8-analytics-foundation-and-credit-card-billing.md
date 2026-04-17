@@ -159,6 +159,17 @@ Status atual:
 - Instalar e configurar runner de testes
 - Cobrir regras financeiras essenciais antes de aumentar a complexidade
 
+Status atual:
+
+- `Vitest` configurado com alias do projeto via `vite-tsconfig-paths`
+- Script `npm test` adicionado ao projeto
+- Testes iniciais cobrindo:
+  - validacao e resolucao de periodo mensal
+  - agregacao mensal compartilhada
+  - variacao entre periodos
+  - exclusao implicita de `TRANSFER` dos totais de receita/despesa
+  - desativacao opcional da busca de transacoes recentes
+
 ### Phase 8.3 - Credit card billing domain
 
 - Implementar campos de configuracao no modelo `Account`
@@ -200,10 +211,9 @@ Status atual:
 
 ## Checklist
 
-- [ ] Camada analitica compartilhada implementada
-- [ ] Runner de testes configurado
-- [ ] Testes base de calculo implementados
 - [x] Camada analitica compartilhada implementada
+- [x] Runner de testes configurado
+- [x] Testes base de calculo implementados
 - [ ] Billing cycle de cartao implementado
 - [ ] Faturas com fechamento e vencimento implementadas
 - [ ] Pagamento de fatura suportado

@@ -4,11 +4,11 @@
 
 ## Current Phase
 
-**Phase 8: Foundation for Analytics and Credit Card Billing** — Em andamento. Phase 8.1 (shared analytics core) implementada.
+**Phase 8: Foundation for Analytics and Credit Card Billing** — Em andamento. Phases 8.1 (shared analytics core) e 8.2 (test foundation) implementadas.
 
 ## Next Planned Step
 
-**Phase 8.2: Test Foundation** — Proxima etapa planejada em `.docs/tasks/phase-8-analytics-foundation-and-credit-card-billing.md`
+**Phase 8.3: Credit Card Billing Domain** — Proxima etapa planejada em `.docs/tasks/phase-8-analytics-foundation-and-credit-card-billing.md`
 
 ## What Exists
 
@@ -21,6 +21,7 @@
 - **Dashboard customizavel**: react-grid-layout, 6 widgets, layout persistido
 - **Recorrencias**: RecurringRule + RecurringLog + apply idempotente
 - **Analytics core compartilhado**: `resolveMonthPeriod` + `getMonthlyAnalyticsSummary` reutilizados por dashboard, analytics API e transactions page
+- **Test foundation**: Vitest configurado com primeiros testes do analytics core
 - **Seed demo**: script com dados ficticios (demo@finance.com / demo1234)
 - **Reset demo**: botao em /settings que recria dados
 - **Landing page**: hero + features + tech stack + footer
