@@ -22,6 +22,7 @@ model User {
   creditCardStatements CreditCardStatement[]
   dashboard            Dashboard?
   recurringRules       RecurringRule[]
+  goals                Goal[]
 
   @@map("users")
 }
@@ -85,6 +86,7 @@ model Account {
   transactions         Transaction[]
   creditCardStatements CreditCardStatement[]
   recurringRules       RecurringRule[]
+  goals                Goal[]
 
   @@index([userId])
   @@map("accounts")
@@ -106,6 +108,7 @@ model Category {
   children       Category[]      @relation("CategoryHierarchy")
   transactions   Transaction[]
   recurringRules RecurringRule[]
+  goals          Goal[]
 
   @@index([userId])
   @@index([parentId])
@@ -254,4 +257,82 @@ model RecurringLog {
 
   @@index([recurringRuleId])
   @@map("recurring_logs")
+}
+
+enum GoalMetric {
+  SAVING
+  EXPENSE_LIMIT
+  INCOME_TARGET
+  ACCOUNT_LIMIT
+
+  @@map("goal_metric")
+}
+
+enum GoalScopeType {
+  GLOBAL
+  CATEGORY
+  ACCOUNT
+
+  @@map("goal_scope_type")
+}
+
+enum GoalPeriod {
+  MONTHLY
+  YEARLY
+
+  @@map("goal_period")
+}
+
+enum GoalStatus {
+  ON_TRACK
+  WARNING
+  AT_RISK
+  ACHIEVED
+  EXCEEDED
+
+  @@map("goal_status")
+}
+
+model Goal {
+  id             String        @id @default(cuid())
+  userId         String        @map("user_id")
+  name           String
+  description    String?
+  metric         GoalMetric
+  scopeType      GoalScopeType @default(GLOBAL) @map("scope_type")
+  categoryId     String?       @map("category_id")
+  accountId      String?       @map("account_id")
+  targetAmount   Int           @map("target_amount")
+  period         GoalPeriod    @default(MONTHLY)
+  warningPercent Int           @default(80) @map("warning_percent")
+  dangerPercent  Int           @default(95) @map("danger_percent")
+  isActive       Boolean       @default(true) @map("is_active")
+  createdAt      DateTime      @default(now()) @map("created_at")
+  updatedAt      DateTime      @updatedAt @map("updated_at")
+
+  user      User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  category  Category?      @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  account   Account?       @relation(fields: [accountId], references: [id], onDelete: SetNull)
+  snapshots GoalSnapshot[]
+
+  @@index([userId])
+  @@map("goals")
+}
+
+model GoalSnapshot {
+  id              String     @id @default(cuid())
+  goalId          String     @map("goal_id")
+  periodStart     DateTime   @map("period_start")
+  periodEnd       DateTime   @map("period_end")
+  actualAmount    Int        @map("actual_amount")
+  projectedAmount Int        @map("projected_amount")
+  progressPercent Int        @map("progress_percent")
+  status          GoalStatus
+  calculatedAt    DateTime   @default(now()) @map("calculated_at")
+
+  goal Goal @relation(fields: [goalId], references: [id], onDelete: Cascade)
+
+  @@unique([goalId, periodStart])
+  @@index([goalId])
+  @@map("goal_snapshots")
 }
