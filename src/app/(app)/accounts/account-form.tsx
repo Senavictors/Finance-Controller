@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import {
@@ -27,6 +27,9 @@ type Account = {
   name: string
   type: string
   initialBalance: number
+  creditLimit: number | null
+  statementClosingDay: number | null
+  statementDueDay: number | null
   color: string | null
   icon: string | null
 }
@@ -51,11 +54,16 @@ export function AccountForm({ account, open, onOpenChange }: AccountFormProps) {
   const [internalOpen, setInternalOpen] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
+  const [accountType, setAccountType] = useState(account?.type ?? 'CHECKING')
 
   const isControlled = open !== undefined
   const isOpen = isControlled ? open : internalOpen
   const setIsOpen = isControlled ? onOpenChange! : setInternalOpen
   const isEdit = !!account
+
+  useEffect(() => {
+    setAccountType(account?.type ?? 'CHECKING')
+  }, [account?.type, isOpen])
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
@@ -68,6 +76,18 @@ export function AccountForm({ account, open, onOpenChange }: AccountFormProps) {
       name: formData.get('name') as string,
       type: formData.get('type') as string,
       initialBalance: Math.round(parseFloat(balanceStr || '0') * 100),
+      creditLimit:
+        formData.get('creditLimit') && accountType === 'CREDIT_CARD'
+          ? Math.round(parseFloat((formData.get('creditLimit') as string) || '0') * 100)
+          : null,
+      statementClosingDay:
+        formData.get('statementClosingDay') && accountType === 'CREDIT_CARD'
+          ? parseInt(formData.get('statementClosingDay') as string)
+          : null,
+      statementDueDay:
+        formData.get('statementDueDay') && accountType === 'CREDIT_CARD'
+          ? parseInt(formData.get('statementDueDay') as string)
+          : null,
       color: (formData.get('color') as string) || undefined,
     }
 
@@ -122,7 +142,11 @@ export function AccountForm({ account, open, onOpenChange }: AccountFormProps) {
 
           <div className="flex flex-col gap-1.5">
             <Label htmlFor="type">Tipo</Label>
-            <Select name="type" defaultValue={account?.type ?? 'CHECKING'}>
+            <Select
+              name="type"
+              defaultValue={account?.type ?? 'CHECKING'}
+              onValueChange={(value) => setAccountType(value ?? 'CHECKING')}
+            >
               <SelectTrigger>
                 <SelectValue placeholder="Selecione o tipo" />
               </SelectTrigger>
@@ -146,6 +170,55 @@ export function AccountForm({ account, open, onOpenChange }: AccountFormProps) {
               defaultValue={account ? (account.initialBalance / 100).toFixed(2) : '0.00'}
             />
           </div>
+
+          {accountType === 'CREDIT_CARD' && (
+            <>
+              <div className="grid gap-3 sm:grid-cols-3">
+                <div className="flex flex-col gap-1.5">
+                  <Label htmlFor="creditLimit">Limite (R$)</Label>
+                  <Input
+                    id="creditLimit"
+                    name="creditLimit"
+                    type="number"
+                    step="0.01"
+                    min="0.01"
+                    required
+                    defaultValue={
+                      account?.creditLimit ? (account.creditLimit / 100).toFixed(2) : ''
+                    }
+                  />
+                </div>
+                <div className="flex flex-col gap-1.5">
+                  <Label htmlFor="statementClosingDay">Fechamento</Label>
+                  <Input
+                    id="statementClosingDay"
+                    name="statementClosingDay"
+                    type="number"
+                    min="1"
+                    max="31"
+                    required
+                    defaultValue={account?.statementClosingDay ?? ''}
+                  />
+                </div>
+                <div className="flex flex-col gap-1.5">
+                  <Label htmlFor="statementDueDay">Vencimento</Label>
+                  <Input
+                    id="statementDueDay"
+                    name="statementDueDay"
+                    type="number"
+                    min="1"
+                    max="31"
+                    required
+                    defaultValue={account?.statementDueDay ?? ''}
+                  />
+                </div>
+              </div>
+              <p className="text-xs text-gray-500">
+                O sistema usara esses dias para criar e agrupar automaticamente as faturas do
+                cartao.
+              </p>
+            </>
+          )}
 
           <div className="flex flex-col gap-1.5">
             <Label htmlFor="color">Cor</Label>

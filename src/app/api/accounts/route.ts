@@ -34,8 +34,18 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    const data =
+      parsed.data.type === 'CREDIT_CARD'
+        ? parsed.data
+        : {
+            ...parsed.data,
+            creditLimit: null,
+            statementClosingDay: null,
+            statementDueDay: null,
+          }
+
     const account = await prisma.account.create({
-      data: { ...parsed.data, userId },
+      data: { ...data, userId },
     })
 
     return NextResponse.json({ data: account }, { status: 201 })

@@ -16,6 +16,8 @@ export {
   type UpdateTransactionInput,
   type TransactionQuery,
   type CreateTransferInput,
+  createCreditCardPaymentSchema,
+  type CreateCreditCardPaymentInput,
   createRecurringRuleSchema,
   updateRecurringRuleSchema,
   type CreateRecurringRuleInput,

@@ -1,6 +1,7 @@
 import { PrismaClient } from '../src/generated/prisma/client'
 import { PrismaPg } from '@prisma/adapter-pg'
 import bcrypt from 'bcrypt'
+import { getCreditCardStatementCycle } from '../src/server/modules/finance/application/credit-card/statement-cycle'
 
 const adapter = new PrismaPg(process.env.DATABASE_URL!)
 const prisma = new PrismaClient({ adapter })
@@ -63,6 +64,9 @@ async function main() {
         name: 'Cartao Nubank',
         type: 'CREDIT_CARD',
         initialBalance: 0,
+        creditLimit: 650000,
+        statementClosingDay: 10,
+        statementDueDay: 17,
         color: '#8b5cf6',
       },
     }),
@@ -304,6 +308,70 @@ async function main() {
 
   await prisma.transaction.createMany({ data: validTransactions })
   console.log(`  Created ${validTransactions.length} transactions`)
+
+  const creditCardTransactions = await prisma.transaction.findMany({
+    where: {
+      accountId: cartaoNubank.id,
+      type: 'EXPENSE',
+      transferId: null,
+    },
+    orderBy: { date: 'asc' },
+  })
+
+  for (const transaction of creditCardTransactions) {
+    const cycle = getCreditCardStatementCycle({
+      transactionDate: transaction.date,
+      closingDay: 10,
+      dueDay: 17,
+    })
+
+    const statement = await prisma.creditCardStatement.upsert({
+      where: {
+        accountId_periodStart: {
+          accountId: cartaoNubank.id,
+          periodStart: cycle.periodStart,
+        },
+      },
+      update: {
+        periodEnd: cycle.periodEnd,
+        closingDate: cycle.closingDate,
+        dueDate: cycle.dueDate,
+      },
+      create: {
+        userId: user.id,
+        accountId: cartaoNubank.id,
+        periodStart: cycle.periodStart,
+        periodEnd: cycle.periodEnd,
+        closingDate: cycle.closingDate,
+        dueDate: cycle.dueDate,
+      },
+    })
+
+    await prisma.transaction.update({
+      where: { id: transaction.id },
+      data: { creditCardStatementId: statement.id },
+    })
+  }
+
+  const statements = await prisma.creditCardStatement.findMany({
+    where: { accountId: cartaoNubank.id },
+    include: {
+      transactions: {
+        select: { type: true, amount: true },
+      },
+    },
+  })
+
+  for (const statement of statements) {
+    const totalAmount = statement.transactions
+      .filter((transaction) => transaction.type === 'EXPENSE')
+      .reduce((sum, transaction) => sum + transaction.amount, 0)
+
+    await prisma.creditCardStatement.update({
+      where: { id: statement.id },
+      data: { totalAmount },
+    })
+  }
 
   // Create recurring rules
   const recurringRules = await Promise.all([

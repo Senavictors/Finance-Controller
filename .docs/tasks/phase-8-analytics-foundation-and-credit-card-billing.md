@@ -177,6 +177,15 @@ Status atual:
 - Associar compras do cartao a faturas
 - Registrar pagamento de fatura com base em transferencia
 
+Status atual:
+
+- Schema Prisma expandido com configuracao de cartao e tabela `CreditCardStatement`
+- Compras `EXPENSE` em contas `CREDIT_CARD` passam a ser associadas automaticamente a faturas
+- Pagamento de fatura implementado via `POST /api/credit-cards/statements/[id]/payments`
+- Paginas `/credit-cards` e `/credit-cards/[id]` adicionadas para leitura e operacao basica
+- Seed e reset demo atualizados para refletir billing de cartao
+- Validado com `npm test`, `npm run lint` e `npm run build`
+
 ### Phase 8.4 - Snapshot and invalidation base
 
 - Definir convencao de snapshot analitico por modulo
@@ -214,9 +223,9 @@ Status atual:
 - [x] Camada analitica compartilhada implementada
 - [x] Runner de testes configurado
 - [x] Testes base de calculo implementados
-- [ ] Billing cycle de cartao implementado
-- [ ] Faturas com fechamento e vencimento implementadas
-- [ ] Pagamento de fatura suportado
+- [x] Billing cycle de cartao implementado
+- [x] Faturas com fechamento e vencimento implementadas
+- [x] Pagamento de fatura suportado
 - [ ] Estrategia de snapshot/invalidation documentada no codigo
 - [ ] `.docs/CONTEXT.md` updated
 - [ ] ADR created/updated (if applicable)

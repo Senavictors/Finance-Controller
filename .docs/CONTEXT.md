@@ -4,11 +4,11 @@
 
 ## Current Phase
 
-**Phase 8: Foundation for Analytics and Credit Card Billing** — Em andamento. Phases 8.1 (shared analytics core) e 8.2 (test foundation) implementadas.
+**Phase 8: Foundation for Analytics and Credit Card Billing** — Em andamento. Phases 8.1 (shared analytics core), 8.2 (test foundation) e 8.3 (credit card billing domain) implementadas.
 
 ## Next Planned Step
 
-**Phase 8.3: Credit Card Billing Domain** — Proxima etapa planejada em `.docs/tasks/phase-8-analytics-foundation-and-credit-card-billing.md`
+**Phase 8.4: Snapshot and Invalidation Base** — Proxima etapa planejada em `.docs/tasks/phase-8-analytics-foundation-and-credit-card-billing.md`
 
 ## What Exists
 
@@ -22,6 +22,7 @@
 - **Recorrencias**: RecurringRule + RecurringLog + apply idempotente
 - **Analytics core compartilhado**: `resolveMonthPeriod` + `getMonthlyAnalyticsSummary` reutilizados por dashboard, analytics API e transactions page
 - **Test foundation**: Vitest configurado com primeiros testes do analytics core
+- **Credit card billing**: configuracao de limite/fechamento/vencimento, faturas, pagina de leitura e pagamento de fatura
 - **Seed demo**: script com dados ficticios (demo@finance.com / demo1234)
 - **Reset demo**: botao em /settings que recria dados
 - **Landing page**: hero + features + tech stack + footer
@@ -42,6 +43,7 @@ User, Session, Account, Category, Transaction, Dashboard, DashboardWidget, Recur
 - As specs em `.docs/future-features/` assumem uma extracao gradual de uma camada analitica/use case antes de expandir metas, forecast, score e insights
 - O produto passou a assumir explicitamente suporte futuro a cartao de credito com limite, fechamento, vencimento e faturas
 - A fundacao da camada analitica server-side comecou a sair de `route.ts` e foi centralizada em `src/server/modules/finance/application/analytics/`
+- O dominio de cartao agora possui ciclo de fatura em `src/server/modules/finance/application/credit-card/` e superfice inicial em `/credit-cards`
 
 ## Key Decisions
 

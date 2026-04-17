@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@/server/db'
 import { requireAuth, AuthError } from '@/server/auth'
+import { syncCreditCardTransactionStatement } from '@/server/modules/finance/application/credit-card/billing'
 
 function getNextDates(rule: {
   frequency: string
@@ -97,6 +98,8 @@ export async function POST() {
               date,
             },
           })
+
+          await syncCreditCardTransactionStatement(transaction.id)
 
           await prisma.recurringLog.create({
             data: {

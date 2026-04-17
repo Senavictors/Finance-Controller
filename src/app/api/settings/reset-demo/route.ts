@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@/server/db'
 import { requireAuth, AuthError } from '@/server/auth'
+import { syncCreditCardStatementsForAccount } from '@/server/modules/finance/application/credit-card/billing'
 
 export async function POST() {
   try {
@@ -45,6 +46,9 @@ export async function POST() {
           name: 'Cartao Nubank',
           type: 'CREDIT_CARD',
           initialBalance: 0,
+          creditLimit: 650000,
+          statementClosingDay: 10,
+          statementDueDay: 17,
           color: '#8b5cf6',
         },
       }),
@@ -185,6 +189,7 @@ export async function POST() {
 
     const valid = txData.filter((t) => t.date <= now)
     await prisma.transaction.createMany({ data: valid })
+    await syncCreditCardStatementsForAccount(cartaoNubank.id)
 
     // Create dashboard
     await prisma.dashboard.create({

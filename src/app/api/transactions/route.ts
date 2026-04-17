@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/server/db'
 import { requireAuth, AuthError } from '@/server/auth'
 import { createTransactionSchema, transactionQuerySchema } from '@/server/modules/finance/http'
+import { syncCreditCardTransactionStatement } from '@/server/modules/finance/application/credit-card/billing'
 
 export async function GET(request: NextRequest) {
   try {
@@ -35,6 +36,7 @@ export async function GET(request: NextRequest) {
         include: {
           account: { select: { name: true, color: true } },
           category: { select: { name: true, color: true } },
+          creditCardStatement: { select: { id: true, dueDate: true } },
         },
         orderBy: { date: 'desc' },
         skip: (page - 1) * limit,
@@ -85,6 +87,8 @@ export async function POST(request: NextRequest) {
     const transaction = await prisma.transaction.create({
       data: { ...data, accountId, categoryId: categoryId ?? null, userId },
     })
+
+    await syncCreditCardTransactionStatement(transaction.id)
 
     return NextResponse.json({ data: transaction }, { status: 201 })
   } catch (error) {

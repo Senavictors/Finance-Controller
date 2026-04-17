@@ -2,6 +2,10 @@ import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/server/db'
 import { requireAuth, AuthError } from '@/server/auth'
 import { updateTransactionSchema } from '@/server/modules/finance/http'
+import {
+  refreshCreditCardStatement,
+  syncCreditCardTransactionStatement,
+} from '@/server/modules/finance/application/credit-card/billing'
 
 type Params = { params: Promise<{ id: string }> }
 
@@ -56,6 +60,12 @@ export async function PATCH(request: NextRequest, { params }: Params) {
       },
     })
 
+    if (existing.creditCardStatementId) {
+      await refreshCreditCardStatement(existing.creditCardStatementId)
+    }
+
+    await syncCreditCardTransactionStatement(transaction.id)
+
     return NextResponse.json({ data: transaction })
   } catch (error) {
     if (error instanceof AuthError) {
@@ -76,11 +86,30 @@ export async function DELETE(_request: NextRequest, { params }: Params) {
     }
 
     if (existing.transferId) {
+      const linkedTransactions = await prisma.transaction.findMany({
+        where: { transferId: existing.transferId, userId },
+        select: { creditCardStatementId: true },
+      })
+
       await prisma.transaction.deleteMany({
         where: { transferId: existing.transferId, userId },
       })
+
+      await Promise.all(
+        Array.from(
+          new Set(
+            linkedTransactions
+              .map((transaction) => transaction.creditCardStatementId)
+              .filter((statementId): statementId is string => statementId != null),
+          ),
+        ).map((statementId) => refreshCreditCardStatement(statementId)),
+      )
     } else {
       await prisma.transaction.delete({ where: { id } })
+
+      if (existing.creditCardStatementId) {
+        await refreshCreditCardStatement(existing.creditCardStatementId)
+      }
     }
 
     return NextResponse.json({ success: true })

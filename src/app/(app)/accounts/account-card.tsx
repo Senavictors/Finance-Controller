@@ -18,6 +18,9 @@ type Account = {
   name: string
   type: string
   initialBalance: number
+  creditLimit: number | null
+  statementClosingDay: number | null
+  statementDueDay: number | null
   color: string | null
   icon: string | null
   isArchived: boolean
@@ -85,10 +88,25 @@ export function AccountCard({ account }: { account: Account }) {
         </div>
 
         <div className="mt-6">
-          <p className="text-xs text-gray-400">Saldo inicial</p>
-          <p className="mt-0.5 text-xl font-semibold tracking-tight text-gray-900">
-            {formatCurrency(account.initialBalance)}
-          </p>
+          {account.type === 'CREDIT_CARD' ? (
+            <>
+              <p className="text-xs text-gray-400">Limite do cartao</p>
+              <p className="mt-0.5 text-xl font-semibold tracking-tight text-gray-900">
+                {account.creditLimit ? formatCurrency(account.creditLimit) : 'Nao configurado'}
+              </p>
+              <p className="mt-2 text-xs text-gray-500">
+                Fechamento dia {account.statementClosingDay ?? '-'} • Vencimento dia{' '}
+                {account.statementDueDay ?? '-'}
+              </p>
+            </>
+          ) : (
+            <>
+              <p className="text-xs text-gray-400">Saldo inicial</p>
+              <p className="mt-0.5 text-xl font-semibold tracking-tight text-gray-900">
+                {formatCurrency(account.initialBalance)}
+              </p>
+            </>
+          )}
         </div>
       </div>
       <AccountForm open={editOpen} onOpenChange={setEditOpen} account={account} />

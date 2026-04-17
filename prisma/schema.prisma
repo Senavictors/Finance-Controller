@@ -15,12 +15,13 @@ model User {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
-  sessions       Session[]
-  accounts       Account[]
-  categories     Category[]
-  transactions   Transaction[]
-  dashboard      Dashboard?
-  recurringRules RecurringRule[]
+  sessions             Session[]
+  accounts             Account[]
+  categories           Category[]
+  transactions         Transaction[]
+  creditCardStatements CreditCardStatement[]
+  dashboard            Dashboard?
+  recurringRules       RecurringRule[]
 
   @@map("users")
 }
@@ -66,20 +67,24 @@ enum TransactionType {
 }
 
 model Account {
-  id             String      @id @default(cuid())
-  userId         String      @map("user_id")
-  name           String
-  type           AccountType
-  initialBalance Int         @default(0) @map("initial_balance")
-  color          String?
-  icon           String?
-  isArchived     Boolean     @default(false) @map("is_archived")
-  createdAt      DateTime    @default(now()) @map("created_at")
-  updatedAt      DateTime    @updatedAt @map("updated_at")
+  id                  String      @id @default(cuid())
+  userId              String      @map("user_id")
+  name                String
+  type                AccountType
+  initialBalance      Int         @default(0) @map("initial_balance")
+  creditLimit         Int?        @map("credit_limit")
+  statementClosingDay Int?        @map("statement_closing_day")
+  statementDueDay     Int?        @map("statement_due_day")
+  color               String?
+  icon                String?
+  isArchived          Boolean     @default(false) @map("is_archived")
+  createdAt           DateTime    @default(now()) @map("created_at")
+  updatedAt           DateTime    @updatedAt @map("updated_at")
 
-  user           User            @relation(fields: [userId], references: [id], onDelete: Cascade)
-  transactions   Transaction[]
-  recurringRules RecurringRule[]
+  user                 User                  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  transactions         Transaction[]
+  creditCardStatements CreditCardStatement[]
+  recurringRules       RecurringRule[]
 
   @@index([userId])
   @@map("accounts")
@@ -108,29 +113,66 @@ model Category {
 }
 
 model Transaction {
-  id          String          @id @default(cuid())
-  userId      String          @map("user_id")
-  accountId   String          @map("account_id")
-  categoryId  String?         @map("category_id")
-  type        TransactionType
-  amount      Int
-  description String
-  notes       String?
-  date        DateTime
-  transferId  String?         @map("transfer_id")
-  createdAt   DateTime        @default(now()) @map("created_at")
-  updatedAt   DateTime        @updatedAt @map("updated_at")
+  id                    String          @id @default(cuid())
+  userId                String          @map("user_id")
+  accountId             String          @map("account_id")
+  categoryId            String?         @map("category_id")
+  creditCardStatementId String?         @map("credit_card_statement_id")
+  type                  TransactionType
+  amount                Int
+  description           String
+  notes                 String?
+  date                  DateTime
+  transferId            String?         @map("transfer_id")
+  createdAt             DateTime        @default(now()) @map("created_at")
+  updatedAt             DateTime        @updatedAt @map("updated_at")
 
-  user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  account  Account   @relation(fields: [accountId], references: [id], onDelete: Cascade)
-  category Category? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  user                User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+  account             Account              @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  category            Category?            @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  creditCardStatement CreditCardStatement? @relation("CreditCardStatementTransactions", fields: [creditCardStatementId], references: [id], onDelete: SetNull)
 
   @@index([userId])
   @@index([accountId])
   @@index([categoryId])
+  @@index([creditCardStatementId])
   @@index([date])
   @@index([transferId])
   @@map("transactions")
+}
+
+enum CreditCardStatementStatus {
+  OPEN
+  CLOSED
+  PAID
+  OVERDUE
+
+  @@map("credit_card_statement_status")
+}
+
+model CreditCardStatement {
+  id          String                    @id @default(cuid())
+  userId      String                    @map("user_id")
+  accountId   String                    @map("account_id")
+  periodStart DateTime                  @map("period_start")
+  periodEnd   DateTime                  @map("period_end")
+  closingDate DateTime                  @map("closing_date")
+  dueDate     DateTime                  @map("due_date")
+  totalAmount Int                       @default(0) @map("total_amount")
+  paidAmount  Int                       @default(0) @map("paid_amount")
+  status      CreditCardStatementStatus @default(OPEN)
+  createdAt   DateTime                  @default(now()) @map("created_at")
+  updatedAt   DateTime                  @updatedAt @map("updated_at")
+
+  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  account      Account       @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  transactions Transaction[] @relation("CreditCardStatementTransactions")
+
+  @@unique([accountId, periodStart])
+  @@index([userId])
+  @@index([accountId])
+  @@index([dueDate])
+  @@map("credit_card_statements")
 }
 
 model Dashboard {

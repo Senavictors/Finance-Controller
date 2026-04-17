@@ -2,17 +2,67 @@ import { z } from 'zod'
 
 // ── Account ──────────────────────────────────────────────
 
-export const createAccountSchema = z.object({
-  name: z.string().min(2, 'Nome deve ter pelo menos 2 caracteres').max(100),
-  type: z.enum(['WALLET', 'CHECKING', 'SAVINGS', 'CREDIT_CARD', 'INVESTMENT', 'OTHER'], {
-    message: 'Tipo de conta invalido',
-  }),
-  initialBalance: z.number().int('Saldo deve ser um numero inteiro (centavos)').default(0),
+export const createAccountSchema = z
+  .object({
+    name: z.string().min(2, 'Nome deve ter pelo menos 2 caracteres').max(100),
+    type: z.enum(['WALLET', 'CHECKING', 'SAVINGS', 'CREDIT_CARD', 'INVESTMENT', 'OTHER'], {
+      message: 'Tipo de conta invalido',
+    }),
+    initialBalance: z.number().int('Saldo deve ser um numero inteiro (centavos)').default(0),
+    creditLimit: z
+      .number()
+      .int('Limite deve ser um numero inteiro (centavos)')
+      .positive()
+      .optional(),
+    statementClosingDay: z.number().int().min(1).max(31).optional(),
+    statementDueDay: z.number().int().min(1).max(31).optional(),
+    color: z.string().max(20).optional(),
+    icon: z.string().max(50).optional(),
+  })
+  .superRefine((data, ctx) => {
+    if (data.type !== 'CREDIT_CARD') return
+
+    if (data.creditLimit == null) {
+      ctx.addIssue({
+        code: 'custom',
+        path: ['creditLimit'],
+        message: 'Limite obrigatorio para cartao de credito',
+      })
+    }
+
+    if (data.statementClosingDay == null) {
+      ctx.addIssue({
+        code: 'custom',
+        path: ['statementClosingDay'],
+        message: 'Dia de fechamento obrigatorio para cartao de credito',
+      })
+    }
+
+    if (data.statementDueDay == null) {
+      ctx.addIssue({
+        code: 'custom',
+        path: ['statementDueDay'],
+        message: 'Dia de vencimento obrigatorio para cartao de credito',
+      })
+    }
+  })
+
+export const updateAccountSchema = z.object({
+  name: z.string().min(2, 'Nome deve ter pelo menos 2 caracteres').max(100).optional(),
+  type: z
+    .enum(['WALLET', 'CHECKING', 'SAVINGS', 'CREDIT_CARD', 'INVESTMENT', 'OTHER'], {
+      message: 'Tipo de conta invalido',
+    })
+    .optional(),
+  initialBalance: z.number().int('Saldo deve ser um numero inteiro (centavos)').optional(),
+  creditLimit: z
+    .union([z.number().int('Limite deve ser um numero inteiro (centavos)').positive(), z.null()])
+    .optional(),
+  statementClosingDay: z.union([z.number().int().min(1).max(31), z.null()]).optional(),
+  statementDueDay: z.union([z.number().int().min(1).max(31), z.null()]).optional(),
   color: z.string().max(20).optional(),
   icon: z.string().max(50).optional(),
 })
-
-export const updateAccountSchema = createAccountSchema.partial()
 
 export type CreateAccountInput = z.infer<typeof createAccountSchema>
 export type UpdateAccountInput = z.infer<typeof updateAccountSchema>
@@ -86,6 +136,16 @@ export const createTransferSchema = z
   })
 
 export type CreateTransferInput = z.infer<typeof createTransferSchema>
+
+export const createCreditCardPaymentSchema = z.object({
+  sourceAccountId: z.string({ error: 'Conta de origem obrigatoria' }),
+  amount: z.number().int().positive('Valor deve ser positivo'),
+  date: z.coerce.date({ message: 'Data invalida' }),
+  description: z.string().min(1, 'Descricao obrigatoria').max(255),
+  notes: z.string().max(1000).optional(),
+})
+
+export type CreateCreditCardPaymentInput = z.infer<typeof createCreditCardPaymentSchema>
 
 // ── Recurring Rule ───────────────────────────────────────
 
