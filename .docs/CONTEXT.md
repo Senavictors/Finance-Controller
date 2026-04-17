@@ -4,11 +4,11 @@
 
 ## Current Phase
 
-**Phase 8: Foundation for Analytics and Credit Card Billing** — Em andamento. Phases 8.1 (shared analytics core), 8.2 (test foundation), 8.3 (credit card billing domain) e 8.4 (snapshot and invalidation base) implementadas.
+**Phase 8.5: Demo and Portfolio Hardening** — Em andamento. A fundacao das Phases 8.1 a 8.4 ja foi concluida, e a demo/portfolio estao sendo refinados antes do Goal Engine.
 
 ## Next Planned Step
 
-**Phase 8.5: Demo and Portfolio Hardening** — Proxima etapa planejada em `.docs/tasks/phase-8-analytics-foundation-and-credit-card-billing.md`
+**Concluir a validacao manual da Phase 8.5** — Depois disso, a proxima feature planejada passa a ser a [Phase 9 - Goal Engine](tasks/phase-9-goal-engine.md)
 
 ## What Exists
 
@@ -24,18 +24,20 @@
 - **Test foundation**: Vitest configurado com primeiros testes do analytics core
 - **Credit card billing**: configuracao de limite/fechamento/vencimento, faturas, pagina de leitura e pagamento de fatura
 - **Snapshot and invalidation base**: tags por usuario/modulo/mes e invalidação central de analytics em mutacoes financeiras
+- **Demo hardening**: seed/reset demo agora montam um cartao com fatura paga e outra em aberto, e a UI de faturas/transacoes ficou mais demonstravel
 - **Seed demo**: script com dados ficticios (demo@finance.com / demo1234)
 - **Reset demo**: botao em /settings que recria dados
 - **Landing page**: hero + features + tech stack + footer
 - **CI**: GitHub Actions (lint + format:check + build)
 - **README**: completo com setup, tech stack, roadmap
 - **Future feature specs**: `.docs/future-features/` com Goal Engine, Forecast Engine, Score Financeiro e Insights Automaticos
+- **Execution backlog**: tasks formais criadas para as phases 8.5, 9, 10, 11 e 12 em `.docs/tasks/`
 - **Technical plan**: task documentada para a fundacao analitica e ciclo de fatura de cartao
-- **25 API routes**, 9 models, 8 ADRs
+- **22 API routes**, 10 models, 9 ADRs
 
 ## Database Models
 
-User, Session, Account, Category, Transaction, Dashboard, DashboardWidget, RecurringRule, RecurringLog
+User, Session, Account, Category, Transaction, CreditCardStatement, Dashboard, DashboardWidget, RecurringRule, RecurringLog
 
 ## Current Architectural Reality
 
@@ -46,6 +48,7 @@ User, Session, Account, Category, Transaction, Dashboard, DashboardWidget, Recur
 - A fundacao da camada analitica server-side comecou a sair de `route.ts` e foi centralizada em `src/server/modules/finance/application/analytics/`
 - A mesma camada agora possui convencoes de snapshot e invalidação para summary, goals, forecast, score, insights e billing de cartao
 - O dominio de cartao agora possui ciclo de fatura em `src/server/modules/finance/application/credit-card/` e superfice inicial em `/credit-cards`
+- A Phase 8.5 esta refinando demonstrabilidade: demo mais forte, faturas mais legiveis e navegação mais clara entre compra e fatura
 
 ## Key Decisions
 

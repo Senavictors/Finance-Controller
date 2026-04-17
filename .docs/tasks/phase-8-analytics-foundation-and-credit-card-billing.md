@@ -211,13 +211,22 @@ Status atual:
 - Exibir pelo menos uma fatura aberta e uma paga
 - Atualizar README apenas depois da implementacao real
 
+Task dedicada:
+
+- [Phase 8.5 - Demo and Portfolio Hardening](./phase-8-5-demo-and-portfolio-hardening.md)
+
+Status atual:
+
+- Iniciada com reforco da demo de cartao, superfice de faturas mais demonstravel e documentacao publica alinhada
+- Pendente apenas a validacao manual completa para encerrar a fase
+
 ## Dependency order for future features
 
 1. Phase 8 - Shared analytics core + billing foundation
-2. Goal Engine
-3. Forecast Engine
-4. Financial Score
-5. Automatic Insights
+2. [Phase 9 - Goal Engine](./phase-9-goal-engine.md)
+3. [Phase 10 - Forecast Engine](./phase-10-forecast-engine.md)
+4. [Phase 11 - Financial Score](./phase-11-financial-score.md)
+5. [Phase 12 - Automatic Insights](./phase-12-automatic-insights.md)
 
 ## Why this order
 

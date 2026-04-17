@@ -57,10 +57,11 @@ O Finance Controller centraliza tudo em uma unica aplicacao:
 - **Transacoes** — CRUD completo com filtros por tipo, categoria e busca por descricao
 - **Transferencias atomicas** — par de transacoes vinculadas por `transferId` (debito na origem, credito no destino)
 - **Recorrencias** — regras com frequencia (diaria, semanal, mensal, anual), apply idempotente com logs
+- **Billing de cartao de credito** — limite, fechamento, vencimento, faturas e pagamento parcial/total
 - **Autenticacao segura** — bcrypt, sessoes server-side, cookies HttpOnly, rate limiting
 - **Analytics** — resumo mensal com variacao percentual, gastos por categoria, saldo por conta, patrimonio total
 - **Tema refinado** — design inspirado em Apex Holdings (Inter font, cantos arredondados, sombras suaves, gradientes sutis)
-- **Seed demo** — dados ficticios realistas + botao de reset em /settings
+- **Seed demo** — dados ficticios realistas + botao de reset em `/settings`, com fatura paga e outra em aberto
 
 ---
 
@@ -122,6 +123,7 @@ src/
       transactions/        Listagem e CRUD
       categories/          Receitas e despesas
       accounts/            Multi-contas
+      credit-cards/        Faturas e pagamento de cartao
       recurring/           Regras recorrentes
       settings/            Configuracoes + reset demo
     api/                   25 Route Handlers
@@ -130,13 +132,14 @@ src/
       categories/          CRUD + [id]
       transactions/        CRUD + [id] + transfer
       analytics/           summary
+      credit-cards/        statements, detail, payments
       dashboard/           widgets, layout
       recurring/           rules, apply, logs
   server/
     auth/                  Sessions, hashing, guards, rate-limit
     modules/finance/
       domain/              Entidades e regras de negocio
-      application/         Use cases
+      application/         Use cases + analytics + credit-card billing
       infra/               Repositorios Prisma
       http/                DTOs e validators Zod
   components/
@@ -231,7 +234,7 @@ prisma/                    Schema + migrations + seed
 
 ## Banco de Dados
 
-9 models, 3 enums:
+10 models, 5 enums:
 
 ```mermaid
 erDiagram
@@ -239,11 +242,14 @@ erDiagram
     User ||--o{ Account : "contas"
     User ||--o{ Category : "categorias"
     User ||--o{ Transaction : "transacoes"
+    User ||--o{ CreditCardStatement : "faturas"
     User ||--|| Dashboard : "dashboard"
     User ||--o{ RecurringRule : "recorrencias"
     Account ||--o{ Transaction : "movimentacoes"
+    Account ||--o{ CreditCardStatement : "faturas"
     Category ||--o{ Transaction : "classificacao"
     Category ||--o{ Category : "subcategorias"
+    CreditCardStatement ||--o{ Transaction : "compras e pagamentos"
     Dashboard ||--o{ DashboardWidget : "widgets"
     RecurringRule ||--o{ RecurringLog : "logs"
     Account ||--o{ RecurringRule : "regras"
@@ -262,6 +268,9 @@ erDiagram
         string name
         enum type
         int initialBalance
+        int creditLimit
+        int statementClosingDay
+        int statementDueDay
         string color
         boolean isArchived
     }
@@ -280,11 +289,25 @@ erDiagram
         string userId FK
         string accountId FK
         string categoryId FK
+        string creditCardStatementId FK
         enum type
         int amount
         string description
         datetime date
         string transferId
+    }
+
+    CreditCardStatement {
+        string id PK
+        string userId FK
+        string accountId FK
+        datetime periodStart
+        datetime periodEnd
+        datetime closingDate
+        datetime dueDate
+        int totalAmount
+        int paidAmount
+        enum status
     }
 
     RecurringRule {
@@ -329,6 +352,8 @@ erDiagram
 **Tipos de transacao**: Receita, Despesa, Transferencia
 
 **Frequencias**: Diaria, Semanal, Mensal, Anual
+
+**Status de fatura**: Aberta, Fechada, Paga, Atrasada
 
 ---
 
@@ -392,8 +417,13 @@ npx prisma db seed   # Popular dados demo
 - [x] Phase 5: Dashboard Customizavel (react-grid-layout, widgets)
 - [x] Phase 6: Recorrencias (regras, apply idempotente, logs)
 - [x] Phase 7: Portfolio (seed demo, CI, README)
+- [x] Phase 8: Fundacao analitica + billing de cartao
+- [ ] Phase 8.5: Demo and Portfolio Hardening
+- [ ] Phase 9: Goal Engine
+- [ ] Phase 10: Forecast Engine
+- [ ] Phase 11: Financial Score
+- [ ] Phase 12: Automatic Insights
 - [ ] Import/export CSV
-- [ ] Metas financeiras
 - [ ] Relatorios e exportacao PDF
 - [ ] PWA / responsivo mobile
 
