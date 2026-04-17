@@ -34,24 +34,66 @@ describe('resolveStatus — EXPENSE_LIMIT', () => {
   const base = { target: 100000, warning: 80, danger: 95, current: false }
 
   it('returns ON_TRACK when spending is low', () => {
-    expect(resolveStatus('EXPENSE_LIMIT', 50000, 50000, base.target, base.warning, base.danger, base.current)).toBe('ON_TRACK')
+    expect(
+      resolveStatus(
+        'EXPENSE_LIMIT',
+        50000,
+        50000,
+        base.target,
+        base.warning,
+        base.danger,
+        base.current,
+      ),
+    ).toBe('ON_TRACK')
   })
 
   it('returns WARNING at 80%', () => {
-    expect(resolveStatus('EXPENSE_LIMIT', 80000, 80000, base.target, base.warning, base.danger, base.current)).toBe('WARNING')
+    expect(
+      resolveStatus(
+        'EXPENSE_LIMIT',
+        80000,
+        80000,
+        base.target,
+        base.warning,
+        base.danger,
+        base.current,
+      ),
+    ).toBe('WARNING')
   })
 
   it('returns AT_RISK at 95%', () => {
-    expect(resolveStatus('EXPENSE_LIMIT', 95000, 95000, base.target, base.warning, base.danger, base.current)).toBe('AT_RISK')
+    expect(
+      resolveStatus(
+        'EXPENSE_LIMIT',
+        95000,
+        95000,
+        base.target,
+        base.warning,
+        base.danger,
+        base.current,
+      ),
+    ).toBe('AT_RISK')
   })
 
   it('returns EXCEEDED at 100%', () => {
-    expect(resolveStatus('EXPENSE_LIMIT', 100000, 100000, base.target, base.warning, base.danger, base.current)).toBe('EXCEEDED')
+    expect(
+      resolveStatus(
+        'EXPENSE_LIMIT',
+        100000,
+        100000,
+        base.target,
+        base.warning,
+        base.danger,
+        base.current,
+      ),
+    ).toBe('EXCEEDED')
   })
 
   it('uses projected for current period', () => {
     // actual=60k (60%), projected=110k (110%) → EXCEEDED
-    expect(resolveStatus('EXPENSE_LIMIT', 60000, 110000, base.target, base.warning, base.danger, true)).toBe('EXCEEDED')
+    expect(
+      resolveStatus('EXPENSE_LIMIT', 60000, 110000, base.target, base.warning, base.danger, true),
+    ).toBe('EXCEEDED')
   })
 })
 
@@ -59,24 +101,34 @@ describe('resolveStatus — SAVING', () => {
   const base = { target: 100000, warning: 80, danger: 95, current: false }
 
   it('returns ACHIEVED when actual >= target', () => {
-    expect(resolveStatus('SAVING', 100000, 100000, base.target, base.warning, base.danger, base.current)).toBe('ACHIEVED')
+    expect(
+      resolveStatus('SAVING', 100000, 100000, base.target, base.warning, base.danger, base.current),
+    ).toBe('ACHIEVED')
   })
 
   it('returns ON_TRACK at 95%', () => {
-    expect(resolveStatus('SAVING', 95000, 95000, base.target, base.warning, base.danger, base.current)).toBe('ON_TRACK')
+    expect(
+      resolveStatus('SAVING', 95000, 95000, base.target, base.warning, base.danger, base.current),
+    ).toBe('ON_TRACK')
   })
 
   it('returns WARNING at 80%', () => {
-    expect(resolveStatus('SAVING', 80000, 80000, base.target, base.warning, base.danger, base.current)).toBe('WARNING')
+    expect(
+      resolveStatus('SAVING', 80000, 80000, base.target, base.warning, base.danger, base.current),
+    ).toBe('WARNING')
   })
 
   it('returns AT_RISK below 80%', () => {
-    expect(resolveStatus('SAVING', 30000, 30000, base.target, base.warning, base.danger, base.current)).toBe('AT_RISK')
+    expect(
+      resolveStatus('SAVING', 30000, 30000, base.target, base.warning, base.danger, base.current),
+    ).toBe('AT_RISK')
   })
 
   it('uses projected for current period — on track', () => {
     // actual=60k but projected=98k → ON_TRACK
-    expect(resolveStatus('SAVING', 60000, 98000, base.target, base.warning, base.danger, true)).toBe('ON_TRACK')
+    expect(
+      resolveStatus('SAVING', 60000, 98000, base.target, base.warning, base.danger, true),
+    ).toBe('ON_TRACK')
   })
 })
 

@@ -245,7 +245,10 @@ export const updateGoalSchema = goalBaseSchema
   .extend({ isActive: z.boolean().optional() })
 
 export const goalQuerySchema = z.object({
-  month: z.string().regex(/^\d{4}-\d{2}$/).optional(),
+  month: z
+    .string()
+    .regex(/^\d{4}-\d{2}$/)
+    .optional(),
 })
 
 export type CreateGoalInput = z.infer<typeof createGoalSchema>

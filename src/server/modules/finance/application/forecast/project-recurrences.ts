@@ -17,7 +17,9 @@ export function listProjectedRecurringDates(
   const ruleStart = new Date(rule.startDate)
   ruleStart.setHours(0, 0, 0, 0)
 
-  const from = new Date(Math.max(referenceDate.getTime() + 1, ruleStart.getTime(), periodStart.getTime()))
+  const from = new Date(
+    Math.max(referenceDate.getTime() + 1, ruleStart.getTime(), periodStart.getTime()),
+  )
   from.setHours(0, 0, 0, 0)
   if (from.getTime() <= referenceDate.getTime()) {
     from.setDate(from.getDate() + 1)

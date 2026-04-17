@@ -124,8 +124,7 @@ export function GoalForm({ categories, accounts, open, onOpenChange }: GoalFormP
 
   const expenseCategories = categories.filter((c) => c.type === 'EXPENSE')
   const incomeCategories = categories.filter((c) => c.type === 'INCOME')
-  const relevantCategories =
-    metric === 'INCOME_TARGET' ? incomeCategories : expenseCategories
+  const relevantCategories = metric === 'INCOME_TARGET' ? incomeCategories : expenseCategories
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>

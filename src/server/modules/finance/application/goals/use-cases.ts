@@ -40,7 +40,5 @@ export async function listGoalsWithProgress(
 ): Promise<GoalProgressResult[]> {
   const goals = await listGoals(userId)
 
-  return Promise.all(
-    goals.map((goal) => calculateGoalProgress(goal.id, userId, monthParam)),
-  )
+  return Promise.all(goals.map((goal) => calculateGoalProgress(goal.id, userId, monthParam)))
 }

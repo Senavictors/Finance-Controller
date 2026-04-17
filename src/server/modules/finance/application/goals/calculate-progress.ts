@@ -49,8 +49,10 @@ function buildAlerts(
     else if (status === 'WARNING') alerts.push('Gasto acima de 80% do limite')
   } else {
     if (status === 'ACHIEVED') alerts.push('Meta atingida!')
-    else if (status === 'AT_RISK') alerts.push(`Faltam R$ ${(remaining / 100).toFixed(2)} para atingir a meta`)
-    else if (status === 'WARNING') alerts.push('Progresso pode nao ser suficiente para atingir a meta')
+    else if (status === 'AT_RISK')
+      alerts.push(`Faltam R$ ${(remaining / 100).toFixed(2)} para atingir a meta`)
+    else if (status === 'WARNING')
+      alerts.push('Progresso pode nao ser suficiente para atingir a meta')
   }
 
   return alerts
@@ -66,10 +68,7 @@ function computeProjected(actual: number, from: Date, to: Date, now: Date): numb
   return Math.round(actual / elapsed)
 }
 
-async function collectDescendantCategoryIds(
-  userId: string,
-  categoryId: string,
-): Promise<string[]> {
+async function collectDescendantCategoryIds(userId: string, categoryId: string): Promise<string[]> {
   const all = await prisma.category.findMany({
     where: { userId },
     select: { id: true, parentId: true },
@@ -140,9 +139,7 @@ export async function calculateGoalProgress(
         type: 'EXPENSE',
         date: { gte: from, lte: to },
         ...(categoryIds ? { categoryId: { in: categoryIds } } : {}),
-        ...(goal.scopeType === 'ACCOUNT' && goal.accountId
-          ? { accountId: goal.accountId }
-          : {}),
+        ...(goal.scopeType === 'ACCOUNT' && goal.accountId ? { accountId: goal.accountId } : {}),
       },
       select: { amount: true },
     })
@@ -159,9 +156,7 @@ export async function calculateGoalProgress(
         type: 'INCOME',
         date: { gte: from, lte: to },
         ...(categoryIds ? { categoryId: { in: categoryIds } } : {}),
-        ...(goal.scopeType === 'ACCOUNT' && goal.accountId
-          ? { accountId: goal.accountId }
-          : {}),
+        ...(goal.scopeType === 'ACCOUNT' && goal.accountId ? { accountId: goal.accountId } : {}),
       },
       select: { amount: true },
     })
@@ -177,9 +172,8 @@ export async function calculateGoalProgress(
   }
 
   const projectedAmount = computeProjected(actualAmount, from, to, now)
-  const progressPercent = goal.targetAmount > 0
-    ? Math.round((actualAmount / goal.targetAmount) * 100)
-    : 0
+  const progressPercent =
+    goal.targetAmount > 0 ? Math.round((actualAmount / goal.targetAmount) * 100) : 0
   const status = resolveStatus(
     goal.metric,
     actualAmount,

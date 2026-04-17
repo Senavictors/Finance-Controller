@@ -78,3 +78,30 @@ and this project adheres to [Conventional Commits](https://www.conventionalcommi
 - GitHub Actions CI (lint + format:check + build)
 - README.md com setup, tech stack, roadmap, estrutura de pastas
 - ADR-007: Demo seed data
+- Phase 8: Fundacao da camada analitica server-side em `src/server/modules/finance/application/analytics/`
+- `resolveMonthPeriod`, `getMonthlyAnalyticsSummary` e `isValidMonthParam` reutilizados por dashboard, analytics API e pagina de transacoes
+- Vitest configurado com primeiros testes do analytics core
+- Ciclo de fatura de cartao de credito: `CreditCardStatement` + sync em mutacoes de transacao
+- Pagina `/credit-cards` com leitura de fatura e pagamento parcial/total
+- ADR-008: Credit card billing cycle
+- Estrategia de snapshot/invalidation com tags por usuario/modulo/mes e entidades
+- `invalidateAnalyticsSnapshots` centralizado, usado por todas as mutacoes financeiras
+- Snapshot cacheavel do monthly summary via `unstable_cache`
+- ADR-009: Analytics snapshot and invalidation strategy
+- Phase 8.5: Demo hardening — seed/reset demo montam cartao com fatura paga e outra em aberto
+- Phase 9: Goal Engine — modulo de metas com `Goal` + `GoalSnapshot`
+- 4 metricas: SAVING, EXPENSE_LIMIT, INCOME_TARGET, ACCOUNT_LIMIT
+- 3 escopos: GLOBAL, CATEGORY, ACCOUNT (subcategorias incluidas por padrao)
+- Calculo de progresso com projecao, status e alertas
+- `ACCOUNT_LIMIT` em cartao usa fatura em aberto, nao mes calendario
+- API `GET/POST /api/goals`, `PATCH/DELETE /api/goals/[id]`
+- Pagina `/goals` com cards de progresso agrupados por status e formulario de criacao
+- Widget `goal-progress` no dashboard
+- 3 metas demo no seed e no reset-demo
+- ADR-010: Goal Engine
+- Phase 10: Forecast Engine — `ForecastSnapshot` + enum `ForecastRiskLevel`
+- `calculateForecast` combina realizado + recorrencias futuras + projecao variavel (media de 2 meses) + faturas em aberto
+- Classificacao de risco LOW/MEDIUM/HIGH e trilha audit em `assumptions`
+- API `GET /api/analytics/forecast` e `POST /api/analytics/forecast/recalculate`
+- Widget `forecast` no dashboard com saldo previsto, badge de risco e premissas principais
+- ADR-011: Forecast Engine

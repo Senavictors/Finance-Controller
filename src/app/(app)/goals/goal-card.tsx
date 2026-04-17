@@ -84,7 +84,7 @@ export function GoalCard({ goal }: GoalCardProps) {
     <Card className="rounded-[1.5rem] border-white/50 shadow-sm">
       <CardHeader className="pb-3">
         <div className="flex items-start justify-between gap-2">
-          <div className="flex-1 min-w-0">
+          <div className="min-w-0 flex-1">
             <CardTitle className="truncate text-base">{goal.name}</CardTitle>
             {goal.description && (
               <p className="mt-0.5 truncate text-xs text-gray-500">{goal.description}</p>
@@ -134,9 +134,7 @@ export function GoalCard({ goal }: GoalCardProps) {
         )}
 
         {isLimitMetric && remaining > 0 && goal.status !== 'EXCEEDED' && (
-          <p className="text-xs text-gray-500">
-            Disponivel: {formatCurrency(remaining)}
-          </p>
+          <p className="text-xs text-gray-500">Disponivel: {formatCurrency(remaining)}</p>
         )}
       </CardContent>
     </Card>

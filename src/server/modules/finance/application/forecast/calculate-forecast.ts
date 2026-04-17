@@ -8,10 +8,7 @@ const MS_PER_DAY = 86_400_000
 const HISTORICAL_MONTHS = 2
 
 function daysBetween(from: Date, to: Date): number {
-  return Math.max(
-    1,
-    Math.floor((to.getTime() - from.getTime()) / MS_PER_DAY) + 1,
-  )
+  return Math.max(1, Math.floor((to.getTime() - from.getTime()) / MS_PER_DAY) + 1)
 }
 
 function classifyRisk(predictedBalance: number): ForecastRiskLevel {

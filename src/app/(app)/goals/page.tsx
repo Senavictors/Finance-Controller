@@ -30,9 +30,7 @@ export default async function GoalsPage({ searchParams }: Props) {
     }),
   ])
 
-  const onTrack = goalsWithProgress.filter((g) =>
-    ['ON_TRACK', 'ACHIEVED'].includes(g.status),
-  )
+  const onTrack = goalsWithProgress.filter((g) => ['ON_TRACK', 'ACHIEVED'].includes(g.status))
   const atRisk = goalsWithProgress.filter((g) =>
     ['WARNING', 'AT_RISK', 'EXCEEDED'].includes(g.status),
   )
@@ -69,7 +67,7 @@ export default async function GoalsPage({ searchParams }: Props) {
         <div className="space-y-6">
           {atRisk.length > 0 && (
             <section>
-              <h2 className="mb-3 text-sm font-medium text-gray-500 uppercase tracking-wide">
+              <h2 className="mb-3 text-sm font-medium tracking-wide text-gray-500 uppercase">
                 Requer atencao ({atRisk.length})
               </h2>
               <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
@@ -82,7 +80,7 @@ export default async function GoalsPage({ searchParams }: Props) {
 
           {onTrack.length > 0 && (
             <section>
-              <h2 className="mb-3 text-sm font-medium text-gray-500 uppercase tracking-wide">
+              <h2 className="mb-3 text-sm font-medium tracking-wide text-gray-500 uppercase">
                 No ritmo ({onTrack.length})
               </h2>
               <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">

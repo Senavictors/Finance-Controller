@@ -38,10 +38,7 @@ export function ForecastWidget({ data }: { data: DashboardData }) {
       <div className="mb-3 flex items-center justify-between">
         <h3 className="text-sm font-medium text-gray-500">Previsao do mes</h3>
         <span
-          className={cn(
-            'rounded-full px-2 py-0.5 text-[10px] font-medium',
-            riskClasses[riskLevel],
-          )}
+          className={cn('rounded-full px-2 py-0.5 text-[10px] font-medium', riskClasses[riskLevel])}
         >
           Risco {riskLabels[riskLevel]}
         </span>
@@ -92,7 +89,7 @@ export function ForecastWidget({ data }: { data: DashboardData }) {
 
       {topAssumptions.length > 0 && (
         <div className="mt-4 flex-1 space-y-1 overflow-y-auto">
-          <p className="text-[10px] font-medium uppercase tracking-wide text-gray-400">
+          <p className="text-[10px] font-medium tracking-wide text-gray-400 uppercase">
             Premissas principais
           </p>
           {topAssumptions.map((assumption, i) => (

@@ -13,7 +13,16 @@ Sistema fullstack de gestao financeira pessoal, focado em controle, visualizacao
 ## Preview
 
 <p align="center">
-  <img src="./system-images/dashboard.png" alt="Dashboard" width="100%" />
+  <img src="./system-images/dashboard.png" alt="Dashboard - topo" width="100%" />
+</p>
+
+<p align="center">
+  <img src="./system-images/dashboard2.png" alt="Dashboard - widgets de metas e previsao" width="100%" />
+</p>
+
+<p align="center">
+  <img src="./system-images/metas.png" alt="Metas" width="49%" />
+  <img src="./system-images/faturas.png" alt="Faturas de cartao" width="49%" />
 </p>
 
 <p align="center">
@@ -58,10 +67,13 @@ O Finance Controller centraliza tudo em uma unica aplicacao:
 - **Transferencias atomicas** — par de transacoes vinculadas por `transferId` (debito na origem, credito no destino)
 - **Recorrencias** — regras com frequencia (diaria, semanal, mensal, anual), apply idempotente com logs
 - **Billing de cartao de credito** — limite, fechamento, vencimento, faturas e pagamento parcial/total
+- **Goal Engine** — metas de economia, limite de gasto, meta de receita e limite por conta/cartao, com calculo de progresso por periodo, status (no ritmo, atencao, em risco, atingida, ultrapassada) e snapshots historicos
+- **Forecast Engine** — previsao do fechamento do mes combinando realizado, recorrencias futuras, projecao variavel (media movel) e faturas em aberto, com classificacao de risco e breakdown audit das premissas
 - **Autenticacao segura** — bcrypt, sessoes server-side, cookies HttpOnly, rate limiting
 - **Analytics** — resumo mensal com variacao percentual, gastos por categoria, saldo por conta, patrimonio total
+- **Snapshot e invalidacao** — estrategia central de tags por usuario/modulo/mes, invalidada em mutacoes financeiras
 - **Tema refinado** — design inspirado em Apex Holdings (Inter font, cantos arredondados, sombras suaves, gradientes sutis)
-- **Seed demo** — dados ficticios realistas + botao de reset em `/settings`, com fatura paga e outra em aberto
+- **Seed demo** — dados ficticios realistas + botao de reset em `/settings`, com fatura paga, outra em aberto e 3 metas demo
 
 ---
 
@@ -125,21 +137,23 @@ src/
       accounts/            Multi-contas
       credit-cards/        Faturas e pagamento de cartao
       recurring/           Regras recorrentes
+      goals/               Metas financeiras e progresso
       settings/            Configuracoes + reset demo
-    api/                   25 Route Handlers
+    api/                   28 Route Handlers
       auth/                login, register, logout, me
       accounts/            CRUD + [id]
       categories/          CRUD + [id]
       transactions/        CRUD + [id] + transfer
-      analytics/           summary
+      analytics/           summary + forecast + forecast/recalculate
       credit-cards/        statements, detail, payments
       dashboard/           widgets, layout
       recurring/           rules, apply, logs
+      goals/               CRUD + [id] de metas
   server/
     auth/                  Sessions, hashing, guards, rate-limit
     modules/finance/
       domain/              Entidades e regras de negocio
-      application/         Use cases + analytics + credit-card billing
+      application/         analytics + credit-card billing + goals + forecast
       infra/               Repositorios Prisma
       http/                DTOs e validators Zod
   components/
@@ -234,7 +248,7 @@ prisma/                    Schema + migrations + seed
 
 ## Banco de Dados
 
-10 models, 5 enums:
+13 models, 9 enums (incluindo `GoalMetric`, `GoalScopeType`, `GoalPeriod`, `GoalStatus`, `ForecastRiskLevel`):
 
 ```mermaid
 erDiagram
@@ -245,6 +259,8 @@ erDiagram
     User ||--o{ CreditCardStatement : "faturas"
     User ||--|| Dashboard : "dashboard"
     User ||--o{ RecurringRule : "recorrencias"
+    User ||--o{ Goal : "metas"
+    User ||--o{ ForecastSnapshot : "previsoes"
     Account ||--o{ Transaction : "movimentacoes"
     Account ||--o{ CreditCardStatement : "faturas"
     Category ||--o{ Transaction : "classificacao"
@@ -253,7 +269,10 @@ erDiagram
     Dashboard ||--o{ DashboardWidget : "widgets"
     RecurringRule ||--o{ RecurringLog : "logs"
     Account ||--o{ RecurringRule : "regras"
+    Account ||--o{ Goal : "limite por conta"
     Category ||--o{ RecurringRule : "regras"
+    Category ||--o{ Goal : "metas por categoria"
+    Goal ||--o{ GoalSnapshot : "historico"
 
     User {
         string id PK
@@ -345,6 +364,49 @@ erDiagram
         datetime appliedDate
         string status
     }
+
+    Goal {
+        string id PK
+        string userId FK
+        string name
+        enum metric
+        enum scopeType
+        string categoryId FK
+        string accountId FK
+        int targetAmount
+        enum period
+        int warningPercent
+        int dangerPercent
+        boolean isActive
+    }
+
+    GoalSnapshot {
+        string id PK
+        string goalId FK
+        datetime periodStart
+        datetime periodEnd
+        int actualAmount
+        int projectedAmount
+        int progressPercent
+        enum status
+    }
+
+    ForecastSnapshot {
+        string id PK
+        string userId FK
+        datetime periodStart
+        datetime periodEnd
+        datetime referenceDate
+        int actualIncome
+        int actualExpenses
+        int projectedRecurringIncome
+        int projectedRecurringExpenses
+        int projectedVariableIncome
+        int projectedVariableExpenses
+        int predictedBalance
+        enum riskLevel
+        json assumptions
+    }
 ```
 
 **Tipos de conta**: Carteira, Corrente, Poupanca, Cartao de Credito, Investimento, Outro
@@ -354,6 +416,12 @@ erDiagram
 **Frequencias**: Diaria, Semanal, Mensal, Anual
 
 **Status de fatura**: Aberta, Fechada, Paga, Atrasada
+
+**Metricas de meta**: Economia (SAVING), Limite de gasto (EXPENSE_LIMIT), Meta de receita (INCOME_TARGET), Limite por conta (ACCOUNT_LIMIT)
+
+**Status de meta**: No ritmo, Atencao, Em risco, Atingida, Ultrapassada
+
+**Nivel de risco de previsao**: Low (folga), Medium (saldo apertado), High (saldo negativo)
 
 ---
 
@@ -418,9 +486,9 @@ npx prisma db seed   # Popular dados demo
 - [x] Phase 6: Recorrencias (regras, apply idempotente, logs)
 - [x] Phase 7: Portfolio (seed demo, CI, README)
 - [x] Phase 8: Fundacao analitica + billing de cartao
-- [ ] Phase 8.5: Demo and Portfolio Hardening
-- [ ] Phase 9: Goal Engine
-- [ ] Phase 10: Forecast Engine
+- [x] Phase 8.5: Demo and Portfolio Hardening
+- [x] Phase 9: Goal Engine
+- [x] Phase 10: Forecast Engine
 - [ ] Phase 11: Financial Score
 - [ ] Phase 12: Automatic Insights
 - [ ] Import/export CSV
