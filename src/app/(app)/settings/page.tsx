@@ -54,8 +54,8 @@ export default function SettingsPage() {
             <div className="flex-1">
               <h3 className="text-sm font-medium text-gray-900">Resetar dados demo</h3>
               <p className="mt-1 text-sm text-gray-500">
-                Apaga todos os seus dados e recria com dados ficticios de demonstracao. Util para
-                testar o sistema ou apresentar em portfolio.
+                Apaga todos os seus dados e recria um cenario de demonstracao completo, incluindo
+                dashboard populado, recorrencias e cartao com fatura paga e outra em aberto.
               </p>
               {result && <p className="mt-2 text-sm font-medium text-emerald-600">{result}</p>}
               <Button

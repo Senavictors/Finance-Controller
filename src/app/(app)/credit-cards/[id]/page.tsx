@@ -77,6 +77,13 @@ export default async function CreditCardStatementPage({ params }: Props) {
   const openAmount = Math.max(statement.totalAmount - statement.paidAmount, 0)
   const purchases = statement.transactions.filter((transaction) => transaction.type === 'EXPENSE')
   const payments = statement.transactions.filter((transaction) => transaction.type === 'TRANSFER')
+  const usagePercent =
+    statement.account.creditLimit && statement.account.creditLimit > 0
+      ? Math.round((statement.totalAmount / statement.account.creditLimit) * 100)
+      : null
+  const latestPayment = payments
+    .slice()
+    .sort((left, right) => right.date.getTime() - left.date.getTime())[0]
 
   return (
     <div className="space-y-6">
@@ -152,6 +159,12 @@ export default async function CreditCardStatementPage({ params }: Props) {
                   : 'Nao configurado'}
               </span>
             </div>
+            {usagePercent != null && (
+              <div className="flex items-center justify-between">
+                <span className="text-gray-500">Utilizacao do limite</span>
+                <span>{usagePercent}%</span>
+              </div>
+            )}
             <div className="flex items-center justify-between">
               <span className="text-gray-500">Compras</span>
               <span>{purchases.length}</span>
@@ -160,6 +173,12 @@ export default async function CreditCardStatementPage({ params }: Props) {
               <span className="text-gray-500">Pagamentos</span>
               <span>{payments.length}</span>
             </div>
+            {latestPayment && (
+              <div className="flex items-center justify-between">
+                <span className="text-gray-500">Ultimo pagamento</span>
+                <span>{formatDate(latestPayment.date)}</span>
+              </div>
+            )}
           </CardContent>
         </Card>
 
@@ -168,12 +187,34 @@ export default async function CreditCardStatementPage({ params }: Props) {
             <CardTitle>Pagamento da Fatura</CardTitle>
           </CardHeader>
           <CardContent>
-            <StatementPaymentForm
-              statementId={statement.id}
-              cardName={statement.account.name}
-              openAmount={openAmount}
-              sourceAccounts={availableSourceAccounts}
-            />
+            {openAmount <= 0 ? (
+              <div className="space-y-2 text-sm">
+                <p className="font-medium text-emerald-700">Esta fatura ja esta quitada.</p>
+                <p className="text-gray-500">
+                  Nenhum pagamento adicional e necessario para este periodo.
+                </p>
+              </div>
+            ) : availableSourceAccounts.length === 0 ? (
+              <div className="space-y-2 text-sm">
+                <p className="font-medium text-amber-700">Nenhuma conta de origem disponivel.</p>
+                <p className="text-gray-500">
+                  Cadastre uma conta corrente, carteira ou investimento para registrar o pagamento
+                  desta fatura.
+                </p>
+              </div>
+            ) : (
+              <>
+                <p className="mb-4 text-sm text-gray-500">
+                  Registre um pagamento total ou parcial usando uma conta de origem.
+                </p>
+                <StatementPaymentForm
+                  statementId={statement.id}
+                  cardName={statement.account.name}
+                  openAmount={openAmount}
+                  sourceAccounts={availableSourceAccounts}
+                />
+              </>
+            )}
           </CardContent>
         </Card>
       </div>

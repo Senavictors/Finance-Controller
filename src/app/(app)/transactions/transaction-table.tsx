@@ -1,5 +1,6 @@
 'use client'
 
+import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { Badge } from '@/components/ui/badge'
 import {
@@ -21,6 +22,7 @@ type Transaction = {
   transferId: string | null
   account: { name: string; color: string | null }
   category: { name: string; color: string | null } | null
+  creditCardStatement?: { id: string; dueDate: string | Date } | null
 }
 
 export function TransactionTable({ transactions }: { transactions: Transaction[] }) {
@@ -66,6 +68,13 @@ export function TransactionTable({ transactions }: { transactions: Transaction[]
                   <Badge variant="secondary" className="text-[10px]">
                     Transfer
                   </Badge>
+                )}
+                {tx.creditCardStatement && (
+                  <Link href={`/credit-cards/${tx.creditCardStatement.id}`}>
+                    <Badge variant="outline" className="text-[10px]">
+                      Fatura {formatDate(tx.creditCardStatement.dueDate)}
+                    </Badge>
+                  </Link>
                 )}
               </div>
               <div className="mt-0.5 flex items-center gap-2 text-xs text-gray-400">

@@ -44,6 +44,7 @@ export default async function TransactionsPage({ searchParams }: Props) {
       include: {
         account: { select: { name: true, color: true } },
         category: { select: { name: true, color: true } },
+        creditCardStatement: { select: { id: true, dueDate: true } },
       },
       orderBy: { date: 'desc' },
       skip: (page - 1) * limit,

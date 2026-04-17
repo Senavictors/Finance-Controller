@@ -47,12 +47,6 @@ export default async function CreditCardsPage() {
   const [accounts, statements] = await Promise.all([
     prisma.account.findMany({
       where: { userId: session.userId, type: 'CREDIT_CARD' },
-      include: {
-        creditCardStatements: {
-          orderBy: { dueDate: 'asc' },
-          take: 1,
-        },
-      },
       orderBy: { name: 'asc' },
     }),
     prisma.creditCardStatement.findMany({
@@ -66,6 +60,26 @@ export default async function CreditCardsPage() {
       take: 20,
     }),
   ])
+
+  const statementsByAccount = new Map(
+    accounts.map((account) => [
+      account.id,
+      statements.filter((statement) => statement.accountId === account.id),
+    ]),
+  )
+
+  const actionableStatements = statements.filter((statement) => statement.status !== 'PAID')
+  const totalOpenAmount = actionableStatements.reduce(
+    (sum, statement) => sum + Math.max(statement.totalAmount - statement.paidAmount, 0),
+    0,
+  )
+  const nextDueStatement = actionableStatements
+    .slice()
+    .sort((left, right) => left.dueDate.getTime() - right.dueDate.getTime())[0]
+  const latestPaidStatement = statements
+    .filter((statement) => statement.status === 'PAID')
+    .slice()
+    .sort((left, right) => right.dueDate.getTime() - left.dueDate.getTime())[0]
 
   return (
     <div className="space-y-6">
@@ -92,11 +106,86 @@ export default async function CreditCardsPage() {
         </div>
       ) : (
         <>
+          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+            <Card className="rounded-[1.5rem] border-white/50 shadow-sm">
+              <CardHeader>
+                <CardTitle>Faturas em aberto</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-2xl font-semibold tracking-tight">
+                  {actionableStatements.length}
+                </p>
+                <p className="mt-1 text-xs text-gray-500">
+                  Abertas, fechadas ou atrasadas aguardando pagamento
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card className="rounded-[1.5rem] border-white/50 shadow-sm">
+              <CardHeader>
+                <CardTitle>Valor comprometido</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-2xl font-semibold tracking-tight">
+                  {formatCurrency(totalOpenAmount)}
+                </p>
+                <p className="mt-1 text-xs text-gray-500">Soma do saldo em aberto nas faturas</p>
+              </CardContent>
+            </Card>
+
+            <Card className="rounded-[1.5rem] border-white/50 shadow-sm">
+              <CardHeader>
+                <CardTitle>Proximo vencimento</CardTitle>
+              </CardHeader>
+              <CardContent>
+                {nextDueStatement ? (
+                  <>
+                    <p className="text-lg font-semibold tracking-tight">
+                      {formatDate(nextDueStatement.dueDate)}
+                    </p>
+                    <p className="mt-1 text-xs text-gray-500">{nextDueStatement.account.name}</p>
+                  </>
+                ) : (
+                  <p className="text-sm text-gray-500">Nenhuma fatura pendente</p>
+                )}
+              </CardContent>
+            </Card>
+
+            <Card className="rounded-[1.5rem] border-white/50 shadow-sm">
+              <CardHeader>
+                <CardTitle>Ultima fatura paga</CardTitle>
+              </CardHeader>
+              <CardContent>
+                {latestPaidStatement ? (
+                  <>
+                    <p className="text-lg font-semibold tracking-tight">
+                      {formatCurrency(latestPaidStatement.totalAmount)}
+                    </p>
+                    <p className="mt-1 text-xs text-gray-500">
+                      {latestPaidStatement.account.name} • vencimento em{' '}
+                      {formatDate(latestPaidStatement.dueDate)}
+                    </p>
+                  </>
+                ) : (
+                  <p className="text-sm text-gray-500">Ainda nao existe fatura quitada</p>
+                )}
+              </CardContent>
+            </Card>
+          </div>
+
           <div className="grid gap-4 lg:grid-cols-3">
             {accounts.map((account) => {
-              const statement = account.creditCardStatements[0]
-              const openAmount = statement
-                ? Math.max(statement.totalAmount - statement.paidAmount, 0)
+              const accountStatements = statementsByAccount.get(account.id) ?? []
+              const currentStatement =
+                accountStatements.find((statement) => statement.status !== 'PAID') ??
+                accountStatements[0] ??
+                null
+              const lastPaidStatement = accountStatements
+                .filter((statement) => statement.status === 'PAID')
+                .slice()
+                .sort((left, right) => right.dueDate.getTime() - left.dueDate.getTime())[0]
+              const openAmount = currentStatement
+                ? Math.max(currentStatement.totalAmount - currentStatement.paidAmount, 0)
                 : 0
               const usagePercent =
                 account.creditLimit && account.creditLimit > 0
@@ -125,15 +214,36 @@ export default async function CreditCardsPage() {
                       </p>
                     </div>
                     <div>
-                      <p className="text-xs text-gray-400">Fatura atual</p>
+                      <p className="text-xs text-gray-400">Fatura em destaque</p>
                       <p className="text-lg font-semibold tracking-tight text-gray-900">
-                        {statement ? formatCurrency(openAmount) : 'Sem fatura'}
+                        {currentStatement ? formatCurrency(openAmount) : 'Sem fatura'}
                       </p>
-                      {statement && (
+                      {currentStatement ? (
+                        <>
+                          <div className="mt-2 flex items-center gap-2">
+                            <Badge variant={statusVariants[currentStatement.status] ?? 'secondary'}>
+                              {statusLabels[currentStatement.status] ?? currentStatement.status}
+                            </Badge>
+                            <span className="text-xs text-gray-500">
+                              vence em {formatDate(currentStatement.dueDate)}
+                            </span>
+                          </div>
+                          <p className="mt-1 text-xs text-gray-500">{usagePercent}% do limite</p>
+                        </>
+                      ) : (
                         <p className="mt-1 text-xs text-gray-500">
-                          {usagePercent}% do limite • vence em {formatDate(statement.dueDate)}
+                          Faca a primeira compra para gerar uma fatura
                         </p>
                       )}
+                    </div>
+
+                    <div>
+                      <p className="text-xs text-gray-400">Ultima fatura quitada</p>
+                      <p className="text-sm text-gray-700">
+                        {lastPaidStatement
+                          ? `${formatCurrency(lastPaidStatement.totalAmount)} • vencimento ${formatDate(lastPaidStatement.dueDate)}`
+                          : 'Nenhuma fatura paga ainda'}
+                      </p>
                     </div>
                   </CardContent>
                 </Card>
@@ -146,57 +256,63 @@ export default async function CreditCardsPage() {
               <CardTitle>Historico de Faturas</CardTitle>
             </CardHeader>
             <CardContent>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Cartao</TableHead>
-                    <TableHead>Periodo</TableHead>
-                    <TableHead>Vencimento</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead className="text-right">Total</TableHead>
-                    <TableHead className="text-right">Pago</TableHead>
-                    <TableHead className="text-right">Aberto</TableHead>
-                    <TableHead className="text-right">Acao</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {statements.map((statement) => {
-                    const openAmount = Math.max(statement.totalAmount - statement.paidAmount, 0)
+              {statements.length === 0 ? (
+                <div className="text-sm text-gray-500">
+                  Nenhuma fatura foi gerada ainda para os cartoes cadastrados.
+                </div>
+              ) : (
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Cartao</TableHead>
+                      <TableHead>Periodo</TableHead>
+                      <TableHead>Vencimento</TableHead>
+                      <TableHead>Status</TableHead>
+                      <TableHead className="text-right">Total</TableHead>
+                      <TableHead className="text-right">Pago</TableHead>
+                      <TableHead className="text-right">Aberto</TableHead>
+                      <TableHead className="text-right">Acao</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {statements.map((statement) => {
+                      const openAmount = Math.max(statement.totalAmount - statement.paidAmount, 0)
 
-                    return (
-                      <TableRow key={statement.id}>
-                        <TableCell>{statement.account.name}</TableCell>
-                        <TableCell>
-                          {formatDate(statement.periodStart)} - {formatDate(statement.periodEnd)}
-                        </TableCell>
-                        <TableCell>{formatDate(statement.dueDate)}</TableCell>
-                        <TableCell>
-                          <Badge variant={statusVariants[statement.status] ?? 'secondary'}>
-                            {statusLabels[statement.status] ?? statement.status}
-                          </Badge>
-                        </TableCell>
-                        <TableCell className="text-right">
-                          {formatCurrency(statement.totalAmount)}
-                        </TableCell>
-                        <TableCell className="text-right">
-                          {formatCurrency(statement.paidAmount)}
-                        </TableCell>
-                        <TableCell className="text-right">{formatCurrency(openAmount)}</TableCell>
-                        <TableCell className="text-right">
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            render={<Link href={`/credit-cards/${statement.id}`} />}
-                          >
-                            <FileText className="mr-1.5 size-4" />
-                            Detalhes
-                          </Button>
-                        </TableCell>
-                      </TableRow>
-                    )
-                  })}
-                </TableBody>
-              </Table>
+                      return (
+                        <TableRow key={statement.id}>
+                          <TableCell>{statement.account.name}</TableCell>
+                          <TableCell>
+                            {formatDate(statement.periodStart)} - {formatDate(statement.periodEnd)}
+                          </TableCell>
+                          <TableCell>{formatDate(statement.dueDate)}</TableCell>
+                          <TableCell>
+                            <Badge variant={statusVariants[statement.status] ?? 'secondary'}>
+                              {statusLabels[statement.status] ?? statement.status}
+                            </Badge>
+                          </TableCell>
+                          <TableCell className="text-right">
+                            {formatCurrency(statement.totalAmount)}
+                          </TableCell>
+                          <TableCell className="text-right">
+                            {formatCurrency(statement.paidAmount)}
+                          </TableCell>
+                          <TableCell className="text-right">{formatCurrency(openAmount)}</TableCell>
+                          <TableCell className="text-right">
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              render={<Link href={`/credit-cards/${statement.id}`} />}
+                            >
+                              <FileText className="mr-1.5 size-4" />
+                              Detalhes
+                            </Button>
+                          </TableCell>
+                        </TableRow>
+                      )
+                    })}
+                  </TableBody>
+                </Table>
+              )}
             </CardContent>
           </Card>
         </>
