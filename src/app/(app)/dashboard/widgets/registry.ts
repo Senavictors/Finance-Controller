@@ -55,6 +55,15 @@ export const widgetRegistry: WidgetDefinition[] = [
     minW: 3,
     minH: 2,
   },
+  {
+    type: 'goal-progress',
+    label: 'Progresso de Metas',
+    description: 'Ate 4 metas ativas com barra de progresso e status',
+    defaultW: 6,
+    defaultH: 5,
+    minW: 4,
+    minH: 4,
+  },
 ]
 
 export const DEFAULT_WIDGETS = [

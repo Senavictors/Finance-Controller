@@ -4,6 +4,7 @@ import {
   getMonthlyAnalyticsSummary,
   isValidMonthParam,
 } from '@/server/modules/finance/application/analytics'
+import { listGoalsWithProgress } from '@/server/modules/finance/application/goals'
 import { redirect } from 'next/navigation'
 import { DashboardClient } from './dashboard-client'
 import { DEFAULT_WIDGETS } from './widgets/registry'
@@ -20,7 +21,7 @@ export default async function DashboardPage({ searchParams }: Props) {
   const monthParam =
     typeof params.month === 'string' && isValidMonthParam(params.month) ? params.month : null
 
-  const [user, analytics, dashboard] = await Promise.all([
+  const [user, analytics, dashboard, goals] = await Promise.all([
     prisma.user.findUnique({
       where: { id: session.userId },
       select: { name: true },
@@ -33,6 +34,7 @@ export default async function DashboardPage({ searchParams }: Props) {
       where: { userId: session.userId },
       include: { widgets: { orderBy: { createdAt: 'asc' } } },
     }),
+    listGoalsWithProgress(session.userId, monthParam),
   ])
 
   const widgets =
@@ -72,6 +74,15 @@ export default async function DashboardPage({ searchParams }: Props) {
           date: tx.date.toISOString(),
           account: tx.account,
           category: tx.category,
+        })),
+        goals: goals.map((goal) => ({
+          id: goal.goalId,
+          name: goal.name,
+          metric: goal.metric,
+          status: goal.status,
+          progressPercent: goal.progressPercent,
+          actualAmount: goal.actualAmount,
+          targetAmount: goal.targetAmount,
         })),
       }}
       widgets={widgets}

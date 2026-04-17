@@ -16,6 +16,15 @@ export type DashboardData = {
     account: { name: string; color: string | null }
     category: { name: string; color: string | null } | null
   }[]
+  goals: {
+    id: string
+    name: string
+    metric: string
+    status: string
+    progressPercent: number
+    actualAmount: number
+    targetAmount: number
+  }[]
 }
 
 export type WidgetDefinition = {

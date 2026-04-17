@@ -101,10 +101,10 @@ Entregar um modulo de metas financeiras com calculo confiavel por periodo, supor
 - [x] Use cases de metas implementados
 - [x] APIs de CRUD e progresso implementadas
 - [x] Pagina `/goals` entregue
-- [ ] Integracao inicial com dashboard entregue (widget pendente)
+- [x] Integracao inicial com dashboard entregue (widget `goal-progress`)
 - [x] `.docs/CONTEXT.md` updated
-- [ ] ADR created/updated (if applicable)
-- [ ] Manual validation done
+- [x] ADR created/updated (ADR-010)
+- [x] Manual validation done (lint + build OK)
 
 ## Notes for AI (next step)
 

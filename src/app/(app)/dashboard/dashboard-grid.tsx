@@ -11,6 +11,7 @@ import { CategoryDonutWidget } from './widgets/category-donut-widget'
 import { AccountsWidget } from './widgets/accounts-widget'
 import { RecentTransactionsWidget } from './widgets/recent-transactions-widget'
 import { TransactionCountWidget } from './widgets/transaction-count-widget'
+import { GoalProgressWidget } from './widgets/goal-progress-widget'
 import { AddWidgetDialog } from './add-widget-dialog'
 import type { DashboardData } from './widgets/types'
 import 'react-grid-layout/css/styles.css'
@@ -37,6 +38,7 @@ const widgetComponents: Record<string, React.ComponentType<{ data: DashboardData
   accounts: AccountsWidget,
   'recent-transactions': RecentTransactionsWidget,
   'transactions-count': TransactionCountWidget,
+  'goal-progress': GoalProgressWidget,
 }
 
 export function DashboardGrid({ data, widgets: initialWidgets }: Props) {

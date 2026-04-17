@@ -4,7 +4,7 @@
 
 ## Current Phase
 
-**Phase 9: Goal Engine** — Implementado. Modulo de metas financeiras com 4 tipos de metrica, calculo de progresso por periodo, snapshots e pagina `/goals`.
+**Phase 9: Goal Engine** — Concluido. Modulo de metas financeiras com 4 tipos de metrica, calculo de progresso por periodo, snapshots, pagina `/goals` e widget `goal-progress` no dashboard. Formalizado pelo ADR-010.
 
 ## Next Planned Step
 
@@ -25,7 +25,7 @@
 - **Credit card billing**: configuracao de limite/fechamento/vencimento, faturas, pagina de leitura e pagamento de fatura
 - **Snapshot and invalidation base**: tags por usuario/modulo/mes e invalidação central de analytics em mutacoes financeiras
 - **Demo hardening**: seed/reset demo agora montam um cartao com fatura paga e outra em aberto, e a UI de faturas/transacoes ficou mais demonstravel
-- **Goal Engine**: modulo de metas com SAVING, EXPENSE_LIMIT, INCOME_TARGET e ACCOUNT_LIMIT; calculo de progresso com projecao; snapshots; pagina `/goals`; 3 metas demo no seed
+- **Goal Engine**: modulo de metas com SAVING, EXPENSE_LIMIT, INCOME_TARGET e ACCOUNT_LIMIT; calculo de progresso com projecao; snapshots; pagina `/goals`; widget `goal-progress` no dashboard; 3 metas demo no seed
 - **Seed demo**: script com dados ficticios (demo@finance.com / demo1234)
 - **Reset demo**: botao em /settings que recria dados
 - **Landing page**: hero + features + tech stack + footer
@@ -62,3 +62,4 @@ User, Session, Account, Category, Transaction, CreditCardStatement, Dashboard, D
 - [ADR-007](decisions/ADR-007-demo-seed.md): Demo seed data
 - [ADR-008](decisions/ADR-008-credit-card-billing-cycle.md): Credit card billing cycle
 - [ADR-009](decisions/ADR-009-analytics-snapshot-invalidation.md): Analytics snapshot and invalidation strategy
+- [ADR-010](decisions/ADR-010-goal-engine.md): Goal Engine
