@@ -3,8 +3,8 @@
 ## Status
 
 - [x] Todo
-- [ ] In Progress
-- [ ] Done
+- [x] In Progress
+- [x] Done
 
 ## Context
 
@@ -97,12 +97,12 @@ Entregar um modulo de metas financeiras com calculo confiavel por periodo, supor
 
 ## Checklist
 
-- [ ] Modelos Prisma criados
-- [ ] Use cases de metas implementados
-- [ ] APIs de CRUD e progresso implementadas
-- [ ] Pagina `/goals` entregue
-- [ ] Integracao inicial com dashboard entregue
-- [ ] `.docs/CONTEXT.md` updated
+- [x] Modelos Prisma criados
+- [x] Use cases de metas implementados
+- [x] APIs de CRUD e progresso implementadas
+- [x] Pagina `/goals` entregue
+- [ ] Integracao inicial com dashboard entregue (widget pendente)
+- [x] `.docs/CONTEXT.md` updated
 - [ ] ADR created/updated (if applicable)
 - [ ] Manual validation done
 

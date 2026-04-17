@@ -4,11 +4,11 @@
 
 ## Current Phase
 
-**Phase 8.5: Demo and Portfolio Hardening** — Em andamento. A fundacao das Phases 8.1 a 8.4 ja foi concluida, e a demo/portfolio estao sendo refinados antes do Goal Engine.
+**Phase 9: Goal Engine** — Implementado. Modulo de metas financeiras com 4 tipos de metrica, calculo de progresso por periodo, snapshots e pagina `/goals`.
 
 ## Next Planned Step
 
-**Concluir a validacao manual da Phase 8.5** — Depois disso, a proxima feature planejada passa a ser a [Phase 9 - Goal Engine](tasks/phase-9-goal-engine.md)
+**Phase 10: Forecast Engine** — Proxima feature planejada em [phase-10-forecast-engine.md](tasks/phase-10-forecast-engine.md)
 
 ## What Exists
 
@@ -25,6 +25,7 @@
 - **Credit card billing**: configuracao de limite/fechamento/vencimento, faturas, pagina de leitura e pagamento de fatura
 - **Snapshot and invalidation base**: tags por usuario/modulo/mes e invalidação central de analytics em mutacoes financeiras
 - **Demo hardening**: seed/reset demo agora montam um cartao com fatura paga e outra em aberto, e a UI de faturas/transacoes ficou mais demonstravel
+- **Goal Engine**: modulo de metas com SAVING, EXPENSE_LIMIT, INCOME_TARGET e ACCOUNT_LIMIT; calculo de progresso com projecao; snapshots; pagina `/goals`; 3 metas demo no seed
 - **Seed demo**: script com dados ficticios (demo@finance.com / demo1234)
 - **Reset demo**: botao em /settings que recria dados
 - **Landing page**: hero + features + tech stack + footer
@@ -33,11 +34,11 @@
 - **Future feature specs**: `.docs/future-features/` com Goal Engine, Forecast Engine, Score Financeiro e Insights Automaticos
 - **Execution backlog**: tasks formais criadas para as phases 8.5, 9, 10, 11 e 12 em `.docs/tasks/`
 - **Technical plan**: task documentada para a fundacao analitica e ciclo de fatura de cartao
-- **22 API routes**, 10 models, 9 ADRs
+- **24 API routes**, 12 models, 9 ADRs
 
 ## Database Models
 
-User, Session, Account, Category, Transaction, CreditCardStatement, Dashboard, DashboardWidget, RecurringRule, RecurringLog
+User, Session, Account, Category, Transaction, CreditCardStatement, Dashboard, DashboardWidget, RecurringRule, RecurringLog, Goal, GoalSnapshot
 
 ## Current Architectural Reality
 
