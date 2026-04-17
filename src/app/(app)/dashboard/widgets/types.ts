@@ -25,6 +25,16 @@ export type DashboardData = {
     actualAmount: number
     targetAmount: number
   }[]
+  forecast: {
+    predictedBalance: number
+    riskLevel: 'LOW' | 'MEDIUM' | 'HIGH'
+    actualIncome: number
+    actualExpenses: number
+    projectedRecurringIncome: number
+    projectedRecurringExpenses: number
+    projectedVariableExpenses: number
+    assumptions: { label: string; amount: number; kind: string }[]
+  }
 }
 
 export type WidgetDefinition = {

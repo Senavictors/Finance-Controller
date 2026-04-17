@@ -5,6 +5,7 @@ import {
   isValidMonthParam,
 } from '@/server/modules/finance/application/analytics'
 import { listGoalsWithProgress } from '@/server/modules/finance/application/goals'
+import { calculateForecast } from '@/server/modules/finance/application/forecast'
 import { redirect } from 'next/navigation'
 import { DashboardClient } from './dashboard-client'
 import { DEFAULT_WIDGETS } from './widgets/registry'
@@ -21,7 +22,7 @@ export default async function DashboardPage({ searchParams }: Props) {
   const monthParam =
     typeof params.month === 'string' && isValidMonthParam(params.month) ? params.month : null
 
-  const [user, analytics, dashboard, goals] = await Promise.all([
+  const [user, analytics, dashboard, goals, forecast] = await Promise.all([
     prisma.user.findUnique({
       where: { id: session.userId },
       select: { name: true },
@@ -35,6 +36,7 @@ export default async function DashboardPage({ searchParams }: Props) {
       include: { widgets: { orderBy: { createdAt: 'asc' } } },
     }),
     listGoalsWithProgress(session.userId, monthParam),
+    calculateForecast(session.userId, monthParam),
   ])
 
   const widgets =
@@ -84,6 +86,16 @@ export default async function DashboardPage({ searchParams }: Props) {
           actualAmount: goal.actualAmount,
           targetAmount: goal.targetAmount,
         })),
+        forecast: {
+          predictedBalance: forecast.predictedBalance,
+          riskLevel: forecast.riskLevel,
+          actualIncome: forecast.actualIncome,
+          actualExpenses: forecast.actualExpenses,
+          projectedRecurringIncome: forecast.projectedRecurringIncome,
+          projectedRecurringExpenses: forecast.projectedRecurringExpenses,
+          projectedVariableExpenses: forecast.projectedVariableExpenses,
+          assumptions: forecast.assumptions,
+        },
       }}
       widgets={widgets}
     />

@@ -64,6 +64,15 @@ export const widgetRegistry: WidgetDefinition[] = [
     minW: 4,
     minH: 4,
   },
+  {
+    type: 'forecast',
+    label: 'Previsao do Mes',
+    description: 'Saldo previsto, risco e premissas principais do fechamento',
+    defaultW: 6,
+    defaultH: 6,
+    minW: 4,
+    minH: 5,
+  },
 ]
 
 export const DEFAULT_WIDGETS = [

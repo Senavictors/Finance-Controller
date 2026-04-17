@@ -4,11 +4,11 @@
 
 ## Current Phase
 
-**Phase 9: Goal Engine** — Concluido. Modulo de metas financeiras com 4 tipos de metrica, calculo de progresso por periodo, snapshots, pagina `/goals` e widget `goal-progress` no dashboard. Formalizado pelo ADR-010.
+**Phase 10: Forecast Engine** — Concluido. Previsao mensal auditavel combinando realizado, recorrencias futuras, projecao variavel e faturas em aberto, com classificacao de risco e widget `forecast` no dashboard. Formalizado pelo ADR-011.
 
 ## Next Planned Step
 
-**Phase 10: Forecast Engine** — Proxima feature planejada em [phase-10-forecast-engine.md](tasks/phase-10-forecast-engine.md)
+**Phase 11: Score Financeiro** — Proxima feature planejada em [phase-11-financial-score.md](tasks/phase-11-financial-score.md)
 
 ## What Exists
 
@@ -26,6 +26,7 @@
 - **Snapshot and invalidation base**: tags por usuario/modulo/mes e invalidação central de analytics em mutacoes financeiras
 - **Demo hardening**: seed/reset demo agora montam um cartao com fatura paga e outra em aberto, e a UI de faturas/transacoes ficou mais demonstravel
 - **Goal Engine**: modulo de metas com SAVING, EXPENSE_LIMIT, INCOME_TARGET e ACCOUNT_LIMIT; calculo de progresso com projecao; snapshots; pagina `/goals`; widget `goal-progress` no dashboard; 3 metas demo no seed
+- **Forecast Engine**: previsao mensal com saldo previsto, nivel de risco (LOW/MEDIUM/HIGH), projecao de recorrencias futuras, media movel de despesa variavel e snapshot persistido; widget `forecast` no dashboard; APIs `GET /api/analytics/forecast` e `POST /api/analytics/forecast/recalculate`
 - **Seed demo**: script com dados ficticios (demo@finance.com / demo1234)
 - **Reset demo**: botao em /settings que recria dados
 - **Landing page**: hero + features + tech stack + footer
@@ -34,11 +35,11 @@
 - **Future feature specs**: `.docs/future-features/` com Goal Engine, Forecast Engine, Score Financeiro e Insights Automaticos
 - **Execution backlog**: tasks formais criadas para as phases 8.5, 9, 10, 11 e 12 em `.docs/tasks/`
 - **Technical plan**: task documentada para a fundacao analitica e ciclo de fatura de cartao
-- **24 API routes**, 12 models, 9 ADRs
+- **26 API routes**, 13 models, 11 ADRs
 
 ## Database Models
 
-User, Session, Account, Category, Transaction, CreditCardStatement, Dashboard, DashboardWidget, RecurringRule, RecurringLog, Goal, GoalSnapshot
+User, Session, Account, Category, Transaction, CreditCardStatement, Dashboard, DashboardWidget, RecurringRule, RecurringLog, Goal, GoalSnapshot, ForecastSnapshot
 
 ## Current Architectural Reality
 
@@ -63,3 +64,4 @@ User, Session, Account, Category, Transaction, CreditCardStatement, Dashboard, D
 - [ADR-008](decisions/ADR-008-credit-card-billing-cycle.md): Credit card billing cycle
 - [ADR-009](decisions/ADR-009-analytics-snapshot-invalidation.md): Analytics snapshot and invalidation strategy
 - [ADR-010](decisions/ADR-010-goal-engine.md): Goal Engine
+- [ADR-011](decisions/ADR-011-forecast-engine.md): Forecast Engine

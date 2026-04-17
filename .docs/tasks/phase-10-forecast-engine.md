@@ -3,8 +3,8 @@
 ## Status
 
 - [x] Todo
-- [ ] In Progress
-- [ ] Done
+- [x] In Progress
+- [x] Done
 
 ## Context
 
@@ -85,14 +85,14 @@ Responder de forma explicavel a pergunta `Se eu continuar assim, como vou termin
 
 ## Checklist
 
-- [ ] Modelo `ForecastSnapshot` criado
-- [ ] Use cases de forecast implementados
-- [ ] APIs de leitura/recalculo entregues
-- [ ] Widget/card na dashboard entregue
-- [ ] Integracao com base de snapshot/invalidation concluida
-- [ ] `.docs/CONTEXT.md` updated
-- [ ] ADR created/updated (if applicable)
-- [ ] Manual validation done
+- [x] Modelo `ForecastSnapshot` criado
+- [x] Use cases de forecast implementados
+- [x] APIs de leitura/recalculo entregues
+- [x] Widget/card na dashboard entregue
+- [x] Integracao com base de snapshot/invalidation concluida (modulo `forecast` ja invalida em transaction/transfer/recurring/account/category/creditCardPayment)
+- [x] `.docs/CONTEXT.md` updated
+- [x] ADR created/updated (ADR-011)
+- [x] Manual validation done (lint + build + 30 testes vitest)
 
 ## Notes for AI (next step)
 

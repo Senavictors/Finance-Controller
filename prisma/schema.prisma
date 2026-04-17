@@ -23,6 +23,7 @@ model User {
   dashboard            Dashboard?
   recurringRules       RecurringRule[]
   goals                Goal[]
+  forecastSnapshots    ForecastSnapshot[]
 
   @@map("users")
 }
@@ -335,4 +336,37 @@ model GoalSnapshot {
   @@unique([goalId, periodStart])
   @@index([goalId])
   @@map("goal_snapshots")
+}
+
+enum ForecastRiskLevel {
+  LOW
+  MEDIUM
+  HIGH
+
+  @@map("forecast_risk_level")
+}
+
+model ForecastSnapshot {
+  id                         String            @id @default(cuid())
+  userId                     String            @map("user_id")
+  periodStart                DateTime          @map("period_start")
+  periodEnd                  DateTime          @map("period_end")
+  referenceDate              DateTime          @map("reference_date")
+  actualIncome               Int               @map("actual_income")
+  actualExpenses             Int               @map("actual_expenses")
+  projectedRecurringIncome   Int               @map("projected_recurring_income")
+  projectedRecurringExpenses Int               @map("projected_recurring_expenses")
+  projectedVariableIncome    Int               @map("projected_variable_income")
+  projectedVariableExpenses  Int               @map("projected_variable_expenses")
+  predictedBalance           Int               @map("predicted_balance")
+  riskLevel                  ForecastRiskLevel @map("risk_level")
+  assumptions                Json
+  calculatedAt               DateTime          @default(now()) @map("calculated_at")
+  staleAt                    DateTime?         @map("stale_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, periodStart])
+  @@index([userId])
+  @@map("forecast_snapshots")
 }
