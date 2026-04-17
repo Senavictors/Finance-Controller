@@ -83,6 +83,20 @@ export function RecurringForm({ accounts, categories, rule, open, onOpenChange }
 
   const filteredCategories = categories.filter((c) => c.type === txType)
 
+  const accountItems: Record<string, string> = Object.fromEntries(
+    accounts.map((a) => [a.id, a.name]),
+  )
+  const categoryItems: Record<string, string> = {
+    none: 'Nenhuma',
+    ...Object.fromEntries(filteredCategories.map((c) => [c.id, c.name])),
+  }
+  const frequencyItems: Record<string, string> = Object.fromEntries(
+    frequencies.map((f) => [f.value, f.label]),
+  )
+  const weekDayItems: Record<string, string> = Object.fromEntries(
+    weekDays.map((d) => [d.value, d.label]),
+  )
+
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
     setError(null)
@@ -203,7 +217,7 @@ export function RecurringForm({ accounts, categories, rule, open, onOpenChange }
 
           <div className="flex flex-col gap-1.5">
             <Label htmlFor="accountId">Conta</Label>
-            <Select name="accountId" required defaultValue={rule?.accountId}>
+            <Select name="accountId" required items={accountItems} defaultValue={rule?.accountId}>
               <SelectTrigger>
                 <SelectValue placeholder="Selecione" />
               </SelectTrigger>
@@ -219,7 +233,11 @@ export function RecurringForm({ accounts, categories, rule, open, onOpenChange }
 
           <div className="flex flex-col gap-1.5">
             <Label htmlFor="categoryId">Categoria (opcional)</Label>
-            <Select name="categoryId" defaultValue={rule?.categoryId ?? 'none'}>
+            <Select
+              name="categoryId"
+              items={categoryItems}
+              defaultValue={rule?.categoryId ?? 'none'}
+            >
               <SelectTrigger>
                 <SelectValue placeholder="Nenhuma" />
               </SelectTrigger>
@@ -237,7 +255,12 @@ export function RecurringForm({ accounts, categories, rule, open, onOpenChange }
           <div className="flex gap-3">
             <div className="flex flex-1 flex-col gap-1.5">
               <Label>Frequencia</Label>
-              <Select name="frequency" defaultValue={freq} onValueChange={(v) => v && setFreq(v)}>
+              <Select
+                name="frequency"
+                items={frequencyItems}
+                defaultValue={freq}
+                onValueChange={(v) => v && setFreq(v)}
+              >
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
@@ -269,7 +292,11 @@ export function RecurringForm({ accounts, categories, rule, open, onOpenChange }
             {freq === 'WEEKLY' ? (
               <div className="flex flex-1 flex-col gap-1.5">
                 <Label>Dia da semana</Label>
-                <Select name="dayOfWeek" defaultValue={String(rule?.dayOfWeek ?? 1)}>
+                <Select
+                  name="dayOfWeek"
+                  items={weekDayItems}
+                  defaultValue={String(rule?.dayOfWeek ?? 1)}
+                >
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>

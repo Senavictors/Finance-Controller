@@ -37,9 +37,19 @@ export function TransactionFilters({ accounts, categories }: Props) {
     [router, pathname, searchParams],
   )
 
+  const accountItems: Record<string, string> = {
+    all: 'Todas as contas',
+    ...Object.fromEntries(accounts.map((a) => [a.id, a.name])),
+  }
+  const categoryItems: Record<string, string> = {
+    all: 'Todas as categorias',
+    ...Object.fromEntries(categories.map((c) => [c.id, c.name])),
+  }
+
   return (
     <div className="flex flex-wrap gap-3">
       <Select
+        items={accountItems}
         defaultValue={searchParams.get('accountId') ?? 'all'}
         onValueChange={(v) => updateParam('accountId', v)}
       >
@@ -57,6 +67,7 @@ export function TransactionFilters({ accounts, categories }: Props) {
       </Select>
 
       <Select
+        items={categoryItems}
         defaultValue={searchParams.get('categoryId') ?? 'all'}
         onValueChange={(v) => updateParam('categoryId', v)}
       >

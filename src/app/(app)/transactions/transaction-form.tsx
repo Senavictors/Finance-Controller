@@ -39,6 +39,13 @@ export function TransactionForm({ accounts, categories }: Props) {
   const [txType, setTxType] = useState<'INCOME' | 'EXPENSE'>('EXPENSE')
 
   const filteredCategories = categories.filter((c) => c.type === txType)
+  const accountItems: Record<string, string> = Object.fromEntries(
+    accounts.map((a) => [a.id, a.name]),
+  )
+  const categoryItems: Record<string, string> = {
+    none: 'Nenhuma',
+    ...Object.fromEntries(filteredCategories.map((c) => [c.id, c.name])),
+  }
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
@@ -175,7 +182,7 @@ export function TransactionForm({ accounts, categories }: Props) {
 
               <div className="flex flex-col gap-1.5">
                 <Label htmlFor="accountId">Conta</Label>
-                <Select name="accountId" required>
+                <Select name="accountId" required items={accountItems}>
                   <SelectTrigger>
                     <SelectValue placeholder="Selecione" />
                   </SelectTrigger>
@@ -191,7 +198,7 @@ export function TransactionForm({ accounts, categories }: Props) {
 
               <div className="flex flex-col gap-1.5">
                 <Label htmlFor="categoryId">Categoria (opcional)</Label>
-                <Select name="categoryId" defaultValue="none">
+                <Select name="categoryId" defaultValue="none" items={categoryItems}>
                   <SelectTrigger>
                     <SelectValue placeholder="Nenhuma" />
                   </SelectTrigger>
@@ -210,7 +217,7 @@ export function TransactionForm({ accounts, categories }: Props) {
             <>
               <div className="flex flex-col gap-1.5">
                 <Label htmlFor="sourceAccountId">Conta de origem</Label>
-                <Select name="sourceAccountId" required>
+                <Select name="sourceAccountId" required items={accountItems}>
                   <SelectTrigger>
                     <SelectValue placeholder="Selecione" />
                   </SelectTrigger>
@@ -225,7 +232,7 @@ export function TransactionForm({ accounts, categories }: Props) {
               </div>
               <div className="flex flex-col gap-1.5">
                 <Label htmlFor="destinationAccountId">Conta de destino</Label>
-                <Select name="destinationAccountId" required>
+                <Select name="destinationAccountId" required items={accountItems}>
                   <SelectTrigger>
                     <SelectValue placeholder="Selecione" />
                   </SelectTrigger>

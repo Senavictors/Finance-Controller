@@ -66,6 +66,9 @@ export function StatementPaymentForm({ statementId, cardName, openAmount, source
   }
 
   const today = new Date().toISOString().split('T')[0]
+  const sourceAccountItems: Record<string, string> = Object.fromEntries(
+    sourceAccounts.map((a) => [a.id, a.name]),
+  )
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
@@ -73,7 +76,12 @@ export function StatementPaymentForm({ statementId, cardName, openAmount, source
 
       <div className="flex flex-col gap-1.5">
         <Label htmlFor="sourceAccountId">Conta de origem</Label>
-        <Select name="sourceAccountId" required disabled={sourceAccounts.length === 0}>
+        <Select
+          name="sourceAccountId"
+          required
+          items={sourceAccountItems}
+          disabled={sourceAccounts.length === 0}
+        >
           <SelectTrigger>
             <SelectValue placeholder="Selecione uma conta" />
           </SelectTrigger>

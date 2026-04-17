@@ -54,6 +54,12 @@ export function CategoryForm({ category, categories, open, onOpenChange }: Categ
     (c) => c.type === selectedType && !c.parentId && c.id !== category?.id,
   )
 
+  const typeItems: Record<string, string> = { INCOME: 'Receita', EXPENSE: 'Despesa' }
+  const parentItems: Record<string, string> = {
+    none: 'Nenhuma',
+    ...Object.fromEntries(parentOptions.map((p) => [p.id, p.name])),
+  }
+
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
     setError(null)
@@ -126,6 +132,7 @@ export function CategoryForm({ category, categories, open, onOpenChange }: Categ
               <Label htmlFor="type">Tipo</Label>
               <Select
                 name="type"
+                items={typeItems}
                 defaultValue={selectedType}
                 onValueChange={(v) => v && setSelectedType(v)}
               >
@@ -142,7 +149,7 @@ export function CategoryForm({ category, categories, open, onOpenChange }: Categ
 
           <div className="flex flex-col gap-1.5">
             <Label htmlFor="parentId">Categoria pai (opcional)</Label>
-            <Select name="parentId" defaultValue={category?.parentId ?? 'none'}>
+            <Select name="parentId" items={parentItems} defaultValue={category?.parentId ?? 'none'}>
               <SelectTrigger>
                 <SelectValue placeholder="Nenhuma" />
               </SelectTrigger>

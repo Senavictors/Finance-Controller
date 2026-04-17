@@ -126,6 +126,22 @@ export function GoalForm({ categories, accounts, open, onOpenChange }: GoalFormP
   const incomeCategories = categories.filter((c) => c.type === 'INCOME')
   const relevantCategories = metric === 'INCOME_TARGET' ? incomeCategories : expenseCategories
 
+  const metricItems: Record<string, string> = Object.fromEntries(
+    metricOptions.map((o) => [o.value, o.label]),
+  )
+  const scopeItems: Record<string, string> = Object.fromEntries(
+    scopeOptions.map((o) => [o.value, o.label]),
+  )
+  const periodItems: Record<string, string> = Object.fromEntries(
+    periodOptions.map((o) => [o.value, o.label]),
+  )
+  const categoryItems: Record<string, string> = Object.fromEntries(
+    relevantCategories.map((c) => [c.id, c.name]),
+  )
+  const accountItems: Record<string, string> = Object.fromEntries(
+    accounts.map((a) => [a.id, a.name]),
+  )
+
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       {!isControlled && (
@@ -153,7 +169,7 @@ export function GoalForm({ categories, accounts, open, onOpenChange }: GoalFormP
 
           <div className="space-y-1.5">
             <Label>Tipo de meta</Label>
-            <Select value={metric} onValueChange={(v) => v && setMetric(v)}>
+            <Select items={metricItems} value={metric} onValueChange={(v) => v && setMetric(v)}>
               <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>
@@ -171,7 +187,11 @@ export function GoalForm({ categories, accounts, open, onOpenChange }: GoalFormP
           {showScope && (
             <div className="space-y-1.5">
               <Label>Escopo</Label>
-              <Select value={scopeType} onValueChange={(v) => v && setScopeType(v)}>
+              <Select
+                items={scopeItems}
+                value={scopeType}
+                onValueChange={(v) => v && setScopeType(v)}
+              >
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
@@ -189,7 +209,7 @@ export function GoalForm({ categories, accounts, open, onOpenChange }: GoalFormP
           {needsCategory && (
             <div className="space-y-1.5">
               <Label htmlFor="categoryId">Categoria</Label>
-              <Select name="categoryId" required>
+              <Select name="categoryId" required items={categoryItems}>
                 <SelectTrigger>
                   <SelectValue placeholder="Selecione uma categoria" />
                 </SelectTrigger>
@@ -207,7 +227,7 @@ export function GoalForm({ categories, accounts, open, onOpenChange }: GoalFormP
           {needsAccount && (
             <div className="space-y-1.5">
               <Label htmlFor="accountId">Conta</Label>
-              <Select name="accountId" required>
+              <Select name="accountId" required items={accountItems}>
                 <SelectTrigger>
                   <SelectValue placeholder="Selecione uma conta" />
                 </SelectTrigger>
@@ -237,7 +257,7 @@ export function GoalForm({ categories, accounts, open, onOpenChange }: GoalFormP
 
           <div className="space-y-1.5">
             <Label>Periodo</Label>
-            <Select name="period" defaultValue="MONTHLY">
+            <Select name="period" items={periodItems} defaultValue="MONTHLY">
               <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>

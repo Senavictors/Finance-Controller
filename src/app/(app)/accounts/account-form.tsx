@@ -49,6 +49,10 @@ const accountTypes = [
   { value: 'OTHER', label: 'Outro' },
 ]
 
+const accountTypeItems: Record<string, string> = Object.fromEntries(
+  accountTypes.map((t) => [t.value, t.label]),
+)
+
 export function AccountForm({ account, open, onOpenChange }: AccountFormProps) {
   const router = useRouter()
   const [internalOpen, setInternalOpen] = useState(false)
@@ -144,6 +148,7 @@ export function AccountForm({ account, open, onOpenChange }: AccountFormProps) {
             <Label htmlFor="type">Tipo</Label>
             <Select
               name="type"
+              items={accountTypeItems}
               defaultValue={account?.type ?? 'CHECKING'}
               onValueChange={(value) => setAccountType(value ?? 'CHECKING')}
             >
