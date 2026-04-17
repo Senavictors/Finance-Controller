@@ -277,6 +277,51 @@ export async function POST() {
       await refreshCreditCardStatement(statementToPay.id)
     }
 
+    // Create demo goals
+    await Promise.all([
+      prisma.goal.create({
+        data: {
+          userId,
+          name: 'Economizar R$ 500 por mes',
+          description: 'Meta de economia mensal para reserva de emergencia',
+          metric: 'SAVING',
+          scopeType: 'GLOBAL',
+          targetAmount: 50000,
+          period: 'MONTHLY',
+          warningPercent: 80,
+          dangerPercent: 95,
+        },
+      }),
+      prisma.goal.create({
+        data: {
+          userId,
+          name: 'Limite de gastos com Alimentacao',
+          description: 'Manter gastos com alimentacao abaixo de R$ 800',
+          metric: 'EXPENSE_LIMIT',
+          scopeType: 'CATEGORY',
+          categoryId: alimentacao.id,
+          targetAmount: 80000,
+          period: 'MONTHLY',
+          warningPercent: 75,
+          dangerPercent: 90,
+        },
+      }),
+      prisma.goal.create({
+        data: {
+          userId,
+          name: 'Limite do Cartao Nubank',
+          description: 'Controlar uso do cartao de credito',
+          metric: 'ACCOUNT_LIMIT',
+          scopeType: 'ACCOUNT',
+          accountId: cartaoNubank.id,
+          targetAmount: 300000,
+          period: 'MONTHLY',
+          warningPercent: 70,
+          dangerPercent: 90,
+        },
+      }),
+    ])
+
     // Create dashboard
     await prisma.dashboard.create({
       data: {

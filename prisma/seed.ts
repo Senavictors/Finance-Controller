@@ -510,6 +510,52 @@ async function main() {
   ])
   console.log(`  Created ${recurringRules.length} recurring rules`)
 
+  // Create demo goals
+  await Promise.all([
+    prisma.goal.create({
+      data: {
+        userId: user.id,
+        name: 'Economizar R$ 500 por mes',
+        description: 'Meta de economia mensal para reserva de emergencia',
+        metric: 'SAVING',
+        scopeType: 'GLOBAL',
+        targetAmount: 50000,
+        period: 'MONTHLY',
+        warningPercent: 80,
+        dangerPercent: 95,
+      },
+    }),
+    prisma.goal.create({
+      data: {
+        userId: user.id,
+        name: 'Limite de gastos com Alimentacao',
+        description: 'Manter gastos com alimentacao abaixo de R$ 800',
+        metric: 'EXPENSE_LIMIT',
+        scopeType: 'CATEGORY',
+        categoryId: alimentacao.id,
+        targetAmount: 80000,
+        period: 'MONTHLY',
+        warningPercent: 75,
+        dangerPercent: 90,
+      },
+    }),
+    prisma.goal.create({
+      data: {
+        userId: user.id,
+        name: 'Limite do Cartao Nubank',
+        description: 'Controlar uso do cartao de credito',
+        metric: 'ACCOUNT_LIMIT',
+        scopeType: 'ACCOUNT',
+        accountId: cartaoNubank.id,
+        targetAmount: 300000,
+        period: 'MONTHLY',
+        warningPercent: 70,
+        dangerPercent: 90,
+      },
+    }),
+  ])
+  console.log('  Created 3 demo goals')
+
   // Create dashboard with default widgets
   await prisma.dashboard.create({
     data: {
