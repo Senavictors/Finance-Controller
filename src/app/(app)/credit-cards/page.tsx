@@ -301,6 +301,7 @@ export default async function CreditCardsPage() {
                             <Button
                               size="sm"
                               variant="outline"
+                              nativeButton={false}
                               render={<Link href={`/credit-cards/${statement.id}`} />}
                             >
                               <FileText className="mr-1.5 size-4" />

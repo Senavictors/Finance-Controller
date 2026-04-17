@@ -88,7 +88,12 @@ export default async function CreditCardStatementPage({ params }: Props) {
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-3">
-        <Button variant="outline" size="sm" render={<Link href="/credit-cards" />}>
+        <Button
+          variant="outline"
+          size="sm"
+          nativeButton={false}
+          render={<Link href="/credit-cards" />}
+        >
           <ChevronLeft className="mr-1.5 size-4" />
           Voltar
         </Button>
