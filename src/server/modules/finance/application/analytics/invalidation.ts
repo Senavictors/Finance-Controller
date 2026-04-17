@@ -20,11 +20,11 @@ export const ANALYTICS_MUTATION_MODULES = {
   category: ['summary', 'goals', 'forecast', 'score', 'insights'],
   creditCardPayment: ['summary', 'forecast', 'score', 'insights', 'credit-card'],
   fullRebuild: ANALYTICS_SNAPSHOT_MODULES,
-} satisfies Record<string, AnalyticsSnapshotModule[]>
+} satisfies Record<string, readonly AnalyticsSnapshotModule[]>
 
 export type AnalyticsInvalidationContext = {
   userId: string
-  modules?: AnalyticsSnapshotModule[]
+  modules?: readonly AnalyticsSnapshotModule[]
   dates?: MaybeDate[]
   accountIds?: MaybeId[]
   categoryIds?: MaybeId[]
@@ -40,7 +40,7 @@ function toMonthKey(value: MaybeDate) {
   return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`
 }
 
-function compactUnique<T>(values: Array<T | null | undefined>) {
+function compactUnique<T>(values: ReadonlyArray<T | null | undefined>) {
   return Array.from(new Set(values.filter((value): value is T => value != null)))
 }
 
@@ -101,7 +101,7 @@ export async function invalidateAnalyticsSnapshots(context: AnalyticsInvalidatio
   const tags = getAnalyticsInvalidationTags(context)
 
   for (const tag of tags) {
-    revalidateTag(tag)
+    revalidateTag(tag, 'max')
   }
 
   return tags

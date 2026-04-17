@@ -197,3 +197,57 @@ export const updateRecurringRuleSchema = z.object({
 
 export type CreateRecurringRuleInput = z.infer<typeof createRecurringRuleSchema>
 export type UpdateRecurringRuleInput = z.infer<typeof updateRecurringRuleSchema>
+
+// ── Goal ─────────────────────────────────────────────────
+
+const goalBaseSchema = z.object({
+  name: z.string().min(2, 'Nome deve ter pelo menos 2 caracteres').max(100),
+  description: z.string().max(500).optional(),
+  metric: z.enum(['SAVING', 'EXPENSE_LIMIT', 'INCOME_TARGET', 'ACCOUNT_LIMIT'], {
+    message: 'Metrica invalida',
+  }),
+  scopeType: z.enum(['GLOBAL', 'CATEGORY', 'ACCOUNT']).default('GLOBAL'),
+  categoryId: z.string().optional(),
+  accountId: z.string().optional(),
+  targetAmount: z.number().int().positive('Valor alvo deve ser positivo'),
+  period: z.enum(['MONTHLY', 'YEARLY']).default('MONTHLY'),
+  warningPercent: z.number().int().min(1).max(99).default(80),
+  dangerPercent: z.number().int().min(1).max(99).default(95),
+})
+
+export const createGoalSchema = goalBaseSchema.superRefine((data, ctx) => {
+  if (data.scopeType === 'CATEGORY' && !data.categoryId) {
+    ctx.addIssue({
+      code: 'custom',
+      path: ['categoryId'],
+      message: 'Categoria obrigatoria para escopo de categoria',
+    })
+  }
+  if ((data.scopeType === 'ACCOUNT' || data.metric === 'ACCOUNT_LIMIT') && !data.accountId) {
+    ctx.addIssue({
+      code: 'custom',
+      path: ['accountId'],
+      message: 'Conta obrigatoria para escopo de conta',
+    })
+  }
+  if (data.warningPercent >= data.dangerPercent) {
+    ctx.addIssue({
+      code: 'custom',
+      path: ['dangerPercent'],
+      message: 'Limiar de perigo deve ser maior que o de aviso',
+    })
+  }
+})
+
+export const updateGoalSchema = goalBaseSchema
+  .omit({ metric: true })
+  .partial()
+  .extend({ isActive: z.boolean().optional() })
+
+export const goalQuerySchema = z.object({
+  month: z.string().regex(/^\d{4}-\d{2}$/).optional(),
+})
+
+export type CreateGoalInput = z.infer<typeof createGoalSchema>
+export type UpdateGoalInput = z.infer<typeof updateGoalSchema>
+export type GoalQuery = z.infer<typeof goalQuerySchema>
