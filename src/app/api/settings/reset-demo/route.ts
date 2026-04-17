@@ -1,11 +1,23 @@
+import crypto from 'node:crypto'
 import { NextResponse } from 'next/server'
 import { prisma } from '@/server/db'
 import { requireAuth, AuthError } from '@/server/auth'
-import { syncCreditCardStatementsForAccount } from '@/server/modules/finance/application/credit-card/billing'
+import {
+  refreshCreditCardStatement,
+  syncCreditCardStatementsForAccount,
+} from '@/server/modules/finance/application/credit-card/billing'
 import {
   ANALYTICS_MUTATION_MODULES,
   invalidateAnalyticsSnapshots,
 } from '@/server/modules/finance/application/analytics'
+
+function createDemoMonthDate(referenceDate: Date, monthOffset: number, day: number) {
+  const year = referenceDate.getFullYear()
+  const month = referenceDate.getMonth() - monthOffset
+  const lastDay = new Date(year, month + 1, 0).getDate()
+
+  return new Date(year, month, Math.min(day, lastDay), 12, 0, 0, 0)
+}
 
 export async function POST() {
   try {
@@ -105,12 +117,20 @@ export async function POST() {
     const [salario, freelance] = incCats
     const [alimentacao, transporte, moradia, lazer, saude, assinaturas] = expCats
 
-    // Create sample transactions for last 2 months
+    // Create sample transactions for the last 3 months plus one current-cycle purchase
     const now = new Date()
-    const txData = []
+    const txData: Array<{
+      userId: string
+      accountId: string
+      categoryId: string | null
+      type: 'INCOME' | 'EXPENSE'
+      amount: number
+      description: string
+      date: Date
+    }> = []
 
-    for (let m = 0; m < 2; m++) {
-      const d = (day: number) => new Date(now.getFullYear(), now.getMonth() - m, day)
+    for (let monthOffset = 0; monthOffset < 3; monthOffset++) {
+      const d = (day: number) => createDemoMonthDate(now, monthOffset, day)
 
       txData.push(
         {
@@ -160,6 +180,15 @@ export async function POST() {
         },
         {
           userId,
+          accountId: cartaoNubank.id,
+          categoryId: alimentacao.id,
+          type: 'EXPENSE' as const,
+          amount: 17990,
+          description: 'Padaria do bairro',
+          date: d(22),
+        },
+        {
+          userId,
           accountId: nubank.id,
           categoryId: saude.id,
           type: 'EXPENSE' as const,
@@ -178,7 +207,7 @@ export async function POST() {
         },
       )
 
-      if (m === 0) {
+      if (monthOffset === 0) {
         txData.push({
           userId,
           accountId: itau.id,
@@ -191,9 +220,62 @@ export async function POST() {
       }
     }
 
+    txData.push({
+      userId,
+      accountId: cartaoNubank.id,
+      categoryId: alimentacao.id,
+      type: 'EXPENSE',
+      amount: 1890,
+      description: 'Cafe da tarde',
+      date: new Date(now),
+    })
+
     const valid = txData.filter((t) => t.date <= now)
     await prisma.transaction.createMany({ data: valid })
     await syncCreditCardStatementsForAccount(cartaoNubank.id)
+
+    const statements = await prisma.creditCardStatement.findMany({
+      where: { userId, accountId: cartaoNubank.id, totalAmount: { gt: 0 } },
+      orderBy: { dueDate: 'asc' },
+    })
+
+    const statementToPay = statements.find((statement) => statement.closingDate < now)
+
+    if (statementToPay) {
+      const transferId = crypto.randomUUID()
+      const paymentDate =
+        statementToPay.dueDate < now ? statementToPay.dueDate : new Date(now.getTime())
+
+      await prisma.$transaction([
+        prisma.transaction.create({
+          data: {
+            userId,
+            accountId: nubank.id,
+            type: 'TRANSFER',
+            amount: statementToPay.totalAmount,
+            date: paymentDate,
+            description: `Pagamento fatura ${cartaoNubank.name}`,
+            notes: 'Lancamento demo para exibir uma fatura quitada',
+            transferId,
+          },
+        }),
+        prisma.transaction.create({
+          data: {
+            userId,
+            accountId: cartaoNubank.id,
+            creditCardStatementId: statementToPay.id,
+            type: 'TRANSFER',
+            amount: statementToPay.totalAmount,
+            date: paymentDate,
+            description: `Pagamento fatura ${cartaoNubank.name}`,
+            notes: 'Lancamento demo para exibir uma fatura quitada',
+            transferId,
+          },
+        }),
+      ])
+
+      await refreshCreditCardStatement(statementToPay.id)
+    }
 
     // Create dashboard
     await prisma.dashboard.create({

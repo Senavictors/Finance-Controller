@@ -1,12 +1,58 @@
+import crypto from 'node:crypto'
 import { PrismaClient } from '../src/generated/prisma/client'
 import { PrismaPg } from '@prisma/adapter-pg'
 import bcrypt from 'bcrypt'
-import { getCreditCardStatementCycle } from '../src/server/modules/finance/application/credit-card/statement-cycle'
+import {
+  getCreditCardStatementCycle,
+  getCreditCardStatementStatus,
+} from '../src/server/modules/finance/application/credit-card/statement-cycle'
 
 const adapter = new PrismaPg(process.env.DATABASE_URL!)
 const prisma = new PrismaClient({ adapter })
 
 const SALT_ROUNDS = 12
+
+function createDemoMonthDate(referenceDate: Date, monthOffset: number, day: number) {
+  const year = referenceDate.getFullYear()
+  const month = referenceDate.getMonth() - monthOffset
+  const lastDay = new Date(year, month + 1, 0).getDate()
+
+  return new Date(year, month, Math.min(day, lastDay), 12, 0, 0, 0)
+}
+
+async function refreshCreditCardStatements(accountId: string) {
+  const statements = await prisma.creditCardStatement.findMany({
+    where: { accountId },
+    include: {
+      transactions: {
+        select: { type: true, amount: true },
+      },
+    },
+  })
+
+  for (const statement of statements) {
+    const totalAmount = statement.transactions
+      .filter((transaction) => transaction.type === 'EXPENSE')
+      .reduce((sum, transaction) => sum + transaction.amount, 0)
+    const paidAmount = statement.transactions
+      .filter((transaction) => transaction.type === 'TRANSFER')
+      .reduce((sum, transaction) => sum + transaction.amount, 0)
+
+    await prisma.creditCardStatement.update({
+      where: { id: statement.id },
+      data: {
+        totalAmount,
+        paidAmount,
+        status: getCreditCardStatementStatus({
+          closingDate: statement.closingDate,
+          dueDate: statement.dueDate,
+          totalAmount,
+          paidAmount,
+        }),
+      },
+    })
+  }
+}
 
 async function main() {
   console.log('Seeding database...')
@@ -146,10 +192,7 @@ async function main() {
   }[] = []
 
   for (let monthOffset = 0; monthOffset < 3; monthOffset++) {
-    const year = now.getFullYear()
-    const month = now.getMonth() - monthOffset
-
-    const d = (day: number) => new Date(year, month, day)
+    const d = (day: number) => createDemoMonthDate(now, monthOffset, day)
 
     // Salario
     transactions.push({
@@ -303,6 +346,16 @@ async function main() {
     }
   }
 
+  transactions.push({
+    userId: user.id,
+    accountId: cartaoNubank.id,
+    categoryId: alimentacao.id,
+    type: 'EXPENSE',
+    amount: 1890,
+    description: 'Cafe da tarde',
+    date: new Date(now),
+  })
+
   // Filter out transactions with invalid dates (future dates for past months)
   const validTransactions = transactions.filter((t) => t.date <= now)
 
@@ -353,25 +406,48 @@ async function main() {
     })
   }
 
+  await refreshCreditCardStatements(cartaoNubank.id)
+
   const statements = await prisma.creditCardStatement.findMany({
-    where: { accountId: cartaoNubank.id },
-    include: {
-      transactions: {
-        select: { type: true, amount: true },
-      },
-    },
+    where: { accountId: cartaoNubank.id, totalAmount: { gt: 0 } },
+    orderBy: { dueDate: 'asc' },
   })
+  const statementToPay = statements.find((statement) => statement.closingDate < now)
 
-  for (const statement of statements) {
-    const totalAmount = statement.transactions
-      .filter((transaction) => transaction.type === 'EXPENSE')
-      .reduce((sum, transaction) => sum + transaction.amount, 0)
+  if (statementToPay) {
+    const transferId = crypto.randomUUID()
+    const paymentDate = statementToPay.dueDate < now ? statementToPay.dueDate : new Date(now)
 
-    await prisma.creditCardStatement.update({
-      where: { id: statement.id },
-      data: { totalAmount },
-    })
+    await prisma.$transaction([
+      prisma.transaction.create({
+        data: {
+          userId: user.id,
+          accountId: nubank.id,
+          type: 'TRANSFER',
+          amount: statementToPay.totalAmount,
+          date: paymentDate,
+          description: `Pagamento fatura ${cartaoNubank.name}`,
+          notes: 'Lancamento demo para exibir uma fatura quitada',
+          transferId,
+        },
+      }),
+      prisma.transaction.create({
+        data: {
+          userId: user.id,
+          accountId: cartaoNubank.id,
+          creditCardStatementId: statementToPay.id,
+          type: 'TRANSFER',
+          amount: statementToPay.totalAmount,
+          date: paymentDate,
+          description: `Pagamento fatura ${cartaoNubank.name}`,
+          notes: 'Lancamento demo para exibir uma fatura quitada',
+          transferId,
+        },
+      }),
+    ])
   }
+
+  await refreshCreditCardStatements(cartaoNubank.id)
 
   // Create recurring rules
   const recurringRules = await Promise.all([
