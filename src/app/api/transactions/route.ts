@@ -3,6 +3,10 @@ import { prisma } from '@/server/db'
 import { requireAuth, AuthError } from '@/server/auth'
 import { createTransactionSchema, transactionQuerySchema } from '@/server/modules/finance/http'
 import { syncCreditCardTransactionStatement } from '@/server/modules/finance/application/credit-card/billing'
+import {
+  ANALYTICS_MUTATION_MODULES,
+  invalidateAnalyticsSnapshots,
+} from '@/server/modules/finance/application/analytics'
 
 export async function GET(request: NextRequest) {
   try {
@@ -88,7 +92,16 @@ export async function POST(request: NextRequest) {
       data: { ...data, accountId, categoryId: categoryId ?? null, userId },
     })
 
-    await syncCreditCardTransactionStatement(transaction.id)
+    const statement = await syncCreditCardTransactionStatement(transaction.id)
+
+    await invalidateAnalyticsSnapshots({
+      userId,
+      modules: ANALYTICS_MUTATION_MODULES.transaction,
+      dates: [transaction.date],
+      accountIds: [transaction.accountId],
+      categoryIds: [transaction.categoryId],
+      statementIds: [statement?.id],
+    })
 
     return NextResponse.json({ data: transaction }, { status: 201 })
   } catch (error) {

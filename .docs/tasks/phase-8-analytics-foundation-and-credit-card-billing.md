@@ -197,6 +197,14 @@ Status atual:
   - categoria
   - pagamento de fatura
 
+Status atual:
+
+- Convencao de tags criada em `src/server/modules/finance/application/analytics/`
+- Helper central `invalidateAnalyticsSnapshots(context)` implementado
+- Mutacoes de transacao, transferencia, recorrencia, conta, categoria, reset demo e pagamento de fatura passaram a invalidar snapshots relevantes
+- `GET /api/analytics/summary` passou a expor um snapshot cacheavel e serializavel para a base de analytics
+- Coberto com testes unitarios para tags e serializacao do snapshot
+
 ### Phase 8.5 - Demo and portfolio hardening
 
 - Atualizar seed/reset demo com conta de cartao configurada
@@ -226,10 +234,10 @@ Status atual:
 - [x] Billing cycle de cartao implementado
 - [x] Faturas com fechamento e vencimento implementadas
 - [x] Pagamento de fatura suportado
-- [ ] Estrategia de snapshot/invalidation documentada no codigo
-- [ ] `.docs/CONTEXT.md` updated
-- [ ] ADR created/updated (if applicable)
-- [ ] Manual validation done
+- [x] Estrategia de snapshot/invalidation documentada no codigo
+- [x] `.docs/CONTEXT.md` updated
+- [x] ADR created/updated (if applicable)
+- [x] Manual validation done
 
 ## Notes for AI (next step)
 

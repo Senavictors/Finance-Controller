@@ -1,12 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { requireAuth, AuthError } from '@/server/auth'
-import { getMonthlyAnalyticsSummary } from '@/server/modules/finance/application/analytics'
+import { getCachedMonthlyAnalyticsSummarySnapshot } from '@/server/modules/finance/application/analytics'
 
 export async function GET(request: NextRequest) {
   try {
     const { userId } = await requireAuth()
     const monthParam = request.nextUrl.searchParams.get('month')
-    const summary = await getMonthlyAnalyticsSummary({ userId, monthParam })
+    const summary = await getCachedMonthlyAnalyticsSummarySnapshot({ userId, monthParam })
 
     return NextResponse.json({
       data: {

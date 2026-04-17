@@ -4,11 +4,11 @@
 
 ## Current Phase
 
-**Phase 8: Foundation for Analytics and Credit Card Billing** — Em andamento. Phases 8.1 (shared analytics core), 8.2 (test foundation) e 8.3 (credit card billing domain) implementadas.
+**Phase 8: Foundation for Analytics and Credit Card Billing** — Em andamento. Phases 8.1 (shared analytics core), 8.2 (test foundation), 8.3 (credit card billing domain) e 8.4 (snapshot and invalidation base) implementadas.
 
 ## Next Planned Step
 
-**Phase 8.4: Snapshot and Invalidation Base** — Proxima etapa planejada em `.docs/tasks/phase-8-analytics-foundation-and-credit-card-billing.md`
+**Phase 8.5: Demo and Portfolio Hardening** — Proxima etapa planejada em `.docs/tasks/phase-8-analytics-foundation-and-credit-card-billing.md`
 
 ## What Exists
 
@@ -23,6 +23,7 @@
 - **Analytics core compartilhado**: `resolveMonthPeriod` + `getMonthlyAnalyticsSummary` reutilizados por dashboard, analytics API e transactions page
 - **Test foundation**: Vitest configurado com primeiros testes do analytics core
 - **Credit card billing**: configuracao de limite/fechamento/vencimento, faturas, pagina de leitura e pagamento de fatura
+- **Snapshot and invalidation base**: tags por usuario/modulo/mes e invalidação central de analytics em mutacoes financeiras
 - **Seed demo**: script com dados ficticios (demo@finance.com / demo1234)
 - **Reset demo**: botao em /settings que recria dados
 - **Landing page**: hero + features + tech stack + footer
@@ -43,6 +44,7 @@ User, Session, Account, Category, Transaction, Dashboard, DashboardWidget, Recur
 - As specs em `.docs/future-features/` assumem uma extracao gradual de uma camada analitica/use case antes de expandir metas, forecast, score e insights
 - O produto passou a assumir explicitamente suporte futuro a cartao de credito com limite, fechamento, vencimento e faturas
 - A fundacao da camada analitica server-side comecou a sair de `route.ts` e foi centralizada em `src/server/modules/finance/application/analytics/`
+- A mesma camada agora possui convencoes de snapshot e invalidação para summary, goals, forecast, score, insights e billing de cartao
 - O dominio de cartao agora possui ciclo de fatura em `src/server/modules/finance/application/credit-card/` e superfice inicial em `/credit-cards`
 
 ## Key Decisions
@@ -55,3 +57,4 @@ User, Session, Account, Category, Transaction, Dashboard, DashboardWidget, Recur
 - [ADR-006](decisions/ADR-006-recurring-rules.md): Recurring rules
 - [ADR-007](decisions/ADR-007-demo-seed.md): Demo seed data
 - [ADR-008](decisions/ADR-008-credit-card-billing-cycle.md): Credit card billing cycle
+- [ADR-009](decisions/ADR-009-analytics-snapshot-invalidation.md): Analytics snapshot and invalidation strategy

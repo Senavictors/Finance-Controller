@@ -4,6 +4,10 @@ import { requireAuth, AuthError } from '@/server/auth'
 import { prisma } from '@/server/db'
 import { createCreditCardPaymentSchema } from '@/server/modules/finance/http'
 import { refreshCreditCardStatement } from '@/server/modules/finance/application/credit-card/billing'
+import {
+  ANALYTICS_MUTATION_MODULES,
+  invalidateAnalyticsSnapshots,
+} from '@/server/modules/finance/application/analytics'
 
 type Params = { params: Promise<{ id: string }> }
 
@@ -96,6 +100,14 @@ export async function POST(request: NextRequest, { params }: Params) {
     ])
 
     await refreshCreditCardStatement(statement.id)
+
+    await invalidateAnalyticsSnapshots({
+      userId,
+      modules: ANALYTICS_MUTATION_MODULES.creditCardPayment,
+      dates: [parsed.data.date, statement.dueDate],
+      accountIds: [sourceAccount.id, statement.account.id],
+      statementIds: [statement.id],
+    })
 
     return NextResponse.json({ data: { outgoing, incoming, transferId } }, { status: 201 })
   } catch (error) {

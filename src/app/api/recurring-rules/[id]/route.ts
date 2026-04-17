@@ -2,6 +2,10 @@ import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/server/db'
 import { requireAuth, AuthError } from '@/server/auth'
 import { updateRecurringRuleSchema } from '@/server/modules/finance/http'
+import {
+  ANALYTICS_MUTATION_MODULES,
+  invalidateAnalyticsSnapshots,
+} from '@/server/modules/finance/application/analytics'
 
 type Params = { params: Promise<{ id: string }> }
 
@@ -29,6 +33,21 @@ export async function PATCH(request: NextRequest, { params }: Params) {
       data: parsed.data,
     })
 
+    await invalidateAnalyticsSnapshots({
+      userId,
+      modules: ANALYTICS_MUTATION_MODULES.recurringRule,
+      dates: [
+        existing.startDate,
+        existing.endDate,
+        existing.lastApplied,
+        rule.startDate,
+        rule.endDate,
+        rule.lastApplied,
+      ],
+      accountIds: [existing.accountId, rule.accountId],
+      categoryIds: [existing.categoryId, rule.categoryId],
+    })
+
     return NextResponse.json({ data: rule })
   } catch (error) {
     if (error instanceof AuthError) {
@@ -49,6 +68,14 @@ export async function DELETE(_request: NextRequest, { params }: Params) {
     }
 
     await prisma.recurringRule.delete({ where: { id } })
+
+    await invalidateAnalyticsSnapshots({
+      userId,
+      modules: ANALYTICS_MUTATION_MODULES.recurringRule,
+      dates: [existing.startDate, existing.endDate, existing.lastApplied],
+      accountIds: [existing.accountId],
+      categoryIds: [existing.categoryId],
+    })
 
     return NextResponse.json({ success: true })
   } catch (error) {

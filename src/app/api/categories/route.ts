@@ -2,6 +2,10 @@ import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/server/db'
 import { requireAuth, AuthError } from '@/server/auth'
 import { createCategorySchema, categoryQuerySchema } from '@/server/modules/finance/http'
+import {
+  ANALYTICS_MUTATION_MODULES,
+  invalidateAnalyticsSnapshots,
+} from '@/server/modules/finance/application/analytics'
 
 export async function GET(request: NextRequest) {
   try {
@@ -60,6 +64,12 @@ export async function POST(request: NextRequest) {
 
     const category = await prisma.category.create({
       data: { ...data, parentId: parentId ?? null, userId },
+    })
+
+    await invalidateAnalyticsSnapshots({
+      userId,
+      modules: ANALYTICS_MUTATION_MODULES.category,
+      categoryIds: [category.id],
     })
 
     return NextResponse.json({ data: category }, { status: 201 })

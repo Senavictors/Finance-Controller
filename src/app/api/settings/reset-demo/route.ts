@@ -2,6 +2,10 @@ import { NextResponse } from 'next/server'
 import { prisma } from '@/server/db'
 import { requireAuth, AuthError } from '@/server/auth'
 import { syncCreditCardStatementsForAccount } from '@/server/modules/finance/application/credit-card/billing'
+import {
+  ANALYTICS_MUTATION_MODULES,
+  invalidateAnalyticsSnapshots,
+} from '@/server/modules/finance/application/analytics'
 
 export async function POST() {
   try {
@@ -205,6 +209,11 @@ export async function POST() {
           ],
         },
       },
+    })
+
+    await invalidateAnalyticsSnapshots({
+      userId,
+      modules: ANALYTICS_MUTATION_MODULES.fullRebuild,
     })
 
     return NextResponse.json({ success: true, message: 'Dados demo recriados com sucesso' })

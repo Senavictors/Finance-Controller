@@ -2,6 +2,10 @@ import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/server/db'
 import { requireAuth, AuthError } from '@/server/auth'
 import { updateCategorySchema } from '@/server/modules/finance/http'
+import {
+  ANALYTICS_MUTATION_MODULES,
+  invalidateAnalyticsSnapshots,
+} from '@/server/modules/finance/application/analytics'
 
 type Params = { params: Promise<{ id: string }> }
 
@@ -44,6 +48,12 @@ export async function PATCH(request: NextRequest, { params }: Params) {
       data: parsed.data,
     })
 
+    await invalidateAnalyticsSnapshots({
+      userId,
+      modules: ANALYTICS_MUTATION_MODULES.category,
+      categoryIds: [existing.id, category.id],
+    })
+
     return NextResponse.json({ data: category })
   } catch (error) {
     if (error instanceof AuthError) {
@@ -78,6 +88,12 @@ export async function DELETE(_request: NextRequest, { params }: Params) {
     }
 
     await prisma.category.delete({ where: { id } })
+
+    await invalidateAnalyticsSnapshots({
+      userId,
+      modules: ANALYTICS_MUTATION_MODULES.category,
+      categoryIds: [existing.id],
+    })
 
     return NextResponse.json({ success: true })
   } catch (error) {

@@ -6,6 +6,10 @@ import {
   refreshCreditCardStatement,
   syncCreditCardTransactionStatement,
 } from '@/server/modules/finance/application/credit-card/billing'
+import {
+  ANALYTICS_MUTATION_MODULES,
+  invalidateAnalyticsSnapshots,
+} from '@/server/modules/finance/application/analytics'
 
 type Params = { params: Promise<{ id: string }> }
 
@@ -64,7 +68,16 @@ export async function PATCH(request: NextRequest, { params }: Params) {
       await refreshCreditCardStatement(existing.creditCardStatementId)
     }
 
-    await syncCreditCardTransactionStatement(transaction.id)
+    const statement = await syncCreditCardTransactionStatement(transaction.id)
+
+    await invalidateAnalyticsSnapshots({
+      userId,
+      modules: ANALYTICS_MUTATION_MODULES.transaction,
+      dates: [existing.date, transaction.date],
+      accountIds: [existing.accountId, transaction.accountId],
+      categoryIds: [existing.categoryId, transaction.categoryId],
+      statementIds: [existing.creditCardStatementId, statement?.id],
+    })
 
     return NextResponse.json({ data: transaction })
   } catch (error) {
@@ -88,7 +101,11 @@ export async function DELETE(_request: NextRequest, { params }: Params) {
     if (existing.transferId) {
       const linkedTransactions = await prisma.transaction.findMany({
         where: { transferId: existing.transferId, userId },
-        select: { creditCardStatementId: true },
+        select: {
+          accountId: true,
+          date: true,
+          creditCardStatementId: true,
+        },
       })
 
       await prisma.transaction.deleteMany({
@@ -104,12 +121,29 @@ export async function DELETE(_request: NextRequest, { params }: Params) {
           ),
         ).map((statementId) => refreshCreditCardStatement(statementId)),
       )
+
+      await invalidateAnalyticsSnapshots({
+        userId,
+        modules: ANALYTICS_MUTATION_MODULES.transfer,
+        dates: linkedTransactions.map((transaction) => transaction.date),
+        accountIds: linkedTransactions.map((transaction) => transaction.accountId),
+        statementIds: linkedTransactions.map((transaction) => transaction.creditCardStatementId),
+      })
     } else {
       await prisma.transaction.delete({ where: { id } })
 
       if (existing.creditCardStatementId) {
         await refreshCreditCardStatement(existing.creditCardStatementId)
       }
+
+      await invalidateAnalyticsSnapshots({
+        userId,
+        modules: ANALYTICS_MUTATION_MODULES.transaction,
+        dates: [existing.date],
+        accountIds: [existing.accountId],
+        categoryIds: [existing.categoryId],
+        statementIds: [existing.creditCardStatementId],
+      })
     }
 
     return NextResponse.json({ success: true })

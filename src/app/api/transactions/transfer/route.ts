@@ -3,6 +3,10 @@ import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/server/db'
 import { requireAuth, AuthError } from '@/server/auth'
 import { createTransferSchema } from '@/server/modules/finance/http'
+import {
+  ANALYTICS_MUTATION_MODULES,
+  invalidateAnalyticsSnapshots,
+} from '@/server/modules/finance/application/analytics'
 
 export async function POST(request: NextRequest) {
   try {
@@ -59,6 +63,13 @@ export async function POST(request: NextRequest) {
         },
       }),
     ])
+
+    await invalidateAnalyticsSnapshots({
+      userId,
+      modules: ANALYTICS_MUTATION_MODULES.transfer,
+      dates: [outgoing.date, incoming.date],
+      accountIds: [outgoing.accountId, incoming.accountId],
+    })
 
     return NextResponse.json({ data: { outgoing, incoming, transferId } }, { status: 201 })
   } catch (error) {

@@ -4,6 +4,10 @@ import { requireAuth, AuthError } from '@/server/auth'
 import { updateAccountSchema } from '@/server/modules/finance/http'
 import { syncCreditCardStatementsForAccount } from '@/server/modules/finance/application/credit-card/billing'
 import { isCreditCardBillingConfigured } from '@/server/modules/finance/application/credit-card/statement-cycle'
+import {
+  ANALYTICS_MUTATION_MODULES,
+  invalidateAnalyticsSnapshots,
+} from '@/server/modules/finance/application/analytics'
 
 type Params = { params: Promise<{ id: string }> }
 
@@ -100,6 +104,12 @@ export async function PATCH(request: NextRequest, { params }: Params) {
       await syncCreditCardStatementsForAccount(account.id)
     }
 
+    await invalidateAnalyticsSnapshots({
+      userId,
+      modules: ANALYTICS_MUTATION_MODULES.account,
+      accountIds: [existing.id, account.id],
+    })
+
     return NextResponse.json({ data: account })
   } catch (error) {
     if (error instanceof AuthError) {
@@ -120,6 +130,12 @@ export async function DELETE(_request: NextRequest, { params }: Params) {
     }
 
     await prisma.account.delete({ where: { id } })
+
+    await invalidateAnalyticsSnapshots({
+      userId,
+      modules: ANALYTICS_MUTATION_MODULES.account,
+      accountIds: [existing.id],
+    })
 
     return NextResponse.json({ success: true })
   } catch (error) {

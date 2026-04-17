@@ -2,6 +2,10 @@ import { NextResponse } from 'next/server'
 import { prisma } from '@/server/db'
 import { requireAuth, AuthError } from '@/server/auth'
 import { syncCreditCardTransactionStatement } from '@/server/modules/finance/application/credit-card/billing'
+import {
+  ANALYTICS_MUTATION_MODULES,
+  invalidateAnalyticsSnapshots,
+} from '@/server/modules/finance/application/analytics'
 
 function getNextDates(rule: {
   frequency: string
@@ -65,6 +69,11 @@ export async function POST() {
 
     let created = 0
     let errors = 0
+    const affectedTransactionDates: Date[] = []
+    const affectedAccountIds: string[] = []
+    const affectedCategoryIds: string[] = []
+    const affectedStatementIds: string[] = []
+    const recurringRuleDates: Date[] = []
 
     for (const rule of rules) {
       const pendingDates = getNextDates(rule)
@@ -99,7 +108,16 @@ export async function POST() {
             },
           })
 
-          await syncCreditCardTransactionStatement(transaction.id)
+          const statement = await syncCreditCardTransactionStatement(transaction.id)
+
+          affectedTransactionDates.push(transaction.date)
+          affectedAccountIds.push(transaction.accountId)
+          if (transaction.categoryId) {
+            affectedCategoryIds.push(transaction.categoryId)
+          }
+          if (statement?.id) {
+            affectedStatementIds.push(statement.id)
+          }
 
           await prisma.recurringLog.create({
             data: {
@@ -129,7 +147,38 @@ export async function POST() {
           where: { id: rule.id },
           data: { lastApplied: pendingDates[pendingDates.length - 1] },
         })
+
+        recurringRuleDates.push(rule.startDate)
+        if (rule.endDate) {
+          recurringRuleDates.push(rule.endDate)
+        }
+        recurringRuleDates.push(pendingDates[pendingDates.length - 1])
+        affectedAccountIds.push(rule.accountId)
+        if (rule.categoryId) {
+          affectedCategoryIds.push(rule.categoryId)
+        }
       }
+    }
+
+    if (created > 0) {
+      await invalidateAnalyticsSnapshots({
+        userId,
+        modules: ANALYTICS_MUTATION_MODULES.transaction,
+        dates: affectedTransactionDates,
+        accountIds: affectedAccountIds,
+        categoryIds: affectedCategoryIds,
+        statementIds: affectedStatementIds,
+      })
+    }
+
+    if (recurringRuleDates.length > 0) {
+      await invalidateAnalyticsSnapshots({
+        userId,
+        modules: ANALYTICS_MUTATION_MODULES.recurringRule,
+        dates: recurringRuleDates,
+        accountIds: affectedAccountIds,
+        categoryIds: affectedCategoryIds,
+      })
     }
 
     return NextResponse.json({

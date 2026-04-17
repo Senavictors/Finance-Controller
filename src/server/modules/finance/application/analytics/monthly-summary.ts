@@ -2,7 +2,7 @@ import { prisma } from '@/server/db'
 import type { MonthlyAnalyticsSummary } from './types'
 import { resolveMonthPeriod } from './period'
 
-type GetMonthlyAnalyticsSummaryInput = {
+export type GetMonthlyAnalyticsSummaryInput = {
   userId: string
   monthParam?: string | null
   recentTransactionsLimit?: number

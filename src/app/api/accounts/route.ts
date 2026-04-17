@@ -2,6 +2,10 @@ import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/server/db'
 import { requireAuth, AuthError } from '@/server/auth'
 import { createAccountSchema } from '@/server/modules/finance/http'
+import {
+  ANALYTICS_MUTATION_MODULES,
+  invalidateAnalyticsSnapshots,
+} from '@/server/modules/finance/application/analytics'
 
 export async function GET() {
   try {
@@ -46,6 +50,12 @@ export async function POST(request: NextRequest) {
 
     const account = await prisma.account.create({
       data: { ...data, userId },
+    })
+
+    await invalidateAnalyticsSnapshots({
+      userId,
+      modules: ANALYTICS_MUTATION_MODULES.account,
+      accountIds: [account.id],
     })
 
     return NextResponse.json({ data: account }, { status: 201 })

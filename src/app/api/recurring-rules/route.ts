@@ -2,6 +2,10 @@ import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/server/db'
 import { requireAuth, AuthError } from '@/server/auth'
 import { createRecurringRuleSchema } from '@/server/modules/finance/http'
+import {
+  ANALYTICS_MUTATION_MODULES,
+  invalidateAnalyticsSnapshots,
+} from '@/server/modules/finance/application/analytics'
 
 export async function GET() {
   try {
@@ -55,6 +59,14 @@ export async function POST(request: NextRequest) {
 
     const rule = await prisma.recurringRule.create({
       data: { ...data, accountId, categoryId: categoryId ?? null, userId },
+    })
+
+    await invalidateAnalyticsSnapshots({
+      userId,
+      modules: ANALYTICS_MUTATION_MODULES.recurringRule,
+      dates: [rule.startDate, rule.endDate, rule.lastApplied],
+      accountIds: [rule.accountId],
+      categoryIds: [rule.categoryId],
     })
 
     return NextResponse.json({ data: rule }, { status: 201 })
