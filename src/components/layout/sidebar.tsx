@@ -9,6 +9,7 @@ import {
   Wallet,
   CreditCard,
   RefreshCw,
+  Target,
   Settings,
   TrendingUp,
 } from 'lucide-react'
@@ -20,6 +21,7 @@ const navItems = [
   { href: '/categories', label: 'Categorias', icon: Tag },
   { href: '/accounts', label: 'Contas', icon: Wallet },
   { href: '/credit-cards', label: 'Faturas', icon: CreditCard },
+  { href: '/goals', label: 'Metas', icon: Target },
   { href: '/recurring', label: 'Recorrencias', icon: RefreshCw },
   { href: '/settings', label: 'Configuracoes', icon: Settings },
 ]
