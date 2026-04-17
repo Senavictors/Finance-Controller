@@ -2,8 +2,8 @@
 
 ## Status
 
-- [x] Todo
-- [ ] In Progress
+- [ ] Todo
+- [x] In Progress
 - [ ] Done
 
 ## Context
@@ -148,6 +148,12 @@ Preparar o sistema para implementar Goal Engine, Forecast Engine, Score Financei
   - `src/app/(app)/transactions/page.tsx`
 - Introduzir helpers de periodo e agregacoes por conta/categoria
 
+Status atual:
+
+- Implementado com `resolveMonthPeriod`, `isValidMonthParam` e `getMonthlyAnalyticsSummary`
+- Dashboard, analytics API e transactions page passaram a consumir a base compartilhada
+- Validado com `npm run lint` e `npm run build`
+
 ### Phase 8.2 - Test foundation
 
 - Instalar e configurar runner de testes
@@ -197,6 +203,7 @@ Preparar o sistema para implementar Goal Engine, Forecast Engine, Score Financei
 - [ ] Camada analitica compartilhada implementada
 - [ ] Runner de testes configurado
 - [ ] Testes base de calculo implementados
+- [x] Camada analitica compartilhada implementada
 - [ ] Billing cycle de cartao implementado
 - [ ] Faturas com fechamento e vencimento implementadas
 - [ ] Pagamento de fatura suportado

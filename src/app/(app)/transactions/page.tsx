@@ -1,5 +1,9 @@
 import { validateSession } from '@/server/auth/session'
 import { prisma } from '@/server/db'
+import {
+  isValidMonthParam,
+  resolveMonthPeriod,
+} from '@/server/modules/finance/application/analytics'
 import { redirect } from 'next/navigation'
 import { TransactionTable } from './transaction-table'
 import { TransactionFilters } from './transaction-filters'
@@ -17,12 +21,8 @@ export default async function TransactionsPage({ searchParams }: Props) {
   const params = await searchParams
 
   const monthParam =
-    typeof params.month === 'string' && /^\d{4}-\d{2}$/.test(params.month) ? params.month : null
-  const now = new Date()
-  const year = monthParam ? parseInt(monthParam.split('-')[0]) : now.getFullYear()
-  const month = monthParam ? parseInt(monthParam.split('-')[1]) : now.getMonth() + 1
-  const from = new Date(year, month - 1, 1)
-  const to = new Date(year, month, 0, 23, 59, 59, 999)
+    typeof params.month === 'string' && isValidMonthParam(params.month) ? params.month : null
+  const { from, to } = resolveMonthPeriod(monthParam)
 
   const accountId = typeof params.accountId === 'string' ? params.accountId : undefined
   const categoryId = typeof params.categoryId === 'string' ? params.categoryId : undefined

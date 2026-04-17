@@ -4,11 +4,11 @@
 
 ## Current Phase
 
-**Phase 7: Portfolio e Empacotamento** — Completa. Todas as 7 phases implementadas.
+**Phase 8: Foundation for Analytics and Credit Card Billing** — Em andamento. Phase 8.1 (shared analytics core) implementada.
 
-## Next Planned Phase
+## Next Planned Step
 
-**Phase 8: Foundation for Analytics and Credit Card Billing** — Planejada em `.docs/tasks/phase-8-analytics-foundation-and-credit-card-billing.md`
+**Phase 8.2: Test Foundation** — Proxima etapa planejada em `.docs/tasks/phase-8-analytics-foundation-and-credit-card-billing.md`
 
 ## What Exists
 
@@ -20,6 +20,7 @@
 - **Financeiro**: Account, Category, Transaction, Transfer
 - **Dashboard customizavel**: react-grid-layout, 6 widgets, layout persistido
 - **Recorrencias**: RecurringRule + RecurringLog + apply idempotente
+- **Analytics core compartilhado**: `resolveMonthPeriod` + `getMonthlyAnalyticsSummary` reutilizados por dashboard, analytics API e transactions page
 - **Seed demo**: script com dados ficticios (demo@finance.com / demo1234)
 - **Reset demo**: botao em /settings que recria dados
 - **Landing page**: hero + features + tech stack + footer
@@ -39,6 +40,7 @@ User, Session, Account, Category, Transaction, Dashboard, DashboardWidget, Recur
 - Na implementacao atual, boa parte das regras e agregacoes ainda vive em `app/api/**/route.ts` e em server pages com Prisma direto
 - As specs em `.docs/future-features/` assumem uma extracao gradual de uma camada analitica/use case antes de expandir metas, forecast, score e insights
 - O produto passou a assumir explicitamente suporte futuro a cartao de credito com limite, fechamento, vencimento e faturas
+- A fundacao da camada analitica server-side comecou a sair de `route.ts` e foi centralizada em `src/server/modules/finance/application/analytics/`
 
 ## Key Decisions
 
