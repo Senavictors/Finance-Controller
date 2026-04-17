@@ -6,6 +6,10 @@
 
 **Phase 7: Portfolio e Empacotamento** — Completa. Todas as 7 phases implementadas.
 
+## Next Planned Phase
+
+**Phase 8: Foundation for Analytics and Credit Card Billing** — Planejada em `.docs/tasks/phase-8-analytics-foundation-and-credit-card-billing.md`
+
 ## What Exists
 
 - Next.js 16 App Router + TypeScript + Inter font
@@ -21,11 +25,20 @@
 - **Landing page**: hero + features + tech stack + footer
 - **CI**: GitHub Actions (lint + format:check + build)
 - **README**: completo com setup, tech stack, roadmap
-- **25 API routes**, 9 models, 7 ADRs
+- **Future feature specs**: `.docs/future-features/` com Goal Engine, Forecast Engine, Score Financeiro e Insights Automaticos
+- **Technical plan**: task documentada para a fundacao analitica e ciclo de fatura de cartao
+- **25 API routes**, 9 models, 8 ADRs
 
 ## Database Models
 
 User, Session, Account, Category, Transaction, Dashboard, DashboardWidget, RecurringRule, RecurringLog
+
+## Current Architectural Reality
+
+- A arquitetura alvo em camadas continua sendo a direcao do projeto
+- Na implementacao atual, boa parte das regras e agregacoes ainda vive em `app/api/**/route.ts` e em server pages com Prisma direto
+- As specs em `.docs/future-features/` assumem uma extracao gradual de uma camada analitica/use case antes de expandir metas, forecast, score e insights
+- O produto passou a assumir explicitamente suporte futuro a cartao de credito com limite, fechamento, vencimento e faturas
 
 ## Key Decisions
 
@@ -36,3 +49,4 @@ User, Session, Account, Category, Transaction, Dashboard, DashboardWidget, Recur
 - [ADR-005](decisions/ADR-005-customizable-dashboard.md): Customizable dashboard
 - [ADR-006](decisions/ADR-006-recurring-rules.md): Recurring rules
 - [ADR-007](decisions/ADR-007-demo-seed.md): Demo seed data
+- [ADR-008](decisions/ADR-008-credit-card-billing-cycle.md): Credit card billing cycle
