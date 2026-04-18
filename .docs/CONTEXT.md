@@ -4,11 +4,11 @@
 
 ## Current Phase
 
-**Phase 13: Documentation Foundation** — Concluido. Fundacao da nova camada documental criada com as pastas `.docs/domain/`, `.docs/api/`, `.docs/data/` e `.docs/architecture/`, templates obrigatorios por camada, spec em `future-features/05-docs-foundation.md`, task em `tasks/phase-13-docs-foundation.md` e migracao do overview arquitetural para `.docs/architecture/README.md`.
+**Phase 17: Domain Docs - Insights** — Concluido. Documentacao de dominio dos insights criada em `.docs/domain/insights.md`, consolidando `InsightSnapshot`, severidades, escopos, `fingerprint`, `dismiss`, persistencia por periodo e limites operacionais do feed deterministico.
 
 ## Next Planned Step
 
-Iniciar a fase de Domain Documentation com prioridade para `goals`, `forecast`, `financial-score` e `insights`, seguindo estritamente o fluxo `future-features -> tasks -> execucao -> CONTEXT -> CHANGELOG`.
+Executar a **Phase 18: Logic Docs - Forecast Calculation**, iniciando a segunda etapa do backlog documental com os deep dives de logica do produto.
 
 ## What Exists
 
@@ -31,6 +31,10 @@ Iniciar a fase de Domain Documentation com prioridade para `goals`, `forecast`, 
 - **Automatic Insights**: motor deterministico com 6 heuristicas (variacao por categoria, concentracao, metas em risco, forecast negativo, fatura vencendo/vencida, utilizacao alta de cartao), dedupe por fingerprint, cap de 8 por periodo, dismiss persistente; widget `insights` no dashboard; APIs `GET /api/analytics/insights`, `POST /recalculate`, `PATCH /[id]/dismiss`
 - **Documentation foundation**: nova estrutura de documentacao em `.docs/domain/`, `.docs/api/`, `.docs/data/` e `.docs/architecture/`, com templates obrigatorios por camada e base pronta para expansao faseada
 - **Documentation backlog**: roadmap formalizado com specs `06` a `18` e tasks `14` a `26` para dominio, logica, API, dados e arquitetura
+- **Domain Docs: goals**: documento `.docs/domain/goals.md` criado com conceitos, regras, estados, formulas de negocio, edge cases e limitacoes atuais do modulo de metas
+- **Domain Docs: forecast**: documento `.docs/domain/forecast.md` criado com conceitos de previsao mensal, snapshot, `referenceDate`, `riskLevel`, premissas e limites conhecidos do motor de forecast
+- **Domain Docs: financial score**: documento `.docs/domain/financial-score.md` criado com conceito de score 0-100, fatores explicaveis, status qualitativos, comparativo historico e limites conhecidos do modulo
+- **Domain Docs: insights**: documento `.docs/domain/insights.md` criado com conceito de insight automatico, severidade, CTA, `fingerprint`, dedupe, `dismiss` e persistencia por periodo
 - **Repo hygiene**: `.gitignore` ajustado para ignorar configs locais de tooling em `.claude/`, logs genericos e artefatos comuns de chave/certificado (`*.key`, `*.crt`, `*.p12`, `*.pfx`)
 - **Seed demo**: script com dados ficticios (demo@finance.com / demo1234)
 - **Reset demo**: botao em /settings que recria dados

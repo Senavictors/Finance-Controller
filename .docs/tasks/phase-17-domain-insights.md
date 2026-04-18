@@ -2,9 +2,9 @@
 
 ## Status
 
-- [x] Todo
+- [ ] Todo
 - [ ] In Progress
-- [ ] Done
+- [x] Done
 
 ## Context
 
@@ -56,12 +56,12 @@ Criar `.docs/domain/insights.md` para formalizar tipos de insight, severidade, f
 
 ## Checklist
 
-- [ ] Documento criado em `.docs/domain/insights.md`
-- [ ] Conteudo validado contra codigo real
-- [ ] `.docs/CONTEXT.md` updated
-- [ ] `.docs/CHANGELOG.md` updated
-- [ ] ADR created/updated (if applicable)
-- [ ] Manual validation done
+- [x] Documento criado em `.docs/domain/insights.md`
+- [x] Conteudo validado contra codigo real
+- [x] `.docs/CONTEXT.md` updated
+- [x] `.docs/CHANGELOG.md` updated
+- [x] ADR created/updated (not applicable; ADR existente referenciado)
+- [x] Manual validation done
 
 ## Notes for AI (next step)
 

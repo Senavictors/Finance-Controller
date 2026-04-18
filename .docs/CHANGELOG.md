@@ -9,6 +9,10 @@ and this project adheres to [Conventional Commits](https://www.conventionalcommi
 
 ### Added
 
+- Insights domain documentation in `.docs/domain/insights.md`
+- Financial score domain documentation in `.docs/domain/financial-score.md`
+- Forecast domain documentation in `.docs/domain/forecast.md`
+- Goals domain documentation in `.docs/domain/goals.md`
 - Documentation foundation phase with `.docs/domain/`, `.docs/api/`, `.docs/data/` and `.docs/architecture/`
 - Mandatory documentation templates for domain, API, data and architecture layers
 - Phase 13 spec and task for phased documentation evolution
