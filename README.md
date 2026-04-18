@@ -69,6 +69,8 @@ O Finance Controller centraliza tudo em uma unica aplicacao:
 - **Billing de cartao de credito** — limite, fechamento, vencimento, faturas e pagamento parcial/total
 - **Goal Engine** — metas de economia, limite de gasto, meta de receita e limite por conta/cartao, com calculo de progresso por periodo, status (no ritmo, atencao, em risco, atingida, ultrapassada) e snapshots historicos
 - **Forecast Engine** — previsao do fechamento do mes combinando realizado, recorrencias futuras, projecao variavel (media movel) e faturas em aberto, com classificacao de risco e breakdown audit das premissas
+- **Financial Score** — pontuacao 0-100 com 5 fatores explicaveis (economia, estabilidade, renda, cartao, metas), status CRITICAL/ATTENTION/GOOD/EXCELLENT, delta vs mes anterior e redistribuicao por ausencia de dados
+- **Automatic Insights** — motor deterministico com 6 heuristicas de alta confianca (variacao por categoria, concentracao, metas em risco, forecast negativo, fatura vencendo/vencida, utilizacao alta de cartao), dedupe por fingerprint, cap de 8 por periodo e dismiss persistente
 - **Autenticacao segura** — bcrypt, sessoes server-side, cookies HttpOnly, rate limiting
 - **Analytics** — resumo mensal com variacao percentual, gastos por categoria, saldo por conta, patrimonio total
 - **Snapshot e invalidacao** — estrategia central de tags por usuario/modulo/mes, invalidada em mutacoes financeiras
@@ -139,12 +141,12 @@ src/
       recurring/           Regras recorrentes
       goals/               Metas financeiras e progresso
       settings/            Configuracoes + reset demo
-    api/                   28 Route Handlers
+    api/                   31 Route Handlers
       auth/                login, register, logout, me
       accounts/            CRUD + [id]
       categories/          CRUD + [id]
       transactions/        CRUD + [id] + transfer
-      analytics/           summary + forecast + forecast/recalculate
+      analytics/           summary + forecast + score + score/history + insights + insights/recalculate + insights/[id]/dismiss
       credit-cards/        statements, detail, payments
       dashboard/           widgets, layout
       recurring/           rules, apply, logs
@@ -153,7 +155,7 @@ src/
     auth/                  Sessions, hashing, guards, rate-limit
     modules/finance/
       domain/              Entidades e regras de negocio
-      application/         analytics + credit-card billing + goals + forecast
+      application/         analytics + credit-card billing + goals + forecast + score + insights
       infra/               Repositorios Prisma
       http/                DTOs e validators Zod
   components/
@@ -248,7 +250,7 @@ prisma/                    Schema + migrations + seed
 
 ## Banco de Dados
 
-13 models, 9 enums (incluindo `GoalMetric`, `GoalScopeType`, `GoalPeriod`, `GoalStatus`, `ForecastRiskLevel`):
+15 models, 11 enums (incluindo `GoalMetric`, `GoalScopeType`, `GoalPeriod`, `GoalStatus`, `ForecastRiskLevel`, `FinancialScoreStatus`, `InsightSeverity`):
 
 ```mermaid
 erDiagram
@@ -261,6 +263,8 @@ erDiagram
     User ||--o{ RecurringRule : "recorrencias"
     User ||--o{ Goal : "metas"
     User ||--o{ ForecastSnapshot : "previsoes"
+    User ||--o{ FinancialScoreSnapshot : "score"
+    User ||--o{ InsightSnapshot : "insights"
     Account ||--o{ Transaction : "movimentacoes"
     Account ||--o{ CreditCardStatement : "faturas"
     Category ||--o{ Transaction : "classificacao"
@@ -407,6 +411,36 @@ erDiagram
         enum riskLevel
         json assumptions
     }
+
+    FinancialScoreSnapshot {
+        string id PK
+        string userId FK
+        datetime periodStart
+        datetime periodEnd
+        int score
+        enum status
+        json factors
+        json insights
+        datetime staleAt
+    }
+
+    InsightSnapshot {
+        string id PK
+        string userId FK
+        string key
+        string title
+        string body
+        enum severity
+        string scopeType
+        string scopeId
+        json payload
+        json cta
+        datetime periodStart
+        datetime periodEnd
+        string fingerprint
+        boolean isDismissed
+        int priority
+    }
 ```
 
 **Tipos de conta**: Carteira, Corrente, Poupanca, Cartao de Credito, Investimento, Outro
@@ -422,6 +456,10 @@ erDiagram
 **Status de meta**: No ritmo, Atencao, Em risco, Atingida, Ultrapassada
 
 **Nivel de risco de previsao**: Low (folga), Medium (saldo apertado), High (saldo negativo)
+
+**Status do Financial Score**: Critico (<40), Em atencao (40-59), Bom (60-79), Excelente (>=80)
+
+**Severidade de insights**: INFO, WARNING, CRITICAL
 
 ---
 
@@ -489,8 +527,8 @@ npx prisma db seed   # Popular dados demo
 - [x] Phase 8.5: Demo and Portfolio Hardening
 - [x] Phase 9: Goal Engine
 - [x] Phase 10: Forecast Engine
-- [ ] Phase 11: Financial Score
-- [ ] Phase 12: Automatic Insights
+- [x] Phase 11: Financial Score
+- [x] Phase 12: Automatic Insights
 - [ ] Import/export CSV
 - [ ] Relatorios e exportacao PDF
 - [ ] PWA / responsivo mobile

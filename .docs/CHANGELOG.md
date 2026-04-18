@@ -112,3 +112,12 @@ and this project adheres to [Conventional Commits](https://www.conventionalcommi
 - Widget `score` no dashboard com pontuacao, delta, breakdown de fatores e insights
 - Testes unitarios cobrindo faixas de status e cada fator isolado
 - ADR-012: Financial Score
+- Phase 12: Automatic Insights — `InsightSnapshot` + enum `InsightSeverity`
+- Motor deterministico com `buildInsightMetrics` + `runInsightRules` + `dedupeInsights`
+- 6 heuristicas MVP: category_spike, category_concentration, goal_at_risk, forecast_negative, statement_due_soon/overdue e credit_utilization_high
+- Dedupe por fingerprint e cap de 8 insights por periodo
+- Persistencia que preserva `isDismissed` entre recalculos e remove insights obsoletos
+- API `GET /api/analytics/insights`, `POST /api/analytics/insights/recalculate` e `PATCH /api/analytics/insights/[id]/dismiss`
+- Widget `insights` no dashboard com badges por severidade, CTA contextual e botao dismiss
+- Testes unitarios cobrindo cada regra + dedupe por fingerprint
+- ADR-013: Automatic Insights

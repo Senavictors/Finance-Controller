@@ -14,6 +14,7 @@ import { TransactionCountWidget } from './widgets/transaction-count-widget'
 import { GoalProgressWidget } from './widgets/goal-progress-widget'
 import { ForecastWidget } from './widgets/forecast-widget'
 import { ScoreWidget } from './widgets/score-widget'
+import { InsightsWidget } from './widgets/insights-widget'
 import { AddWidgetDialog } from './add-widget-dialog'
 import type { DashboardData } from './widgets/types'
 import 'react-grid-layout/css/styles.css'
@@ -43,6 +44,7 @@ const widgetComponents: Record<string, React.ComponentType<{ data: DashboardData
   'goal-progress': GoalProgressWidget,
   forecast: ForecastWidget,
   score: ScoreWidget,
+  insights: InsightsWidget,
 }
 
 export function DashboardGrid({ data, widgets: initialWidgets }: Props) {

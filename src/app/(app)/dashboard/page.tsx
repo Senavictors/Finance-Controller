@@ -7,6 +7,7 @@ import {
 import { listGoalsWithProgress } from '@/server/modules/finance/application/goals'
 import { calculateForecast } from '@/server/modules/finance/application/forecast'
 import { calculateFinancialScore } from '@/server/modules/finance/application/score'
+import { refreshInsightSnapshots } from '@/server/modules/finance/application/insights'
 import { redirect } from 'next/navigation'
 import { DashboardClient } from './dashboard-client'
 import { DEFAULT_WIDGETS } from './widgets/registry'
@@ -23,7 +24,7 @@ export default async function DashboardPage({ searchParams }: Props) {
   const monthParam =
     typeof params.month === 'string' && isValidMonthParam(params.month) ? params.month : null
 
-  const [user, analytics, dashboard, goals, forecast, score] = await Promise.all([
+  const [user, analytics, dashboard, goals, forecast, score, insights] = await Promise.all([
     prisma.user.findUnique({
       where: { id: session.userId },
       select: { name: true },
@@ -39,6 +40,7 @@ export default async function DashboardPage({ searchParams }: Props) {
     listGoalsWithProgress(session.userId, monthParam),
     calculateForecast(session.userId, monthParam),
     calculateFinancialScore(session.userId, monthParam),
+    refreshInsightSnapshots(session.userId, monthParam),
   ])
 
   const widgets =
@@ -106,6 +108,18 @@ export default async function DashboardPage({ searchParams }: Props) {
           factors: score.factors,
           insights: score.insights,
         },
+        insights: insights
+          .filter((i) => !i.isDismissed)
+          .map((i) => ({
+            id: i.id,
+            key: i.key,
+            title: i.title,
+            body: i.body,
+            severity: i.severity,
+            scopeType: i.scopeType,
+            scopeId: i.scopeId ?? null,
+            cta: i.cta ?? null,
+          })),
       }}
       widgets={widgets}
     />

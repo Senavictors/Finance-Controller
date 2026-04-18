@@ -2,9 +2,9 @@
 
 ## Status
 
-- [x] Todo
+- [ ] Todo
 - [ ] In Progress
-- [ ] Done
+- [x] Done
 
 ## Context
 
@@ -86,13 +86,13 @@ Entregar um motor determinista de insights que gere mensagens especificas, acion
 
 ## Checklist
 
-- [ ] Modelo `InsightSnapshot` criado
-- [ ] Motor de regras implementado
-- [ ] APIs de leitura/recalculo/dismiss entregues
-- [ ] Widget de insights entregue
-- [ ] Heuristicas principais validadas com fixtures reais
-- [ ] `.docs/CONTEXT.md` updated
-- [ ] ADR created/updated (if applicable)
+- [x] Modelo `InsightSnapshot` criado
+- [x] Motor de regras implementado
+- [x] APIs de leitura/recalculo/dismiss entregues
+- [x] Widget de insights entregue
+- [x] Heuristicas principais validadas com fixtures reais
+- [x] `.docs/CONTEXT.md` updated
+- [x] ADR created/updated (if applicable)
 - [ ] Manual validation done
 
 ## Notes for AI (next step)

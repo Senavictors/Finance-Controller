@@ -25,6 +25,7 @@ model User {
   goals                Goal[]
   forecastSnapshots    ForecastSnapshot[]
   scoreSnapshots       FinancialScoreSnapshot[]
+  insightSnapshots     InsightSnapshot[]
 
   @@map("users")
 }
@@ -398,4 +399,38 @@ model FinancialScoreSnapshot {
   @@unique([userId, periodStart])
   @@index([userId])
   @@map("financial_score_snapshots")
+}
+
+enum InsightSeverity {
+  INFO
+  WARNING
+  CRITICAL
+
+  @@map("insight_severity")
+}
+
+model InsightSnapshot {
+  id          String          @id @default(cuid())
+  userId      String          @map("user_id")
+  key         String
+  title       String
+  body        String
+  severity    InsightSeverity
+  scopeType   String          @map("scope_type")
+  scopeId     String?         @map("scope_id")
+  cta         Json?
+  payload     Json
+  periodStart DateTime        @map("period_start")
+  periodEnd   DateTime        @map("period_end")
+  fingerprint String
+  isDismissed Boolean         @default(false) @map("is_dismissed")
+  priority    Int             @default(0)
+  createdAt   DateTime        @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, periodStart, fingerprint])
+  @@index([userId])
+  @@index([userId, periodStart])
+  @@map("insight_snapshots")
 }

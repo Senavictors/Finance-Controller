@@ -4,11 +4,11 @@
 
 ## Current Phase
 
-**Phase 11: Score Financeiro** — Concluido. Score mensal de 0 a 100 com fatores explicaveis (taxa de economia, estabilidade de gastos, consistencia de renda, uso de cartao e cumprimento de metas), redistribuicao por ausencia de dados, widget `score` no dashboard com delta vs mes anterior e snapshots persistidos. Formalizado pelo ADR-012.
+**Phase 12: Insights Automaticos** — Concluido. Motor determinista de regras (6 heuristicas MVP: category_spike, category_concentration, goal_at_risk, forecast_negative, statement_due_soon/overdue, credit_utilization_high) com dedupe por fingerprint, cap de 8 insights por periodo e persistencia que preserva dismiss. Widget `insights` no dashboard com badges por severidade, CTA e dismiss. Formalizado pelo ADR-013.
 
 ## Next Planned Step
 
-**Phase 12: Insights Automaticos** — Proxima feature planejada em [phase-12-automatic-insights.md](tasks/phase-12-automatic-insights.md)
+Fecha o backlog inicial de analytics (Phases 8 a 12). Possiveis proximos passos: camada de cache para as chamadas server-side do dashboard, export/import de dados ou feature de relatorios.
 
 ## What Exists
 
@@ -28,6 +28,7 @@
 - **Goal Engine**: modulo de metas com SAVING, EXPENSE_LIMIT, INCOME_TARGET e ACCOUNT_LIMIT; calculo de progresso com projecao; snapshots; pagina `/goals`; widget `goal-progress` no dashboard; 3 metas demo no seed
 - **Forecast Engine**: previsao mensal com saldo previsto, nivel de risco (LOW/MEDIUM/HIGH), projecao de recorrencias futuras, media movel de despesa variavel e snapshot persistido; widget `forecast` no dashboard; APIs `GET /api/analytics/forecast` e `POST /api/analytics/forecast/recalculate`
 - **Financial Score**: pontuacao 0-100 com 5 fatores explicaveis e redistribuicao por ausencia de dados; status CRITICAL/ATTENTION/GOOD/EXCELLENT; snapshot persistido com delta vs mes anterior; widget `score` no dashboard; APIs `GET /api/analytics/score` e `GET /api/analytics/score/history`
+- **Automatic Insights**: motor deterministico com 6 heuristicas (variacao por categoria, concentracao, metas em risco, forecast negativo, fatura vencendo/vencida, utilizacao alta de cartao), dedupe por fingerprint, cap de 8 por periodo, dismiss persistente; widget `insights` no dashboard; APIs `GET /api/analytics/insights`, `POST /recalculate`, `PATCH /[id]/dismiss`
 - **Seed demo**: script com dados ficticios (demo@finance.com / demo1234)
 - **Reset demo**: botao em /settings que recria dados
 - **Landing page**: hero + features + tech stack + footer
@@ -36,11 +37,11 @@
 - **Future feature specs**: `.docs/future-features/` com Goal Engine, Forecast Engine, Score Financeiro e Insights Automaticos
 - **Execution backlog**: tasks formais criadas para as phases 8.5, 9, 10, 11 e 12 em `.docs/tasks/`
 - **Technical plan**: task documentada para a fundacao analitica e ciclo de fatura de cartao
-- **28 API routes**, 14 models, 12 ADRs
+- **31 API routes**, 15 models, 13 ADRs
 
 ## Database Models
 
-User, Session, Account, Category, Transaction, CreditCardStatement, Dashboard, DashboardWidget, RecurringRule, RecurringLog, Goal, GoalSnapshot, ForecastSnapshot, FinancialScoreSnapshot
+User, Session, Account, Category, Transaction, CreditCardStatement, Dashboard, DashboardWidget, RecurringRule, RecurringLog, Goal, GoalSnapshot, ForecastSnapshot, FinancialScoreSnapshot, InsightSnapshot
 
 ## Current Architectural Reality
 
@@ -67,3 +68,4 @@ User, Session, Account, Category, Transaction, CreditCardStatement, Dashboard, D
 - [ADR-010](decisions/ADR-010-goal-engine.md): Goal Engine
 - [ADR-011](decisions/ADR-011-forecast-engine.md): Forecast Engine
 - [ADR-012](decisions/ADR-012-financial-score.md): Financial Score
+- [ADR-013](decisions/ADR-013-automatic-insights.md): Automatic Insights

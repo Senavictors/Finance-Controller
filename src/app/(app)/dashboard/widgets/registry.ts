@@ -82,6 +82,15 @@ export const widgetRegistry: WidgetDefinition[] = [
     minW: 4,
     minH: 5,
   },
+  {
+    type: 'insights',
+    label: 'Insights Automaticos',
+    description: 'Ate 5 alertas priorizados sobre gastos, metas, forecast e cartao',
+    defaultW: 6,
+    defaultH: 6,
+    minW: 4,
+    minH: 4,
+  },
 ]
 
 export const DEFAULT_WIDGETS = [

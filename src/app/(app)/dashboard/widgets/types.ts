@@ -50,6 +50,16 @@ export type DashboardData = {
     }[]
     insights: { tone: 'positive' | 'warning' | 'negative' | 'info'; message: string }[]
   }
+  insights: {
+    id: string
+    key: string
+    title: string
+    body: string
+    severity: 'INFO' | 'WARNING' | 'CRITICAL'
+    scopeType: string
+    scopeId: string | null
+    cta: { label: string; action: string; href?: string } | null
+  }[]
 }
 
 export type WidgetDefinition = {
