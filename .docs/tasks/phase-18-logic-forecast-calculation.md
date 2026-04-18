@@ -2,9 +2,9 @@
 
 ## Status
 
-- [x] Todo
+- [ ] Todo
 - [ ] In Progress
-- [ ] Done
+- [x] Done
 
 ## Context
 
@@ -55,12 +55,12 @@ Enriquecer `.docs/domain/forecast.md` com a logica de calculo do forecast: entra
 
 ## Checklist
 
-- [ ] `.docs/domain/forecast.md` enriquecido com logica de calculo
-- [ ] Conteudo validado contra codigo real
-- [ ] `.docs/CONTEXT.md` updated
-- [ ] `.docs/CHANGELOG.md` updated
-- [ ] ADR created/updated (if applicable)
-- [ ] Manual validation done
+- [x] `.docs/domain/forecast.md` enriquecido com logica de calculo
+- [x] Conteudo validado contra codigo real
+- [x] `.docs/CONTEXT.md` updated
+- [x] `.docs/CHANGELOG.md` updated
+- [x] ADR created/updated (not applicable; ADR existente referenciado)
+- [x] Manual validation done
 
 ## Notes for AI (next step)
 

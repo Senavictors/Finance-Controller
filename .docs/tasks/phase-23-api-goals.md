@@ -2,9 +2,9 @@
 
 ## Status
 
-- [x] Todo
+- [ ] Todo
 - [ ] In Progress
-- [ ] Done
+- [x] Done
 
 ## Context
 
@@ -56,12 +56,12 @@ Criar `.docs/api/goals.md` com os contratos da API de metas, incluindo payloads,
 
 ## Checklist
 
-- [ ] Documento criado em `.docs/api/goals.md`
-- [ ] Endpoints validados contra codigo real
-- [ ] `.docs/CONTEXT.md` updated
-- [ ] `.docs/CHANGELOG.md` updated
+- [x] Documento criado em `.docs/api/goals.md`
+- [x] Endpoints validados contra codigo real
+- [x] `.docs/CONTEXT.md` updated
+- [x] `.docs/CHANGELOG.md` updated
 - [ ] ADR created/updated (if applicable)
-- [ ] Manual validation done
+- [x] Manual validation done
 
 ## Notes for AI (next step)
 

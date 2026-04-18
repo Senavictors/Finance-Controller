@@ -2,9 +2,9 @@
 
 ## Status
 
-- [x] Todo
+- [ ] Todo
 - [ ] In Progress
-- [ ] Done
+- [x] Done
 
 ## Context
 
@@ -57,12 +57,12 @@ Criar `.docs/api/transactions.md` com endpoints, payloads, filtros, respostas, e
 
 ## Checklist
 
-- [ ] Documento criado em `.docs/api/transactions.md`
-- [ ] Endpoints validados contra codigo real
-- [ ] `.docs/CONTEXT.md` updated
-- [ ] `.docs/CHANGELOG.md` updated
-- [ ] ADR created/updated (if applicable)
-- [ ] Manual validation done
+- [x] Documento criado em `.docs/api/transactions.md`
+- [x] Endpoints validados contra codigo real
+- [x] `.docs/CONTEXT.md` updated
+- [x] `.docs/CHANGELOG.md` updated
+- [x] ADR created/updated (not applicable; ADRs existentes referenciados)
+- [x] Manual validation done
 
 ## Notes for AI (next step)
 

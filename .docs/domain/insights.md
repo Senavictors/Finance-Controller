@@ -17,16 +17,24 @@ Este documento cobre:
 - o agregado `InsightSnapshot`
 - os tipos `InsightCandidate` e `InsightRecord`
 - severidades, escopos e CTA dos insights
+- o pipeline de metricas que alimenta o engine
+- a ordem real de execucao das heuristicas MVP
+- thresholds, prioridades e fingerprints das regras atuais
 - regras de dedupe e limite por periodo
 - diferenca entre leitura on-demand e snapshot persistido
 - comportamento de `dismiss` e de remocao de insights obsoletos
+- trade-offs e limites tecnicos do engine atual
 
-Este documento nao detalha heuristicas linha a linha nem thresholds finos de cada regra; isso pertence a `phase-20-logic-insights-engine.md`.
+Este documento nao cobre criacao de novas heuristicas, alteracao de severidade/prioridade ou mudancas de contrato HTTP alem do comportamento ja implementado.
 
 ## Sources of Truth
 
-- Spec: [Docs - Domain Insights](../future-features/09-docs-domain-insights.md)
-- Task: [Phase 17 - Domain Docs: Insights](../tasks/phase-17-domain-insights.md)
+- Spec:
+  - [Docs - Domain Insights](../future-features/09-docs-domain-insights.md)
+  - [Docs - Logic Insights Engine](../future-features/12-docs-logic-insights-engine.md)
+- Task:
+  - [Phase 17 - Domain Docs: Insights](../tasks/phase-17-domain-insights.md)
+  - [Phase 20 - Logic Docs: Insights Engine](../tasks/phase-20-logic-insights-engine.md)
 - ADRs: [ADR-013 Automatic Insights](../decisions/ADR-013-automatic-insights.md)
 - Code:
   - `prisma/schema.prisma`
@@ -107,11 +115,153 @@ O valor do dominio vem de tres caracteristicas:
 
 | Name | Formula or Logic | Inputs | Output | Notes |
 | ---- | ---------------- | ------ | ------ | ----- |
-| Fingerprint | Composicao deterministica de partes relevantes (`key`, `scopeId`, etc.) | Identidade logica do insight | `fingerprint` | Permite dedupe e upsert consistente |
-| Dedupe | Mantem o insight de maior prioridade por fingerprint | Lista de candidatos | Lista unica por fingerprint | Ordenado por prioridade descendente |
+| Fingerprint | `parts.map(nullish => "~").join("|")` | Identidade logica do insight | `fingerprint` | Permite dedupe e upsert consistente |
+| Rule pipeline | `buildInsightMetrics -> runInsightRules -> dedupeInsights -> slice(0, 8)` | `userId`, periodo, estado financeiro | Lista final de candidatos | Base comum de `listInsights` e `refreshInsightSnapshots` |
+| Dedupe | Mantem o insight de maior prioridade por fingerprint | Lista de candidatos | Lista unica por fingerprint | Empates preservam o primeiro emitido |
 | Feed cap | Corte rigido apos dedupe | Lista ordenada | Maximo de `8` insights | Controle anti-ruido do dominio |
-| Persisted refresh | Upsert de candidatos do periodo + limpeza seletiva de obsoletos | Candidatos, snapshots existentes | `InsightRecord[]` | Preserva `isDismissed` existente |
-| Visible feed | Filtragem de insights dismissados | Insights calculados ou persistidos | Lista mostrada ao usuario | A API `GET` remove dismissados da resposta |
+| Persisted refresh | Upsert de candidatos do periodo + limpeza seletiva de obsoletos | Candidatos, snapshots existentes | `InsightRecord[]` | Preserva `isDismissed` e nao remove obsoletos ja dismissados |
+| Visible feed | Filtragem de insights dismissados | Insights calculados ou persistidos | Lista mostrada ao usuario | `GET` remove dismissados e converte `id` vazio em `null` |
+
+## Metric Pipeline
+
+| Input | Source | Filter | Used For | Notes |
+| ----- | ------ | ------ | -------- | ----- |
+| Current period transactions | `prisma.transaction.findMany` | `userId`, `type in (INCOME, EXPENSE)`, `date` dentro do periodo atual | Totais e categorias do mes | `TRANSFER` fica fora desde a query |
+| Previous period transactions | `prisma.transaction.findMany` | `userId`, `type in (INCOME, EXPENSE)`, `date` dentro do mes anterior | Comparacao mensal | Alimenta deltas por categoria e totais comparativos |
+| Expense categories | `prisma.category.findMany` | `userId`, `type = EXPENSE` | Nomear categorias no breakdown | Categoria ausente vira `Sem categoria` |
+| Credit cards | `prisma.account.findMany` | `userId`, `type = CREDIT_CARD`, `isArchived = false` | Statements abertos e limite agregado | Cada cartao carrega so o primeiro statement nao pago com `dueDate >= periodStart` |
+| Forecast | `calculateForecast(userId, monthParam, now)` | Mesmo periodo da consulta | Regra `forecast_negative` | Reaproveita integralmente o motor de forecast |
+| Goals progress | `listGoalsWithProgress(userId, monthParam)` | Goals ativos do usuario | Regra `goal_at_risk` | Falha faz fallback para lista vazia |
+
+Metricas derivadas importantes:
+
+- `expensesByCategory` nasce da uniao de categorias com gasto no periodo atual ou anterior.
+- Cada `CategoryMetric` guarda `current`, `previous`, `deltaPercent`, `deltaAbsolute` e `sharePercent`.
+- `expensesByCategory` e ordenado por `current` desc antes das regras, o que afeta a regra de concentracao.
+- `openStatements` guarda apenas statements com saldo em aberto e calcula `daysUntilDue` e `utilizationPercent`.
+- `totalCreditOutstanding` soma apenas statements com `dueDate <= periodEnd`, mesmo que `openStatements` contenha o primeiro vencimento futuro do cartao alem do fim do mes.
+- `totalIncome`, `previousTotalIncome`, `totalExpenses` e `previousTotalExpenses` existem no payload de metricas, embora nem todos sejam usados pelas regras atuais.
+
+## Engine Execution Sequence
+
+1. `runInsights` chama `buildInsightMetrics` para resolver periodo e coletar sinais brutos em paralelo.
+2. `runInsightRules` percorre `INSIGHT_RULES` na ordem fixa do arquivo `rules.ts`.
+3. `dedupeInsights` colapsa fingerprints repetidos mantendo o candidato de maior `priority`.
+4. A lista dedupada e ordenada por `priority` desc e sofre corte rigido em `8` itens.
+5. `listInsights` reconcilia os candidatos com snapshots existentes sem persistir nada.
+6. `refreshInsightSnapshots` usa a mesma lista final, persiste os candidatos e reconcilia dismiss/remocao de obsoletos.
+
+### Rule Order
+
+A ordem atual de execucao das heuristicas e:
+
+1. `detectCategorySpikes`
+2. `detectCategoryConcentration`
+3. `detectGoalAtRisk`
+4. `detectForecastNegative`
+5. `detectStatementDueSoon`
+6. `detectCreditUtilizationHigh`
+
+Como o dedupe preserva o primeiro item quando duas entradas tem o mesmo fingerprint e a mesma prioridade, a ordem das regras e parte do comportamento observavel do engine.
+
+## Heuristic Rules
+
+| Rule | Trigger | Severity | Priority | Fingerprint | Notes |
+| ---- | ------- | -------- | -------- | ----------- | ----- |
+| `category_spike` | `previous > 0`, `deltaAbsolute >= 10_000`, `deltaPercent >= 20`, `categoryId != null` | `CRITICAL` se `deltaPercent >= 50`, senao `WARNING` | `70` ou `50` | `category_spike|<categoryId>` | Ignora categorias novas sem baseline e `Sem categoria` |
+| `category_concentration` | `totalExpenses >= 50_000`, categoria lider com `sharePercent >= 40` e `categoryId != null` | `CRITICAL` se `sharePercent >= 60`, senao `WARNING` | `60` | `category_concentration|<categoryId>` | Avalia apenas `expensesByCategory[0]` |
+| `goal_at_risk` | Goal com status `AT_RISK` ou `EXCEEDED` | `CRITICAL` para `EXCEEDED`, senao `WARNING` | `80` ou `55` | `goal_at_risk|<goalId>` | O texto muda para metas de limite vs metas de acumulacao |
+| `forecast_negative` | `forecast.predictedBalance < 0` | `CRITICAL` | `90` | `forecast_negative|~` | Gera no maximo um insight global por periodo |
+| `statement_overdue` | Statement em `openStatements` com `daysUntilDue < 0` | `CRITICAL` | `95` | `statement_overdue|<statementId>` | Nasce dentro da mesma regra de vencimento |
+| `statement_due_soon` | Statement em `openStatements` com `0 <= daysUntilDue <= 7` | `WARNING` se `<= 2`, senao `INFO` | `65` ou `40` | `statement_due_soon|<statementId>` | Usa o mesmo statement base do cartao |
+| `credit_utilization_high` | `totalCreditLimit > 0` e `totalCreditOutstanding / totalCreditLimit >= 70%` | `CRITICAL` se `>= 90%`, senao `WARNING` | `75` ou `55` | `credit_utilization_high|~` | Mede uso agregado do limite, nao por cartao |
+
+### Rule Nuances
+
+#### `category_spike`
+
+- compara apenas gasto atual vs gasto do mes anterior da mesma categoria
+- exige threshold percentual e absoluto ao mesmo tempo
+- novas categorias com `previous = 0` nao geram spike
+- categorias sem `categoryId` tambem nao entram, mesmo que tenham valor relevante
+
+#### `category_concentration`
+
+- so existe quando o total de despesas do mes chega a pelo menos `R$ 500`
+- usa apenas a categoria lider apos ordenacao por `current`
+- se a categoria lider for `Sem categoria`, a regra retorna vazio e nao avalia a segunda colocada
+
+#### `goal_at_risk`
+
+- reaproveita o status calculado pelo Goal Engine; nao recalcula risco localmente
+- metas `EXCEEDED` viram `CRITICAL`
+- metas `AT_RISK` viram `WARNING`
+- corpo da mensagem diferencia metas de limite (`EXPENSE_LIMIT`, `ACCOUNT_LIMIT`) das demais
+
+#### `forecast_negative`
+
+- depende exclusivamente do `predictedBalance`
+- nao usa diretamente `riskLevel` para decidir disparo, embora o inclua em `payload`
+
+#### `statement_due_soon` e `statement_overdue`
+
+- a coleta de metricas traz no maximo um statement por cartao
+- o cutoff de regra e `7` dias
+- `daysUntilDue < 0` troca a chave para `statement_overdue`
+- `daysUntilDue` usa `ceil`, entao um vencimento parcial ainda conta como dia inteiro restante
+- como `openStatements` aceita o primeiro statement com `dueDate >= periodStart`, um vencimento logo no inicio do mes seguinte ainda pode gerar alerta se estiver a ate 7 dias de `now`
+
+#### `credit_utilization_high`
+
+- usa `totalCreditOutstanding / totalCreditLimit * 100`
+- `totalCreditOutstanding` considera apenas statements com vencimento ate `periodEnd`
+- isso significa que a utilizacao alta olha para o que vence dentro do periodo, nao para todo saldo futuro eventualmente aberto
+
+## Fingerprint, Dedupe and Cap
+
+- O helper de fingerprint transforma `null` e `undefined` em `~` antes de concatenar as partes com `|`.
+- `dedupeInsights` usa um `Map` por fingerprint.
+- Um candidato novo substitui o anterior apenas quando `candidate.priority > existing.priority`.
+- Se a prioridade for igual, o primeiro candidato emitido permanece.
+- Depois do dedupe, o resultado e ordenado por `priority` desc.
+- So entao o cap `MAX_INSIGHTS_PER_PERIOD = 8` e aplicado.
+
+Implicacoes praticas:
+
+- prioridade e o desempate real entre candidatos com o mesmo fingerprint
+- severidade sozinha nao define ordenacao; um `WARNING` pode aparecer acima de um `CRITICAL` se tiver `priority` maior
+- o motor atual usa prioridades hardcoded por regra, nao uma formula unica derivada de severidade ou magnitude
+
+## Persistence and Dismiss Lifecycle
+
+### `listInsights`
+
+- executa o pipeline completo sem persistir snapshots
+- tenta reconciliar cada fingerprint com um snapshot existente do mesmo periodo
+- quando nao encontra snapshot, devolve `id = ''`, `isDismissed = false` e `createdAt = new Date()`
+- a rota `GET /api/analytics/insights` converte esse `id` vazio para `null` e filtra insights dismissados antes de responder
+
+### `refreshInsightSnapshots`
+
+- executa o mesmo pipeline final de `runInsights`
+- busca snapshots existentes por `userId + periodStart`
+- remove apenas snapshots obsoletos que nao estejam dismissados
+- faz `upsert` por `userId + periodStart + fingerprint`
+- preserva `isDismissed` porque o `update` nao altera esse campo
+- retorna todos os candidatos persistidos, inclusive os que continuam dismissados
+
+### `dismissInsight`
+
+- so funciona para snapshots persistidos
+- valida ownership via `userId`
+- retorna erro de dominio `Insight nao encontrado` quando o `id` nao pertence ao usuario ou nao existe
+
+### Dashboard and API Flow
+
+- a pagina `src/app/(app)/dashboard/page.tsx` chama `refreshInsightSnapshots` no carregamento
+- o dashboard filtra `isDismissed` depois de persistir, garantindo `id` valido para o fluxo principal de dismiss
+- `POST /api/analytics/insights/recalculate` nao filtra dismissados; ele devolve `isDismissed` explicitamente
+- `GET /api/analytics/insights` e o endpoint que realmente aplica o filtro de visibilidade
 
 ## Invariants
 
@@ -121,15 +271,20 @@ O valor do dominio vem de tres caracteristicas:
 - Todo insight persistido carrega `payload` estruturado; CTA e opcional.
 - `priority` existe para ordenar o feed e resolver conflitos de dedupe.
 - O feed final do periodo nunca deve ultrapassar 8 itens.
-- Um insight dismissado nao deve reaparecer como “novo” se o mesmo fingerprint continuar valido no mesmo periodo.
+- O conjunto final sempre e dedupado e ordenado antes da persistencia ou da leitura on-demand.
+- Um insight dismissado nao deve reaparecer como "novo" se o mesmo fingerprint continuar valido no mesmo periodo.
 
 ## Edge Cases
 
 - Leituras on-demand via `listInsights` podem devolver insights sem `id` persistido; nesses casos o widget nao consegue enviar dismiss ao backend.
 - Como o dashboard chama `refreshInsightSnapshots` no carregamento, ele normaliza essa situacao e garante IDs persistidos para o fluxo principal de dismiss.
 - Insights com mesmo fingerprint mas textos/prioridades diferentes no mesmo recalculo colapsam em um unico item.
+- Se dois candidatos com mesmo fingerprint tiverem a mesma prioridade, o primeiro emitido pelas regras vence.
 - Insights obsoletos ja dismissados nao entram no delete seletivo atual; isso preserva historico de dismiss no periodo.
-- Um insight pode mudar de severidade entre recalculos e continuar sendo o “mesmo” insight se o fingerprint permanecer igual.
+- Um insight pode mudar de severidade entre recalculos e continuar sendo o "mesmo" insight se o fingerprint permanecer igual.
+- `category_concentration` pode ficar silencioso se a categoria lider for `Sem categoria`, mesmo que a segunda categoria tenha concentracao alta.
+- `statement_overdue` nao olha faturas antigas com `dueDate < periodStart`, porque a coleta de metricas filtra `dueDate >= periodStart`.
+- O engine pode alertar vencimento de statement que cai logo apos o fim do mes, desde que seja o primeiro nao pago do cartao e esteja dentro da janela de 7 dias.
 - O modulo pode ficar silencioso mesmo com dados existentes, se nenhuma regra atingir os thresholds necessarios.
 
 ## Examples
@@ -156,7 +311,7 @@ O valor do dominio vem de tres caracteristicas:
   - insight continua reconhecido como o mesmo item
   - dismiss permanece preservado
 - Notes:
-  - isso evita que o feed “ressuscite” o mesmo insight toda vez
+  - isso evita que o feed "ressuscite" o mesmo insight toda vez
 
 ### Example 3 - Feed com muitos candidatos
 
@@ -180,11 +335,22 @@ O valor do dominio vem de tres caracteristicas:
 - Snapshot or cache implications:
   - `refreshInsightSnapshots` persiste insights e e o fluxo usado pelo dashboard
   - `listInsights` calcula on-demand e reconcilia, quando possivel, com snapshots existentes do periodo
+  - o dashboard persiste primeiro e filtra dismiss depois; o endpoint `GET` so le e filtra
+  - `refreshInsightSnapshots` nao usa cache; ele sempre reexecuta coleta, regras e upserts
   - o modulo `insights` ja participa da estrategia de invalidacao da camada analitica
 - Failure or fallback behavior:
   - falha em `dismiss` para insight inexistente retorna erro de dominio `Insight nao encontrado`
   - se metas falharem na coleta, o engine trata esse trecho como lista vazia e continua o pipeline
   - ausencia de sinais relevantes nao e erro; apenas resulta em feed vazio
+
+## Trade-offs and Known Limits
+
+- O engine privilegia determinismo e clareza, entao usa thresholds e prioridades fixos em vez de aprender com comportamento do usuario.
+- O pipeline carrega algumas metricas ainda nao consumidas por regras atuais, o que facilita expansao futura, mas aumenta um pouco o custo da coleta.
+- O feed de statement considera no maximo um statement por cartao, o que pode sub-representar cenarios com multiplas faturas relevantes simultaneas.
+- A regra de concentracao olha apenas a categoria lider; ela nao tenta identificar todas as categorias acima do threshold.
+- O tratamento de insights obsoletos preserva snapshots dismissados fora do feed ativo, o que ajuda na persistencia de dismiss, mas deixa historico residual no banco por periodo.
+- Prioridade e um numero hardcoded por regra, nao uma formula universal; por isso a ordenacao final depende de tuning manual do produto.
 
 ## Related Decisions
 

@@ -2,9 +2,9 @@
 
 ## Status
 
-- [x] Todo
+- [ ] Todo
 - [ ] In Progress
-- [ ] Done
+- [x] Done
 
 ## Context
 
@@ -55,12 +55,12 @@ Detalhar no documento de score como os fatores, pesos, redistribuicao e delta hi
 
 ## Checklist
 
-- [ ] `.docs/domain/financial-score.md` enriquecido com logica detalhada
-- [ ] Conteudo validado contra codigo real
-- [ ] `.docs/CONTEXT.md` updated
-- [ ] `.docs/CHANGELOG.md` updated
-- [ ] ADR created/updated (if applicable)
-- [ ] Manual validation done
+- [x] `.docs/domain/financial-score.md` enriquecido com logica detalhada
+- [x] Conteudo validado contra codigo real
+- [x] `.docs/CONTEXT.md` updated
+- [x] `.docs/CHANGELOG.md` updated
+- [x] ADR created/updated (not applicable; ADR existente referenciado)
+- [x] Manual validation done
 
 ## Notes for AI (next step)
 

@@ -2,9 +2,9 @@
 
 ## Status
 
-- [x] Todo
+- [ ] Todo
 - [ ] In Progress
-- [ ] Done
+- [x] Done
 
 ## Context
 
@@ -56,12 +56,12 @@ Criar `.docs/api/analytics.md` com contratos HTTP, parametros, respostas, erros 
 
 ## Checklist
 
-- [ ] Documento criado em `.docs/api/analytics.md`
-- [ ] Endpoints validados contra codigo real
-- [ ] `.docs/CONTEXT.md` updated
-- [ ] `.docs/CHANGELOG.md` updated
-- [ ] ADR created/updated (if applicable)
-- [ ] Manual validation done
+- [x] Documento criado em `.docs/api/analytics.md`
+- [x] Endpoints validados contra codigo real
+- [x] `.docs/CONTEXT.md` updated
+- [x] `.docs/CHANGELOG.md` updated
+- [x] ADR created/updated (not applicable; ADRs existentes referenciados)
+- [x] Manual validation done
 
 ## Notes for AI (next step)
 

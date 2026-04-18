@@ -4,11 +4,11 @@
 
 ## Current Phase
 
-**Phase 17: Domain Docs - Insights** — Concluido. Documentacao de dominio dos insights criada em `.docs/domain/insights.md`, consolidando `InsightSnapshot`, severidades, escopos, `fingerprint`, `dismiss`, persistencia por periodo e limites operacionais do feed deterministico.
+**Phase 26: Architecture Docs - Sequence** — Concluido. `.docs/architecture/sequence.md` consolidou diagramas Mermaid e narrativas de sequencia para os fluxos mais sensiveis, cobrindo validacao, persistencia, billing, snapshots e invalidacao.
 
 ## Next Planned Step
 
-Executar a **Phase 18: Logic Docs - Forecast Calculation**, iniciando a segunda etapa do backlog documental com os deep dives de logica do produto.
+Backlog documental faseado inicial concluido. O proximo passo natural e expandir cobertura para modulos ainda sem deep dive proprio, como auth, accounts, categories, recurring CRUD, dashboards e credit-cards.
 
 ## What Exists
 
@@ -33,8 +33,17 @@ Executar a **Phase 18: Logic Docs - Forecast Calculation**, iniciando a segunda 
 - **Documentation backlog**: roadmap formalizado com specs `06` a `18` e tasks `14` a `26` para dominio, logica, API, dados e arquitetura
 - **Domain Docs: goals**: documento `.docs/domain/goals.md` criado com conceitos, regras, estados, formulas de negocio, edge cases e limitacoes atuais do modulo de metas
 - **Domain Docs: forecast**: documento `.docs/domain/forecast.md` criado com conceitos de previsao mensal, snapshot, `referenceDate`, `riskLevel`, premissas e limites conhecidos do motor de forecast
+- **Logic Docs: forecast calculation**: `.docs/domain/forecast.md` enriquecido com entradas do calculo, sequencia de composicao, media movel de 2 meses, comportamento de `assumptions`, classificacao de risco e trade-offs do algoritmo atual
 - **Domain Docs: financial score**: documento `.docs/domain/financial-score.md` criado com conceito de score 0-100, fatores explicaveis, status qualitativos, comparativo historico e limites conhecidos do modulo
+- **Logic Docs: financial score calculation**: `.docs/domain/financial-score.md` enriquecido com pesos-base, neutralidade, comportamento weightless, regras detalhadas por fator, geracao de insights, delta historico e trade-offs do algoritmo atual
 - **Domain Docs: insights**: documento `.docs/domain/insights.md` criado com conceito de insight automatico, severidade, CTA, `fingerprint`, dedupe, `dismiss` e persistencia por periodo
+- **Logic Docs: insights engine**: `.docs/domain/insights.md` enriquecido com metric pipeline, ordem de execucao das regras, thresholds/prioridades do MVP, dedupe por fingerprint, ciclo de dismiss e persistencia do feed
+- **API Docs: transactions**: documento `.docs/api/transactions.md` criado com contratos de `GET/POST /api/transactions`, `PATCH/DELETE /api/transactions/[id]` e `POST /api/transactions/transfer`, incluindo filtros, payloads, erros e side effects
+- **API Docs: analytics**: documento `.docs/api/analytics.md` criado com contratos de summary, forecast, score e insights, incluindo `month`, cache, recalculate, history e dismiss
+- **API Docs: goals**: documento `.docs/api/goals.md` criado com contratos de `GET/POST /api/goals` e `GET/PATCH/DELETE /api/goals/[id]`, incluindo progresso on-demand, soft delete, validacoes e regras de ownership atuais
+- **Data Docs: data dictionary**: documento `.docs/data/data-dictionary.md` criado com todos os models e enums atuais do Prisma, ownership multi-tenant, relacionamentos, snapshots e limites de integridade do schema
+- **Architecture Docs: flows**: documento `.docs/architecture/flows.md` criado com traversal real entre UI, API, application, Prisma, billing e invalidation nos fluxos criticos do sistema
+- **Architecture Docs: sequence**: documento `.docs/architecture/sequence.md` criado com diagramas Mermaid e sequencias operacionais para transacoes, recorrencias, recalculate analitico e pagamento de fatura
 - **Repo hygiene**: `.gitignore` ajustado para ignorar configs locais de tooling em `.claude/`, logs genericos e artefatos comuns de chave/certificado (`*.key`, `*.crt`, `*.p12`, `*.pfx`)
 - **Seed demo**: script com dados ficticios (demo@finance.com / demo1234)
 - **Reset demo**: botao em /settings que recria dados

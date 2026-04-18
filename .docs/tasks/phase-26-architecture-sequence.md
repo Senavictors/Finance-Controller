@@ -2,9 +2,9 @@
 
 ## Status
 
-- [x] Todo
+- [ ] Todo
 - [ ] In Progress
-- [ ] Done
+- [x] Done
 
 ## Context
 
@@ -55,12 +55,12 @@ Criar `.docs/architecture/sequence.md` com diagramas Mermaid e narrativas de seq
 
 ## Checklist
 
-- [ ] Documento criado em `.docs/architecture/sequence.md`
-- [ ] Diagramas validados
-- [ ] `.docs/CONTEXT.md` updated
-- [ ] `.docs/CHANGELOG.md` updated
+- [x] Documento criado em `.docs/architecture/sequence.md`
+- [x] Diagramas validados
+- [x] `.docs/CONTEXT.md` updated
+- [x] `.docs/CHANGELOG.md` updated
 - [ ] ADR created/updated (if applicable)
-- [ ] Manual validation done
+- [x] Manual validation done
 
 ## Notes for AI (next step)
 

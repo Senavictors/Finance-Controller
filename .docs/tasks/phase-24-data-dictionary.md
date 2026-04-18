@@ -2,9 +2,9 @@
 
 ## Status
 
-- [x] Todo
+- [ ] Todo
 - [ ] In Progress
-- [ ] Done
+- [x] Done
 
 ## Context
 
@@ -56,12 +56,12 @@ Criar `.docs/data/data-dictionary.md` documentando modelos, campos, relacionamen
 
 ## Checklist
 
-- [ ] Documento criado em `.docs/data/data-dictionary.md`
-- [ ] Schema revisado integralmente
-- [ ] `.docs/CONTEXT.md` updated
-- [ ] `.docs/CHANGELOG.md` updated
+- [x] Documento criado em `.docs/data/data-dictionary.md`
+- [x] Schema revisado integralmente
+- [x] `.docs/CONTEXT.md` updated
+- [x] `.docs/CHANGELOG.md` updated
 - [ ] ADR created/updated (if applicable)
-- [ ] Manual validation done
+- [x] Manual validation done
 
 ## Notes for AI (next step)
 

@@ -9,6 +9,12 @@ and this project adheres to [Conventional Commits](https://www.conventionalcommi
 
 ### Added
 
+- Architecture sequence documentation in `.docs/architecture/sequence.md`
+- Architecture flows documentation in `.docs/architecture/flows.md`
+- Data dictionary documentation in `.docs/data/data-dictionary.md`
+- Goals API documentation in `.docs/api/goals.md`
+- Analytics API documentation in `.docs/api/analytics.md`
+- Transactions API documentation in `.docs/api/transactions.md`
 - Insights domain documentation in `.docs/domain/insights.md`
 - Financial score domain documentation in `.docs/domain/financial-score.md`
 - Forecast domain documentation in `.docs/domain/forecast.md`
@@ -57,6 +63,9 @@ and this project adheres to [Conventional Commits](https://www.conventionalcommi
 
 ### Changed
 
+- `.docs/domain/insights.md` enriquecido com o deep dive da logica real do engine: metricas, heuristicas, dedupe, persistencia, dismiss e trade-offs
+- `.docs/domain/financial-score.md` enriquecido com o deep dive da logica real de calculo: pesos, fatores, redistribuicao, insights, delta historico e trade-offs
+- `.docs/domain/forecast.md` enriquecido com o deep dive da logica real de calculo: entradas, sequencia de composicao, media movel de 2 meses, risco, snapshot/invalidation e trade-offs
 - `.gitignore` atualizado para ignorar `.claude/`, logs genericos e artefatos comuns de chave/certificado
 - Architecture overview moved from `.docs/architecture.md` to `.docs/architecture/README.md`
 - README, AGENTS, CLAUDE and CONTEXT updated to reflect the new documentation structure
