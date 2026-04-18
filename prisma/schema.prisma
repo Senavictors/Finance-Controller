@@ -24,6 +24,7 @@ model User {
   recurringRules       RecurringRule[]
   goals                Goal[]
   forecastSnapshots    ForecastSnapshot[]
+  scoreSnapshots       FinancialScoreSnapshot[]
 
   @@map("users")
 }
@@ -369,4 +370,32 @@ model ForecastSnapshot {
   @@unique([userId, periodStart])
   @@index([userId])
   @@map("forecast_snapshots")
+}
+
+enum FinancialScoreStatus {
+  CRITICAL
+  ATTENTION
+  GOOD
+  EXCELLENT
+
+  @@map("financial_score_status")
+}
+
+model FinancialScoreSnapshot {
+  id           String               @id @default(cuid())
+  userId       String               @map("user_id")
+  periodStart  DateTime             @map("period_start")
+  periodEnd    DateTime             @map("period_end")
+  score        Int
+  status       FinancialScoreStatus
+  factors      Json
+  insights     Json
+  calculatedAt DateTime             @default(now()) @map("calculated_at")
+  staleAt      DateTime?            @map("stale_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, periodStart])
+  @@index([userId])
+  @@map("financial_score_snapshots")
 }

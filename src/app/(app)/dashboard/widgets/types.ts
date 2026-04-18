@@ -35,6 +35,21 @@ export type DashboardData = {
     projectedVariableExpenses: number
     assumptions: { label: string; amount: number; kind: string }[]
   }
+  score: {
+    score: number
+    status: 'CRITICAL' | 'ATTENTION' | 'GOOD' | 'EXCELLENT'
+    delta: number | null
+    previousScore: number | null
+    factors: {
+      key: string
+      label: string
+      weight: number
+      points: number
+      reason: string
+      neutral?: boolean
+    }[]
+    insights: { tone: 'positive' | 'warning' | 'negative' | 'info'; message: string }[]
+  }
 }
 
 export type WidgetDefinition = {

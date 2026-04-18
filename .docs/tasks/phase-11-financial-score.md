@@ -2,9 +2,9 @@
 
 ## Status
 
-- [x] Todo
+- [ ] Todo
 - [ ] In Progress
-- [ ] Done
+- [x] Done
 
 ## Context
 
@@ -80,13 +80,13 @@ Entregar um score financeiro mensal de `0 a 100`, com fatores explicaveis, histo
 
 ## Checklist
 
-- [ ] Modelo `FinancialScoreSnapshot` criado
-- [ ] Motor de score implementado
-- [ ] APIs mensal e historica entregues
-- [ ] Widget e breakdown no dashboard entregues
-- [ ] Compatibilidade com Goal Engine e Forecast validada
-- [ ] `.docs/CONTEXT.md` updated
-- [ ] ADR created/updated (if applicable)
+- [x] Modelo `FinancialScoreSnapshot` criado
+- [x] Motor de score implementado
+- [x] APIs mensal e historica entregues
+- [x] Widget e breakdown no dashboard entregues
+- [x] Compatibilidade com Goal Engine e Forecast validada
+- [x] `.docs/CONTEXT.md` updated
+- [x] ADR created/updated (if applicable)
 - [ ] Manual validation done
 
 ## Notes for AI (next step)

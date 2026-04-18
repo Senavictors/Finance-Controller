@@ -4,11 +4,11 @@
 
 ## Current Phase
 
-**Phase 10: Forecast Engine** — Concluido. Previsao mensal auditavel combinando realizado, recorrencias futuras, projecao variavel e faturas em aberto, com classificacao de risco e widget `forecast` no dashboard. Formalizado pelo ADR-011.
+**Phase 11: Score Financeiro** — Concluido. Score mensal de 0 a 100 com fatores explicaveis (taxa de economia, estabilidade de gastos, consistencia de renda, uso de cartao e cumprimento de metas), redistribuicao por ausencia de dados, widget `score` no dashboard com delta vs mes anterior e snapshots persistidos. Formalizado pelo ADR-012.
 
 ## Next Planned Step
 
-**Phase 11: Score Financeiro** — Proxima feature planejada em [phase-11-financial-score.md](tasks/phase-11-financial-score.md)
+**Phase 12: Insights Automaticos** — Proxima feature planejada em [phase-12-automatic-insights.md](tasks/phase-12-automatic-insights.md)
 
 ## What Exists
 
@@ -27,6 +27,7 @@
 - **Demo hardening**: seed/reset demo agora montam um cartao com fatura paga e outra em aberto, e a UI de faturas/transacoes ficou mais demonstravel
 - **Goal Engine**: modulo de metas com SAVING, EXPENSE_LIMIT, INCOME_TARGET e ACCOUNT_LIMIT; calculo de progresso com projecao; snapshots; pagina `/goals`; widget `goal-progress` no dashboard; 3 metas demo no seed
 - **Forecast Engine**: previsao mensal com saldo previsto, nivel de risco (LOW/MEDIUM/HIGH), projecao de recorrencias futuras, media movel de despesa variavel e snapshot persistido; widget `forecast` no dashboard; APIs `GET /api/analytics/forecast` e `POST /api/analytics/forecast/recalculate`
+- **Financial Score**: pontuacao 0-100 com 5 fatores explicaveis e redistribuicao por ausencia de dados; status CRITICAL/ATTENTION/GOOD/EXCELLENT; snapshot persistido com delta vs mes anterior; widget `score` no dashboard; APIs `GET /api/analytics/score` e `GET /api/analytics/score/history`
 - **Seed demo**: script com dados ficticios (demo@finance.com / demo1234)
 - **Reset demo**: botao em /settings que recria dados
 - **Landing page**: hero + features + tech stack + footer
@@ -35,11 +36,11 @@
 - **Future feature specs**: `.docs/future-features/` com Goal Engine, Forecast Engine, Score Financeiro e Insights Automaticos
 - **Execution backlog**: tasks formais criadas para as phases 8.5, 9, 10, 11 e 12 em `.docs/tasks/`
 - **Technical plan**: task documentada para a fundacao analitica e ciclo de fatura de cartao
-- **26 API routes**, 13 models, 11 ADRs
+- **28 API routes**, 14 models, 12 ADRs
 
 ## Database Models
 
-User, Session, Account, Category, Transaction, CreditCardStatement, Dashboard, DashboardWidget, RecurringRule, RecurringLog, Goal, GoalSnapshot, ForecastSnapshot
+User, Session, Account, Category, Transaction, CreditCardStatement, Dashboard, DashboardWidget, RecurringRule, RecurringLog, Goal, GoalSnapshot, ForecastSnapshot, FinancialScoreSnapshot
 
 ## Current Architectural Reality
 
@@ -65,3 +66,4 @@ User, Session, Account, Category, Transaction, CreditCardStatement, Dashboard, D
 - [ADR-009](decisions/ADR-009-analytics-snapshot-invalidation.md): Analytics snapshot and invalidation strategy
 - [ADR-010](decisions/ADR-010-goal-engine.md): Goal Engine
 - [ADR-011](decisions/ADR-011-forecast-engine.md): Forecast Engine
+- [ADR-012](decisions/ADR-012-financial-score.md): Financial Score

@@ -105,3 +105,10 @@ and this project adheres to [Conventional Commits](https://www.conventionalcommi
 - API `GET /api/analytics/forecast` e `POST /api/analytics/forecast/recalculate`
 - Widget `forecast` no dashboard com saldo previsto, badge de risco e premissas principais
 - ADR-011: Forecast Engine
+- Phase 11: Financial Score — `FinancialScoreSnapshot` + enum `FinancialScoreStatus`
+- `calculateFinancialScore` combina 5 fatores explicaveis (economia, estabilidade, renda, cartao, metas) com redistribuicao por ausencia de dados
+- Status CRITICAL/ATTENTION/GOOD/EXCELLENT, delta vs mes anterior e insights acionaveis
+- API `GET /api/analytics/score` e `GET /api/analytics/score/history`
+- Widget `score` no dashboard com pontuacao, delta, breakdown de fatores e insights
+- Testes unitarios cobrindo faixas de status e cada fator isolado
+- ADR-012: Financial Score
