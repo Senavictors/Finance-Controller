@@ -545,6 +545,10 @@ npx prisma db seed   # Popular dados demo
 
 ## Roadmap
 
+Estado atual: backlog faseado inicial concluido ate a **Phase 26**.
+
+### Phases concluidas
+
 - [x] Phase 1: Fundacao (Next.js, Tailwind, Prisma, ESLint)
 - [x] Phase 2: Autenticacao (bcrypt, sessions, guards)
 - [x] Phase 3: Nucleo Financeiro (contas, categorias, transacoes, transferencias)
@@ -558,6 +562,27 @@ npx prisma db seed   # Popular dados demo
 - [x] Phase 10: Forecast Engine
 - [x] Phase 11: Financial Score
 - [x] Phase 12: Automatic Insights
+- [x] Phase 13: Documentation Foundation
+- [x] Phase 14: Domain Docs - Goals
+- [x] Phase 15: Domain Docs - Forecast
+- [x] Phase 16: Domain Docs - Financial Score
+- [x] Phase 17: Domain Docs - Insights
+- [x] Phase 18: Logic Docs - Forecast Calculation
+- [x] Phase 19: Logic Docs - Financial Score Calculation
+- [x] Phase 20: Logic Docs - Insights Engine
+- [x] Phase 21: API Docs - Transactions
+- [x] Phase 22: API Docs - Analytics
+- [x] Phase 23: API Docs - Goals
+- [x] Phase 24: Data Docs - Data Dictionary
+- [x] Phase 25: Architecture Docs - Flows
+- [x] Phase 26: Architecture Docs - Sequence
+
+### Proximo passo natural
+
+- [ ] Expandir cobertura documental para auth, accounts, categories, recurring CRUD, dashboards e credit-cards
+
+### Backlog de produto
+
 - [ ] Import/export CSV
 - [ ] Relatorios e exportacao PDF
 - [ ] PWA / responsivo mobile

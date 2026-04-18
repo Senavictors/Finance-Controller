@@ -45,6 +45,7 @@ Backlog documental faseado inicial concluido. O proximo passo natural e expandir
 - **Architecture Docs: flows**: documento `.docs/architecture/flows.md` criado com traversal real entre UI, API, application, Prisma, billing e invalidation nos fluxos criticos do sistema
 - **Architecture Docs: sequence**: documento `.docs/architecture/sequence.md` criado com diagramas Mermaid e sequencias operacionais para transacoes, recorrencias, recalculate analitico e pagamento de fatura
 - **Documentation sync**: README, CONTEXT, architecture overview e flows alinhados ao codigo atual (`dashboards`, `recurring-rules`, Node >= 20.9, apply manual de recorrencias e registry atual de widgets)
+- **README roadmap sync**: roadmap do README agora reflete explicitamente as phases 13 a 26 ja concluidas e separa proximo passo documental do backlog de produto
 - **Repo hygiene**: `.gitignore` ajustado para ignorar configs locais de tooling em `.claude/`, logs genericos e artefatos comuns de chave/certificado (`*.key`, `*.crt`, `*.p12`, `*.pfx`)
 - **Seed demo**: script com dados ficticios (demo@finance.com / demo1234)
 - **Reset demo**: botao em /settings que recria dados
