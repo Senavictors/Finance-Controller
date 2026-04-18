@@ -2,6 +2,7 @@
 
 import { formatCurrency } from '@/lib/format'
 import { cn } from '@/lib/utils'
+import { BrandDot } from '@/lib/brands'
 import type { DashboardData } from './types'
 
 export function AccountsWidget({ data }: { data: DashboardData }) {
@@ -17,7 +18,13 @@ export function AccountsWidget({ data }: { data: DashboardData }) {
             {balanceByAccount.map((acc) => (
               <div key={acc.name} className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <span className="size-2.5 rounded-full" style={{ backgroundColor: acc.color }} />
+                  <BrandDot
+                    brandKey={acc.icon}
+                    fallbackText={acc.name}
+                    fallbackColor={acc.color}
+                    fallbackLabel={acc.name}
+                    size={12}
+                  />
                   <span className="text-xs font-medium text-gray-700">{acc.name}</span>
                 </div>
                 <span

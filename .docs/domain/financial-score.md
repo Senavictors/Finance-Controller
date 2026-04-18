@@ -57,36 +57,36 @@ O modulo foi desenhado para ser explicavel. A nota nunca vem sozinha: ela vem ac
 
 ## Core Concepts
 
-| Concept | Description | Notes |
-| ------- | ----------- | ----- |
-| Financial score | Nota sintetica de saude financeira | Sempre clampada entre `0` e `100` |
-| Score factor | Dimensao explicavel que contribui para a nota | Hoje sao 5 fatores principais |
-| Weightless factor | Fator que nao participa da nota por ausencia legitima de dominio configurado | Exemplo: nenhum cartao ou nenhuma meta |
-| Neutral factor | Fator que participa de forma parcial e conservadora quando nao ha historico suficiente | Evita punicao total ou premio cheio |
-| Score insight | Mensagem curta derivada dos fatores | Serve para orientar interpretacao e proxima acao |
-| Previous score | Ultima nota persistida anterior ao periodo atual | Base para comparativo temporal |
-| Delta | Variacao entre a nota atual e a nota anterior | Pode ser positiva, negativa ou nula |
-| Score history | Serie de snapshots persistidos do usuario | Alimenta comparacao historica e futuras leituras temporais |
+| Concept           | Description                                                                            | Notes                                                      |
+| ----------------- | -------------------------------------------------------------------------------------- | ---------------------------------------------------------- |
+| Financial score   | Nota sintetica de saude financeira                                                     | Sempre clampada entre `0` e `100`                          |
+| Score factor      | Dimensao explicavel que contribui para a nota                                          | Hoje sao 5 fatores principais                              |
+| Weightless factor | Fator que nao participa da nota por ausencia legitima de dominio configurado           | Exemplo: nenhum cartao ou nenhuma meta                     |
+| Neutral factor    | Fator que participa de forma parcial e conservadora quando nao ha historico suficiente | Evita punicao total ou premio cheio                        |
+| Score insight     | Mensagem curta derivada dos fatores                                                    | Serve para orientar interpretacao e proxima acao           |
+| Previous score    | Ultima nota persistida anterior ao periodo atual                                       | Base para comparativo temporal                             |
+| Delta             | Variacao entre a nota atual e a nota anterior                                          | Pode ser positiva, negativa ou nula                        |
+| Score history     | Serie de snapshots persistidos do usuario                                              | Alimenta comparacao historica e futuras leituras temporais |
 
 ## Types and Entities
 
-| Item | Kind | Description | Notes |
-| ---- | ---- | ----------- | ----- |
-| `FinancialScoreSnapshot` | Prisma model | Snapshot persistido da nota por usuario e periodo | `@@unique([userId, periodStart])` |
-| `FinancialScoreStatus` | Enum | Faixa qualitativa do score | `CRITICAL`, `ATTENTION`, `GOOD`, `EXCELLENT` |
-| `FinancialScoreResult` | Application DTO | Resultado calculado do score | Inclui score, status, fatores, insights, nota anterior e delta |
-| `ScoreFactor` | Application type | Componente explicavel da nota | Guarda `key`, `label`, `weight`, `points`, `reason` e opcionalmente `neutral` |
-| `ScoreInsight` | Application type | Insight textual curto derivado do score | `tone = positive | warning | negative | info` |
-| `ScoreFactorKey` | Union type | Identificador canonico de fator | `savings_rate`, `spend_stability`, `income_consistency`, `credit_card`, `goals` |
+| Item                     | Kind             | Description                                       | Notes                                                                           |
+| ------------------------ | ---------------- | ------------------------------------------------- | ------------------------------------------------------------------------------- | ------- | -------- | ----- |
+| `FinancialScoreSnapshot` | Prisma model     | Snapshot persistido da nota por usuario e periodo | `@@unique([userId, periodStart])`                                               |
+| `FinancialScoreStatus`   | Enum             | Faixa qualitativa do score                        | `CRITICAL`, `ATTENTION`, `GOOD`, `EXCELLENT`                                    |
+| `FinancialScoreResult`   | Application DTO  | Resultado calculado do score                      | Inclui score, status, fatores, insights, nota anterior e delta                  |
+| `ScoreFactor`            | Application type | Componente explicavel da nota                     | Guarda `key`, `label`, `weight`, `points`, `reason` e opcionalmente `neutral`   |
+| `ScoreInsight`           | Application type | Insight textual curto derivado do score           | `tone = positive                                                                | warning | negative | info` |
+| `ScoreFactorKey`         | Union type       | Identificador canonico de fator                   | `savings_rate`, `spend_stability`, `income_consistency`, `credit_card`, `goals` |
 
 ## States
 
-| State | Meaning | Entry Condition | Exit Condition |
-| ----- | ------- | --------------- | -------------- |
-| `CRITICAL` | Saude financeira fragil no periodo | Score abaixo de `40` | Pode subir para `ATTENTION`, `GOOD` ou `EXCELLENT` conforme recalculo |
-| `ATTENTION` | Situacao intermediaria com riscos relevantes | Score entre `40` e `59` | Pode cair para `CRITICAL` ou subir para `GOOD`/`EXCELLENT` |
-| `GOOD` | Situacao saudavel, mas ainda nao excelente | Score entre `60` e `79` | Pode cair para `ATTENTION` ou subir para `EXCELLENT` |
-| `EXCELLENT` | Saude financeira muito forte no periodo | Score `>= 80` | Pode cair nos recalculos seguintes se os fatores piorarem |
+| State       | Meaning                                      | Entry Condition         | Exit Condition                                                        |
+| ----------- | -------------------------------------------- | ----------------------- | --------------------------------------------------------------------- |
+| `CRITICAL`  | Saude financeira fragil no periodo           | Score abaixo de `40`    | Pode subir para `ATTENTION`, `GOOD` ou `EXCELLENT` conforme recalculo |
+| `ATTENTION` | Situacao intermediaria com riscos relevantes | Score entre `40` e `59` | Pode cair para `CRITICAL` ou subir para `GOOD`/`EXCELLENT`            |
+| `GOOD`      | Situacao saudavel, mas ainda nao excelente   | Score entre `60` e `79` | Pode cair para `ATTENTION` ou subir para `EXCELLENT`                  |
+| `EXCELLENT` | Saude financeira muito forte no periodo      | Score `>= 80`           | Pode cair nos recalculos seguintes se os fatores piorarem             |
 
 ## Business Rules
 
@@ -110,26 +110,26 @@ O modulo foi desenhado para ser explicavel. A nota nunca vem sozinha: ela vem ac
 
 ## Formulas and Calculations
 
-| Name | Formula or Logic | Inputs | Output | Notes |
-| ---- | ---------------- | ------ | ------ | ----- |
-| Final score | Normalizacao dos pontos obtidos sobre o peso total ativo | `factors.points` e `factors.weight` | `score` | Clampado para `0..100` |
-| Status mapping | Faixas numericas do score | Nota final | `FinancialScoreStatus` | `<40`, `40-59`, `60-79`, `>=80` |
-| Savings factor | Normaliza a taxa de economia contra meta implicita de 20% | Receita e despesa do periodo | Fator `savings_rate` | Vai de `0/30` a `30/30` |
-| Spend stability factor | Compara gasto atual com media dos 3 meses anteriores | Despesa atual e buckets historicos de despesa | Fator `spend_stability` | Full score ate 5% de desvio; zera a partir de 50% |
-| Income consistency factor | Usa coeficiente de variacao da renda recente | Buckets historicos de receita com meses ativos | Fator `income_consistency` | Full score ate 10% de CV; zera a partir de 50% |
-| Credit card factor | Soma pontos de utilizacao e pagamento | Cartoes ativos, limite, saldo em aberto e overdue | Fator `credit_card` | `10` pts de utilizacao + `5` pts de pagamento |
-| Goals factor | Converte progresso medio das metas em pontos de 0 a 20 | Resultado do Goal Engine | Fator `goals` | Pode ser `weightless` se nao houver metas validas |
-| Delta | Diferenca entre score atual e ultimo snapshot anterior persistido | `score`, `previousScore` | `delta` | Nao exige que exista snapshot do mes imediatamente anterior |
+| Name                      | Formula or Logic                                                  | Inputs                                            | Output                     | Notes                                                       |
+| ------------------------- | ----------------------------------------------------------------- | ------------------------------------------------- | -------------------------- | ----------------------------------------------------------- |
+| Final score               | Normalizacao dos pontos obtidos sobre o peso total ativo          | `factors.points` e `factors.weight`               | `score`                    | Clampado para `0..100`                                      |
+| Status mapping            | Faixas numericas do score                                         | Nota final                                        | `FinancialScoreStatus`     | `<40`, `40-59`, `60-79`, `>=80`                             |
+| Savings factor            | Normaliza a taxa de economia contra meta implicita de 20%         | Receita e despesa do periodo                      | Fator `savings_rate`       | Vai de `0/30` a `30/30`                                     |
+| Spend stability factor    | Compara gasto atual com media dos 3 meses anteriores              | Despesa atual e buckets historicos de despesa     | Fator `spend_stability`    | Full score ate 5% de desvio; zera a partir de 50%           |
+| Income consistency factor | Usa coeficiente de variacao da renda recente                      | Buckets historicos de receita com meses ativos    | Fator `income_consistency` | Full score ate 10% de CV; zera a partir de 50%              |
+| Credit card factor        | Soma pontos de utilizacao e pagamento                             | Cartoes ativos, limite, saldo em aberto e overdue | Fator `credit_card`        | `10` pts de utilizacao + `5` pts de pagamento               |
+| Goals factor              | Converte progresso medio das metas em pontos de 0 a 20            | Resultado do Goal Engine                          | Fator `goals`              | Pode ser `weightless` se nao houver metas validas           |
+| Delta                     | Diferenca entre score atual e ultimo snapshot anterior persistido | `score`, `previousScore`                          | `delta`                    | Nao exige que exista snapshot do mes imediatamente anterior |
 
 ## Weight Model and Redistribution
 
-| Factor | Base Weight | No-data behavior | Max Points |
-| ------ | ----------- | ---------------- | ---------- |
-| `savings_rate` | `30` | Continua ativo mesmo sem receita; pontua `0` | `30` |
-| `spend_stability` | `20` | Mantem peso e recebe nota `neutral` de 60% sem historico util | `20` |
-| `income_consistency` | `15` | Mantem peso e recebe nota `neutral` de 60% com menos de 2 meses ativos | `15` |
-| `credit_card` | `15` | Vira `weightless` com `weight = 0` se nao houver cartoes | `15` |
-| `goals` | `20` | Vira `weightless` com `weight = 0` se nao houver metas validas | `20` |
+| Factor               | Base Weight | No-data behavior                                                       | Max Points |
+| -------------------- | ----------- | ---------------------------------------------------------------------- | ---------- |
+| `savings_rate`       | `30`        | Continua ativo mesmo sem receita; pontua `0`                           | `30`       |
+| `spend_stability`    | `20`        | Mantem peso e recebe nota `neutral` de 60% sem historico util          | `20`       |
+| `income_consistency` | `15`        | Mantem peso e recebe nota `neutral` de 60% com menos de 2 meses ativos | `15`       |
+| `credit_card`        | `15`        | Vira `weightless` com `weight = 0` se nao houver cartoes               | `15`       |
+| `goals`              | `20`        | Vira `weightless` com `weight = 0` se nao houver metas validas         | `20`       |
 
 O score final e calculado assim:
 
@@ -147,14 +147,14 @@ Interpretacao operacional:
 
 ## Calculation Inputs
 
-| Input | Source | Filter | Used For | Notes |
-| ----- | ------ | ------ | -------- | ----- |
-| Period anchors | `resolveMonthPeriod(monthParam, now)` | `monthParam` valido ou fallback para o mes de `now` | `periodStart`, `periodEnd` | O score nao usa `referenceDate` |
-| Current transactions | `prisma.transaction.findMany` | `userId`, `type in (INCOME, EXPENSE)`, `date` dentro do periodo inteiro | `currentIncome`, `currentExpense` | Inclui transacoes futuras ja lancadas no mes consultado |
-| Historical transactions | `prisma.transaction.findMany` | `userId`, `type in (INCOME, EXPENSE)`, 3 meses completos antes do periodo | Buckets historicos de renda e gasto | Meses sem movimento continuam existindo como bucket `0` |
-| Credit cards | `prisma.account.findMany` | `userId`, `type = CREDIT_CARD`, `isArchived = false` | Limite, saldo em aberto, atraso | Statements do periodo e overdue sao carregados juntos |
-| Goals progress | `listGoalsWithProgress(userId, monthParam)` | Goals ativos do usuario | `goalSummary` | Falha no Goal Engine faz fallback para lista vazia |
-| Previous snapshot | `prisma.financialScoreSnapshot.findFirst` | `userId`, `periodStart < atual`, ordenado desc | `previousScore`, `delta` | Usa o ultimo snapshot anterior persistido |
+| Input                   | Source                                      | Filter                                                                    | Used For                            | Notes                                                   |
+| ----------------------- | ------------------------------------------- | ------------------------------------------------------------------------- | ----------------------------------- | ------------------------------------------------------- |
+| Period anchors          | `resolveMonthPeriod(monthParam, now)`       | `monthParam` valido ou fallback para o mes de `now`                       | `periodStart`, `periodEnd`          | O score nao usa `referenceDate`                         |
+| Current transactions    | `prisma.transaction.findMany`               | `userId`, `type in (INCOME, EXPENSE)`, `date` dentro do periodo inteiro   | `currentIncome`, `currentExpense`   | Inclui transacoes futuras ja lancadas no mes consultado |
+| Historical transactions | `prisma.transaction.findMany`               | `userId`, `type in (INCOME, EXPENSE)`, 3 meses completos antes do periodo | Buckets historicos de renda e gasto | Meses sem movimento continuam existindo como bucket `0` |
+| Credit cards            | `prisma.account.findMany`                   | `userId`, `type = CREDIT_CARD`, `isArchived = false`                      | Limite, saldo em aberto, atraso     | Statements do periodo e overdue sao carregados juntos   |
+| Goals progress          | `listGoalsWithProgress(userId, monthParam)` | Goals ativos do usuario                                                   | `goalSummary`                       | Falha no Goal Engine faz fallback para lista vazia      |
+| Previous snapshot       | `prisma.financialScoreSnapshot.findFirst`   | `userId`, `periodStart < atual`, ordenado desc                            | `previousScore`, `delta`            | Usa o ultimo snapshot anterior persistido               |
 
 ## Calculation Sequence
 
@@ -231,13 +231,13 @@ O fator combina duas partes:
 
 Regras atuais de utilizacao:
 
-| Condition | Utilization Points |
-| --------- | ------------------ |
-| Nenhum limite configurado (`limit = 0`) | `5` |
-| Utilizacao `<= 30%` | `10` |
-| Utilizacao `<= 50%` | `7` |
-| Utilizacao `<= 80%` | `3` |
-| Utilizacao `> 80%` | `0` |
+| Condition                               | Utilization Points |
+| --------------------------------------- | ------------------ |
+| Nenhum limite configurado (`limit = 0`) | `5`                |
+| Utilizacao `<= 30%`                     | `10`               |
+| Utilizacao `<= 50%`                     | `7`                |
+| Utilizacao `<= 80%`                     | `3`                |
+| Utilizacao `> 80%`                      | `0`                |
 
 Regras de pagamento:
 
@@ -273,11 +273,11 @@ Nuances importantes:
 
 ## Status Mapping Logic
 
-| Score | Status |
-| ----- | ------ |
-| `0..39` | `CRITICAL` |
-| `40..59` | `ATTENTION` |
-| `60..79` | `GOOD` |
+| Score     | Status      |
+| --------- | ----------- |
+| `0..39`   | `CRITICAL`  |
+| `40..59`  | `ATTENTION` |
+| `60..79`  | `GOOD`      |
 | `80..100` | `EXCELLENT` |
 
 ## Insight Generation

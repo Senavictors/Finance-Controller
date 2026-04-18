@@ -115,10 +115,7 @@ export async function buildInsightMetrics(
     if (tx.type === 'INCOME') totalIncome += tx.amount
     else if (tx.type === 'EXPENSE') {
       totalExpenses += tx.amount
-      currentByCategory.set(
-        tx.categoryId,
-        (currentByCategory.get(tx.categoryId) ?? 0) + tx.amount,
-      )
+      currentByCategory.set(tx.categoryId, (currentByCategory.get(tx.categoryId) ?? 0) + tx.amount)
     }
   }
 

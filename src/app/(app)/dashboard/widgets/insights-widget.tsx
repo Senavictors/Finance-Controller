@@ -55,7 +55,7 @@ export function InsightsWidget({ data }: { data: DashboardData }) {
               <div className="flex gap-2">
                 <Icon className="mt-0.5 size-3.5 shrink-0" />
                 <div className="flex-1">
-                  <p className="text-[12px] font-semibold leading-tight">{insight.title}</p>
+                  <p className="text-[12px] leading-tight font-semibold">{insight.title}</p>
                   <p className="mt-1 text-[11px] leading-snug opacity-80">{insight.body}</p>
                   {insight.cta?.href && (
                     <p className="mt-1 text-[11px] font-medium underline-offset-2 group-hover:underline">

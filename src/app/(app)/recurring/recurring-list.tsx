@@ -13,6 +13,7 @@ import { formatCurrency } from '@/lib/format'
 import { cn } from '@/lib/utils'
 import { useState } from 'react'
 import { RecurringForm } from './recurring-form'
+import { BrandDot, BrandIcon, getBrand, matchBrand } from '@/lib/brands'
 
 type Rule = {
   id: string
@@ -28,8 +29,8 @@ type Rule = {
   startDate: string | Date
   endDate: string | Date | null
   isActive: boolean
-  account: { name: string; color: string | null }
-  category: { name: string; color: string | null } | null
+  account: { name: string; color: string | null; icon: string | null }
+  category: { name: string; color: string | null; icon: string | null } | null
   _count: { logs: number }
 }
 
@@ -74,6 +75,8 @@ function RecurringRow({
 }) {
   const router = useRouter()
   const [editOpen, setEditOpen] = useState(false)
+  const inferredBrandKey = matchBrand(rule.description) ?? rule.category?.icon ?? rule.account.icon
+  const inferredBrand = getBrand(inferredBrandKey)
 
   async function handleToggle() {
     await fetch(`/api/recurring-rules/${rule.id}`, {
@@ -99,29 +102,56 @@ function RecurringRow({
         )}
       >
         <div className="flex items-center gap-4">
-          <div
-            className={cn(
-              'flex size-10 items-center justify-center rounded-xl',
-              rule.type === 'INCOME' ? 'bg-emerald-100' : 'bg-red-100',
-            )}
-          >
-            <span
+          {inferredBrand ? (
+            <BrandIcon
+              brandKey={inferredBrand.key}
+              fallbackLabel={rule.description}
+              size={40}
+              radius="md"
+            />
+          ) : (
+            <div
               className={cn(
-                'text-xs font-bold',
-                rule.type === 'INCOME' ? 'text-emerald-600' : 'text-red-600',
+                'flex size-10 items-center justify-center rounded-xl',
+                rule.type === 'INCOME' ? 'bg-emerald-100' : 'bg-red-100',
               )}
             >
-              {rule.type === 'INCOME' ? '+' : '-'}
-            </span>
-          </div>
+              <span
+                className={cn(
+                  'text-xs font-bold',
+                  rule.type === 'INCOME' ? 'text-emerald-600' : 'text-red-600',
+                )}
+              >
+                {rule.type === 'INCOME' ? '+' : '-'}
+              </span>
+            </div>
+          )}
           <div>
             <p className="text-sm font-medium text-gray-900">{rule.description}</p>
             <div className="mt-0.5 flex items-center gap-2 text-xs text-gray-400">
-              <span>{rule.account.name}</span>
+              <div className="flex items-center gap-1">
+                <BrandDot
+                  brandKey={rule.account.icon}
+                  fallbackText={rule.account.name}
+                  fallbackColor={rule.account.color}
+                  fallbackLabel={rule.account.name}
+                  size={10}
+                />
+                <span>{rule.account.name}</span>
+              </div>
               {rule.category && (
                 <>
                   <span>&middot;</span>
-                  <span>{rule.category.name}</span>
+                  <div className="flex items-center gap-1">
+                    <BrandDot
+                      brandKey={rule.category.icon}
+                      fallbackText={rule.category.name}
+                      fallbackColor={rule.category.color}
+                      fallbackLabel={rule.category.name}
+                      size={10}
+                    />
+                    <span>{rule.category.name}</span>
+                  </div>
                 </>
               )}
               <span>&middot;</span>

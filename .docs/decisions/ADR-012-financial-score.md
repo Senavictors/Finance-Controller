@@ -22,13 +22,13 @@ Com Goal Engine (ADR-010) e Forecast Engine (ADR-011) entregues, o sistema reune
 
 ### Fatores e pesos
 
-| Fator               | Peso | Sinal                                                         |
-| ------------------- | ---- | ------------------------------------------------------------- |
-| `savings_rate`      | 30   | (receita - despesa) / receita, normalizado em meta 20%        |
-| `spend_stability`   | 20   | desvio do gasto atual vs media dos 3 meses anteriores         |
-| `income_consistency`| 15   | coeficiente de variacao da renda dos 3 meses anteriores       |
-| `credit_card`       | 15   | utilizacao de limite (10 pts) + historico de pagamento (5 pts)|
-| `goals`             | 20   | media do progresso das metas ativas no periodo                |
+| Fator                | Peso | Sinal                                                          |
+| -------------------- | ---- | -------------------------------------------------------------- |
+| `savings_rate`       | 30   | (receita - despesa) / receita, normalizado em meta 20%         |
+| `spend_stability`    | 20   | desvio do gasto atual vs media dos 3 meses anteriores          |
+| `income_consistency` | 15   | coeficiente de variacao da renda dos 3 meses anteriores        |
+| `credit_card`        | 15   | utilizacao de limite (10 pts) + historico de pagamento (5 pts) |
+| `goals`              | 20   | media do progresso das metas ativas no periodo                 |
 
 Pontos finais: `score = round(sum(points) / sum(weights) * 100)`.
 

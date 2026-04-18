@@ -48,10 +48,18 @@ export async function POST() {
           type: 'CHECKING',
           initialBalance: 523000,
           color: '#3b82f6',
+          icon: 'nubank',
         },
       }),
       prisma.account.create({
-        data: { userId, name: 'Itau', type: 'CHECKING', initialBalance: 1245000, color: '#f97316' },
+        data: {
+          userId,
+          name: 'Itau',
+          type: 'CHECKING',
+          initialBalance: 1245000,
+          color: '#f97316',
+          icon: 'itau',
+        },
       }),
       prisma.account.create({
         data: { userId, name: 'Carteira', type: 'WALLET', initialBalance: 35000, color: '#22c55e' },
@@ -66,6 +74,7 @@ export async function POST() {
           statementClosingDay: 10,
           statementDueDay: 17,
           color: '#8b5cf6',
+          icon: 'nubank',
         },
       }),
       prisma.account.create({

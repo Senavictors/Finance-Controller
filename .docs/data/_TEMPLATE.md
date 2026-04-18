@@ -55,7 +55,7 @@
 
 ## Integrity Rules
 
-- 
+-
 
 ## Multi-tenant and Access Rules
 
@@ -65,16 +65,16 @@
 
 ## Derived Data and Snapshots
 
-- 
+-
 
 ## Query Patterns
 
-- 
+-
 
 ## Migration Notes
 
-- 
+-
 
 ## Open Questions
 
-- 
+-

@@ -12,6 +12,7 @@ import { MoreVertical, Pencil, Trash2 } from 'lucide-react'
 import { formatCurrency } from '@/lib/format'
 import { useState } from 'react'
 import { AccountForm } from './account-form'
+import { BrandIcon } from '@/lib/brands'
 
 type Account = {
   id: string
@@ -50,15 +51,14 @@ export function AccountCard({ account }: { account: Account }) {
       <div className="group relative overflow-hidden rounded-[1.5rem] border border-white/50 bg-gradient-to-b from-white to-gray-50 p-6 shadow-sm transition-all hover:shadow-md">
         <div className="flex items-start justify-between">
           <div className="flex items-center gap-3">
-            <div
-              className="flex size-10 items-center justify-center rounded-xl"
-              style={{ backgroundColor: `${account.color ?? '#3b82f6'}20` }}
-            >
-              <div
-                className="size-3 rounded-full"
-                style={{ backgroundColor: account.color ?? '#3b82f6' }}
-              />
-            </div>
+            <BrandIcon
+              brandKey={account.icon}
+              fallbackLabel={account.name}
+              fallbackText={account.name}
+              fallbackColor={account.color}
+              size={40}
+              radius="md"
+            />
             <div>
               <h3 className="text-sm font-semibold tracking-tight text-gray-900">{account.name}</h3>
               <Badge variant="secondary" className="mt-1 text-[11px]">

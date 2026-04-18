@@ -20,6 +20,7 @@ export type MonthlyAnalyticsSummary = {
     id: string
     name: string
     color: string | null
+    icon: string | null
     type: string
     balance: number
   }[]
@@ -27,6 +28,7 @@ export type MonthlyAnalyticsSummary = {
     id: string
     name: string
     color: string | null
+    icon: string | null
     total: number
   }[]
   recentTransactions: {
@@ -35,7 +37,7 @@ export type MonthlyAnalyticsSummary = {
     amount: number
     type: string
     date: Date
-    account: { name: string; color: string | null }
-    category: { name: string; color: string | null } | null
+    account: { name: string; color: string | null; icon: string | null }
+    category: { name: string; color: string | null; icon: string | null } | null
   }[]
 }

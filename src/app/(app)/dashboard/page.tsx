@@ -65,11 +65,13 @@ export default async function DashboardPage({ searchParams }: Props) {
         expensesByCategory: analytics.expensesByCategory.map((category) => ({
           name: category.name,
           color: category.color ?? '#94a3b8',
+          icon: category.icon,
           value: category.total,
         })),
         balanceByAccount: analytics.balanceByAccount.map((account) => ({
           name: account.name,
           color: account.color ?? '#3b82f6',
+          icon: account.icon,
           balance: account.balance,
         })),
         recentTransactions: analytics.recentTransactions.map((tx) => ({

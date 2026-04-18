@@ -9,6 +9,13 @@ and this project adheres to [Conventional Commits](https://www.conventionalcommi
 
 ### Added
 
+- Phase 27: biblioteca de marcas SVG (`src/lib/brands/`) com `BRANDS`, `getBrand`, `listBrands`, `matchBrand` e `resolveBrand`
+- Componentes `BrandIcon`, `BrandDot` e `BrandPicker` para renderizar logos ou fallback colorido com iniciais
+- Seletor de marca em `AccountForm` (bancos + bandeiras) e `CategoryForm` (assinaturas + pagamentos)
+- Logos sincronizados em transacoes, recorrencias, metas, faturas de cartao e widgets de dashboard com inferencia via `matchBrand(description)`
+- Seed e reset-demo atribuindo icones `nubank`/`itau` as contas e cartao para ilustrar o novo visual
+- Testes unitarios do registry de marcas cobrindo `matchBrand`, `resolveBrand` e fallbacks (`src/lib/brands/registry.test.ts`)
+- Phase 27 task for SVG brand logos/icons in `.docs/tasks/phase-27-svg-brand-icons.md`
 - Architecture sequence documentation in `.docs/architecture/sequence.md`
 - Architecture flows documentation in `.docs/architecture/flows.md`
 - Data dictionary documentation in `.docs/data/data-dictionary.md`

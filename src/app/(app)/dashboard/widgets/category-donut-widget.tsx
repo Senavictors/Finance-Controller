@@ -2,6 +2,7 @@
 
 import { formatCurrency } from '@/lib/format'
 import { ResponsiveContainer, PieChart, Pie, Cell } from 'recharts'
+import { BrandDot } from '@/lib/brands'
 import type { DashboardData } from './types'
 
 export function CategoryDonutWidget({ data }: { data: DashboardData }) {
@@ -35,7 +36,13 @@ export function CategoryDonutWidget({ data }: { data: DashboardData }) {
             {expensesByCategory.slice(0, 5).map((cat) => (
               <div key={cat.name} className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <span className="size-2.5 rounded-full" style={{ backgroundColor: cat.color }} />
+                  <BrandDot
+                    brandKey={cat.icon}
+                    fallbackText={cat.name}
+                    fallbackColor={cat.color}
+                    fallbackLabel={cat.name}
+                    size={12}
+                  />
                   <span className="text-xs text-gray-600">{cat.name}</span>
                 </div>
                 <span className="text-xs font-semibold text-gray-900">

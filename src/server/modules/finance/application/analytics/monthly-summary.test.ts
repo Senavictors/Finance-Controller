@@ -44,8 +44,8 @@ describe('analytics/monthly-summary', () => {
           amount: 200_00,
           type: 'EXPENSE',
           date: new Date('2026-04-18T12:00:00.000Z'),
-          account: { name: 'Conta Principal', color: '#3b82f6' },
-          category: { name: 'Alimentacao', color: '#ef4444' },
+          account: { name: 'Conta Principal', color: '#3b82f6', icon: null },
+          category: { name: 'Alimentacao', color: '#ef4444', icon: null },
         },
       ])
 
@@ -54,6 +54,7 @@ describe('analytics/monthly-summary', () => {
         id: 'acc-checking',
         name: 'Conta Principal',
         color: '#3b82f6',
+        icon: 'nubank',
         initialBalance: 1_000_00,
         type: 'CHECKING',
       },
@@ -61,14 +62,15 @@ describe('analytics/monthly-summary', () => {
         id: 'acc-card',
         name: 'Cartao',
         color: '#22c55e',
+        icon: null,
         initialBalance: 0,
         type: 'CREDIT_CARD',
       },
     ])
 
     prismaMock.category.findMany.mockResolvedValue([
-      { id: 'cat-food', name: 'Alimentacao', color: '#ef4444' },
-      { id: 'cat-sub', name: 'Assinaturas', color: '#8b5cf6' },
+      { id: 'cat-food', name: 'Alimentacao', color: '#ef4444', icon: null },
+      { id: 'cat-sub', name: 'Assinaturas', color: '#8b5cf6', icon: 'netflix' },
     ])
 
     const summary = await getMonthlyAnalyticsSummary({
@@ -84,14 +86,15 @@ describe('analytics/monthly-summary', () => {
     expect(summary.incomeVariation).toBe(25)
     expect(summary.expenseVariation).toBe(150)
     expect(summary.expensesByCategory).toEqual([
-      { id: 'cat-food', name: 'Alimentacao', color: '#ef4444', total: 200_00 },
-      { id: 'cat-sub', name: 'Assinaturas', color: '#8b5cf6', total: 50_00 },
+      { id: 'cat-food', name: 'Alimentacao', color: '#ef4444', icon: null, total: 200_00 },
+      { id: 'cat-sub', name: 'Assinaturas', color: '#8b5cf6', icon: 'netflix', total: 50_00 },
     ])
     expect(summary.balanceByAccount).toEqual([
       {
         id: 'acc-checking',
         name: 'Conta Principal',
         color: '#3b82f6',
+        icon: 'nubank',
         type: 'CHECKING',
         balance: 1_300_00,
       },
@@ -99,6 +102,7 @@ describe('analytics/monthly-summary', () => {
         id: 'acc-card',
         name: 'Cartao',
         color: '#22c55e',
+        icon: null,
         type: 'CREDIT_CARD',
         balance: -50_00,
       },
