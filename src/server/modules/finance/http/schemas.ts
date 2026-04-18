@@ -10,12 +10,10 @@ export const createAccountSchema = z
     }),
     initialBalance: z.number().int('Saldo deve ser um numero inteiro (centavos)').default(0),
     creditLimit: z
-      .number()
-      .int('Limite deve ser um numero inteiro (centavos)')
-      .positive()
+      .union([z.number().int('Limite deve ser um numero inteiro (centavos)').positive(), z.null()])
       .optional(),
-    statementClosingDay: z.number().int().min(1).max(31).optional(),
-    statementDueDay: z.number().int().min(1).max(31).optional(),
+    statementClosingDay: z.union([z.number().int().min(1).max(31), z.null()]).optional(),
+    statementDueDay: z.union([z.number().int().min(1).max(31), z.null()]).optional(),
     color: z.string().max(20).optional(),
     icon: z.string().max(50).optional(),
   })
