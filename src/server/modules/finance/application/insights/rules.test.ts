@@ -189,9 +189,7 @@ describe('detectGoalAtRisk', () => {
     expect(insights[0].severity).toBe('CRITICAL')
   })
   it('ignores ON_TRACK goals', () => {
-    const insights = detectGoalAtRisk(
-      makeMetrics({ goals: [makeGoal({ status: 'ON_TRACK' })] }),
-    )
+    const insights = detectGoalAtRisk(makeMetrics({ goals: [makeGoal({ status: 'ON_TRACK' })] }))
     expect(insights).toHaveLength(0)
   })
 })

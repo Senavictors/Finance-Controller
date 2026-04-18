@@ -21,6 +21,7 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { Plus } from 'lucide-react'
+import { BrandPicker } from '@/lib/brands'
 
 type Account = {
   id: string
@@ -59,6 +60,8 @@ export function AccountForm({ account, open, onOpenChange }: AccountFormProps) {
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
   const [accountType, setAccountType] = useState(account?.type ?? 'CHECKING')
+  const [brandKey, setBrandKey] = useState<string | null>(account?.icon ?? null)
+  const [color, setColor] = useState<string>(account?.color ?? '#3b82f6')
 
   const isControlled = open !== undefined
   const isOpen = isControlled ? open : internalOpen
@@ -67,7 +70,9 @@ export function AccountForm({ account, open, onOpenChange }: AccountFormProps) {
 
   useEffect(() => {
     setAccountType(account?.type ?? 'CHECKING')
-  }, [account?.type, isOpen])
+    setBrandKey(account?.icon ?? null)
+    setColor(account?.color ?? '#3b82f6')
+  }, [account?.type, account?.icon, account?.color, isOpen])
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
@@ -92,7 +97,8 @@ export function AccountForm({ account, open, onOpenChange }: AccountFormProps) {
         formData.get('statementDueDay') && accountType === 'CREDIT_CARD'
           ? parseInt(formData.get('statementDueDay') as string)
           : null,
-      color: (formData.get('color') as string) || undefined,
+      color: color || undefined,
+      icon: brandKey ?? null,
     }
 
     try {
@@ -226,12 +232,28 @@ export function AccountForm({ account, open, onOpenChange }: AccountFormProps) {
           )}
 
           <div className="flex flex-col gap-1.5">
-            <Label htmlFor="color">Cor</Label>
+            <Label>Marca (opcional)</Label>
+            <p className="text-xs text-gray-500">
+              Escolha o banco ou bandeira. A cor abaixo continua como fallback quando nao houver
+              marca.
+            </p>
+            <BrandPicker
+              value={brandKey}
+              onChange={setBrandKey}
+              fallbackLabel={account?.name ?? 'Conta'}
+              fallbackColor={color}
+              categories={accountType === 'CREDIT_CARD' ? ['network', 'bank'] : ['bank', 'payment']}
+            />
+          </div>
+
+          <div className="flex flex-col gap-1.5">
+            <Label htmlFor="color">Cor de fallback</Label>
             <Input
               id="color"
               name="color"
               type="color"
-              defaultValue={account?.color ?? '#3b82f6'}
+              value={color}
+              onChange={(e) => setColor(e.target.value)}
               className="h-10 w-20"
             />
           </div>

@@ -38,13 +38,13 @@
 
 ## Entry Points
 
-- 
+-
 
 ## Main Flow
 
-1. 
-2. 
-3. 
+1.
+2.
+3.
 
 ## Sequence Diagram
 
@@ -76,7 +76,7 @@ sequenceDiagram
 
 ## Security and Multi-tenant Notes
 
-- 
+-
 
 ## Observability
 
@@ -86,4 +86,4 @@ sequenceDiagram
 
 ## Open Questions
 
-- 
+-

@@ -11,10 +11,5 @@ export {
   detectStatementDueSoon,
   detectCreditUtilizationHigh,
 } from './rules'
-export {
-  dismissInsight,
-  listInsights,
-  refreshInsightSnapshots,
-  runInsights,
-} from './use-cases'
+export { dismissInsight, listInsights, refreshInsightSnapshots, runInsights } from './use-cases'
 export type { InsightCandidate, InsightRecord, InsightCta, InsightScopeType } from './types'

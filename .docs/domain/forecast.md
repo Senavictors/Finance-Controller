@@ -62,33 +62,33 @@ O objetivo do dominio nao e prometer certeza, mas oferecer leitura de tendencia 
 
 ## Core Concepts
 
-| Concept | Description | Notes |
-| ------- | ----------- | ----- |
-| Forecast | Leitura prevista do fechamento financeiro do mes | Sempre orientado a um periodo mensal |
-| Reference date | Data a partir da qual o sistema considera o que ja aconteceu e o que ainda falta acontecer | E truncada ao periodo observado |
-| Actual values | Valores ja realizados no periodo ate a `referenceDate` | Consideram apenas `INCOME` e `EXPENSE` |
-| Recurring projection | Projecao de recorrencias futuras ainda nao ocorridas no periodo | Evita dupla contagem do mesmo dia ja realizado |
-| Variable projection | Heuristica para despesas variaveis futuras | Hoje existe apenas para despesas; renda variavel permanece zero |
-| Forecast assumption | Item explicativo usado para justificar o numero final | Cada item tem `label`, `amount` e `kind` |
-| Predicted balance | Saldo previsto no fechamento do periodo | E a principal saida do dominio |
-| Risk level | Classificacao qualitativa do forecast | `LOW`, `MEDIUM` ou `HIGH` |
+| Concept              | Description                                                                                | Notes                                                           |
+| -------------------- | ------------------------------------------------------------------------------------------ | --------------------------------------------------------------- |
+| Forecast             | Leitura prevista do fechamento financeiro do mes                                           | Sempre orientado a um periodo mensal                            |
+| Reference date       | Data a partir da qual o sistema considera o que ja aconteceu e o que ainda falta acontecer | E truncada ao periodo observado                                 |
+| Actual values        | Valores ja realizados no periodo ate a `referenceDate`                                     | Consideram apenas `INCOME` e `EXPENSE`                          |
+| Recurring projection | Projecao de recorrencias futuras ainda nao ocorridas no periodo                            | Evita dupla contagem do mesmo dia ja realizado                  |
+| Variable projection  | Heuristica para despesas variaveis futuras                                                 | Hoje existe apenas para despesas; renda variavel permanece zero |
+| Forecast assumption  | Item explicativo usado para justificar o numero final                                      | Cada item tem `label`, `amount` e `kind`                        |
+| Predicted balance    | Saldo previsto no fechamento do periodo                                                    | E a principal saida do dominio                                  |
+| Risk level           | Classificacao qualitativa do forecast                                                      | `LOW`, `MEDIUM` ou `HIGH`                                       |
 
 ## Types and Entities
 
-| Item | Kind | Description | Notes |
-| ---- | ---- | ----------- | ----- |
-| `ForecastSnapshot` | Prisma model | Snapshot persistido da previsao por usuario e periodo | `@@unique([userId, periodStart])` |
-| `ForecastRiskLevel` | Enum | Nivel de risco do fechamento previsto | `LOW`, `MEDIUM`, `HIGH` |
-| `ForecastResult` | Application DTO | Resultado calculado do forecast | E o shape consumido pela UI e pela API |
-| `ForecastAssumption` | Application type | Premissa individual mostrada ao usuario | `kind = actual | recurring | variable | statement` |
+| Item                 | Kind             | Description                                           | Notes                                  |
+| -------------------- | ---------------- | ----------------------------------------------------- | -------------------------------------- | --------- | -------- | ---------- |
+| `ForecastSnapshot`   | Prisma model     | Snapshot persistido da previsao por usuario e periodo | `@@unique([userId, periodStart])`      |
+| `ForecastRiskLevel`  | Enum             | Nivel de risco do fechamento previsto                 | `LOW`, `MEDIUM`, `HIGH`                |
+| `ForecastResult`     | Application DTO  | Resultado calculado do forecast                       | E o shape consumido pela UI e pela API |
+| `ForecastAssumption` | Application type | Premissa individual mostrada ao usuario               | `kind = actual                         | recurring | variable | statement` |
 
 ## States
 
-| State | Meaning | Entry Condition | Exit Condition |
-| ----- | ------- | --------------- | -------------- |
-| `LOW` | Fechamento previsto com folga financeira razoavel | `predictedBalance >= 50_000` | Pode cair para `MEDIUM` ou `HIGH` se o saldo previsto diminuir |
-| `MEDIUM` | Fechamento previsto positivo, mas com folga pequena | `predictedBalance >= 0` e `< 50_000` | Pode subir para `LOW` ou cair para `HIGH` |
-| `HIGH` | Fechamento previsto negativo | `predictedBalance < 0` | Sai desse estado quando a previsao volta a zero ou positiva |
+| State    | Meaning                                             | Entry Condition                      | Exit Condition                                                 |
+| -------- | --------------------------------------------------- | ------------------------------------ | -------------------------------------------------------------- |
+| `LOW`    | Fechamento previsto com folga financeira razoavel   | `predictedBalance >= 50_000`         | Pode cair para `MEDIUM` ou `HIGH` se o saldo previsto diminuir |
+| `MEDIUM` | Fechamento previsto positivo, mas com folga pequena | `predictedBalance >= 0` e `< 50_000` | Pode subir para `LOW` ou cair para `HIGH`                      |
+| `HIGH`   | Fechamento previsto negativo                        | `predictedBalance < 0`               | Sai desse estado quando a previsao volta a zero ou positiva    |
 
 ## Business Rules
 
@@ -106,27 +106,27 @@ O objetivo do dominio nao e prometer certeza, mas oferecer leitura de tendencia 
 
 ## Formulas and Calculations
 
-| Name | Formula or Logic | Inputs | Output | Notes |
-| ---- | ---------------- | ------ | ------ | ----- |
-| Actual income | Soma das receitas realizadas ate a `referenceDate` | Transacoes `INCOME` do periodo | `actualIncome` | Observa apenas o que ja aconteceu |
-| Actual expenses | Soma das despesas realizadas ate a `referenceDate` | Transacoes `EXPENSE` do periodo | `actualExpenses` | Observa apenas o que ja aconteceu |
-| Recurring income projection | Soma das recorrencias futuras de receita ainda nao realizadas | Regras ativas e datas projetadas restantes | `projectedRecurringIncome` | Nao inclui datas <= `referenceDate` |
-| Recurring expense projection | Soma das recorrencias futuras de despesa ainda nao realizadas | Regras ativas e datas projetadas restantes | `projectedRecurringExpenses` | Nao inclui datas <= `referenceDate` |
-| Variable expense projection | Heuristica de despesas variaveis futuras | Historico recente e dias restantes do periodo | `projectedVariableExpenses` | Formula detalhada nas secoes abaixo |
-| Variable income projection | Valor fixo atual | Nenhum | `projectedVariableIncome = 0` | Limitacao conhecida do MVP |
-| Predicted balance | `actualIncome + recurringIncome + variableIncome - actualExpenses - recurringExpenses - variableExpenses` | Componentes do forecast | `predictedBalance` | Faturas aparecem em `assumptions`, nao como parcela extra do saldo |
-| Risk classification | Comparacao de `predictedBalance` contra `0` e `50_000` | Saldo previsto | `riskLevel` | `HIGH < 0`, `MEDIUM < 50_000`, senao `LOW` |
+| Name                         | Formula or Logic                                                                                          | Inputs                                        | Output                        | Notes                                                              |
+| ---------------------------- | --------------------------------------------------------------------------------------------------------- | --------------------------------------------- | ----------------------------- | ------------------------------------------------------------------ |
+| Actual income                | Soma das receitas realizadas ate a `referenceDate`                                                        | Transacoes `INCOME` do periodo                | `actualIncome`                | Observa apenas o que ja aconteceu                                  |
+| Actual expenses              | Soma das despesas realizadas ate a `referenceDate`                                                        | Transacoes `EXPENSE` do periodo               | `actualExpenses`              | Observa apenas o que ja aconteceu                                  |
+| Recurring income projection  | Soma das recorrencias futuras de receita ainda nao realizadas                                             | Regras ativas e datas projetadas restantes    | `projectedRecurringIncome`    | Nao inclui datas <= `referenceDate`                                |
+| Recurring expense projection | Soma das recorrencias futuras de despesa ainda nao realizadas                                             | Regras ativas e datas projetadas restantes    | `projectedRecurringExpenses`  | Nao inclui datas <= `referenceDate`                                |
+| Variable expense projection  | Heuristica de despesas variaveis futuras                                                                  | Historico recente e dias restantes do periodo | `projectedVariableExpenses`   | Formula detalhada nas secoes abaixo                                |
+| Variable income projection   | Valor fixo atual                                                                                          | Nenhum                                        | `projectedVariableIncome = 0` | Limitacao conhecida do MVP                                         |
+| Predicted balance            | `actualIncome + recurringIncome + variableIncome - actualExpenses - recurringExpenses - variableExpenses` | Componentes do forecast                       | `predictedBalance`            | Faturas aparecem em `assumptions`, nao como parcela extra do saldo |
+| Risk classification          | Comparacao de `predictedBalance` contra `0` e `50_000`                                                    | Saldo previsto                                | `riskLevel`                   | `HIGH < 0`, `MEDIUM < 50_000`, senao `LOW`                         |
 
 ## Calculation Inputs
 
-| Input | Source | Filter | Used For | Notes |
-| ----- | ------ | ------ | -------- | ----- |
-| Period anchors | `resolveMonthPeriod(monthParam, now)` | `monthParam` valido ou fallback para o mes de `now` | `periodStart`, `periodEnd` | A janela e sempre mensal |
-| Reference date | `clampReferenceToPeriod(periodStart, periodEnd, now)` | Nunca sai do periodo | Corte entre realizado e futuro | Se `now` estiver fora da janela, o valor e truncado |
-| Actual transactions | `prisma.transaction.findMany` | `userId`, `type in (INCOME, EXPENSE)`, `date >= periodStart`, `date <= referenceDate` | `actualIncome`, `actualExpenses` | O corte e por timestamp, nao apenas por dia |
-| Historical expenses | `prisma.transaction.findMany` | `userId`, `type = EXPENSE`, janela de 2 meses completos antes do periodo | `projectedVariableExpenses` | Usa todo gasto historico, sem separar fixo vs variavel |
-| Active recurring rules | `prisma.recurringRule.findMany` | `userId`, `isActive = true` | `projectedRecurringIncome`, `projectedRecurringExpenses` | Regras `TRANSFER` sao carregadas, mas nao entram na soma final |
-| Open statements | `prisma.creditCardStatement.findMany` | `userId`, `status != PAID`, `dueDate` dentro do periodo | `assumptions` do tipo `statement` | Nao alteram `predictedBalance` |
+| Input                  | Source                                                | Filter                                                                                | Used For                                                 | Notes                                                          |
+| ---------------------- | ----------------------------------------------------- | ------------------------------------------------------------------------------------- | -------------------------------------------------------- | -------------------------------------------------------------- |
+| Period anchors         | `resolveMonthPeriod(monthParam, now)`                 | `monthParam` valido ou fallback para o mes de `now`                                   | `periodStart`, `periodEnd`                               | A janela e sempre mensal                                       |
+| Reference date         | `clampReferenceToPeriod(periodStart, periodEnd, now)` | Nunca sai do periodo                                                                  | Corte entre realizado e futuro                           | Se `now` estiver fora da janela, o valor e truncado            |
+| Actual transactions    | `prisma.transaction.findMany`                         | `userId`, `type in (INCOME, EXPENSE)`, `date >= periodStart`, `date <= referenceDate` | `actualIncome`, `actualExpenses`                         | O corte e por timestamp, nao apenas por dia                    |
+| Historical expenses    | `prisma.transaction.findMany`                         | `userId`, `type = EXPENSE`, janela de 2 meses completos antes do periodo              | `projectedVariableExpenses`                              | Usa todo gasto historico, sem separar fixo vs variavel         |
+| Active recurring rules | `prisma.recurringRule.findMany`                       | `userId`, `isActive = true`                                                           | `projectedRecurringIncome`, `projectedRecurringExpenses` | Regras `TRANSFER` sao carregadas, mas nao entram na soma final |
+| Open statements        | `prisma.creditCardStatement.findMany`                 | `userId`, `status != PAID`, `dueDate` dentro do periodo                               | `assumptions` do tipo `statement`                        | Nao alteram `predictedBalance`                                 |
 
 ## Calculation Sequence
 
@@ -174,11 +174,11 @@ Implicacoes praticas da implementacao:
 
 O risco do forecast e totalmente derivado de `predictedBalance`:
 
-| Condition | Risk | Interpretation |
-| --------- | ---- | -------------- |
-| `< 0` | `HIGH` | O mes tende a fechar negativo |
+| Condition           | Risk     | Interpretation                                       |
+| ------------------- | -------- | ---------------------------------------------------- |
+| `< 0`               | `HIGH`   | O mes tende a fechar negativo                        |
 | `>= 0` e `< 50_000` | `MEDIUM` | O mes fecha positivo, mas com folga menor que R$ 500 |
-| `>= 50_000` | `LOW` | O mes fecha com folga igual ou superior a R$ 500 |
+| `>= 50_000`         | `LOW`    | O mes fecha com folga igual ou superior a R$ 500     |
 
 Nao existe ajuste por perfil do usuario, categoria, limite de conta ou volatilidade. Qualquer mudanca nesses thresholds exige alinhamento de produto e ADR.
 

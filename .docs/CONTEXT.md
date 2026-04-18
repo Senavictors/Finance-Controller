@@ -4,11 +4,11 @@
 
 ## Current Phase
 
-**Phase 26: Architecture Docs - Sequence** — Concluido. `.docs/architecture/sequence.md` consolidou diagramas Mermaid e narrativas de sequencia para os fluxos mais sensiveis, cobrindo validacao, persistencia, billing, snapshots e invalidacao.
+**Phase 27: SVG Brand Icons** — Concluido. A biblioteca `src/lib/brands/` passou a ser a fonte unica de marcas (bancos, bandeiras, pagamentos e assinaturas), o componente `BrandIcon`/`BrandDot`/`BrandPicker` substituiu os color-dots em contas, categorias, transacoes, recorrencias, metas, faturas e widgets do dashboard. A inferencia por `matchBrand(description)` gera logos automaticos nos fluxos operacionais quando nao ha `icon` explicito, e seed/reset-demo passaram a atribuir icones para Nubank e Itau. Testes unitarios do registry cobrem `matchBrand`, `resolveBrand` e fallbacks.
 
 ## Next Planned Step
 
-Backlog documental faseado inicial concluido. O proximo passo natural e expandir cobertura para modulos ainda sem deep dive proprio, como auth, accounts, categories, recurring CRUD, dashboards e credit-cards.
+Phase 27 entregue. O proximo passo sera definido no proximo ciclo de planejamento; candidatos imediatos incluem extensao do registry para marcas ainda ausentes demandadas pela base real e propagacao de icones em relatorios/exports.
 
 ## What Exists
 
@@ -44,6 +44,8 @@ Backlog documental faseado inicial concluido. O proximo passo natural e expandir
 - **Data Docs: data dictionary**: documento `.docs/data/data-dictionary.md` criado com todos os models e enums atuais do Prisma, ownership multi-tenant, relacionamentos, snapshots e limites de integridade do schema
 - **Architecture Docs: flows**: documento `.docs/architecture/flows.md` criado com traversal real entre UI, API, application, Prisma, billing e invalidation nos fluxos criticos do sistema
 - **Architecture Docs: sequence**: documento `.docs/architecture/sequence.md` criado com diagramas Mermaid e sequencias operacionais para transacoes, recorrencias, recalculate analitico e pagamento de fatura
+- **Design bundle de marcas**: `design_system/finance-controller-design-system/` inclui prototipo com registry `BRANDS`, helper `matchBrand()` e componente `BrandIcon` como referencia para substituir dots/color-only por logos SVG em contas, categorias, transacoes e recorrencias
+- **Brand registry em producao**: `src/lib/brands/` portou o registry para TypeScript com `BRANDS`, `getBrand`, `listBrands`, `matchBrand` e `resolveBrand`; `BrandIcon`, `BrandDot` e `BrandPicker` padronizam o visual em contas, categorias, transacoes, recorrencias, metas, faturas de cartao e widgets do dashboard; seed/reset-demo ja populam `icon` para Nubank e Itau; testes unitarios do registry cobrem matching, fallback e normalizacao de acento
 - **Repo hygiene**: `.gitignore` ajustado para ignorar configs locais de tooling em `.claude/`, logs genericos e artefatos comuns de chave/certificado (`*.key`, `*.crt`, `*.p12`, `*.pfx`)
 - **Seed demo**: script com dados ficticios (demo@finance.com / demo1234)
 - **Reset demo**: botao em /settings que recria dados
@@ -51,7 +53,7 @@ Backlog documental faseado inicial concluido. O proximo passo natural e expandir
 - **CI**: GitHub Actions (lint + format:check + build)
 - **README**: completo com setup, tech stack, roadmap
 - **Future feature specs**: `.docs/future-features/` com Goal Engine, Forecast Engine, Score Financeiro, Insights Automaticos, Documentation Foundation e o roadmap documental das fases 14 a 26
-- **Execution backlog**: tasks formais criadas para as phases 8.5, 9, 10, 11, 12, 13 e o backlog documental das phases 14 a 26 em `.docs/tasks/`
+- **Execution backlog**: tasks formais criadas para as phases 8.5 a 27 em `.docs/tasks/`, incluindo a nova Phase 27 para implementar logos/icones SVG de bancos, bandeiras, pagamentos e assinaturas com fallback por cor
 - **Technical plan**: task documentada para a fundacao analitica e ciclo de fatura de cartao
 - **31 API routes**, 15 models, 13 ADRs
 
@@ -92,6 +94,7 @@ User, Session, Account, Category, Transaction, CreditCardStatement, Dashboard, D
 - Phase 24: Data Docs - Data Dictionary
 - Phase 25: Architecture Docs - Flows
 - Phase 26: Architecture Docs - Sequence
+- Phase 27: SVG Brand Icons
 
 ## Key Decisions
 

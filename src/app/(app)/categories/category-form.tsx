@@ -21,6 +21,7 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { Plus } from 'lucide-react'
+import { BrandPicker } from '@/lib/brands'
 
 type Category = {
   id: string
@@ -44,6 +45,8 @@ export function CategoryForm({ category, categories, open, onOpenChange }: Categ
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
   const [selectedType, setSelectedType] = useState(category?.type ?? 'EXPENSE')
+  const [brandKey, setBrandKey] = useState<string | null>(category?.icon ?? null)
+  const [color, setColor] = useState<string>(category?.color ?? '#3b82f6')
 
   const isControlled = open !== undefined
   const isOpen = isControlled ? open : internalOpen
@@ -70,7 +73,8 @@ export function CategoryForm({ category, categories, open, onOpenChange }: Categ
 
     const body: Record<string, unknown> = {
       name: formData.get('name') as string,
-      color: (formData.get('color') as string) || undefined,
+      color: color || undefined,
+      icon: brandKey ?? null,
       parentId: parentId === 'none' ? null : parentId || undefined,
     }
 
@@ -165,12 +169,27 @@ export function CategoryForm({ category, categories, open, onOpenChange }: Categ
           </div>
 
           <div className="flex flex-col gap-1.5">
-            <Label htmlFor="color">Cor</Label>
+            <Label>Marca/icone (opcional)</Label>
+            <p className="text-xs text-gray-500">
+              Util para assinaturas e servicos conhecidos. A cor continua sendo fallback.
+            </p>
+            <BrandPicker
+              value={brandKey}
+              onChange={setBrandKey}
+              fallbackLabel={category?.name ?? 'Categoria'}
+              fallbackColor={color}
+              categories={['subscription', 'payment', 'bank', 'network']}
+            />
+          </div>
+
+          <div className="flex flex-col gap-1.5">
+            <Label htmlFor="color">Cor de fallback</Label>
             <Input
               id="color"
               name="color"
               type="color"
-              defaultValue={category?.color ?? '#3b82f6'}
+              value={color}
+              onChange={(e) => setColor(e.target.value)}
               className="h-10 w-20"
             />
           </div>

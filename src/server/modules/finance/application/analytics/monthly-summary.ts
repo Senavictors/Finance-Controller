@@ -41,18 +41,25 @@ export async function getMonthlyAnalyticsSummary({
       }),
       prisma.account.findMany({
         where: { userId, isArchived: false },
-        select: { id: true, name: true, color: true, initialBalance: true, type: true },
+        select: {
+          id: true,
+          name: true,
+          color: true,
+          icon: true,
+          initialBalance: true,
+          type: true,
+        },
       }),
       prisma.category.findMany({
         where: { userId, type: 'EXPENSE' },
-        select: { id: true, name: true, color: true },
+        select: { id: true, name: true, color: true, icon: true },
       }),
       recentTransactionsLimit > 0
         ? prisma.transaction.findMany({
             where: { userId },
             include: {
-              account: { select: { name: true, color: true } },
-              category: { select: { name: true, color: true } },
+              account: { select: { name: true, color: true, icon: true } },
+              category: { select: { name: true, color: true, icon: true } },
             },
             orderBy: { date: 'desc' },
             take: recentTransactionsLimit,
@@ -77,6 +84,7 @@ export async function getMonthlyAnalyticsSummary({
         id: category.id,
         name: category.name,
         color: category.color,
+        icon: category.icon,
         total,
       }
     })
@@ -94,6 +102,7 @@ export async function getMonthlyAnalyticsSummary({
       id: account.id,
       name: account.name,
       color: account.color,
+      icon: account.icon,
       type: account.type,
       balance: account.initialBalance + income - expenses,
     }

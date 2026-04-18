@@ -35,14 +35,14 @@ O modulo vive em `src/server/modules/finance/application/insights/` e e organiza
 
 Todas as regras tem threshold percentual **e** absoluto para evitar alerta por variacao irrelevante:
 
-| Regra                       | Condicao                                                                |
-| --------------------------- | ----------------------------------------------------------------------- |
-| `category_spike`            | gasto da categoria cresceu >=20% E >=R$ 100 vs mes anterior             |
-| `category_concentration`    | uma categoria >=40% das despesas E total >=R$ 500                       |
-| `goal_at_risk`              | meta com status `AT_RISK` ou `EXCEEDED`                                 |
-| `forecast_negative`         | `predictedBalance < 0`                                                  |
-| `statement_due_soon`        | fatura aberta com vencimento <=7 dias (ou ja vencida → `statement_overdue`) |
-| `credit_utilization_high`   | utilizacao total de limite >=70%                                        |
+| Regra                     | Condicao                                                                    |
+| ------------------------- | --------------------------------------------------------------------------- |
+| `category_spike`          | gasto da categoria cresceu >=20% E >=R$ 100 vs mes anterior                 |
+| `category_concentration`  | uma categoria >=40% das despesas E total >=R$ 500                           |
+| `goal_at_risk`            | meta com status `AT_RISK` ou `EXCEEDED`                                     |
+| `forecast_negative`       | `predictedBalance < 0`                                                      |
+| `statement_due_soon`      | fatura aberta com vencimento <=7 dias (ou ja vencida → `statement_overdue`) |
+| `credit_utilization_high` | utilizacao total de limite >=70%                                            |
 
 ### Fingerprint e dedupe
 

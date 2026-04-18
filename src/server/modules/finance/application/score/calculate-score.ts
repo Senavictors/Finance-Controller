@@ -2,12 +2,7 @@ import { prisma } from '@/server/db'
 import type { FinancialScoreStatus } from '@/generated/prisma/client'
 import { resolveMonthPeriod } from '../analytics/period'
 import { listGoalsWithProgress } from '../goals'
-import type {
-  FinancialScoreResult,
-  ScoreFactor,
-  ScoreFactorKey,
-  ScoreInsight,
-} from './types'
+import type { FinancialScoreResult, ScoreFactor, ScoreFactorKey, ScoreInsight } from './types'
 
 const WEIGHTS: Record<ScoreFactorKey, number> = {
   savings_rate: 30,
@@ -152,9 +147,7 @@ export function buildIncomeConsistencyFactor(history: number[]): ScoreFactor {
   const points = round(WEIGHTS.income_consistency * normalized)
   const cvPct = Math.round(cv * 100)
   const reason =
-    cv <= 0.1
-      ? 'Renda estavel nos ultimos meses'
-      : `Variacao de ${cvPct}% na renda mensal recente`
+    cv <= 0.1 ? 'Renda estavel nos ultimos meses' : `Variacao de ${cvPct}% na renda mensal recente`
   return {
     key: 'income_consistency',
     label: 'Consistencia de renda',
@@ -258,7 +251,7 @@ function goalProgressPointsPercent(metric: string, actual: number, target: numbe
     const usage = actual / target
     if (usage >= 1) return 0
     if (usage <= 0.5) return 100
-    return round((1 - usage) / 0.5 * 100)
+    return round(((1 - usage) / 0.5) * 100)
   }
   return clamp(round((actual / target) * 100), 0, 100)
 }
@@ -392,11 +385,7 @@ export async function calculateFinancialScore(
     totalLimit += card.creditLimit ?? 0
     for (const stmt of card.creditCardStatements) {
       if (stmt.status === 'OVERDUE') overdueCount += 1
-      if (
-        stmt.status !== 'PAID' &&
-        stmt.dueDate >= periodStart &&
-        stmt.dueDate <= periodEnd
-      ) {
+      if (stmt.status !== 'PAID' && stmt.dueDate >= periodStart && stmt.dueDate <= periodEnd) {
         totalOutstanding += Math.max(stmt.totalAmount - stmt.paidAmount, 0)
       }
     }

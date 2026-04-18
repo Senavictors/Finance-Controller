@@ -42,8 +42,8 @@ export default async function TransactionsPage({ searchParams }: Props) {
     prisma.transaction.findMany({
       where,
       include: {
-        account: { select: { name: true, color: true } },
-        category: { select: { name: true, color: true } },
+        account: { select: { name: true, color: true, icon: true } },
+        category: { select: { name: true, color: true, icon: true } },
         creditCardStatement: { select: { id: true, dueDate: true } },
       },
       orderBy: { date: 'desc' },
@@ -53,12 +53,12 @@ export default async function TransactionsPage({ searchParams }: Props) {
     prisma.transaction.count({ where }),
     prisma.account.findMany({
       where: { userId: session.userId },
-      select: { id: true, name: true },
+      select: { id: true, name: true, color: true, icon: true },
       orderBy: { name: 'asc' },
     }),
     prisma.category.findMany({
       where: { userId: session.userId },
-      select: { id: true, name: true, type: true },
+      select: { id: true, name: true, type: true, color: true, icon: true },
       orderBy: { name: 'asc' },
     }),
   ])

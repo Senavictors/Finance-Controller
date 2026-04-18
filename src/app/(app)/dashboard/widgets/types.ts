@@ -5,16 +5,16 @@ export type DashboardData = {
   incomeVariation: number
   expenseVariation: number
   transactionCount: number
-  expensesByCategory: { name: string; color: string; value: number }[]
-  balanceByAccount: { name: string; color: string; balance: number }[]
+  expensesByCategory: { name: string; color: string; icon: string | null; value: number }[]
+  balanceByAccount: { name: string; color: string; icon: string | null; balance: number }[]
   recentTransactions: {
     id: string
     description: string
     amount: number
     type: string
     date: string
-    account: { name: string; color: string | null }
-    category: { name: string; color: string | null } | null
+    account: { name: string; color: string | null; icon: string | null }
+    category: { name: string; color: string | null; icon: string | null } | null
   }[]
   goals: {
     id: string

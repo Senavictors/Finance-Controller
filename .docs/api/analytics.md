@@ -53,16 +53,16 @@ Este documento nao cobre a logica profunda dos algoritmos nem rotas nao analitic
 
 ## Module Summary
 
-| Endpoint | Method | Purpose | Auth | Notes |
-| -------- | ------ | ------- | ---- | ----- |
-| `/api/analytics/summary` | `GET` | Ler resumo mensal agregado | Required | Usa cache server-side por `userId + month` |
-| `/api/analytics/forecast` | `GET` | Ler forecast mensal on-demand | Required | Nao persiste snapshot |
-| `/api/analytics/forecast/recalculate` | `POST` | Recalcular e persistir snapshot de forecast | Required | Retorna resposta resumida |
-| `/api/analytics/score` | `GET` | Ler score financeiro on-demand | Required | Nao persiste snapshot |
-| `/api/analytics/score/history` | `GET` | Ler historico persistido de score | Required | Sem parametro `month` |
-| `/api/analytics/insights` | `GET` | Ler insights visiveis do periodo | Required | On-demand, filtra dismissados |
-| `/api/analytics/insights/recalculate` | `POST` | Recalcular e persistir insights do periodo | Required | Nao filtra dismissados na resposta |
-| `/api/analytics/insights/[id]/dismiss` | `PATCH` | Dismiss de insight persistido | Required | Requer `id` real de snapshot |
+| Endpoint                               | Method  | Purpose                                     | Auth     | Notes                                      |
+| -------------------------------------- | ------- | ------------------------------------------- | -------- | ------------------------------------------ |
+| `/api/analytics/summary`               | `GET`   | Ler resumo mensal agregado                  | Required | Usa cache server-side por `userId + month` |
+| `/api/analytics/forecast`              | `GET`   | Ler forecast mensal on-demand               | Required | Nao persiste snapshot                      |
+| `/api/analytics/forecast/recalculate`  | `POST`  | Recalcular e persistir snapshot de forecast | Required | Retorna resposta resumida                  |
+| `/api/analytics/score`                 | `GET`   | Ler score financeiro on-demand              | Required | Nao persiste snapshot                      |
+| `/api/analytics/score/history`         | `GET`   | Ler historico persistido de score           | Required | Sem parametro `month`                      |
+| `/api/analytics/insights`              | `GET`   | Ler insights visiveis do periodo            | Required | On-demand, filtra dismissados              |
+| `/api/analytics/insights/recalculate`  | `POST`  | Recalcular e persistir insights do periodo  | Required | Nao filtra dismissados na resposta         |
+| `/api/analytics/insights/[id]/dismiss` | `PATCH` | Dismiss de insight persistido               | Required | Requer `id` real de snapshot               |
 
 ## Authentication and Authorization
 
@@ -123,9 +123,9 @@ Retornar o resumo mensal agregado do usuario com totais, variacoes, breakdowns e
 
 #### Request
 
-| Field | Type | Required | Description | Validation |
-| ----- | ---- | -------- | ----------- | ---------- |
-| `month` | query `string` | No | Mes alvo no formato `YYYY-MM` | Invalido faz fallback silencioso para o mes atual |
+| Field   | Type           | Required | Description                   | Validation                                        |
+| ------- | -------------- | -------- | ----------------------------- | ------------------------------------------------- |
+| `month` | query `string` | No       | Mes alvo no formato `YYYY-MM` | Invalido faz fallback silencioso para o mes atual |
 
 #### Response
 
@@ -178,10 +178,10 @@ Retornar o resumo mensal agregado do usuario com totais, variacoes, breakdowns e
 
 #### Errors
 
-| Status | Condition | Body Shape |
-| ------ | --------- | ---------- |
-| `401` | Sessao ausente/invalida | `{ "error": "Unauthorized" }` |
-| `500` | Falha inesperada | `{ "error": "Internal server error" }` |
+| Status | Condition               | Body Shape                             |
+| ------ | ----------------------- | -------------------------------------- |
+| `401`  | Sessao ausente/invalida | `{ "error": "Unauthorized" }`          |
+| `500`  | Falha inesperada        | `{ "error": "Internal server error" }` |
 
 #### Side Effects
 
@@ -204,9 +204,9 @@ Retornar o forecast mensal calculado on-demand para o usuario.
 
 #### Request
 
-| Field | Type | Required | Description | Validation |
-| ----- | ---- | -------- | ----------- | ---------- |
-| `month` | query `string` | No | Mes alvo no formato `YYYY-MM` | Invalido faz fallback silencioso para o mes atual |
+| Field   | Type           | Required | Description                   | Validation                                        |
+| ------- | -------------- | -------- | ----------------------------- | ------------------------------------------------- |
+| `month` | query `string` | No       | Mes alvo no formato `YYYY-MM` | Invalido faz fallback silencioso para o mes atual |
 
 #### Response
 
@@ -237,10 +237,10 @@ Retornar o forecast mensal calculado on-demand para o usuario.
 
 #### Errors
 
-| Status | Condition | Body Shape |
-| ------ | --------- | ---------- |
-| `401` | Sessao ausente/invalida | `{ "error": "Unauthorized" }` |
-| `500` | Falha inesperada | `{ "error": "Internal server error" }` |
+| Status | Condition               | Body Shape                             |
+| ------ | ----------------------- | -------------------------------------- |
+| `401`  | Sessao ausente/invalida | `{ "error": "Unauthorized" }`          |
+| `500`  | Falha inesperada        | `{ "error": "Internal server error" }` |
 
 #### Side Effects
 
@@ -260,9 +260,9 @@ Forcar o recalculo do forecast do periodo e persistir/atualizar o snapshot corre
 
 #### Request
 
-| Field | Type | Required | Description | Validation |
-| ----- | ---- | -------- | ----------- | ---------- |
-| `month` | query `string` | No | Mes alvo no formato `YYYY-MM` | Invalido faz fallback silencioso para o mes atual |
+| Field   | Type           | Required | Description                   | Validation                                        |
+| ------- | -------------- | -------- | ----------------------------- | ------------------------------------------------- |
+| `month` | query `string` | No       | Mes alvo no formato `YYYY-MM` | Invalido faz fallback silencioso para o mes atual |
 
 #### Response
 
@@ -280,10 +280,10 @@ Forcar o recalculo do forecast do periodo e persistir/atualizar o snapshot corre
 
 #### Errors
 
-| Status | Condition | Body Shape |
-| ------ | --------- | ---------- |
-| `401` | Sessao ausente/invalida | `{ "error": "Unauthorized" }` |
-| `500` | Falha inesperada | `{ "error": "Internal server error" }` |
+| Status | Condition               | Body Shape                             |
+| ------ | ----------------------- | -------------------------------------- |
+| `401`  | Sessao ausente/invalida | `{ "error": "Unauthorized" }`          |
+| `500`  | Falha inesperada        | `{ "error": "Internal server error" }` |
 
 #### Side Effects
 
@@ -304,9 +304,9 @@ Retornar o score financeiro do periodo calculado on-demand.
 
 #### Request
 
-| Field | Type | Required | Description | Validation |
-| ----- | ---- | -------- | ----------- | ---------- |
-| `month` | query `string` | No | Mes alvo no formato `YYYY-MM` | Invalido faz fallback silencioso para o mes atual |
+| Field   | Type           | Required | Description                   | Validation                                        |
+| ------- | -------------- | -------- | ----------------------------- | ------------------------------------------------- |
+| `month` | query `string` | No       | Mes alvo no formato `YYYY-MM` | Invalido faz fallback silencioso para o mes atual |
 
 #### Response
 
@@ -340,10 +340,10 @@ Retornar o score financeiro do periodo calculado on-demand.
 
 #### Errors
 
-| Status | Condition | Body Shape |
-| ------ | --------- | ---------- |
-| `401` | Sessao ausente/invalida | `{ "error": "Unauthorized" }` |
-| `500` | Falha inesperada | `{ "error": "Internal server error" }` |
+| Status | Condition               | Body Shape                             |
+| ------ | ----------------------- | -------------------------------------- |
+| `401`  | Sessao ausente/invalida | `{ "error": "Unauthorized" }`          |
+| `500`  | Falha inesperada        | `{ "error": "Internal server error" }` |
 
 #### Side Effects
 
@@ -383,10 +383,10 @@ Nao recebe body nem query params relevantes hoje.
 
 #### Errors
 
-| Status | Condition | Body Shape |
-| ------ | --------- | ---------- |
-| `401` | Sessao ausente/invalida | `{ "error": "Unauthorized" }` |
-| `500` | Falha inesperada | `{ "error": "Internal server error" }` |
+| Status | Condition               | Body Shape                             |
+| ------ | ----------------------- | -------------------------------------- |
+| `401`  | Sessao ausente/invalida | `{ "error": "Unauthorized" }`          |
+| `500`  | Falha inesperada        | `{ "error": "Internal server error" }` |
 
 #### Side Effects
 
@@ -406,9 +406,9 @@ Retornar o feed visivel de insights do periodo, calculado on-demand e reconcilia
 
 #### Request
 
-| Field | Type | Required | Description | Validation |
-| ----- | ---- | -------- | ----------- | ---------- |
-| `month` | query `string` | No | Mes alvo no formato `YYYY-MM` | Invalido faz fallback silencioso para o mes atual |
+| Field   | Type           | Required | Description                   | Validation                                        |
+| ------- | -------------- | -------- | ----------------------------- | ------------------------------------------------- |
+| `month` | query `string` | No       | Mes alvo no formato `YYYY-MM` | Invalido faz fallback silencioso para o mes atual |
 
 #### Response
 
@@ -439,10 +439,10 @@ Retornar o feed visivel de insights do periodo, calculado on-demand e reconcilia
 
 #### Errors
 
-| Status | Condition | Body Shape |
-| ------ | --------- | ---------- |
-| `401` | Sessao ausente/invalida | `{ "error": "Unauthorized" }` |
-| `500` | Falha inesperada | `{ "error": "Internal server error" }` |
+| Status | Condition               | Body Shape                             |
+| ------ | ----------------------- | -------------------------------------- |
+| `401`  | Sessao ausente/invalida | `{ "error": "Unauthorized" }`          |
+| `500`  | Falha inesperada        | `{ "error": "Internal server error" }` |
 
 #### Side Effects
 
@@ -462,9 +462,9 @@ Forcar o recalculo do feed de insights e persistir snapshots do periodo.
 
 #### Request
 
-| Field | Type | Required | Description | Validation |
-| ----- | ---- | -------- | ----------- | ---------- |
-| `month` | query `string` | No | Mes alvo no formato `YYYY-MM` | Invalido faz fallback silencioso para o mes atual |
+| Field   | Type           | Required | Description                   | Validation                                        |
+| ------- | -------------- | -------- | ----------------------------- | ------------------------------------------------- |
+| `month` | query `string` | No       | Mes alvo no formato `YYYY-MM` | Invalido faz fallback silencioso para o mes atual |
 
 #### Response
 
@@ -484,10 +484,10 @@ Forcar o recalculo do feed de insights e persistir snapshots do periodo.
 
 #### Errors
 
-| Status | Condition | Body Shape |
-| ------ | --------- | ---------- |
-| `401` | Sessao ausente/invalida | `{ "error": "Unauthorized" }` |
-| `500` | Falha inesperada | `{ "error": "Internal server error" }` |
+| Status | Condition               | Body Shape                             |
+| ------ | ----------------------- | -------------------------------------- |
+| `401`  | Sessao ausente/invalida | `{ "error": "Unauthorized" }`          |
+| `500`  | Falha inesperada        | `{ "error": "Internal server error" }` |
 
 #### Side Effects
 
@@ -509,9 +509,9 @@ Marcar um insight persistido como dismissado.
 
 #### Request
 
-| Field | Type | Required | Description | Validation |
-| ----- | ---- | -------- | ----------- | ---------- |
-| `id` | path `string` | Yes | ID do snapshot de insight | Deve existir e pertencer ao usuario |
+| Field | Type          | Required | Description               | Validation                          |
+| ----- | ------------- | -------- | ------------------------- | ----------------------------------- |
+| `id`  | path `string` | Yes      | ID do snapshot de insight | Deve existir e pertencer ao usuario |
 
 #### Response
 
@@ -526,11 +526,11 @@ Marcar um insight persistido como dismissado.
 
 #### Errors
 
-| Status | Condition | Body Shape |
-| ------ | --------- | ---------- |
-| `401` | Sessao ausente/invalida | `{ "error": "Unauthorized" }` |
-| `404` | Insight inexistente ou de outro usuario | `{ "error": "Insight nao encontrado" }` |
-| `500` | Falha inesperada | `{ "error": "Internal server error" }` |
+| Status | Condition                               | Body Shape                              |
+| ------ | --------------------------------------- | --------------------------------------- |
+| `401`  | Sessao ausente/invalida                 | `{ "error": "Unauthorized" }`           |
+| `404`  | Insight inexistente ou de outro usuario | `{ "error": "Insight nao encontrado" }` |
+| `500`  | Falha inesperada                        | `{ "error": "Internal server error" }`  |
 
 #### Side Effects
 
@@ -543,11 +543,11 @@ Marcar um insight persistido como dismissado.
 
 ## Endpoint Comparison
 
-| Area | Read Endpoint | Persist Endpoint | Main Difference |
-| ---- | ------------- | ---------------- | --------------- |
-| Summary | `GET /summary` | none | Usa cache server-side, nao snapshot write-back |
-| Forecast | `GET /forecast` | `POST /forecast/recalculate` | `GET` devolve breakdown completo; `POST` persiste e responde de forma resumida |
-| Score | `GET /score` | none via API publica | Leitura on-demand; historico depende de snapshots persistidos por outros fluxos |
+| Area     | Read Endpoint   | Persist Endpoint             | Main Difference                                                                            |
+| -------- | --------------- | ---------------------------- | ------------------------------------------------------------------------------------------ |
+| Summary  | `GET /summary`  | none                         | Usa cache server-side, nao snapshot write-back                                             |
+| Forecast | `GET /forecast` | `POST /forecast/recalculate` | `GET` devolve breakdown completo; `POST` persiste e responde de forma resumida             |
+| Score    | `GET /score`    | none via API publica         | Leitura on-demand; historico depende de snapshots persistidos por outros fluxos            |
 | Insights | `GET /insights` | `POST /insights/recalculate` | `GET` filtra dismissados e pode trazer `id = null`; `POST` persiste e expone `isDismissed` |
 
 ## Observability and Debugging

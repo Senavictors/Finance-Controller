@@ -8,13 +8,7 @@ export type InsightCta = {
   href?: string
 }
 
-export type InsightScopeType =
-  | 'global'
-  | 'category'
-  | 'account'
-  | 'goal'
-  | 'forecast'
-  | 'statement'
+export type InsightScopeType = 'global' | 'category' | 'account' | 'goal' | 'forecast' | 'statement'
 
 export type InsightCandidate = {
   key: string
