@@ -14,32 +14,32 @@ const features = [
   {
     icon: BarChart3,
     title: 'Dashboard Customizavel',
-    description: 'Arraste e redimensione widgets. Graficos de receitas, despesas e categorias.',
+    description: 'Arraste e redimensione widgets. Gráficos de receitas, despesas e categorias.',
   },
   {
     icon: Wallet,
     title: 'Multi-contas',
-    description: 'Gerencie contas correntes, carteiras, cartoes e investimentos em um so lugar.',
+    description: 'Gerencie contas correntes, carteiras, cartões e investimentos em um só lugar.',
   },
   {
     icon: Tag,
     title: 'Categorias Hierarquicas',
-    description: 'Organize transacoes com categorias e subcategorias customizaveis.',
+    description: 'Organize transações com categorias e subcategorias customizaveis.',
   },
   {
     icon: RefreshCw,
     title: 'Recorrencias',
-    description: 'Automatize salario, aluguel e assinaturas com regras recorrentes.',
+    description: 'Automatize salário, aluguel e assinaturas com regras recorrentes.',
   },
   {
     icon: LayoutGrid,
     title: 'Transferencias',
-    description: 'Mova dinheiro entre contas com transacoes atomicas vinculadas.',
+    description: 'Mova dinheiro entre contas com transações atomicas vinculadas.',
   },
   {
     icon: Shield,
     title: 'Autenticacao Segura',
-    description: 'Sessoes server-side com bcrypt, cookies HttpOnly e rate limiting.',
+    description: 'Sessões server-side com bcrypt, cookies HttpOnly e rate limiting.',
   },
 ]
 
@@ -67,7 +67,7 @@ export default function Home() {
         </h1>
         <p className="text-muted-foreground mt-4 max-w-lg text-lg">
           Sistema de gestao financeira pessoal. Acompanhe receitas, despesas e investimentos com
-          dashboard customizavel e transacoes recorrentes.
+          dashboard customizavel e transações recorrentes.
         </p>
         <div className="mt-8 flex gap-3">
           <Link

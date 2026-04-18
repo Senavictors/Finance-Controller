@@ -87,7 +87,7 @@ export default async function CreditCardsPage() {
         <div>
           <h1 className="text-2xl font-semibold tracking-tight">Faturas</h1>
           <p className="text-muted-foreground mt-1 text-sm">
-            Acompanhe limite, fechamento, vencimento e status das faturas dos seus cartoes.
+            Acompanhe limite, fechamento, vencimento e status das faturas dos seus cartões.
           </p>
         </div>
       </div>
@@ -203,7 +203,7 @@ export default async function CreditCardsPage() {
                       <p className="text-lg font-semibold tracking-tight text-gray-900">
                         {account.creditLimit
                           ? formatCurrency(account.creditLimit)
-                          : 'Nao configurado'}
+                          : 'Não configurado'}
                       </p>
                     </div>
                     <div>
@@ -258,7 +258,7 @@ export default async function CreditCardsPage() {
             <CardContent>
               {statements.length === 0 ? (
                 <div className="text-sm text-gray-500">
-                  Nenhuma fatura foi gerada ainda para os cartoes cadastrados.
+                  Nenhuma fatura foi gerada ainda para os cartões cadastrados.
                 </div>
               ) : (
                 <Table>

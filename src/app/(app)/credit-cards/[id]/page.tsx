@@ -161,7 +161,7 @@ export default async function CreditCardStatementPage({ params }: Props) {
               <span>
                 {statement.account.creditLimit
                   ? formatCurrency(statement.account.creditLimit)
-                  : 'Nao configurado'}
+                  : 'Não configurado'}
               </span>
             </div>
             {usagePercent != null && (
