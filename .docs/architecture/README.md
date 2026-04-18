@@ -2,7 +2,7 @@
 
 ## Layered Architecture
 
-```
+```text
 UI (Next.js App Router)
   ↓
 API (Route Handlers) — thin HTTP layer: validate, auth guard, call use case
@@ -19,12 +19,12 @@ Infrastructure — Prisma repositories, external services
 - **Route Handlers are adapters**: validate input (Zod), check session, call use case, return Response
 - **Business logic lives in use cases and domain**, never in route.ts
 - **Repository pattern**: `TransactionRepository`, `CategoryRepository`, etc.
-- **Multi-tenant by default**: every financial table has `userId`, every query filters by it
+- **Multi-tenant by default**: every financial table has `userId`, every query filters by `userId`
 - **Amounts in cents**: all monetary values stored as integers to avoid floating-point errors
 
 ## Directory Structure
 
-```
+```text
 src/
   app/
     (public)/          — landing/marketing pages
@@ -59,3 +59,9 @@ prisma/                — schema + migrations
 | ORM        | Prisma 7                            |
 | Validation | Zod                                 |
 | Auth       | Custom (server-side sessions)       |
+
+## Documentation Layers
+
+- `README.md` — overview arquitetural desta pasta
+- `_TEMPLATE.md` — template obrigatorio para deep dives arquiteturais
+- arquivos futuros como `flows.md` e `sequence.md` — detalhamento de fluxos criticos

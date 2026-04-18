@@ -9,6 +9,11 @@ and this project adheres to [Conventional Commits](https://www.conventionalcommi
 
 ### Added
 
+- Documentation foundation phase with `.docs/domain/`, `.docs/api/`, `.docs/data/` and `.docs/architecture/`
+- Mandatory documentation templates for domain, API, data and architecture layers
+- Phase 13 spec and task for phased documentation evolution
+- Documentation roadmap specs `06` to `18` for phased system documentation
+- Documentation backlog tasks `phase-14` to `phase-26` covering domain, logic, API, data and architecture docs
 - Initial project setup with Next.js 16 (App Router) + TypeScript
 - Tailwind CSS v4 with blue/teal custom theme (dark mode support)
 - shadcn/ui with base components (button, card, input, label)
@@ -48,6 +53,9 @@ and this project adheres to [Conventional Commits](https://www.conventionalcommi
 
 ### Changed
 
+- `.gitignore` atualizado para ignorar `.claude/`, logs genericos e artefatos comuns de chave/certificado
+- Architecture overview moved from `.docs/architecture.md` to `.docs/architecture/README.md`
+- README, AGENTS, CLAUDE and CONTEXT updated to reflect the new documentation structure
 - Redesign visual completo inspirado em Apex Holdings dashboard
 - Theme atualizado: radius 1rem, sombras suaves, gradientes sutis, background warm gray
 - Sidebar refinada: active state primary com sombra, icone/logo, separador

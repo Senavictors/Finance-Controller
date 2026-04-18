@@ -165,8 +165,33 @@ src/
   hooks/                   Custom hooks (usePeriod)
   types/                   Tipos TypeScript compartilhados
 prisma/                    Schema + migrations + seed
-.docs/                     Documentacao viva (ADRs, tasks, changelog)
+.docs/                     Documentacao viva (context, ADRs, tasks, domain/api/data/architecture)
 ```
+
+---
+
+## Documentacao
+
+Toda evolucao documental do projeto vive em `.docs/` e segue o fluxo:
+
+```text
+future-features -> tasks -> execucao -> CONTEXT -> CHANGELOG
+```
+
+Camadas principais:
+
+- `.docs/CONTEXT.md` — estado vivo do projeto
+- `.docs/vision.md` — visao de produto
+- `.docs/architecture/README.md` — overview arquitetural
+- `.docs/domain/` — regras de negocio e dominio
+- `.docs/api/` — contratos HTTP
+- `.docs/data/` — semantica de dados e dicionario
+- `.docs/architecture/` — deep dives de fluxos e sequencias
+- `.docs/decisions/` — ADRs
+- `.docs/tasks/` — execucao faseada
+- `.docs/CHANGELOG.md` — historico curado
+
+Regra operacional: novas docs dessas camadas devem nascer sempre a partir de `future-features/`, virar `task` e usar o `_TEMPLATE.md` correspondente.
 
 ---
 

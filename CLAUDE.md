@@ -61,7 +61,11 @@ git config core.hooksPath .githooks
 
 - `.docs/CONTEXT.md` — Living project state (read before any task)
 - `.docs/vision.md` — Project vision and goals
-- `.docs/architecture.md` — Architecture details
+- `.docs/architecture/README.md` — Architecture overview
+- `.docs/domain/` — Domain documentation
+- `.docs/api/` — API documentation
+- `.docs/data/` — Data documentation
+- `.docs/architecture/` — Architecture deep dives
 - `.docs/decisions/` — Architecture Decision Records (ADRs)
 - `.docs/tasks/` — Task tracking files
 - `.docs/CHANGELOG.md` — Curated changelog

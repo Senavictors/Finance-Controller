@@ -23,6 +23,11 @@
 # misc
 .DS_Store
 *.pem
+*.key
+*.crt
+*.p12
+*.pfx
+*.log
 
 # debug
 npm-debug.log*
@@ -51,3 +56,6 @@ next-env.d.ts
 *.swp
 *.swo
 design_system/
+
+# local AI tooling
+.claude/

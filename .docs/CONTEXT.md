@@ -4,11 +4,11 @@
 
 ## Current Phase
 
-**Phase 12: Insights Automaticos** — Concluido. Motor determinista de regras (6 heuristicas MVP: category_spike, category_concentration, goal_at_risk, forecast_negative, statement_due_soon/overdue, credit_utilization_high) com dedupe por fingerprint, cap de 8 insights por periodo e persistencia que preserva dismiss. Widget `insights` no dashboard com badges por severidade, CTA e dismiss. Formalizado pelo ADR-013.
+**Phase 13: Documentation Foundation** — Concluido. Fundacao da nova camada documental criada com as pastas `.docs/domain/`, `.docs/api/`, `.docs/data/` e `.docs/architecture/`, templates obrigatorios por camada, spec em `future-features/05-docs-foundation.md`, task em `tasks/phase-13-docs-foundation.md` e migracao do overview arquitetural para `.docs/architecture/README.md`.
 
 ## Next Planned Step
 
-Fecha o backlog inicial de analytics (Phases 8 a 12). Possiveis proximos passos: camada de cache para as chamadas server-side do dashboard, export/import de dados ou feature de relatorios.
+Iniciar a fase de Domain Documentation com prioridade para `goals`, `forecast`, `financial-score` e `insights`, seguindo estritamente o fluxo `future-features -> tasks -> execucao -> CONTEXT -> CHANGELOG`.
 
 ## What Exists
 
@@ -29,13 +29,16 @@ Fecha o backlog inicial de analytics (Phases 8 a 12). Possiveis proximos passos:
 - **Forecast Engine**: previsao mensal com saldo previsto, nivel de risco (LOW/MEDIUM/HIGH), projecao de recorrencias futuras, media movel de despesa variavel e snapshot persistido; widget `forecast` no dashboard; APIs `GET /api/analytics/forecast` e `POST /api/analytics/forecast/recalculate`
 - **Financial Score**: pontuacao 0-100 com 5 fatores explicaveis e redistribuicao por ausencia de dados; status CRITICAL/ATTENTION/GOOD/EXCELLENT; snapshot persistido com delta vs mes anterior; widget `score` no dashboard; APIs `GET /api/analytics/score` e `GET /api/analytics/score/history`
 - **Automatic Insights**: motor deterministico com 6 heuristicas (variacao por categoria, concentracao, metas em risco, forecast negativo, fatura vencendo/vencida, utilizacao alta de cartao), dedupe por fingerprint, cap de 8 por periodo, dismiss persistente; widget `insights` no dashboard; APIs `GET /api/analytics/insights`, `POST /recalculate`, `PATCH /[id]/dismiss`
+- **Documentation foundation**: nova estrutura de documentacao em `.docs/domain/`, `.docs/api/`, `.docs/data/` e `.docs/architecture/`, com templates obrigatorios por camada e base pronta para expansao faseada
+- **Documentation backlog**: roadmap formalizado com specs `06` a `18` e tasks `14` a `26` para dominio, logica, API, dados e arquitetura
+- **Repo hygiene**: `.gitignore` ajustado para ignorar configs locais de tooling em `.claude/`, logs genericos e artefatos comuns de chave/certificado (`*.key`, `*.crt`, `*.p12`, `*.pfx`)
 - **Seed demo**: script com dados ficticios (demo@finance.com / demo1234)
 - **Reset demo**: botao em /settings que recria dados
 - **Landing page**: hero + features + tech stack + footer
 - **CI**: GitHub Actions (lint + format:check + build)
 - **README**: completo com setup, tech stack, roadmap
-- **Future feature specs**: `.docs/future-features/` com Goal Engine, Forecast Engine, Score Financeiro e Insights Automaticos
-- **Execution backlog**: tasks formais criadas para as phases 8.5, 9, 10, 11 e 12 em `.docs/tasks/`
+- **Future feature specs**: `.docs/future-features/` com Goal Engine, Forecast Engine, Score Financeiro, Insights Automaticos, Documentation Foundation e o roadmap documental das fases 14 a 26
+- **Execution backlog**: tasks formais criadas para as phases 8.5, 9, 10, 11, 12, 13 e o backlog documental das phases 14 a 26 em `.docs/tasks/`
 - **Technical plan**: task documentada para a fundacao analitica e ciclo de fatura de cartao
 - **31 API routes**, 15 models, 13 ADRs
 
@@ -53,6 +56,29 @@ User, Session, Account, Category, Transaction, CreditCardStatement, Dashboard, D
 - A mesma camada agora possui convencoes de snapshot e invalidação para summary, goals, forecast, score, insights e billing de cartao
 - O dominio de cartao agora possui ciclo de fatura em `src/server/modules/finance/application/credit-card/` e superfice inicial em `/credit-cards`
 - A Phase 8.5 esta refinando demonstrabilidade: demo mais forte, faturas mais legiveis e navegação mais clara entre compra e fatura
+
+## Documentation Layers
+
+- Domain Docs
+- API Docs
+- Data Docs
+- Architecture Deep Dive
+
+## Documentation Roadmap
+
+- Phase 14: Domain Docs - Goals
+- Phase 15: Domain Docs - Forecast
+- Phase 16: Domain Docs - Financial Score
+- Phase 17: Domain Docs - Insights
+- Phase 18: Logic Docs - Forecast Calculation
+- Phase 19: Logic Docs - Financial Score Calculation
+- Phase 20: Logic Docs - Insights Engine
+- Phase 21: API Docs - Transactions
+- Phase 22: API Docs - Analytics
+- Phase 23: API Docs - Goals
+- Phase 24: Data Docs - Data Dictionary
+- Phase 25: Architecture Docs - Flows
+- Phase 26: Architecture Docs - Sequence
 
 ## Key Decisions
 
