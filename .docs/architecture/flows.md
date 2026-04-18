@@ -61,21 +61,21 @@ A arquitetura alvo continua sendo em camadas, mas a implementacao atual mistura 
 
 ## Actors and Components
 
-| Component | Responsibility | Layer | Notes |
-| --------- | -------------- | ----- | ----- |
-| `transaction-form.tsx` | Coleta dados de receita/despesa/transferencia e chama API | UI client | Converte valor em reais para centavos |
-| `TransactionsPage` | Lista transacoes com Prisma direto | UI server | Bypassa a API para leitura |
-| `ApplyButton` | Dispara aplicacao manual de recorrencias | UI client | Chama `POST /api/recurring-rules/apply` |
-| `DashboardPage` | Agrega analytics, metas, forecast, score e insights | UI server | Chama use cases diretamente |
-| `StatementPaymentForm` | Dispara pagamento de fatura | UI client | Chama rota HTTP de billing |
-| `route.ts` em `app/api/**` | Auth, validacao, orchestration e resposta HTTP | API | Alguns handlers ainda acumulam muita regra |
-| `application/analytics/*` | Summary, cache por tags, period helpers e invalidation | Application | Base compartilhada entre UI e API |
-| `application/credit-card/billing.ts` | Vinculo transacao-fatura e refresh de fatura | Application | Reutilizado em mutacoes |
-| `application/goals/*` | Calculo e snapshot de metas | Application | Listagem da dashboard usa direto |
-| `application/forecast/*` | Calculo e persistencia do forecast | Application | Usado por dashboard e API |
-| `application/score/*` | Calculo e persistencia do score | Application | Depende de goals e credit card |
-| `application/insights/*` | Metric pipeline, regras, dedupe e persistencia | Application | Reutilizado por dashboard e API |
-| `prisma` | Persistencia e transacoes SQL | Infra | Acesso direto ainda aparece em pages e routes |
+| Component                            | Responsibility                                            | Layer       | Notes                                         |
+| ------------------------------------ | --------------------------------------------------------- | ----------- | --------------------------------------------- |
+| `transaction-form.tsx`               | Coleta dados de receita/despesa/transferencia e chama API | UI client   | Converte valor em reais para centavos         |
+| `TransactionsPage`                   | Lista transacoes com Prisma direto                        | UI server   | Bypassa a API para leitura                    |
+| `ApplyButton`                        | Dispara aplicacao manual de recorrencias                  | UI client   | Chama `POST /api/recurring-rules/apply`       |
+| `DashboardPage`                      | Agrega analytics, metas, forecast, score e insights       | UI server   | Chama use cases diretamente                   |
+| `StatementPaymentForm`               | Dispara pagamento de fatura                               | UI client   | Chama rota HTTP de billing                    |
+| `route.ts` em `src/app/api/**`       | Auth, validacao, orchestration e resposta HTTP            | API         | Alguns handlers ainda acumulam muita regra    |
+| `application/analytics/*`            | Summary, cache por tags, period helpers e invalidation    | Application | Base compartilhada entre UI e API             |
+| `application/credit-card/billing.ts` | Vinculo transacao-fatura e refresh de fatura              | Application | Reutilizado em mutacoes                       |
+| `application/goals/*`                | Calculo e snapshot de metas                               | Application | Listagem da dashboard usa direto              |
+| `application/forecast/*`             | Calculo e persistencia do forecast                        | Application | Usado por dashboard e API                     |
+| `application/score/*`                | Calculo e persistencia do score                           | Application | Depende de goals e credit card                |
+| `application/insights/*`             | Metric pipeline, regras, dedupe e persistencia            | Application | Reutilizado por dashboard e API               |
+| `prisma`                             | Persistencia e transacoes SQL                             | Infra       | Acesso direto ainda aparece em pages e routes |
 
 ## Entry Points
 
@@ -151,11 +151,11 @@ sequenceDiagram
 
 ### Failure Modes and Recovery
 
-| Failure | Detection | Recovery |
-| ------- | --------- | -------- |
-| Conta inexistente ou de outro usuario | Handler retorna `400` | Usuario corrige selecao |
-| Categoria invalida | Handler retorna `400` | Usuario corrige selecao |
-| JSON invalido ou erro inesperado | Handler retorna `500` | Retry manual |
+| Failure                                                     | Detection                  | Recovery                          |
+| ----------------------------------------------------------- | -------------------------- | --------------------------------- |
+| Conta inexistente ou de outro usuario                       | Handler retorna `400`      | Usuario corrige selecao           |
+| Categoria invalida                                          | Handler retorna `400`      | Usuario corrige selecao           |
+| JSON invalido ou erro inesperado                            | Handler retorna `500`      | Retry manual                      |
 | Fatura nao sincroniza por conta nao configurada como cartao | Sem erro; `statement=null` | Fluxo segue como transacao normal |
 
 ### Caching and Consistency
@@ -207,11 +207,11 @@ sequenceDiagram
 
 ### Failure Modes and Recovery
 
-| Failure | Detection | Recovery |
-| ------- | --------- | -------- |
-| Conta de origem/destino nao pertence ao usuario | `400` | Ajustar formulario |
-| Falha ao criar um dos lancamentos | Rollback do `prisma.$transaction` | Retry manual |
-| Transferencia indevida para o mesmo contexto contábil | Sem bloqueio adicional na rota | Regra depende da UI/usuario |
+| Failure                                               | Detection                         | Recovery                    |
+| ----------------------------------------------------- | --------------------------------- | --------------------------- |
+| Conta de origem/destino nao pertence ao usuario       | `400`                             | Ajustar formulario          |
+| Falha ao criar um dos lancamentos                     | Rollback do `prisma.$transaction` | Retry manual                |
+| Transferencia indevida para o mesmo contexto contábil | Sem bloqueio adicional na rota    | Regra depende da UI/usuario |
 
 ### Caching and Consistency
 
@@ -272,12 +272,12 @@ sequenceDiagram
 
 ### Failure Modes and Recovery
 
-| Failure | Detection | Recovery |
-| ------- | --------- | -------- |
-| Regra invalida para a data/frequencia | Data nao entra em `getNextDates` | Nenhuma acao necessaria |
-| Erro ao criar transacao de uma data | Catch local cria log `error` | Fluxo continua com outras datas/regras |
-| Reaplicacao duplicada | `RecurringLog` com `status='success'` no dia | Data e ignorada |
-| Explosao de backlog historico | Hard cap de 365 datas por regra | Evita loop infinito, mas pode truncar backlog muito antigo |
+| Failure                               | Detection                                    | Recovery                                                   |
+| ------------------------------------- | -------------------------------------------- | ---------------------------------------------------------- |
+| Regra invalida para a data/frequencia | Data nao entra em `getNextDates`             | Nenhuma acao necessaria                                    |
+| Erro ao criar transacao de uma data   | Catch local cria log `error`                 | Fluxo continua com outras datas/regras                     |
+| Reaplicacao duplicada                 | `RecurringLog` com `status='success'` no dia | Data e ignorada                                            |
+| Explosao de backlog historico         | Hard cap de 365 datas por regra              | Evita loop infinito, mas pode truncar backlog muito antigo |
 
 ### Caching and Consistency
 
@@ -339,12 +339,12 @@ sequenceDiagram
 
 ### Failure Modes and Recovery
 
-| Failure | Detection | Recovery |
-| ------- | --------- | -------- |
-| `month` invalido em algumas rotas | Fallback ou rejeicao, dependendo da superficie | Corrigir query string |
-| Snapshot desatualizado | `staleAt` ou cache invalidado | Recalcular via endpoint ou proximo acesso |
-| Falha em um submódulo analítico | Excecao no use case | Handler retorna `500`; dashboard falha como um todo |
-| Goal/insight dependent query falha | Catch localizado em alguns pontos, como score buscando metas | Fluxo degrada parcialmente |
+| Failure                            | Detection                                                    | Recovery                                            |
+| ---------------------------------- | ------------------------------------------------------------ | --------------------------------------------------- |
+| `month` invalido em algumas rotas  | Fallback ou rejeicao, dependendo da superficie               | Corrigir query string                               |
+| Snapshot desatualizado             | `staleAt` ou cache invalidado                                | Recalcular via endpoint ou proximo acesso           |
+| Falha em um submódulo analítico    | Excecao no use case                                          | Handler retorna `500`; dashboard falha como um todo |
+| Goal/insight dependent query falha | Catch localizado em alguns pontos, como score buscando metas | Fluxo degrada parcialmente                          |
 
 ### Caching and Consistency
 
@@ -353,7 +353,7 @@ sequenceDiagram
   - `forecast`, `score` e `goals` podem existir como snapshot, mas muitas leituras continuam on-demand;
   - `insights` possui leitura on-demand e refresh persistido.
 - Invalidation strategy: `invalidateAnalyticsSnapshots()` gera tags por raiz, usuario, modulo, mes e entidades (conta, categoria, statement).
-- Consistency boundaries: a dashboard em [page.tsx](/Users/victorhugo/Documents/Finance-Controller/src/app/(app)/dashboard/page.tsx) monta tudo em paralelo e chama `refreshInsightSnapshots()` diretamente, o que mistura leitura com efeito colateral persistente durante render server-side.
+- Consistency boundaries: a dashboard em [page.tsx](</Users/victorhugo/Documents/Finance-Controller/src/app/(app)/dashboard/page.tsx>) monta tudo em paralelo e chama `refreshInsightSnapshots()` diretamente, o que mistura leitura com efeito colateral persistente durante render server-side.
 
 ### Security and Multi-tenant Notes
 
@@ -408,13 +408,13 @@ sequenceDiagram
 
 ### Failure Modes and Recovery
 
-| Failure | Detection | Recovery |
-| ------- | --------- | -------- |
-| Fatura nao pertence ao usuario | `404` | UI deve recarregar contexto |
-| Conta de origem invalida | `400` | Usuario escolhe outra conta |
-| Conta de origem = cartao | `400` | Usuario escolhe outra conta |
-| Valor maior que o saldo em aberto | `400` | Ajustar valor |
-| Fatura ja quitada | `400` | Nenhuma mutacao e aplicada |
+| Failure                           | Detection | Recovery                    |
+| --------------------------------- | --------- | --------------------------- |
+| Fatura nao pertence ao usuario    | `404`     | UI deve recarregar contexto |
+| Conta de origem invalida          | `400`     | Usuario escolhe outra conta |
+| Conta de origem = cartao          | `400`     | Usuario escolhe outra conta |
+| Valor maior que o saldo em aberto | `400`     | Ajustar valor               |
+| Fatura ja quitada                 | `400`     | Nenhuma mutacao e aplicada  |
 
 ### Caching and Consistency
 
@@ -429,12 +429,12 @@ sequenceDiagram
 
 ## Failure Modes and Recovery
 
-| Failure | Detection | Recovery |
-| ------- | --------- | -------- |
-| Handler acumula regra demais e fica dificil de testar | Leitura de `route.ts` longa e com muitos efeitos colaterais | Extrair orchestration para use cases dedicados |
-| UI server e API divergem no caminho de leitura | Mesmo dado nasce de page server-side e endpoint diferente | Centralizar mais leituras em use cases e DTOs comuns |
-| Invalidação ampla demais | Muitos modulos sao revalidados em toda mutacao | Refinar matriz de módulos por evento |
-| Snapshot existe mas nao e fonte principal | Leitura ainda on-demand em parte da UI | Decidir claramente quando snapshot e cache são fonte de verdade |
+| Failure                                               | Detection                                                   | Recovery                                                        |
+| ----------------------------------------------------- | ----------------------------------------------------------- | --------------------------------------------------------------- |
+| Handler acumula regra demais e fica dificil de testar | Leitura de `route.ts` longa e com muitos efeitos colaterais | Extrair orchestration para use cases dedicados                  |
+| UI server e API divergem no caminho de leitura        | Mesmo dado nasce de page server-side e endpoint diferente   | Centralizar mais leituras em use cases e DTOs comuns            |
+| Invalidação ampla demais                              | Muitos modulos sao revalidados em toda mutacao              | Refinar matriz de módulos por evento                            |
+| Snapshot existe mas nao e fonte principal             | Leitura ainda on-demand em parte da UI                      | Decidir claramente quando snapshot e cache são fonte de verdade |
 
 ## Caching and Consistency
 

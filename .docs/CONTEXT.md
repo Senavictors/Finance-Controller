@@ -4,7 +4,7 @@
 
 ## Current Phase
 
-**Phase 26: Architecture Docs - Sequence** — Concluido. `.docs/architecture/sequence.md` consolidou diagramas Mermaid e narrativas de sequencia para os fluxos mais sensiveis, cobrindo validacao, persistencia, billing, snapshots e invalidacao.
+**Phase 26: Architecture Docs - Sequence** — Concluido. `.docs/architecture/sequence.md` consolidou diagramas Mermaid e narrativas de sequencia para os fluxos mais sensiveis, cobrindo validacao, persistencia, billing, snapshots e invalidacao. A documentacao viva foi sincronizada em seguida para refletir a estrutura atual de rotas, widgets e pre-requisitos do runtime.
 
 ## Next Planned Step
 
@@ -18,10 +18,10 @@ Backlog documental faseado inicial concluido. O proximo passo natural e expandir
 - Prisma 7 + PostgreSQL
 - **Auth**: bcrypt, sessions, cookies, rate limiting
 - **Financeiro**: Account, Category, Transaction, Transfer
-- **Dashboard customizavel**: react-grid-layout, 6 widgets, layout persistido
+- **Dashboard customizavel**: react-grid-layout, 10 tipos de widget registrados, 5 widgets default e layout persistido
 - **Recorrencias**: RecurringRule + RecurringLog + apply idempotente
 - **Analytics core compartilhado**: `resolveMonthPeriod` + `getMonthlyAnalyticsSummary` reutilizados por dashboard, analytics API e transactions page
-- **Test foundation**: Vitest configurado com primeiros testes do analytics core
+- **Test foundation**: Vitest configurado com suites para analytics core, invalidation, statement cycle, goals, forecast, score e insights
 - **Credit card billing**: configuracao de limite/fechamento/vencimento, faturas, pagina de leitura e pagamento de fatura
 - **Snapshot and invalidation base**: tags por usuario/modulo/mes e invalidação central de analytics em mutacoes financeiras
 - **Demo hardening**: seed/reset demo agora montam um cartao com fatura paga e outra em aberto, e a UI de faturas/transacoes ficou mais demonstravel
@@ -44,12 +44,13 @@ Backlog documental faseado inicial concluido. O proximo passo natural e expandir
 - **Data Docs: data dictionary**: documento `.docs/data/data-dictionary.md` criado com todos os models e enums atuais do Prisma, ownership multi-tenant, relacionamentos, snapshots e limites de integridade do schema
 - **Architecture Docs: flows**: documento `.docs/architecture/flows.md` criado com traversal real entre UI, API, application, Prisma, billing e invalidation nos fluxos criticos do sistema
 - **Architecture Docs: sequence**: documento `.docs/architecture/sequence.md` criado com diagramas Mermaid e sequencias operacionais para transacoes, recorrencias, recalculate analitico e pagamento de fatura
+- **Documentation sync**: README, CONTEXT, architecture overview e flows alinhados ao codigo atual (`dashboards`, `recurring-rules`, Node >= 20.9, apply manual de recorrencias e registry atual de widgets)
 - **Repo hygiene**: `.gitignore` ajustado para ignorar configs locais de tooling em `.claude/`, logs genericos e artefatos comuns de chave/certificado (`*.key`, `*.crt`, `*.p12`, `*.pfx`)
 - **Seed demo**: script com dados ficticios (demo@finance.com / demo1234)
 - **Reset demo**: botao em /settings que recria dados
 - **Landing page**: hero + features + tech stack + footer
 - **CI**: GitHub Actions (lint + format:check + build)
-- **README**: completo com setup, tech stack, roadmap
+- **README**: overview alinhado ao codigo atual, com setup, stack, arquitetura alvo vs realidade e estrutura de rotas atual
 - **Future feature specs**: `.docs/future-features/` com Goal Engine, Forecast Engine, Score Financeiro, Insights Automaticos, Documentation Foundation e o roadmap documental das fases 14 a 26
 - **Execution backlog**: tasks formais criadas para as phases 8.5, 9, 10, 11, 12, 13 e o backlog documental das phases 14 a 26 em `.docs/tasks/`
 - **Technical plan**: task documentada para a fundacao analitica e ciclo de fatura de cartao
@@ -62,7 +63,7 @@ User, Session, Account, Category, Transaction, CreditCardStatement, Dashboard, D
 ## Current Architectural Reality
 
 - A arquitetura alvo em camadas continua sendo a direcao do projeto
-- Na implementacao atual, boa parte das regras e agregacoes ainda vive em `app/api/**/route.ts` e em server pages com Prisma direto
+- Na implementacao atual, boa parte das regras e agregacoes ainda vive em `src/app/api/**/route.ts` e em server pages com Prisma direto
 - As specs em `.docs/future-features/` assumem uma extracao gradual de uma camada analitica/use case antes de expandir metas, forecast, score e insights
 - O produto passou a assumir explicitamente suporte futuro a cartao de credito com limite, fechamento, vencimento e faturas
 - A fundacao da camada analitica server-side comecou a sair de `route.ts` e foi centralizada em `src/server/modules/finance/application/analytics/`

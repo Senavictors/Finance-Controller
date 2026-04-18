@@ -5,7 +5,7 @@
 ```text
 UI (Next.js App Router)
   ↓
-API (Route Handlers) — thin HTTP layer: validate, auth guard, call use case
+API (Route Handlers) — HTTP layer: validate, auth guard, call use case or Prisma during migration
   ↓
 Application (Use Cases) — business orchestration
   ↓
@@ -16,11 +16,17 @@ Infrastructure — Prisma repositories, external services
 
 ## Key Principles
 
-- **Route Handlers are adapters**: validate input (Zod), check session, call use case, return Response
-- **Business logic lives in use cases and domain**, never in route.ts
+- **Route Handlers should be adapters**: validate input (Zod), check session, orchestrate the operation, return Response
+- **Business logic should move into use cases and domain progressively**, reducing Prisma access in route.ts and Server Components
 - **Repository pattern**: `TransactionRepository`, `CategoryRepository`, etc.
 - **Multi-tenant by default**: every financial table has `userId`, every query filters by `userId`
 - **Amounts in cents**: all monetary values stored as integers to avoid floating-point errors
+
+## Current Reality
+
+- The layered architecture remains the target direction for the codebase.
+- `src/server/modules/finance/application/` already concentrates analytics, credit-card billing, goals, forecast, score and insights.
+- Many CRUD routes and some Server Components still read/write with Prisma directly while the extraction work continues.
 
 ## Directory Structure
 

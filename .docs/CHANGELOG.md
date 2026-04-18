@@ -63,6 +63,7 @@ and this project adheres to [Conventional Commits](https://www.conventionalcommi
 
 ### Changed
 
+- README, CONTEXT, architecture overview e architecture flows alinhados ao codigo atual (`dashboards`, `recurring-rules`, Node >= 20.9, apply manual de recorrencias e 10 widgets registrados)
 - `.docs/domain/insights.md` enriquecido com o deep dive da logica real do engine: metricas, heuristicas, dedupe, persistencia, dismiss e trade-offs
 - `.docs/domain/financial-score.md` enriquecido com o deep dive da logica real de calculo: pesos, fatores, redistribuicao, insights, delta historico e trade-offs
 - `.docs/domain/forecast.md` enriquecido com o deep dive da logica real de calculo: entradas, sequencia de composicao, media movel de 2 meses, risco, snapshot/invalidation e trade-offs
