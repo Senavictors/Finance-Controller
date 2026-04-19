@@ -18,10 +18,10 @@ Phase 27 entregue. O proximo passo sera definido no proximo ciclo de planejament
 - Prisma 7 + PostgreSQL
 - **Auth**: bcrypt, sessions, cookies, rate limiting
 - **Financeiro**: Account, Category, Transaction, Transfer
-- **Dashboard customizavel**: react-grid-layout, 6 widgets, layout persistido
+- **Dashboard customizavel**: react-grid-layout, 10 tipos de widget registrados, 5 widgets default e layout persistido
 - **Recorrencias**: RecurringRule + RecurringLog + apply idempotente
 - **Analytics core compartilhado**: `resolveMonthPeriod` + `getMonthlyAnalyticsSummary` reutilizados por dashboard, analytics API e transactions page
-- **Test foundation**: Vitest configurado com primeiros testes do analytics core
+- **Test foundation**: Vitest configurado com suites para analytics core, invalidation, statement cycle, goals, forecast, score e insights
 - **Credit card billing**: configuracao de limite/fechamento/vencimento, faturas, pagina de leitura e pagamento de fatura
 - **Snapshot and invalidation base**: tags por usuario/modulo/mes e invalidação central de analytics em mutacoes financeiras
 - **Demo hardening**: seed/reset demo agora montam um cartao com fatura paga e outra em aberto, e a UI de faturas/transacoes ficou mais demonstravel
@@ -46,12 +46,14 @@ Phase 27 entregue. O proximo passo sera definido no proximo ciclo de planejament
 - **Architecture Docs: sequence**: documento `.docs/architecture/sequence.md` criado com diagramas Mermaid e sequencias operacionais para transacoes, recorrencias, recalculate analitico e pagamento de fatura
 - **Design bundle de marcas**: `design_system/finance-controller-design-system/` inclui prototipo com registry `BRANDS`, helper `matchBrand()` e componente `BrandIcon` como referencia para substituir dots/color-only por logos SVG em contas, categorias, transacoes e recorrencias
 - **Brand registry em producao**: `src/lib/brands/` portou o registry para TypeScript com `BRANDS`, `getBrand`, `listBrands`, `matchBrand` e `resolveBrand`; `BrandIcon`, `BrandDot` e `BrandPicker` padronizam o visual em contas, categorias, transacoes, recorrencias, metas, faturas de cartao e widgets do dashboard; seed/reset-demo ja populam `icon` para Nubank e Itau; testes unitarios do registry cobrem matching, fallback e normalizacao de acento
+- **Documentation sync**: README, CONTEXT, architecture overview e flows alinhados ao codigo atual (`dashboards`, `recurring-rules`, Node >= 20.9, apply manual de recorrencias e registry atual de widgets)
+- **README roadmap sync**: roadmap do README agora reflete explicitamente as phases 13 a 26 ja concluidas e separa proximo passo documental do backlog de produto
 - **Repo hygiene**: `.gitignore` ajustado para ignorar configs locais de tooling em `.claude/`, logs genericos e artefatos comuns de chave/certificado (`*.key`, `*.crt`, `*.p12`, `*.pfx`)
 - **Seed demo**: script com dados ficticios (demo@finance.com / demo1234)
 - **Reset demo**: botao em /settings que recria dados
 - **Landing page**: hero + features + tech stack + footer
 - **CI**: GitHub Actions (lint + format:check + build)
-- **README**: completo com setup, tech stack, roadmap
+- **README**: overview alinhado ao codigo atual, com setup, stack, arquitetura alvo vs realidade e estrutura de rotas atual
 - **Future feature specs**: `.docs/future-features/` com Goal Engine, Forecast Engine, Score Financeiro, Insights Automaticos, Documentation Foundation e o roadmap documental das fases 14 a 26
 - **Execution backlog**: tasks formais criadas para as phases 8.5 a 27 em `.docs/tasks/`, incluindo a nova Phase 27 para implementar logos/icones SVG de bancos, bandeiras, pagamentos e assinaturas com fallback por cor
 - **Technical plan**: task documentada para a fundacao analitica e ciclo de fatura de cartao
@@ -64,7 +66,7 @@ User, Session, Account, Category, Transaction, CreditCardStatement, Dashboard, D
 ## Current Architectural Reality
 
 - A arquitetura alvo em camadas continua sendo a direcao do projeto
-- Na implementacao atual, boa parte das regras e agregacoes ainda vive em `app/api/**/route.ts` e em server pages com Prisma direto
+- Na implementacao atual, boa parte das regras e agregacoes ainda vive em `src/app/api/**/route.ts` e em server pages com Prisma direto
 - As specs em `.docs/future-features/` assumem uma extracao gradual de uma camada analitica/use case antes de expandir metas, forecast, score e insights
 - O produto passou a assumir explicitamente suporte futuro a cartao de credito com limite, fechamento, vencimento e faturas
 - A fundacao da camada analitica server-side comecou a sair de `route.ts` e foi centralizada em `src/server/modules/finance/application/analytics/`

@@ -53,19 +53,19 @@ O Finance Controller centraliza tudo em uma unica aplicacao:
 - Receitas, despesas e transferencias entre contas
 - Categorias customizaveis e hierarquicas
 - Dashboard visual e customizavel com drag-and-drop
-- Recorrencias automaticas (salario, aluguel, assinaturas)
+- Recorrencias configuraveis com apply manual idempotente (salario, aluguel, assinaturas)
 - Multi-contas com tipos distintos (corrente, cartao, investimento)
 
 ---
 
 ## Funcionalidades
 
-- **Dashboard customizavel** — drag-and-drop de widgets com react-grid-layout, layout persistido por usuario
+- **Dashboard customizavel** — drag-and-drop de widgets com react-grid-layout, 10 tipos registrados, 5 widgets default e layout persistido por usuario
 - **Multi-contas** — corrente, carteira, poupanca, cartao de credito, investimento
 - **Categorias hierarquicas** — receitas e despesas com subcategorias, cores e contagem de transacoes
 - **Transacoes** — CRUD completo com filtros por tipo, categoria e busca por descricao
 - **Transferencias atomicas** — par de transacoes vinculadas por `transferId` (debito na origem, credito no destino)
-- **Recorrencias** — regras com frequencia (diaria, semanal, mensal, anual), apply idempotente com logs
+- **Recorrencias** — regras com frequencia (diaria, semanal, mensal, anual), apply manual idempotente com logs
 - **Billing de cartao de credito** — limite, fechamento, vencimento, faturas e pagamento parcial/total
 - **Goal Engine** — metas de economia, limite de gasto, meta de receita e limite por conta/cartao, com calculo de progresso por periodo, status (no ritmo, atencao, em risco, atingida, ultrapassada) e snapshots historicos
 - **Forecast Engine** — previsao do fechamento do mes combinando realizado, recorrencias futuras, projecao variavel (media movel) e faturas em aberto, com classificacao de risco e breakdown audit das premissas
@@ -81,7 +81,7 @@ O Finance Controller centraliza tudo em uma unica aplicacao:
 
 ## Arquitetura
 
-O projeto segue uma **arquitetura em camadas** com separacao clara de responsabilidades:
+O projeto segue como direcao uma **arquitetura em camadas** com separacao clara de responsabilidades:
 
 ```mermaid
 graph TD
@@ -115,10 +115,12 @@ graph TD
     end
 ```
 
+> Estado atual: analytics, billing de cartao, metas, forecast, score e insights ja usam `src/server/modules/finance/application/`, mas parte dos CRUDs e algumas Server Components ainda acessam Prisma diretamente.
+
 ### Principios
 
-- **Route Handlers sao adaptadores** — validam input (Zod), verificam sessao, chamam use case, retornam Response
-- **Logica de negocio nos use cases e domain** — nunca nos route handlers
+- **Route Handlers devem atuar como adaptadores** — validam input (Zod), verificam sessao, orquestram a operacao e retornam Response
+- **Extracao gradual da logica de negocio** — analytics, billing, metas, forecast, score e insights ja vivem em `application`, enquanto alguns CRUDs ainda mantem Prisma direto em `route.ts` e Server Components
 - **Repository pattern** — `TransactionRepository`, `CategoryRepository`, etc.
 - **Multi-tenant por padrao** — toda tabela financeira tem `userId`, toda query filtra por `userId`
 - **Valores em centavos** — inteiros para evitar floating-point (R$ 150,75 = `15075`)
@@ -148,9 +150,10 @@ src/
       transactions/        CRUD + [id] + transfer
       analytics/           summary + forecast + score + score/history + insights + insights/recalculate + insights/[id]/dismiss
       credit-cards/        statements, detail, payments
-      dashboard/           widgets, layout
-      recurring/           rules, apply, logs
+      dashboards/          GET/PUT layout + POST/DELETE widgets
+      recurring-rules/     CRUD + apply
       goals/               CRUD + [id] de metas
+      settings/            reset-demo
   server/
     auth/                  Sessions, hashing, guards, rate-limit
     modules/finance/
@@ -236,9 +239,9 @@ Regra operacional: novas docs dessas camadas devem nascer sempre a partir de `fu
 1. Usuario preenche formulario (valor, categoria, conta, data)
 2. Frontend envia POST /api/transactions
 3. Route Handler valida input com Zod + verifica sessao
-4. Use Case aplica regras de negocio
-5. Repository persiste no PostgreSQL
-6. Resposta retorna transacao criada
+4. Handler aplica ownership checks e regras basicas do fluxo
+5. Prisma persiste a transacao no PostgreSQL
+6. Snapshots analiticos relacionados sao invalidados
 ```
 
 ### Transferencia entre Contas
@@ -246,17 +249,17 @@ Regra operacional: novas docs dessas camadas devem nascer sempre a partir de `fu
 ```
 1. Usuario seleciona conta origem, destino e valor
 2. POST /api/transactions/transfer
-3. Use Case cria par de transacoes (EXPENSE na origem + INCOME no destino)
+3. Route Handler valida as contas e cria o par dentro de `prisma.$transaction`
 4. Ambas vinculadas pelo mesmo transferId
-5. Saldos atualizados automaticamente
+5. Snapshots analiticos e saldos derivados refletem a mudanca
 ```
 
 ### Recorrencias
 
 ```
 1. Usuario cria regra (Netflix mensal, salario, aluguel)
-2. Clica em "Aplicar" ou sistema aplica automaticamente
-3. Use Case verifica regras pendentes no periodo
+2. Clica manualmente em "Aplicar"
+3. Handler calcula regras pendentes ate a data atual
 4. Cria transacoes com controle de idempotencia (RecurringLog)
 5. Nenhuma transacao duplicada mesmo se aplicar multiplas vezes
 ```
@@ -264,18 +267,18 @@ Regra operacional: novas docs dessas camadas devem nascer sempre a partir de `fu
 ### Dashboard
 
 ```
-1. GET /api/analytics/summary?month=2026-04
-2. Backend calcula: saldo total, receitas, despesas, variacao mensal
-3. Agrupa gastos por categoria e saldo por conta
-4. Frontend renderiza widgets no grid customizavel
-5. Usuario reorganiza widgets com drag-and-drop, layout e salvo
+1. Dashboard server-side carrega o mes selecionado
+2. Summary vem da camada `application`, enquanto parte das leituras ainda combina use cases e Prisma direto
+3. Frontend renderiza widgets no grid customizavel
+4. Usuario reorganiza widgets com drag-and-drop
+5. Layout e salvo via `PUT /api/dashboards`
 ```
 
 ---
 
 ## Banco de Dados
 
-15 models, 11 enums (incluindo `GoalMetric`, `GoalScopeType`, `GoalPeriod`, `GoalStatus`, `ForecastRiskLevel`, `FinancialScoreStatus`, `InsightSeverity`):
+15 models, 12 enums (incluindo `GoalMetric`, `GoalScopeType`, `GoalPeriod`, `GoalStatus`, `ForecastRiskLevel`, `FinancialScoreStatus`, `InsightSeverity`):
 
 ```mermaid
 erDiagram
@@ -492,7 +495,7 @@ erDiagram
 
 ### Pre-requisitos
 
-- Node.js 18+
+- Node.js 20.9+
 - PostgreSQL
 - npm
 
@@ -531,6 +534,7 @@ Acesse `http://localhost:3000`
 npm run dev          # Dev server
 npm run build        # Build producao
 npm run lint         # ESLint
+npm test             # Vitest
 npm run format       # Prettier (write)
 npm run format:check # Prettier (check)
 npx prisma studio    # GUI do banco
@@ -540,6 +544,10 @@ npx prisma db seed   # Popular dados demo
 ---
 
 ## Roadmap
+
+Estado atual: backlog faseado inicial concluido ate a **Phase 26**.
+
+### Phases concluidas
 
 - [x] Phase 1: Fundacao (Next.js, Tailwind, Prisma, ESLint)
 - [x] Phase 2: Autenticacao (bcrypt, sessions, guards)
@@ -554,6 +562,27 @@ npx prisma db seed   # Popular dados demo
 - [x] Phase 10: Forecast Engine
 - [x] Phase 11: Financial Score
 - [x] Phase 12: Automatic Insights
+- [x] Phase 13: Documentation Foundation
+- [x] Phase 14: Domain Docs - Goals
+- [x] Phase 15: Domain Docs - Forecast
+- [x] Phase 16: Domain Docs - Financial Score
+- [x] Phase 17: Domain Docs - Insights
+- [x] Phase 18: Logic Docs - Forecast Calculation
+- [x] Phase 19: Logic Docs - Financial Score Calculation
+- [x] Phase 20: Logic Docs - Insights Engine
+- [x] Phase 21: API Docs - Transactions
+- [x] Phase 22: API Docs - Analytics
+- [x] Phase 23: API Docs - Goals
+- [x] Phase 24: Data Docs - Data Dictionary
+- [x] Phase 25: Architecture Docs - Flows
+- [x] Phase 26: Architecture Docs - Sequence
+
+### Proximo passo natural
+
+- [ ] Expandir cobertura documental para auth, accounts, categories, recurring CRUD, dashboards e credit-cards
+
+### Backlog de produto
+
 - [ ] Import/export CSV
 - [ ] Relatorios e exportacao PDF
 - [ ] PWA / responsivo mobile

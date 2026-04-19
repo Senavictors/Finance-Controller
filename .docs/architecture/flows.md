@@ -68,7 +68,7 @@ A arquitetura alvo continua sendo em camadas, mas a implementacao atual mistura 
 | `ApplyButton`                        | Dispara aplicacao manual de recorrencias                  | UI client   | Chama `POST /api/recurring-rules/apply`       |
 | `DashboardPage`                      | Agrega analytics, metas, forecast, score e insights       | UI server   | Chama use cases diretamente                   |
 | `StatementPaymentForm`               | Dispara pagamento de fatura                               | UI client   | Chama rota HTTP de billing                    |
-| `route.ts` em `app/api/**`           | Auth, validacao, orchestration e resposta HTTP            | API         | Alguns handlers ainda acumulam muita regra    |
+| `route.ts` em `src/app/api/**`       | Auth, validacao, orchestration e resposta HTTP            | API         | Alguns handlers ainda acumulam muita regra    |
 | `application/analytics/*`            | Summary, cache por tags, period helpers e invalidation    | Application | Base compartilhada entre UI e API             |
 | `application/credit-card/billing.ts` | Vinculo transacao-fatura e refresh de fatura              | Application | Reutilizado em mutacoes                       |
 | `application/goals/*`                | Calculo e snapshot de metas                               | Application | Listagem da dashboard usa direto              |
