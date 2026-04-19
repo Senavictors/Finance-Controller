@@ -84,6 +84,7 @@ async function main() {
         type: 'CHECKING',
         initialBalance: 523000,
         color: '#3b82f6',
+        icon: 'nubank',
       },
     }),
     prisma.account.create({
@@ -93,6 +94,7 @@ async function main() {
         type: 'CHECKING',
         initialBalance: 1245000,
         color: '#f97316',
+        icon: 'itau',
       },
     }),
     prisma.account.create({
@@ -114,6 +116,7 @@ async function main() {
         statementClosingDay: 10,
         statementDueDay: 17,
         color: '#8b5cf6',
+        icon: 'nubank',
       },
     }),
     prisma.account.create({

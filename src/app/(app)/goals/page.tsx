@@ -20,12 +20,12 @@ export default async function GoalsPage({ searchParams }: Props) {
     listGoalsWithProgress(session.userId, monthParam),
     prisma.category.findMany({
       where: { userId: session.userId },
-      select: { id: true, name: true, type: true },
+      select: { id: true, name: true, type: true, color: true, icon: true },
       orderBy: { name: 'asc' },
     }),
     prisma.account.findMany({
       where: { userId: session.userId, isArchived: false },
-      select: { id: true, name: true, type: true },
+      select: { id: true, name: true, type: true, color: true, icon: true },
       orderBy: { name: 'asc' },
     }),
   ])

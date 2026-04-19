@@ -63,38 +63,38 @@ O valor do dominio vem de tres caracteristicas:
 
 ## Core Concepts
 
-| Concept | Description | Notes |
-| ------- | ----------- | ----- |
-| Insight | Observacao automatica sobre um sinal relevante do periodo | Sempre nasce de regra deterministica |
-| Insight candidate | Insight ainda em nivel de calculo antes da persistencia | Nao carrega necessariamente `id` persistido |
-| Insight record | Insight com identidade persistida e metadados de ciclo de vida | Inclui `id`, `isDismissed`, datas e `createdAt` |
-| Fingerprint | Identidade logica do insight dentro do periodo | Base do dedupe e do upsert |
-| Severity | Nivel qualitativo de urgencia | `INFO`, `WARNING`, `CRITICAL` |
-| Scope | Recorte de contexto que o insight representa | Ex.: categoria, meta, forecast, statement |
-| CTA | Acao sugerida pelo insight | Opcional, mas faz parte do valor acionavel do feed |
-| Dismiss | Decisao do usuario de dispensar um insight persistido | Precisa de snapshot com `id` |
+| Concept           | Description                                                    | Notes                                              |
+| ----------------- | -------------------------------------------------------------- | -------------------------------------------------- |
+| Insight           | Observacao automatica sobre um sinal relevante do periodo      | Sempre nasce de regra deterministica               |
+| Insight candidate | Insight ainda em nivel de calculo antes da persistencia        | Nao carrega necessariamente `id` persistido        |
+| Insight record    | Insight com identidade persistida e metadados de ciclo de vida | Inclui `id`, `isDismissed`, datas e `createdAt`    |
+| Fingerprint       | Identidade logica do insight dentro do periodo                 | Base do dedupe e do upsert                         |
+| Severity          | Nivel qualitativo de urgencia                                  | `INFO`, `WARNING`, `CRITICAL`                      |
+| Scope             | Recorte de contexto que o insight representa                   | Ex.: categoria, meta, forecast, statement          |
+| CTA               | Acao sugerida pelo insight                                     | Opcional, mas faz parte do valor acionavel do feed |
+| Dismiss           | Decisao do usuario de dispensar um insight persistido          | Precisa de snapshot com `id`                       |
 
 ## Types and Entities
 
-| Item | Kind | Description | Notes |
-| ---- | ---- | ----------- | ----- |
-| `InsightSnapshot` | Prisma model | Snapshot persistido de insight por usuario/periodo/fingerprint | `@@unique([userId, periodStart, fingerprint])` |
-| `InsightSeverity` | Enum | Severidade do insight | `INFO`, `WARNING`, `CRITICAL` |
-| `InsightCandidate` | Application type | Insight calculado pelo engine antes da persistencia | Contem `key`, `body`, `payload`, `cta`, `fingerprint`, `priority` |
-| `InsightRecord` | Application type | Insight retornado com estado persistido | Estende candidato com `id`, `isDismissed`, `periodStart`, `periodEnd`, `createdAt` |
-| `InsightScopeType` | Union type | Tipo de escopo do insight | `global`, `category`, `account`, `goal`, `forecast`, `statement` |
-| `InsightCta` | Application type | Acao sugerida pelo insight | `label`, `action`, `href?` |
-| `InsightCtaAction` | Union type | Acao canonica do CTA | `open-category`, `open-goals`, `open-forecast`, `open-credit-card` |
+| Item               | Kind             | Description                                                    | Notes                                                                              |
+| ------------------ | ---------------- | -------------------------------------------------------------- | ---------------------------------------------------------------------------------- |
+| `InsightSnapshot`  | Prisma model     | Snapshot persistido de insight por usuario/periodo/fingerprint | `@@unique([userId, periodStart, fingerprint])`                                     |
+| `InsightSeverity`  | Enum             | Severidade do insight                                          | `INFO`, `WARNING`, `CRITICAL`                                                      |
+| `InsightCandidate` | Application type | Insight calculado pelo engine antes da persistencia            | Contem `key`, `body`, `payload`, `cta`, `fingerprint`, `priority`                  |
+| `InsightRecord`    | Application type | Insight retornado com estado persistido                        | Estende candidato com `id`, `isDismissed`, `periodStart`, `periodEnd`, `createdAt` |
+| `InsightScopeType` | Union type       | Tipo de escopo do insight                                      | `global`, `category`, `account`, `goal`, `forecast`, `statement`                   |
+| `InsightCta`       | Application type | Acao sugerida pelo insight                                     | `label`, `action`, `href?`                                                         |
+| `InsightCtaAction` | Union type       | Acao canonica do CTA                                           | `open-category`, `open-goals`, `open-forecast`, `open-credit-card`                 |
 
 ## States
 
-| State | Meaning | Entry Condition | Exit Condition |
-| ----- | ------- | --------------- | -------------- |
-| `INFO` | Insight informativo, com baixa urgencia | Regra relevante sem criticidade alta | Pode subir para `WARNING`/`CRITICAL` se o sinal piorar em recalculos futuros |
-| `WARNING` | Insight que requer atencao do usuario | Regra ativa com risco moderado | Pode cair para `INFO`, subir para `CRITICAL` ou desaparecer se o sinal deixar de existir |
-| `CRITICAL` | Insight que representa risco forte ou problema imediato | Regra ativa com impacto alto | Pode reduzir de severidade, desaparecer ou permanecer dismissado se o sinal continuar |
-| `isDismissed = false` | Insight visivel no feed | Insight persistido ainda nao dispensado | Pode virar `true` por acao do usuario |
-| `isDismissed = true` | Insight dispensado pelo usuario | `PATCH dismiss` em snapshot persistido | Pode continuar persistido enquanto o fingerprint existir; deixa de aparecer em leituras que filtram dismiss |
+| State                 | Meaning                                                 | Entry Condition                         | Exit Condition                                                                                              |
+| --------------------- | ------------------------------------------------------- | --------------------------------------- | ----------------------------------------------------------------------------------------------------------- |
+| `INFO`                | Insight informativo, com baixa urgencia                 | Regra relevante sem criticidade alta    | Pode subir para `WARNING`/`CRITICAL` se o sinal piorar em recalculos futuros                                |
+| `WARNING`             | Insight que requer atencao do usuario                   | Regra ativa com risco moderado          | Pode cair para `INFO`, subir para `CRITICAL` ou desaparecer se o sinal deixar de existir                    |
+| `CRITICAL`            | Insight que representa risco forte ou problema imediato | Regra ativa com impacto alto            | Pode reduzir de severidade, desaparecer ou permanecer dismissado se o sinal continuar                       |
+| `isDismissed = false` | Insight visivel no feed                                 | Insight persistido ainda nao dispensado | Pode virar `true` por acao do usuario                                                                       |
+| `isDismissed = true`  | Insight dispensado pelo usuario                         | `PATCH dismiss` em snapshot persistido  | Pode continuar persistido enquanto o fingerprint existir; deixa de aparecer em leituras que filtram dismiss |
 
 ## Business Rules
 
@@ -113,25 +113,25 @@ O valor do dominio vem de tres caracteristicas:
 
 ## Formulas and Calculations
 
-| Name | Formula or Logic | Inputs | Output | Notes |
-| ---- | ---------------- | ------ | ------ | ----- |
-| Fingerprint | `parts.map(nullish => "~").join("|")` | Identidade logica do insight | `fingerprint` | Permite dedupe e upsert consistente |
-| Rule pipeline | `buildInsightMetrics -> runInsightRules -> dedupeInsights -> slice(0, 8)` | `userId`, periodo, estado financeiro | Lista final de candidatos | Base comum de `listInsights` e `refreshInsightSnapshots` |
-| Dedupe | Mantem o insight de maior prioridade por fingerprint | Lista de candidatos | Lista unica por fingerprint | Empates preservam o primeiro emitido |
-| Feed cap | Corte rigido apos dedupe | Lista ordenada | Maximo de `8` insights | Controle anti-ruido do dominio |
-| Persisted refresh | Upsert de candidatos do periodo + limpeza seletiva de obsoletos | Candidatos, snapshots existentes | `InsightRecord[]` | Preserva `isDismissed` e nao remove obsoletos ja dismissados |
-| Visible feed | Filtragem de insights dismissados | Insights calculados ou persistidos | Lista mostrada ao usuario | `GET` remove dismissados e converte `id` vazio em `null` |
+| Name              | Formula or Logic                                                          | Inputs                               | Output                       | Notes                                                        |
+| ----------------- | ------------------------------------------------------------------------- | ------------------------------------ | ---------------------------- | ------------------------------------------------------------ | ----------------------------------- |
+| Fingerprint       | `parts.map(nullish => "~").join("                                         | ")`                                  | Identidade logica do insight | `fingerprint`                                                | Permite dedupe e upsert consistente |
+| Rule pipeline     | `buildInsightMetrics -> runInsightRules -> dedupeInsights -> slice(0, 8)` | `userId`, periodo, estado financeiro | Lista final de candidatos    | Base comum de `listInsights` e `refreshInsightSnapshots`     |
+| Dedupe            | Mantem o insight de maior prioridade por fingerprint                      | Lista de candidatos                  | Lista unica por fingerprint  | Empates preservam o primeiro emitido                         |
+| Feed cap          | Corte rigido apos dedupe                                                  | Lista ordenada                       | Maximo de `8` insights       | Controle anti-ruido do dominio                               |
+| Persisted refresh | Upsert de candidatos do periodo + limpeza seletiva de obsoletos           | Candidatos, snapshots existentes     | `InsightRecord[]`            | Preserva `isDismissed` e nao remove obsoletos ja dismissados |
+| Visible feed      | Filtragem de insights dismissados                                         | Insights calculados ou persistidos   | Lista mostrada ao usuario    | `GET` remove dismissados e converte `id` vazio em `null`     |
 
 ## Metric Pipeline
 
-| Input | Source | Filter | Used For | Notes |
-| ----- | ------ | ------ | -------- | ----- |
-| Current period transactions | `prisma.transaction.findMany` | `userId`, `type in (INCOME, EXPENSE)`, `date` dentro do periodo atual | Totais e categorias do mes | `TRANSFER` fica fora desde a query |
-| Previous period transactions | `prisma.transaction.findMany` | `userId`, `type in (INCOME, EXPENSE)`, `date` dentro do mes anterior | Comparacao mensal | Alimenta deltas por categoria e totais comparativos |
-| Expense categories | `prisma.category.findMany` | `userId`, `type = EXPENSE` | Nomear categorias no breakdown | Categoria ausente vira `Sem categoria` |
-| Credit cards | `prisma.account.findMany` | `userId`, `type = CREDIT_CARD`, `isArchived = false` | Statements abertos e limite agregado | Cada cartao carrega so o primeiro statement nao pago com `dueDate >= periodStart` |
-| Forecast | `calculateForecast(userId, monthParam, now)` | Mesmo periodo da consulta | Regra `forecast_negative` | Reaproveita integralmente o motor de forecast |
-| Goals progress | `listGoalsWithProgress(userId, monthParam)` | Goals ativos do usuario | Regra `goal_at_risk` | Falha faz fallback para lista vazia |
+| Input                        | Source                                       | Filter                                                                | Used For                             | Notes                                                                             |
+| ---------------------------- | -------------------------------------------- | --------------------------------------------------------------------- | ------------------------------------ | --------------------------------------------------------------------------------- |
+| Current period transactions  | `prisma.transaction.findMany`                | `userId`, `type in (INCOME, EXPENSE)`, `date` dentro do periodo atual | Totais e categorias do mes           | `TRANSFER` fica fora desde a query                                                |
+| Previous period transactions | `prisma.transaction.findMany`                | `userId`, `type in (INCOME, EXPENSE)`, `date` dentro do mes anterior  | Comparacao mensal                    | Alimenta deltas por categoria e totais comparativos                               |
+| Expense categories           | `prisma.category.findMany`                   | `userId`, `type = EXPENSE`                                            | Nomear categorias no breakdown       | Categoria ausente vira `Sem categoria`                                            |
+| Credit cards                 | `prisma.account.findMany`                    | `userId`, `type = CREDIT_CARD`, `isArchived = false`                  | Statements abertos e limite agregado | Cada cartao carrega so o primeiro statement nao pago com `dueDate >= periodStart` |
+| Forecast                     | `calculateForecast(userId, monthParam, now)` | Mesmo periodo da consulta                                             | Regra `forecast_negative`            | Reaproveita integralmente o motor de forecast                                     |
+| Goals progress               | `listGoalsWithProgress(userId, monthParam)`  | Goals ativos do usuario                                               | Regra `goal_at_risk`                 | Falha faz fallback para lista vazia                                               |
 
 Metricas derivadas importantes:
 
@@ -166,15 +166,15 @@ Como o dedupe preserva o primeiro item quando duas entradas tem o mesmo fingerpr
 
 ## Heuristic Rules
 
-| Rule | Trigger | Severity | Priority | Fingerprint | Notes |
-| ---- | ------- | -------- | -------- | ----------- | ----- |
-| `category_spike` | `previous > 0`, `deltaAbsolute >= 10_000`, `deltaPercent >= 20`, `categoryId != null` | `CRITICAL` se `deltaPercent >= 50`, senao `WARNING` | `70` ou `50` | `category_spike|<categoryId>` | Ignora categorias novas sem baseline e `Sem categoria` |
-| `category_concentration` | `totalExpenses >= 50_000`, categoria lider com `sharePercent >= 40` e `categoryId != null` | `CRITICAL` se `sharePercent >= 60`, senao `WARNING` | `60` | `category_concentration|<categoryId>` | Avalia apenas `expensesByCategory[0]` |
-| `goal_at_risk` | Goal com status `AT_RISK` ou `EXCEEDED` | `CRITICAL` para `EXCEEDED`, senao `WARNING` | `80` ou `55` | `goal_at_risk|<goalId>` | O texto muda para metas de limite vs metas de acumulacao |
-| `forecast_negative` | `forecast.predictedBalance < 0` | `CRITICAL` | `90` | `forecast_negative|~` | Gera no maximo um insight global por periodo |
-| `statement_overdue` | Statement em `openStatements` com `daysUntilDue < 0` | `CRITICAL` | `95` | `statement_overdue|<statementId>` | Nasce dentro da mesma regra de vencimento |
-| `statement_due_soon` | Statement em `openStatements` com `0 <= daysUntilDue <= 7` | `WARNING` se `<= 2`, senao `INFO` | `65` ou `40` | `statement_due_soon|<statementId>` | Usa o mesmo statement base do cartao |
-| `credit_utilization_high` | `totalCreditLimit > 0` e `totalCreditOutstanding / totalCreditLimit >= 70%` | `CRITICAL` se `>= 90%`, senao `WARNING` | `75` ou `55` | `credit_utilization_high|~` | Mede uso agregado do limite, nao por cartao |
+| Rule                      | Trigger                                                                                    | Severity                                            | Priority     | Fingerprint              | Notes          |
+| ------------------------- | ------------------------------------------------------------------------------------------ | --------------------------------------------------- | ------------ | ------------------------ | -------------- | -------------------------------------------------------- |
+| `category_spike`          | `previous > 0`, `deltaAbsolute >= 10_000`, `deltaPercent >= 20`, `categoryId != null`      | `CRITICAL` se `deltaPercent >= 50`, senao `WARNING` | `70` ou `50` | `category_spike          | <categoryId>`  | Ignora categorias novas sem baseline e `Sem categoria`   |
+| `category_concentration`  | `totalExpenses >= 50_000`, categoria lider com `sharePercent >= 40` e `categoryId != null` | `CRITICAL` se `sharePercent >= 60`, senao `WARNING` | `60`         | `category_concentration  | <categoryId>`  | Avalia apenas `expensesByCategory[0]`                    |
+| `goal_at_risk`            | Goal com status `AT_RISK` ou `EXCEEDED`                                                    | `CRITICAL` para `EXCEEDED`, senao `WARNING`         | `80` ou `55` | `goal_at_risk            | <goalId>`      | O texto muda para metas de limite vs metas de acumulacao |
+| `forecast_negative`       | `forecast.predictedBalance < 0`                                                            | `CRITICAL`                                          | `90`         | `forecast_negative       | ~`             | Gera no maximo um insight global por periodo             |
+| `statement_overdue`       | Statement em `openStatements` com `daysUntilDue < 0`                                       | `CRITICAL`                                          | `95`         | `statement_overdue       | <statementId>` | Nasce dentro da mesma regra de vencimento                |
+| `statement_due_soon`      | Statement em `openStatements` com `0 <= daysUntilDue <= 7`                                 | `WARNING` se `<= 2`, senao `INFO`                   | `65` ou `40` | `statement_due_soon      | <statementId>` | Usa o mesmo statement base do cartao                     |
+| `credit_utilization_high` | `totalCreditLimit > 0` e `totalCreditOutstanding / totalCreditLimit >= 70%`                | `CRITICAL` se `>= 90%`, senao `WARNING`             | `75` ou `55` | `credit_utilization_high | ~`             | Mede uso agregado do limite, nao por cartao              |
 
 ### Rule Nuances
 

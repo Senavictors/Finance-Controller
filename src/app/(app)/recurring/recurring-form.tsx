@@ -21,9 +21,16 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { Plus } from 'lucide-react'
+import { BrandDot } from '@/lib/brands'
 
-type Account = { id: string; name: string }
-type Category = { id: string; name: string; type: string }
+type Account = { id: string; name: string; color?: string | null; icon?: string | null }
+type Category = {
+  id: string
+  name: string
+  type: string
+  color?: string | null
+  icon?: string | null
+}
 
 type Rule = {
   id: string
@@ -224,7 +231,16 @@ export function RecurringForm({ accounts, categories, rule, open, onOpenChange }
               <SelectContent>
                 {accounts.map((a) => (
                   <SelectItem key={a.id} value={a.id}>
-                    {a.name}
+                    <span className="flex items-center gap-2">
+                      <BrandDot
+                        brandKey={a.icon}
+                        fallbackText={a.name}
+                        fallbackColor={a.color}
+                        fallbackLabel={a.name}
+                        size={14}
+                      />
+                      {a.name}
+                    </span>
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -245,7 +261,16 @@ export function RecurringForm({ accounts, categories, rule, open, onOpenChange }
                 <SelectItem value="none">Nenhuma</SelectItem>
                 {filteredCategories.map((c) => (
                   <SelectItem key={c.id} value={c.id}>
-                    {c.name}
+                    <span className="flex items-center gap-2">
+                      <BrandDot
+                        brandKey={c.icon}
+                        fallbackText={c.name}
+                        fallbackColor={c.color}
+                        fallbackLabel={c.name}
+                        size={14}
+                      />
+                      {c.name}
+                    </span>
                   </SelectItem>
                 ))}
               </SelectContent>

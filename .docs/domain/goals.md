@@ -50,37 +50,37 @@ O valor do modulo vem de combinar uma definicao persistida de meta com um result
 
 ## Core Concepts
 
-| Concept | Description | Notes |
-| ------- | ----------- | ----- |
-| Goal | Definicao persistida de uma meta financeira do usuario | Guarda regra base, escopo, limiares e alvo |
-| GoalSnapshot | Registro persistido do ultimo calculo de uma meta para um periodo | Serve como trilha auditavel e base futura de cache |
-| Goal metric | Natureza da meta | Define como o sistema interpreta “melhor” ou “pior” desempenho |
-| Goal scope | Recorte do universo observado | Pode ser global, por categoria ou por conta |
-| Progress result | Resultado derivado retornado pelo calculo | Inclui `actualAmount`, `projectedAmount`, `progressPercent`, `status` e `alerts` |
-| Limit metric | Metricas em que menor consumo e melhor | `EXPENSE_LIMIT` e `ACCOUNT_LIMIT` |
-| Achievement metric | Metricas em que maior acumulado e melhor | `SAVING` e `INCOME_TARGET` |
+| Concept            | Description                                                       | Notes                                                                            |
+| ------------------ | ----------------------------------------------------------------- | -------------------------------------------------------------------------------- |
+| Goal               | Definicao persistida de uma meta financeira do usuario            | Guarda regra base, escopo, limiares e alvo                                       |
+| GoalSnapshot       | Registro persistido do ultimo calculo de uma meta para um periodo | Serve como trilha auditavel e base futura de cache                               |
+| Goal metric        | Natureza da meta                                                  | Define como o sistema interpreta “melhor” ou “pior” desempenho                   |
+| Goal scope         | Recorte do universo observado                                     | Pode ser global, por categoria ou por conta                                      |
+| Progress result    | Resultado derivado retornado pelo calculo                         | Inclui `actualAmount`, `projectedAmount`, `progressPercent`, `status` e `alerts` |
+| Limit metric       | Metricas em que menor consumo e melhor                            | `EXPENSE_LIMIT` e `ACCOUNT_LIMIT`                                                |
+| Achievement metric | Metricas em que maior acumulado e melhor                          | `SAVING` e `INCOME_TARGET`                                                       |
 
 ## Types and Entities
 
-| Item | Kind | Description | Notes |
-| ---- | ---- | ----------- | ----- |
-| `Goal` | Prisma model | Meta persistida do usuario | Soft-delete via `isActive = false` |
-| `GoalSnapshot` | Prisma model | Foto do progresso da meta por periodo | `@@unique([goalId, periodStart])` |
-| `GoalMetric` | Enum | Tipo de meta | `SAVING`, `EXPENSE_LIMIT`, `INCOME_TARGET`, `ACCOUNT_LIMIT` |
-| `GoalScopeType` | Enum | Escopo da meta | `GLOBAL`, `CATEGORY`, `ACCOUNT` |
-| `GoalPeriod` | Enum | Periodicidade declarada da meta | Schema aceita `MONTHLY` e `YEARLY`; calculo atual opera com janela mensal |
-| `GoalStatus` | Enum | Situacao do progresso | `ON_TRACK`, `WARNING`, `AT_RISK`, `ACHIEVED`, `EXCEEDED` |
-| `GoalProgressResult` | Application DTO | Visao calculada da meta para um periodo | E o shape consumido pela UI e pelo `GET /api/goals` |
+| Item                 | Kind            | Description                             | Notes                                                                     |
+| -------------------- | --------------- | --------------------------------------- | ------------------------------------------------------------------------- |
+| `Goal`               | Prisma model    | Meta persistida do usuario              | Soft-delete via `isActive = false`                                        |
+| `GoalSnapshot`       | Prisma model    | Foto do progresso da meta por periodo   | `@@unique([goalId, periodStart])`                                         |
+| `GoalMetric`         | Enum            | Tipo de meta                            | `SAVING`, `EXPENSE_LIMIT`, `INCOME_TARGET`, `ACCOUNT_LIMIT`               |
+| `GoalScopeType`      | Enum            | Escopo da meta                          | `GLOBAL`, `CATEGORY`, `ACCOUNT`                                           |
+| `GoalPeriod`         | Enum            | Periodicidade declarada da meta         | Schema aceita `MONTHLY` e `YEARLY`; calculo atual opera com janela mensal |
+| `GoalStatus`         | Enum            | Situacao do progresso                   | `ON_TRACK`, `WARNING`, `AT_RISK`, `ACHIEVED`, `EXCEEDED`                  |
+| `GoalProgressResult` | Application DTO | Visao calculada da meta para um periodo | E o shape consumido pela UI e pelo `GET /api/goals`                       |
 
 ## States
 
-| State | Meaning | Entry Condition | Exit Condition |
-| ----- | ------- | --------------- | -------------- |
-| `ON_TRACK` | Meta esta em ritmo saudavel | Metricas de limite abaixo dos limiares; metas de acumulacao em ritmo suficiente | Pode migrar para `WARNING`, `AT_RISK`, `ACHIEVED` ou `EXCEEDED` conforme calculo |
-| `WARNING` | Meta exige atencao, mas ainda nao esta no pior estado | Para limite: consumo acima de `warningPercent`; para acumulacao: progresso entre `warningPercent` e `dangerPercent` | Pode voltar para `ON_TRACK`, cair para `AT_RISK` ou subir para `ACHIEVED` |
-| `AT_RISK` | Meta de acumulacao esta atrasada ou meta de limite esta muito proxima de romper | Para limite: consumo acima de `dangerPercent`; para acumulacao: progresso abaixo de `warningPercent` | Pode voltar para `WARNING` ou `ON_TRACK`, ou migrar para `EXCEEDED`/`ACHIEVED` |
-| `ACHIEVED` | Meta de acumulacao atingiu ou ultrapassou o alvo | `SAVING` ou `INCOME_TARGET` com percentual >= 100 | Pode sair desse estado em recalculos futuros do periodo corrente, se o resultado projetado cair abaixo do alvo |
-| `EXCEEDED` | Meta de limite foi ultrapassada | `EXPENSE_LIMIT` ou `ACCOUNT_LIMIT` com percentual >= 100 | Pode sair desse estado em recalculos futuros somente se o valor observado cair, como no caso de pagamento de fatura/cartao |
+| State      | Meaning                                                                         | Entry Condition                                                                                                     | Exit Condition                                                                                                             |
+| ---------- | ------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------- |
+| `ON_TRACK` | Meta esta em ritmo saudavel                                                     | Metricas de limite abaixo dos limiares; metas de acumulacao em ritmo suficiente                                     | Pode migrar para `WARNING`, `AT_RISK`, `ACHIEVED` ou `EXCEEDED` conforme calculo                                           |
+| `WARNING`  | Meta exige atencao, mas ainda nao esta no pior estado                           | Para limite: consumo acima de `warningPercent`; para acumulacao: progresso entre `warningPercent` e `dangerPercent` | Pode voltar para `ON_TRACK`, cair para `AT_RISK` ou subir para `ACHIEVED`                                                  |
+| `AT_RISK`  | Meta de acumulacao esta atrasada ou meta de limite esta muito proxima de romper | Para limite: consumo acima de `dangerPercent`; para acumulacao: progresso abaixo de `warningPercent`                | Pode voltar para `WARNING` ou `ON_TRACK`, ou migrar para `EXCEEDED`/`ACHIEVED`                                             |
+| `ACHIEVED` | Meta de acumulacao atingiu ou ultrapassou o alvo                                | `SAVING` ou `INCOME_TARGET` com percentual >= 100                                                                   | Pode sair desse estado em recalculos futuros do periodo corrente, se o resultado projetado cair abaixo do alvo             |
+| `EXCEEDED` | Meta de limite foi ultrapassada                                                 | `EXPENSE_LIMIT` ou `ACCOUNT_LIMIT` com percentual >= 100                                                            | Pode sair desse estado em recalculos futuros somente se o valor observado cair, como no caso de pagamento de fatura/cartao |
 
 ## Business Rules
 
@@ -99,17 +99,17 @@ O valor do modulo vem de combinar uma definicao persistida de meta com um result
 
 ## Formulas and Calculations
 
-| Name | Formula or Logic | Inputs | Output | Notes |
-| ---- | ---------------- | ------ | ------ | ----- |
-| Saving actual | `max(totalIncome - totalExpense, 0)` | Receitas e despesas do usuario no periodo | `actualAmount` | Ignora transferencias |
-| Expense limit actual | Soma de despesas do periodo dentro do escopo | Tipo `EXPENSE`, escopo global/categoria/conta | `actualAmount` | Categoria inclui descendentes |
-| Income target actual | Soma de receitas do periodo dentro do escopo | Tipo `INCOME`, escopo global/categoria/conta | `actualAmount` | Categoria inclui descendentes |
-| Account limit actual (credit card) | `max(statement.totalAmount - statement.paidAmount, 0)` | Fatura aberta do cartao | `actualAmount` | Usa a primeira fatura nao paga com `dueDate >= periodStart` |
-| Account limit actual (non credit card) | Soma das despesas da conta no periodo | Conta e transacoes `EXPENSE` | `actualAmount` | Nao usa saldo da conta, usa gasto associado a ela |
-| Projected amount | Projecao linear do valor atual no periodo | `actualAmount`, `periodStart`, `periodEnd`, `now` | `projectedAmount` | Serve para status no periodo corrente |
-| Progress percent | `round((actualAmount / targetAmount) * 100)` | Atual e alvo | `progressPercent` | Se alvo <= 0, retorna `0` |
-| Limit status | Compara percentual do valor observado/projetado com `warningPercent`, `dangerPercent` e `100%` | Meta de limite | `GoalStatus` | Menor consumo e melhor |
-| Achievement status | Compara percentual do valor observado/projetado com `warningPercent`, `dangerPercent` e `100%` | Meta de acumulacao | `GoalStatus` | Maior acumulado e melhor |
+| Name                                   | Formula or Logic                                                                               | Inputs                                            | Output            | Notes                                                       |
+| -------------------------------------- | ---------------------------------------------------------------------------------------------- | ------------------------------------------------- | ----------------- | ----------------------------------------------------------- |
+| Saving actual                          | `max(totalIncome - totalExpense, 0)`                                                           | Receitas e despesas do usuario no periodo         | `actualAmount`    | Ignora transferencias                                       |
+| Expense limit actual                   | Soma de despesas do periodo dentro do escopo                                                   | Tipo `EXPENSE`, escopo global/categoria/conta     | `actualAmount`    | Categoria inclui descendentes                               |
+| Income target actual                   | Soma de receitas do periodo dentro do escopo                                                   | Tipo `INCOME`, escopo global/categoria/conta      | `actualAmount`    | Categoria inclui descendentes                               |
+| Account limit actual (credit card)     | `max(statement.totalAmount - statement.paidAmount, 0)`                                         | Fatura aberta do cartao                           | `actualAmount`    | Usa a primeira fatura nao paga com `dueDate >= periodStart` |
+| Account limit actual (non credit card) | Soma das despesas da conta no periodo                                                          | Conta e transacoes `EXPENSE`                      | `actualAmount`    | Nao usa saldo da conta, usa gasto associado a ela           |
+| Projected amount                       | Projecao linear do valor atual no periodo                                                      | `actualAmount`, `periodStart`, `periodEnd`, `now` | `projectedAmount` | Serve para status no periodo corrente                       |
+| Progress percent                       | `round((actualAmount / targetAmount) * 100)`                                                   | Atual e alvo                                      | `progressPercent` | Se alvo <= 0, retorna `0`                                   |
+| Limit status                           | Compara percentual do valor observado/projetado com `warningPercent`, `dangerPercent` e `100%` | Meta de limite                                    | `GoalStatus`      | Menor consumo e melhor                                      |
+| Achievement status                     | Compara percentual do valor observado/projetado com `warningPercent`, `dangerPercent` e `100%` | Meta de acumulacao                                | `GoalStatus`      | Maior acumulado e melhor                                    |
 
 ## Invariants
 

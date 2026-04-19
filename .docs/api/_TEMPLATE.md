@@ -74,11 +74,11 @@
 
 #### Side Effects
 
-- 
+-
 
 #### Notes
 
-- 
+-
 
 ## Observability and Debugging
 
@@ -92,4 +92,4 @@
 
 ## Open Questions
 
-- 
+-

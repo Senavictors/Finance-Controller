@@ -50,9 +50,9 @@
 
 ## Business Rules
 
-1. 
-2. 
-3. 
+1.
+2.
+3.
 
 ## Formulas and Calculations
 
@@ -62,11 +62,11 @@
 
 ## Invariants
 
-- 
+-
 
 ## Edge Cases
 
-- 
+-
 
 ## Examples
 
@@ -88,4 +88,4 @@
 
 ## Open Questions
 
-- 
+-

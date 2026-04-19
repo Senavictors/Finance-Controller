@@ -31,13 +31,7 @@ const gaugeColors = {
   EXCELLENT: '#0d9488',
 } as const
 
-function ScoreGauge({
-  value,
-  color,
-}: {
-  value: number
-  color: string
-}) {
+function ScoreGauge({ value, color }: { value: number; color: string }) {
   const size = 180
   const stroke = 14
   const radius = (size - stroke) / 2
@@ -60,13 +54,7 @@ function ScoreGauge({
       viewBox={`0 0 ${size} ${size / 2 + stroke}`}
       className="overflow-visible"
     >
-      <path
-        d={arcPath}
-        fill="none"
-        stroke="#e5e7eb"
-        strokeWidth={stroke}
-        strokeLinecap="round"
-      />
+      <path d={arcPath} fill="none" stroke="#e5e7eb" strokeWidth={stroke} strokeLinecap="round" />
       <path
         d={arcPath}
         fill="none"
@@ -93,7 +81,9 @@ export function ScoreWidget({ data }: { data: DashboardData }) {
     <div className="flex h-full flex-col rounded-[2rem] border border-white/50 bg-[#F2F2F2] p-5 shadow-sm">
       <div className="mb-3 flex items-center justify-between">
         <h3 className="text-sm font-medium text-gray-500">Score financeiro</h3>
-        <span className={cn('rounded-full px-2 py-0.5 text-[10px] font-medium', statusClasses[status])}>
+        <span
+          className={cn('rounded-full px-2 py-0.5 text-[10px] font-medium', statusClasses[status])}
+        >
           {statusLabels[status]}
         </span>
       </div>
@@ -123,9 +113,7 @@ export function ScoreWidget({ data }: { data: DashboardData }) {
       {deltaText && <p className="mb-3 text-center text-[11px] text-gray-400">{deltaText}</p>}
 
       <div className="flex-1 space-y-2 overflow-y-auto">
-        <p className="text-[10px] font-medium tracking-wide text-gray-400 uppercase">
-          Fatores
-        </p>
+        <p className="text-[10px] font-medium tracking-wide text-gray-400 uppercase">Fatores</p>
         {activeFactors.map((factor) => {
           const pct = factor.weight > 0 ? Math.round((factor.points / factor.weight) * 100) : 0
           return (
@@ -140,11 +128,7 @@ export function ScoreWidget({ data }: { data: DashboardData }) {
                 <div
                   className={cn(
                     'h-full rounded-full',
-                    pct >= 80
-                      ? 'bg-emerald-500'
-                      : pct >= 50
-                        ? 'bg-amber-500'
-                        : 'bg-red-500',
+                    pct >= 80 ? 'bg-emerald-500' : pct >= 50 ? 'bg-amber-500' : 'bg-red-500',
                   )}
                   style={{ width: `${pct}%` }}
                 />

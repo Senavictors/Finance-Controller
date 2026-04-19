@@ -21,8 +21,22 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 
-type Category = { id: string; name: string; type: string }
-type Account = { id: string; name: string; type: string }
+import { BrandDot } from '@/lib/brands'
+
+type Category = {
+  id: string
+  name: string
+  type: string
+  color?: string | null
+  icon?: string | null
+}
+type Account = {
+  id: string
+  name: string
+  type: string
+  color?: string | null
+  icon?: string | null
+}
 
 type GoalFormProps = {
   categories: Category[]
@@ -216,7 +230,16 @@ export function GoalForm({ categories, accounts, open, onOpenChange }: GoalFormP
                 <SelectContent>
                   {relevantCategories.map((cat) => (
                     <SelectItem key={cat.id} value={cat.id}>
-                      {cat.name}
+                      <span className="flex items-center gap-2">
+                        <BrandDot
+                          brandKey={cat.icon}
+                          fallbackText={cat.name}
+                          fallbackColor={cat.color}
+                          fallbackLabel={cat.name}
+                          size={14}
+                        />
+                        {cat.name}
+                      </span>
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -234,7 +257,16 @@ export function GoalForm({ categories, accounts, open, onOpenChange }: GoalFormP
                 <SelectContent>
                   {accounts.map((acc) => (
                     <SelectItem key={acc.id} value={acc.id}>
-                      {acc.name}
+                      <span className="flex items-center gap-2">
+                        <BrandDot
+                          brandKey={acc.icon}
+                          fallbackText={acc.name}
+                          fallbackColor={acc.color}
+                          fallbackLabel={acc.name}
+                          size={14}
+                        />
+                        {acc.name}
+                      </span>
                     </SelectItem>
                   ))}
                 </SelectContent>

@@ -12,6 +12,7 @@ import {
 import { MoreVertical, Pencil, Trash2 } from 'lucide-react'
 import { useState } from 'react'
 import { CategoryForm } from './category-form'
+import { BrandDot } from '@/lib/brands'
 
 type Category = {
   id: string
@@ -80,9 +81,13 @@ function CategoryRow({
         className={`hover:bg-muted/50 flex items-center justify-between rounded-lg px-3 py-2 ${indent ? 'ml-6' : ''}`}
       >
         <div className="flex items-center gap-2">
-          {category.color && (
-            <span className="size-3 rounded-full" style={{ backgroundColor: category.color }} />
-          )}
+          <BrandDot
+            brandKey={category.icon}
+            fallbackText={category.name}
+            fallbackColor={category.color}
+            fallbackLabel={category.name}
+            size={16}
+          />
           <span className="text-sm font-medium">{category.name}</span>
           {category._count.transactions > 0 && (
             <Badge variant="secondary" className="text-xs">

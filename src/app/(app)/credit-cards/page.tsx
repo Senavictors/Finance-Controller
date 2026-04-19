@@ -8,6 +8,7 @@ import { formatCurrency, formatDate } from '@/lib/format'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { BrandIcon } from '@/lib/brands'
 import {
   Table,
   TableBody,
@@ -53,7 +54,7 @@ export default async function CreditCardsPage() {
       where: { userId: session.userId },
       include: {
         account: {
-          select: { name: true, color: true, creditLimit: true },
+          select: { name: true, color: true, icon: true, creditLimit: true },
         },
       },
       orderBy: [{ dueDate: 'asc' }, { createdAt: 'desc' }],
@@ -195,7 +196,17 @@ export default async function CreditCardsPage() {
               return (
                 <Card key={account.id} className="rounded-[1.5rem] border-white/50 shadow-sm">
                   <CardHeader>
-                    <CardTitle>{account.name}</CardTitle>
+                    <div className="flex items-center gap-3">
+                      <BrandIcon
+                        brandKey={account.icon}
+                        fallbackLabel={account.name}
+                        fallbackText={account.name}
+                        fallbackColor={account.color}
+                        size={40}
+                        radius="md"
+                      />
+                      <CardTitle>{account.name}</CardTitle>
+                    </div>
                   </CardHeader>
                   <CardContent className="space-y-3">
                     <div>
@@ -280,7 +291,19 @@ export default async function CreditCardsPage() {
 
                       return (
                         <TableRow key={statement.id}>
-                          <TableCell>{statement.account.name}</TableCell>
+                          <TableCell>
+                            <div className="flex items-center gap-2">
+                              <BrandIcon
+                                brandKey={statement.account.icon}
+                                fallbackLabel={statement.account.name}
+                                fallbackText={statement.account.name}
+                                fallbackColor={statement.account.color}
+                                size={24}
+                                radius="sm"
+                              />
+                              {statement.account.name}
+                            </div>
+                          </TableCell>
                           <TableCell>
                             {formatDate(statement.periodStart)} - {formatDate(statement.periodEnd)}
                           </TableCell>

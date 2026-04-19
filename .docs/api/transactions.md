@@ -43,13 +43,13 @@ Este documento nao cobre outros modulos HTTP nem props da UI cliente.
 
 ## Module Summary
 
-| Endpoint | Method | Purpose | Auth | Notes |
-| -------- | ------ | ------- | ---- | ----- |
-| `/api/transactions` | `GET` | Listar transacoes do usuario com filtros e paginacao | Required | Inclui transacoes `INCOME`, `EXPENSE` e `TRANSFER` |
-| `/api/transactions` | `POST` | Criar transacao simples (`INCOME` ou `EXPENSE`) | Required | Sincroniza billing de cartao quando aplicavel |
-| `/api/transactions/[id]` | `PATCH` | Atualizar transacao existente | Required | Nao permite editar transferencias diretamente |
-| `/api/transactions/[id]` | `DELETE` | Remover transacao ou o par inteiro de transferencia | Required | Deletar uma perna de transferencia remove as duas |
-| `/api/transactions/transfer` | `POST` | Criar transferencia atomica entre duas contas | Required | Cria duas linhas `TRANSFER` com o mesmo `transferId` |
+| Endpoint                     | Method   | Purpose                                              | Auth     | Notes                                                |
+| ---------------------------- | -------- | ---------------------------------------------------- | -------- | ---------------------------------------------------- |
+| `/api/transactions`          | `GET`    | Listar transacoes do usuario com filtros e paginacao | Required | Inclui transacoes `INCOME`, `EXPENSE` e `TRANSFER`   |
+| `/api/transactions`          | `POST`   | Criar transacao simples (`INCOME` ou `EXPENSE`)      | Required | Sincroniza billing de cartao quando aplicavel        |
+| `/api/transactions/[id]`     | `PATCH`  | Atualizar transacao existente                        | Required | Nao permite editar transferencias diretamente        |
+| `/api/transactions/[id]`     | `DELETE` | Remover transacao ou o par inteiro de transferencia  | Required | Deletar uma perna de transferencia remove as duas    |
+| `/api/transactions/transfer` | `POST`   | Criar transferencia atomica entre duas contas        | Required | Cria duas linhas `TRANSFER` com o mesmo `transferId` |
 
 ## Authentication and Authorization
 
@@ -129,15 +129,15 @@ Listar transacoes do usuario autenticado com filtros simples, busca textual por 
 
 #### Request
 
-| Field | Type | Required | Description | Validation |
-| ----- | ---- | -------- | ----------- | ---------- |
-| `from` | query `date` | No | Limite inferior da data | `z.coerce.date()` |
-| `to` | query `date` | No | Limite superior da data | `z.coerce.date()` |
-| `accountId` | query `string` | No | Filtra por conta exata | String simples |
-| `categoryId` | query `string` | No | Filtra por categoria exata | String simples |
-| `q` | query `string` | No | Busca por descricao | Match `contains` case-insensitive |
-| `page` | query `number` | No | Pagina atual | Int positivo, default `1` |
-| `limit` | query `number` | No | Tamanho da pagina | Int positivo, max `100`, default `20` |
+| Field        | Type           | Required | Description                | Validation                            |
+| ------------ | -------------- | -------- | -------------------------- | ------------------------------------- |
+| `from`       | query `date`   | No       | Limite inferior da data    | `z.coerce.date()`                     |
+| `to`         | query `date`   | No       | Limite superior da data    | `z.coerce.date()`                     |
+| `accountId`  | query `string` | No       | Filtra por conta exata     | String simples                        |
+| `categoryId` | query `string` | No       | Filtra por categoria exata | String simples                        |
+| `q`          | query `string` | No       | Busca por descricao        | Match `contains` case-insensitive     |
+| `page`       | query `number` | No       | Pagina atual               | Int positivo, default `1`             |
+| `limit`      | query `number` | No       | Tamanho da pagina          | Int positivo, max `100`, default `20` |
 
 #### Response
 
@@ -180,11 +180,11 @@ Listar transacoes do usuario autenticado com filtros simples, busca textual por 
 
 #### Errors
 
-| Status | Condition | Body Shape |
-| ------ | --------- | ---------- |
-| `400` | Query string invalida | `{ "error": "Validation failed", "details": { ... } }` |
-| `401` | Sessao ausente/invalida | `{ "error": "Unauthorized" }` |
-| `500` | Falha inesperada | `{ "error": "Internal server error" }` |
+| Status | Condition               | Body Shape                                             |
+| ------ | ----------------------- | ------------------------------------------------------ |
+| `400`  | Query string invalida   | `{ "error": "Validation failed", "details": { ... } }` |
+| `401`  | Sessao ausente/invalida | `{ "error": "Unauthorized" }`                          |
+| `500`  | Falha inesperada        | `{ "error": "Internal server error" }`                 |
 
 #### Side Effects
 
@@ -205,15 +205,15 @@ Criar uma transacao simples do tipo `INCOME` ou `EXPENSE`.
 
 #### Request
 
-| Field | Type | Required | Description | Validation |
-| ----- | ---- | -------- | ----------- | ---------- |
-| `amount` | body `number` | Yes | Valor em centavos | Int positivo |
-| `date` | body `date` | Yes | Data da transacao | `z.coerce.date()` |
-| `description` | body `string` | Yes | Descricao da transacao | `1..255` chars |
-| `categoryId` | body `string` | No | Categoria da transacao | Deve existir e pertencer ao usuario se enviada |
-| `accountId` | body `string` | Yes | Conta da transacao | Obrigatoria e precisa pertencer ao usuario |
-| `type` | body enum | Yes | Tipo da transacao | Apenas `INCOME` ou `EXPENSE` |
-| `notes` | body `string` | No | Observacoes livres | Max `1000` chars |
+| Field         | Type          | Required | Description            | Validation                                     |
+| ------------- | ------------- | -------- | ---------------------- | ---------------------------------------------- |
+| `amount`      | body `number` | Yes      | Valor em centavos      | Int positivo                                   |
+| `date`        | body `date`   | Yes      | Data da transacao      | `z.coerce.date()`                              |
+| `description` | body `string` | Yes      | Descricao da transacao | `1..255` chars                                 |
+| `categoryId`  | body `string` | No       | Categoria da transacao | Deve existir e pertencer ao usuario se enviada |
+| `accountId`   | body `string` | Yes      | Conta da transacao     | Obrigatoria e precisa pertencer ao usuario     |
+| `type`        | body enum     | Yes      | Tipo da transacao      | Apenas `INCOME` ou `EXPENSE`                   |
+| `notes`       | body `string` | No       | Observacoes livres     | Max `1000` chars                               |
 
 #### Response
 
@@ -239,13 +239,13 @@ Criar uma transacao simples do tipo `INCOME` ou `EXPENSE`.
 
 #### Errors
 
-| Status | Condition | Body Shape |
-| ------ | --------- | ---------- |
-| `400` | Body invalido | `{ "error": "Validation failed", "details": { ... } }` |
-| `400` | Conta inexistente ou de outro usuario | `{ "error": "Conta nao encontrada" }` |
-| `400` | Categoria inexistente ou de outro usuario | `{ "error": "Categoria nao encontrada" }` |
-| `401` | Sessao ausente/invalida | `{ "error": "Unauthorized" }` |
-| `500` | JSON malformado ou falha inesperada | `{ "error": "Internal server error" }` |
+| Status | Condition                                 | Body Shape                                             |
+| ------ | ----------------------------------------- | ------------------------------------------------------ |
+| `400`  | Body invalido                             | `{ "error": "Validation failed", "details": { ... } }` |
+| `400`  | Conta inexistente ou de outro usuario     | `{ "error": "Conta nao encontrada" }`                  |
+| `400`  | Categoria inexistente ou de outro usuario | `{ "error": "Categoria nao encontrada" }`              |
+| `401`  | Sessao ausente/invalida                   | `{ "error": "Unauthorized" }`                          |
+| `500`  | JSON malformado ou falha inesperada       | `{ "error": "Internal server error" }`                 |
 
 #### Side Effects
 
@@ -269,16 +269,16 @@ Atualizar parcialmente uma transacao existente do usuario.
 
 #### Request
 
-| Field | Type | Required | Description | Validation |
-| ----- | ---- | -------- | ----------- | ---------- |
-| `id` | path `string` | Yes | ID da transacao | Deve existir e pertencer ao usuario |
-| `amount` | body `number` | No | Novo valor em centavos | Int positivo |
-| `date` | body `date` | No | Nova data | `z.coerce.date()` |
-| `description` | body `string` | No | Nova descricao | `1..255` chars |
-| `categoryId` | body `string` | No | Nova categoria | Deve existir e pertencer ao usuario se enviada |
-| `accountId` | body `string` | No | Nova conta | Deve existir e pertencer ao usuario se enviada |
-| `type` | body enum | No | Novo tipo | Apenas `INCOME` ou `EXPENSE` |
-| `notes` | body `string` | No | Novas observacoes | Max `1000` chars |
+| Field         | Type          | Required | Description            | Validation                                     |
+| ------------- | ------------- | -------- | ---------------------- | ---------------------------------------------- |
+| `id`          | path `string` | Yes      | ID da transacao        | Deve existir e pertencer ao usuario            |
+| `amount`      | body `number` | No       | Novo valor em centavos | Int positivo                                   |
+| `date`        | body `date`   | No       | Nova data              | `z.coerce.date()`                              |
+| `description` | body `string` | No       | Nova descricao         | `1..255` chars                                 |
+| `categoryId`  | body `string` | No       | Nova categoria         | Deve existir e pertencer ao usuario se enviada |
+| `accountId`   | body `string` | No       | Nova conta             | Deve existir e pertencer ao usuario se enviada |
+| `type`        | body enum     | No       | Novo tipo              | Apenas `INCOME` ou `EXPENSE`                   |
+| `notes`       | body `string` | No       | Novas observacoes      | Max `1000` chars                               |
 
 #### Response
 
@@ -304,15 +304,15 @@ Atualizar parcialmente uma transacao existente do usuario.
 
 #### Errors
 
-| Status | Condition | Body Shape |
-| ------ | --------- | ---------- |
-| `400` | Body invalido | `{ "error": "Validation failed", "details": { ... } }` |
-| `400` | Conta inexistente ou de outro usuario | `{ "error": "Conta nao encontrada" }` |
-| `400` | Categoria inexistente ou de outro usuario | `{ "error": "Categoria nao encontrada" }` |
-| `400` | Tentativa de editar transferencia diretamente | `{ "error": "Transferencias nao podem ser editadas diretamente" }` |
-| `404` | Transacao nao encontrada | `{ "error": "Transacao nao encontrada" }` |
-| `401` | Sessao ausente/invalida | `{ "error": "Unauthorized" }` |
-| `500` | JSON malformado ou falha inesperada | `{ "error": "Internal server error" }` |
+| Status | Condition                                     | Body Shape                                                         |
+| ------ | --------------------------------------------- | ------------------------------------------------------------------ |
+| `400`  | Body invalido                                 | `{ "error": "Validation failed", "details": { ... } }`             |
+| `400`  | Conta inexistente ou de outro usuario         | `{ "error": "Conta nao encontrada" }`                              |
+| `400`  | Categoria inexistente ou de outro usuario     | `{ "error": "Categoria nao encontrada" }`                          |
+| `400`  | Tentativa de editar transferencia diretamente | `{ "error": "Transferencias nao podem ser editadas diretamente" }` |
+| `404`  | Transacao nao encontrada                      | `{ "error": "Transacao nao encontrada" }`                          |
+| `401`  | Sessao ausente/invalida                       | `{ "error": "Unauthorized" }`                                      |
+| `500`  | JSON malformado ou falha inesperada           | `{ "error": "Internal server error" }`                             |
 
 #### Side Effects
 
@@ -335,9 +335,9 @@ Remover uma transacao do usuario. Se a transacao fizer parte de uma transferenci
 
 #### Request
 
-| Field | Type | Required | Description | Validation |
-| ----- | ---- | -------- | ----------- | ---------- |
-| `id` | path `string` | Yes | ID da transacao | Deve existir e pertencer ao usuario |
+| Field | Type          | Required | Description     | Validation                          |
+| ----- | ------------- | -------- | --------------- | ----------------------------------- |
+| `id`  | path `string` | Yes      | ID da transacao | Deve existir e pertencer ao usuario |
 
 #### Response
 
@@ -349,11 +349,11 @@ Remover uma transacao do usuario. Se a transacao fizer parte de uma transferenci
 
 #### Errors
 
-| Status | Condition | Body Shape |
-| ------ | --------- | ---------- |
-| `404` | Transacao nao encontrada | `{ "error": "Transacao nao encontrada" }` |
-| `401` | Sessao ausente/invalida | `{ "error": "Unauthorized" }` |
-| `500` | Falha inesperada | `{ "error": "Internal server error" }` |
+| Status | Condition                | Body Shape                                |
+| ------ | ------------------------ | ----------------------------------------- |
+| `404`  | Transacao nao encontrada | `{ "error": "Transacao nao encontrada" }` |
+| `401`  | Sessao ausente/invalida  | `{ "error": "Unauthorized" }`             |
+| `500`  | Falha inesperada         | `{ "error": "Internal server error" }`    |
 
 #### Side Effects
 
@@ -380,14 +380,14 @@ Criar uma transferencia atomica entre duas contas do mesmo usuario.
 
 #### Request
 
-| Field | Type | Required | Description | Validation |
-| ----- | ---- | -------- | ----------- | ---------- |
-| `amount` | body `number` | Yes | Valor em centavos | Int positivo |
-| `date` | body `date` | Yes | Data da transferencia | `z.coerce.date()` |
-| `description` | body `string` | Yes | Descricao comum do par | `1..255` chars |
-| `sourceAccountId` | body `string` | Yes | Conta de origem | Obrigatoria, deve pertencer ao usuario |
-| `destinationAccountId` | body `string` | Yes | Conta de destino | Obrigatoria, deve pertencer ao usuario e ser diferente da origem |
-| `notes` | body `string` | No | Observacoes comuns do par | Max `1000` chars |
+| Field                  | Type          | Required | Description               | Validation                                                       |
+| ---------------------- | ------------- | -------- | ------------------------- | ---------------------------------------------------------------- |
+| `amount`               | body `number` | Yes      | Valor em centavos         | Int positivo                                                     |
+| `date`                 | body `date`   | Yes      | Data da transferencia     | `z.coerce.date()`                                                |
+| `description`          | body `string` | Yes      | Descricao comum do par    | `1..255` chars                                                   |
+| `sourceAccountId`      | body `string` | Yes      | Conta de origem           | Obrigatoria, deve pertencer ao usuario                           |
+| `destinationAccountId` | body `string` | Yes      | Conta de destino          | Obrigatoria, deve pertencer ao usuario e ser diferente da origem |
+| `notes`                | body `string` | No       | Observacoes comuns do par | Max `1000` chars                                                 |
 
 #### Response
 
@@ -431,13 +431,13 @@ Criar uma transferencia atomica entre duas contas do mesmo usuario.
 
 #### Errors
 
-| Status | Condition | Body Shape |
-| ------ | --------- | ---------- |
-| `400` | Body invalido | `{ "error": "Validation failed", "details": { ... } }` |
-| `400` | Conta de origem inexistente ou de outro usuario | `{ "error": "Conta de origem nao encontrada" }` |
-| `400` | Conta de destino inexistente ou de outro usuario | `{ "error": "Conta de destino nao encontrada" }` |
-| `401` | Sessao ausente/invalida | `{ "error": "Unauthorized" }` |
-| `500` | JSON malformado ou falha inesperada | `{ "error": "Internal server error" }` |
+| Status | Condition                                        | Body Shape                                             |
+| ------ | ------------------------------------------------ | ------------------------------------------------------ |
+| `400`  | Body invalido                                    | `{ "error": "Validation failed", "details": { ... } }` |
+| `400`  | Conta de origem inexistente ou de outro usuario  | `{ "error": "Conta de origem nao encontrada" }`        |
+| `400`  | Conta de destino inexistente ou de outro usuario | `{ "error": "Conta de destino nao encontrada" }`       |
+| `401`  | Sessao ausente/invalida                          | `{ "error": "Unauthorized" }`                          |
+| `500`  | JSON malformado ou falha inesperada              | `{ "error": "Internal server error" }`                 |
 
 #### Side Effects
 

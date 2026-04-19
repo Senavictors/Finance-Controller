@@ -60,21 +60,21 @@ Os diagramas abaixo nao tentam cobrir todos os endpoints. Eles focam nos pontos 
 
 ## Actors and Components
 
-| Component | Responsibility | Layer | Notes |
-| --------- | -------------- | ----- | ----- |
-| `TransactionForm` | Dispara criacao de receita/despesa | UI client | Converte valor para centavos |
-| `ApplyButton` | Dispara apply manual de recorrencias | UI client | Aciona processamento em lote |
-| `StatementPaymentForm` | Dispara pagamento de fatura | UI client | Usa rota dedicada de billing |
-| `POST /api/transactions` | Cria transacao e invalida analytics | API | Chama sync de cartao |
-| `POST /api/recurring-rules/apply` | Processa regras ativas | API | Ainda concentra loop e regras operacionais |
-| `POST /api/analytics/forecast/recalculate` | Persiste snapshot de forecast | API | Reusa use case |
-| `POST /api/analytics/insights/recalculate` | Persiste feed do periodo | API | Reusa pipeline completo |
-| `POST /api/credit-cards/statements/[id]/payments` | Registra pagamento de fatura | API | Modela pagamento como transferencia |
-| `billing.ts` | Upsert/refresh de fatura e vinculo transacao-fatura | Application | Reutilizado por varias mutacoes |
-| `calculate-forecast.ts` | Calcula e persiste forecast | Application | Snapshot por `userId + periodStart` |
-| `insights/use-cases.ts` | Executa regras, dedupe e upsert/delete de snapshots | Application | Preserva dismiss |
-| `invalidation.ts` | Gera tags e chama `revalidateTag` | Application | Centro de consistencia eventual |
-| `Prisma` | Leitura/escrita no banco | Infra | Ainda acessado direto por handlers |
+| Component                                         | Responsibility                                      | Layer       | Notes                                      |
+| ------------------------------------------------- | --------------------------------------------------- | ----------- | ------------------------------------------ |
+| `TransactionForm`                                 | Dispara criacao de receita/despesa                  | UI client   | Converte valor para centavos               |
+| `ApplyButton`                                     | Dispara apply manual de recorrencias                | UI client   | Aciona processamento em lote               |
+| `StatementPaymentForm`                            | Dispara pagamento de fatura                         | UI client   | Usa rota dedicada de billing               |
+| `POST /api/transactions`                          | Cria transacao e invalida analytics                 | API         | Chama sync de cartao                       |
+| `POST /api/recurring-rules/apply`                 | Processa regras ativas                              | API         | Ainda concentra loop e regras operacionais |
+| `POST /api/analytics/forecast/recalculate`        | Persiste snapshot de forecast                       | API         | Reusa use case                             |
+| `POST /api/analytics/insights/recalculate`        | Persiste feed do periodo                            | API         | Reusa pipeline completo                    |
+| `POST /api/credit-cards/statements/[id]/payments` | Registra pagamento de fatura                        | API         | Modela pagamento como transferencia        |
+| `billing.ts`                                      | Upsert/refresh de fatura e vinculo transacao-fatura | Application | Reutilizado por varias mutacoes            |
+| `calculate-forecast.ts`                           | Calcula e persiste forecast                         | Application | Snapshot por `userId + periodStart`        |
+| `insights/use-cases.ts`                           | Executa regras, dedupe e upsert/delete de snapshots | Application | Preserva dismiss                           |
+| `invalidation.ts`                                 | Gera tags e chama `revalidateTag`                   | Application | Centro de consistencia eventual            |
+| `Prisma`                                          | Leitura/escrita no banco                            | Infra       | Ainda acessado direto por handlers         |
 
 ## Entry Points
 
@@ -142,11 +142,11 @@ sequenceDiagram
 
 ### Failure Modes and Recovery
 
-| Failure | Detection | Recovery |
-| ------- | --------- | -------- |
-| Conta ou categoria nao pertencem ao usuario | `400` no handler | Corrigir selecao |
-| JSON invalido ou excecao inesperada | `500` | Retry manual |
-| Sync de cartao nao se aplica | `statement = null` | Fluxo segue sem billing |
+| Failure                                     | Detection          | Recovery                |
+| ------------------------------------------- | ------------------ | ----------------------- |
+| Conta ou categoria nao pertencem ao usuario | `400` no handler   | Corrigir selecao        |
+| JSON invalido ou excecao inesperada         | `500`              | Retry manual            |
+| Sync de cartao nao se aplica                | `statement = null` | Fluxo segue sem billing |
 
 ### Caching and Consistency
 
@@ -217,11 +217,11 @@ sequenceDiagram
 
 ### Failure Modes and Recovery
 
-| Failure | Detection | Recovery |
-| ------- | --------- | -------- |
-| Data ja aplicada | `RecurringLog` `success` encontrado | Dia e pulado |
-| Erro criando transacao | Catch local | Log `error` e continua processamento |
-| Backlog excessivo | Hard cap 365 datas por regra | Evita loop longo/infinito |
+| Failure                | Detection                           | Recovery                             |
+| ---------------------- | ----------------------------------- | ------------------------------------ |
+| Data ja aplicada       | `RecurringLog` `success` encontrado | Dia e pulado                         |
+| Erro criando transacao | Catch local                         | Log `error` e continua processamento |
+| Backlog excessivo      | Hard cap 365 datas por regra        | Evita loop longo/infinito            |
 
 ### Caching and Consistency
 
@@ -281,11 +281,11 @@ sequenceDiagram
 
 ### Failure Modes and Recovery
 
-| Failure | Detection | Recovery |
-| ------- | --------- | -------- |
-| Erro ao ler insumos analíticos | Excecao no use case | `500` |
-| Conjunto persistido diverge do feed em memoria | Dedupe/delete/upsert em insights | Novo recalculate reconcilia |
-| Snapshot antigo | `staleAt` ou ausência de refresh | Executar recalculate novamente |
+| Failure                                        | Detection                        | Recovery                       |
+| ---------------------------------------------- | -------------------------------- | ------------------------------ |
+| Erro ao ler insumos analíticos                 | Excecao no use case              | `500`                          |
+| Conjunto persistido diverge do feed em memoria | Dedupe/delete/upsert em insights | Novo recalculate reconcilia    |
+| Snapshot antigo                                | `staleAt` ou ausência de refresh | Executar recalculate novamente |
 
 ### Caching and Consistency
 
@@ -344,11 +344,11 @@ sequenceDiagram
 
 ### Failure Modes and Recovery
 
-| Failure | Detection | Recovery |
-| ------- | --------- | -------- |
-| Fatura nao pertence ao usuario | `404` | Recarregar contexto |
-| Conta de origem invalida | `400` | Corrigir formulario |
-| Pagamento acima do aberto ou fatura quitada | `400` | Ajustar valor / abortar |
+| Failure                                     | Detection | Recovery                |
+| ------------------------------------------- | --------- | ----------------------- |
+| Fatura nao pertence ao usuario              | `404`     | Recarregar contexto     |
+| Conta de origem invalida                    | `400`     | Corrigir formulario     |
+| Pagamento acima do aberto ou fatura quitada | `400`     | Ajustar valor / abortar |
 
 ### Caching and Consistency
 
@@ -363,11 +363,11 @@ sequenceDiagram
 
 ## Failure Modes and Recovery
 
-| Failure | Detection | Recovery |
-| ------- | --------- | -------- |
-| Rota com regra demais | `route.ts` extensa e com varios side effects | Extrair use case dedicado |
-| Resultado derivado desatualizado | Snapshot/cache sem refresh recente | Recalculate ou proxima leitura apos invalidacao |
-| Divergencia UI server vs API | Mesma informacao lida por caminhos diferentes | Reforcar modulos compartilhados e DTOs comuns |
+| Failure                          | Detection                                     | Recovery                                        |
+| -------------------------------- | --------------------------------------------- | ----------------------------------------------- |
+| Rota com regra demais            | `route.ts` extensa e com varios side effects  | Extrair use case dedicado                       |
+| Resultado derivado desatualizado | Snapshot/cache sem refresh recente            | Recalculate ou proxima leitura apos invalidacao |
+| Divergencia UI server vs API     | Mesma informacao lida por caminhos diferentes | Reforcar modulos compartilhados e DTOs comuns   |
 
 ## Caching and Consistency
 

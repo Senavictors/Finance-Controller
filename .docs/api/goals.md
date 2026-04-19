@@ -29,13 +29,13 @@ Cobrir `GET/POST /api/goals`, `GET/PATCH/DELETE /api/goals/[id]`, validacoes Zod
 
 ## Module Summary
 
-| Endpoint | Method | Purpose | Auth | Notes |
-| -------- | ------ | ------- | ---- | ----- |
-| `/api/goals` | `GET` | Lista metas ativas do usuario com progresso calculado on-demand | Session required | Aceita `month=YYYY-MM` opcional |
-| `/api/goals` | `POST` | Cria uma nova meta | Session required | Valida escopo, limites e metrica |
-| `/api/goals/[id]` | `GET` | Retorna o progresso calculado de uma meta especifica | Session required | Existe hoje mesmo sem destaque na spec da phase |
-| `/api/goals/[id]` | `PATCH` | Atualiza campos editaveis da meta | Session required | `metric` nao pode ser alterada |
-| `/api/goals/[id]` | `DELETE` | Arquiva a meta | Session required | Soft delete via `isActive: false` |
+| Endpoint          | Method   | Purpose                                                         | Auth             | Notes                                           |
+| ----------------- | -------- | --------------------------------------------------------------- | ---------------- | ----------------------------------------------- |
+| `/api/goals`      | `GET`    | Lista metas ativas do usuario com progresso calculado on-demand | Session required | Aceita `month=YYYY-MM` opcional                 |
+| `/api/goals`      | `POST`   | Cria uma nova meta                                              | Session required | Valida escopo, limites e metrica                |
+| `/api/goals/[id]` | `GET`    | Retorna o progresso calculado de uma meta especifica            | Session required | Existe hoje mesmo sem destaque na spec da phase |
+| `/api/goals/[id]` | `PATCH`  | Atualiza campos editaveis da meta                               | Session required | `metric` nao pode ser alterada                  |
+| `/api/goals/[id]` | `DELETE` | Arquiva a meta                                                  | Session required | Soft delete via `isActive: false`               |
 
 ## Authentication and Authorization
 
@@ -64,9 +64,9 @@ Lista as metas ativas do usuario autenticado e anexa o progresso calculado para 
 
 #### Request
 
-| Field | Type | Required | Description | Validation |
-| ----- | ---- | -------- | ----------- | ---------- |
-| `month` | `string` | No | Mes de referencia do calculo | Regex `^\d{4}-\d{2}$` |
+| Field   | Type     | Required | Description                  | Validation            |
+| ------- | -------- | -------- | ---------------------------- | --------------------- |
+| `month` | `string` | No       | Mes de referencia do calculo | Regex `^\d{4}-\d{2}$` |
 
 #### Response
 
@@ -95,11 +95,11 @@ Lista as metas ativas do usuario autenticado e anexa o progresso calculado para 
 
 #### Errors
 
-| Status | Condition | Body Shape |
-| ------ | --------- | ---------- |
-| `400` | Query string invalida | `{ "error": "Parametros invalidos" }` |
-| `401` | Sessao ausente/invalida | `{ "error": "Nao autorizado" }` |
-| `500` | Falha inesperada no handler ou no calculo | `{ "error": "Erro interno" }` |
+| Status | Condition                                 | Body Shape                            |
+| ------ | ----------------------------------------- | ------------------------------------- |
+| `400`  | Query string invalida                     | `{ "error": "Parametros invalidos" }` |
+| `401`  | Sessao ausente/invalida                   | `{ "error": "Nao autorizado" }`       |
+| `500`  | Falha inesperada no handler ou no calculo | `{ "error": "Erro interno" }`         |
 
 #### Side Effects
 
@@ -119,18 +119,18 @@ Cria uma meta nova para o usuario autenticado.
 
 #### Request
 
-| Field | Type | Required | Description | Validation |
-| ----- | ---- | -------- | ----------- | ---------- |
-| `name` | `string` | Yes | Nome da meta | Min 2, max 100 |
-| `description` | `string` | No | Texto auxiliar da meta | Max 500 |
-| `metric` | `"SAVING" \| "EXPENSE_LIMIT" \| "INCOME_TARGET" \| "ACCOUNT_LIMIT"` | Yes | Tipo da metrica de negocio | Enum Zod |
-| `scopeType` | `"GLOBAL" \| "CATEGORY" \| "ACCOUNT"` | No | Escopo filtrado da meta | Default `GLOBAL` |
-| `categoryId` | `string` | No | Categoria alvo | Obrigatorio se `scopeType="CATEGORY"` |
-| `accountId` | `string` | No | Conta alvo | Obrigatorio se `scopeType="ACCOUNT"` ou `metric="ACCOUNT_LIMIT"` |
-| `targetAmount` | `number` | Yes | Valor alvo em centavos | Inteiro positivo |
-| `period` | `"MONTHLY" \| "YEARLY"` | No | Periodicidade declarada da meta | Default `MONTHLY` |
-| `warningPercent` | `number` | No | Threshold intermediario | Inteiro entre 1 e 99; default `80` |
-| `dangerPercent` | `number` | No | Threshold critico | Inteiro entre 1 e 99; default `95`; deve ser maior que `warningPercent` |
+| Field            | Type                                                                | Required | Description                     | Validation                                                              |
+| ---------------- | ------------------------------------------------------------------- | -------- | ------------------------------- | ----------------------------------------------------------------------- |
+| `name`           | `string`                                                            | Yes      | Nome da meta                    | Min 2, max 100                                                          |
+| `description`    | `string`                                                            | No       | Texto auxiliar da meta          | Max 500                                                                 |
+| `metric`         | `"SAVING" \| "EXPENSE_LIMIT" \| "INCOME_TARGET" \| "ACCOUNT_LIMIT"` | Yes      | Tipo da metrica de negocio      | Enum Zod                                                                |
+| `scopeType`      | `"GLOBAL" \| "CATEGORY" \| "ACCOUNT"`                               | No       | Escopo filtrado da meta         | Default `GLOBAL`                                                        |
+| `categoryId`     | `string`                                                            | No       | Categoria alvo                  | Obrigatorio se `scopeType="CATEGORY"`                                   |
+| `accountId`      | `string`                                                            | No       | Conta alvo                      | Obrigatorio se `scopeType="ACCOUNT"` ou `metric="ACCOUNT_LIMIT"`        |
+| `targetAmount`   | `number`                                                            | Yes      | Valor alvo em centavos          | Inteiro positivo                                                        |
+| `period`         | `"MONTHLY" \| "YEARLY"`                                             | No       | Periodicidade declarada da meta | Default `MONTHLY`                                                       |
+| `warningPercent` | `number`                                                            | No       | Threshold intermediario         | Inteiro entre 1 e 99; default `80`                                      |
+| `dangerPercent`  | `number`                                                            | No       | Threshold critico               | Inteiro entre 1 e 99; default `95`; deve ser maior que `warningPercent` |
 
 #### Response
 
@@ -158,11 +158,11 @@ Cria uma meta nova para o usuario autenticado.
 
 #### Errors
 
-| Status | Condition | Body Shape |
-| ------ | --------- | ---------- |
-| `400` | Payload invalido pelo Zod | `{ "error": "Dados invalidos", "details": { ... } }` |
-| `401` | Sessao ausente/invalida | `{ "error": "Nao autorizado" }` |
-| `500` | JSON invalido, FK invalida ou falha inesperada | `{ "error": "Erro interno" }` |
+| Status | Condition                                      | Body Shape                                           |
+| ------ | ---------------------------------------------- | ---------------------------------------------------- |
+| `400`  | Payload invalido pelo Zod                      | `{ "error": "Dados invalidos", "details": { ... } }` |
+| `401`  | Sessao ausente/invalida                        | `{ "error": "Nao autorizado" }`                      |
+| `500`  | JSON invalido, FK invalida ou falha inesperada | `{ "error": "Erro interno" }`                        |
 
 #### Side Effects
 
@@ -182,10 +182,10 @@ Retorna o progresso calculado de uma meta especifica do usuario autenticado.
 
 #### Request
 
-| Field | Type | Required | Description | Validation |
-| ----- | ---- | -------- | ----------- | ---------- |
-| `id` | `string` | Yes | Identificador da meta | Sem validacao de formato na rota |
-| `month` | `string` | No | Mes de referencia do calculo | Regex `^\d{4}-\d{2}$` |
+| Field   | Type     | Required | Description                  | Validation                       |
+| ------- | -------- | -------- | ---------------------------- | -------------------------------- |
+| `id`    | `string` | Yes      | Identificador da meta        | Sem validacao de formato na rota |
+| `month` | `string` | No       | Mes de referencia do calculo | Regex `^\d{4}-\d{2}$`            |
 
 #### Response
 
@@ -212,12 +212,12 @@ Retorna o progresso calculado de uma meta especifica do usuario autenticado.
 
 #### Errors
 
-| Status | Condition | Body Shape |
-| ------ | --------- | ---------- |
-| `400` | Query string invalida | `{ "error": "Parametros invalidos" }` |
-| `401` | Sessao ausente/invalida | `{ "error": "Nao autorizado" }` |
-| `404` | Meta nao encontrada ou nao pertence ao usuario | `{ "error": "Meta nao encontrada" }` |
-| `500` | Falha inesperada no handler ou no calculo | `{ "error": "Erro interno" }` |
+| Status | Condition                                      | Body Shape                            |
+| ------ | ---------------------------------------------- | ------------------------------------- |
+| `400`  | Query string invalida                          | `{ "error": "Parametros invalidos" }` |
+| `401`  | Sessao ausente/invalida                        | `{ "error": "Nao autorizado" }`       |
+| `404`  | Meta nao encontrada ou nao pertence ao usuario | `{ "error": "Meta nao encontrada" }`  |
+| `500`  | Falha inesperada no handler ou no calculo      | `{ "error": "Erro interno" }`         |
 
 #### Side Effects
 
@@ -236,18 +236,18 @@ Atualiza campos editaveis de uma meta existente do usuario autenticado.
 
 #### Request
 
-| Field | Type | Required | Description | Validation |
-| ----- | ---- | -------- | ----------- | ---------- |
-| `name` | `string` | No | Nome da meta | Min 2, max 100 |
-| `description` | `string` | No | Texto auxiliar da meta | Max 500 |
-| `scopeType` | `"GLOBAL" \| "CATEGORY" \| "ACCOUNT"` | No | Escopo da meta | Enum Zod |
-| `categoryId` | `string` | No | Categoria alvo | Opcional; sem `superRefine` adicional no update |
-| `accountId` | `string` | No | Conta alvo | Opcional; sem `superRefine` adicional no update |
-| `targetAmount` | `number` | No | Valor alvo em centavos | Inteiro positivo |
-| `period` | `"MONTHLY" \| "YEARLY"` | No | Periodicidade | Enum Zod |
-| `warningPercent` | `number` | No | Threshold intermediario | Inteiro entre 1 e 99 |
-| `dangerPercent` | `number` | No | Threshold critico | Inteiro entre 1 e 99 |
-| `isActive` | `boolean` | No | Estado ativo da meta | Boolean |
+| Field            | Type                                  | Required | Description             | Validation                                      |
+| ---------------- | ------------------------------------- | -------- | ----------------------- | ----------------------------------------------- |
+| `name`           | `string`                              | No       | Nome da meta            | Min 2, max 100                                  |
+| `description`    | `string`                              | No       | Texto auxiliar da meta  | Max 500                                         |
+| `scopeType`      | `"GLOBAL" \| "CATEGORY" \| "ACCOUNT"` | No       | Escopo da meta          | Enum Zod                                        |
+| `categoryId`     | `string`                              | No       | Categoria alvo          | Opcional; sem `superRefine` adicional no update |
+| `accountId`      | `string`                              | No       | Conta alvo              | Opcional; sem `superRefine` adicional no update |
+| `targetAmount`   | `number`                              | No       | Valor alvo em centavos  | Inteiro positivo                                |
+| `period`         | `"MONTHLY" \| "YEARLY"`               | No       | Periodicidade           | Enum Zod                                        |
+| `warningPercent` | `number`                              | No       | Threshold intermediario | Inteiro entre 1 e 99                            |
+| `dangerPercent`  | `number`                              | No       | Threshold critico       | Inteiro entre 1 e 99                            |
+| `isActive`       | `boolean`                             | No       | Estado ativo da meta    | Boolean                                         |
 
 #### Response
 
@@ -275,12 +275,12 @@ Atualiza campos editaveis de uma meta existente do usuario autenticado.
 
 #### Errors
 
-| Status | Condition | Body Shape |
-| ------ | --------- | ---------- |
-| `400` | Payload invalido pelo Zod | `{ "error": "Dados invalidos", "details": { ... } }` |
-| `401` | Sessao ausente/invalida | `{ "error": "Nao autorizado" }` |
-| `404` | Meta nao encontrada ou nao pertence ao usuario | `{ "error": "Meta nao encontrada" }` |
-| `500` | JSON invalido, FK invalida ou falha inesperada | `{ "error": "Erro interno" }` |
+| Status | Condition                                      | Body Shape                                           |
+| ------ | ---------------------------------------------- | ---------------------------------------------------- |
+| `400`  | Payload invalido pelo Zod                      | `{ "error": "Dados invalidos", "details": { ... } }` |
+| `401`  | Sessao ausente/invalida                        | `{ "error": "Nao autorizado" }`                      |
+| `404`  | Meta nao encontrada ou nao pertence ao usuario | `{ "error": "Meta nao encontrada" }`                 |
+| `500`  | JSON invalido, FK invalida ou falha inesperada | `{ "error": "Erro interno" }`                        |
 
 #### Side Effects
 
@@ -300,9 +300,9 @@ Arquiva uma meta do usuario autenticado.
 
 #### Request
 
-| Field | Type | Required | Description | Validation |
-| ----- | ---- | -------- | ----------- | ---------- |
-| `id` | `string` | Yes | Identificador da meta | Sem validacao de formato na rota |
+| Field | Type     | Required | Description           | Validation                       |
+| ----- | -------- | -------- | --------------------- | -------------------------------- |
+| `id`  | `string` | Yes      | Identificador da meta | Sem validacao de formato na rota |
 
 #### Response
 
@@ -316,11 +316,11 @@ Arquiva uma meta do usuario autenticado.
 
 #### Errors
 
-| Status | Condition | Body Shape |
-| ------ | --------- | ---------- |
-| `401` | Sessao ausente/invalida | `{ "error": "Nao autorizado" }` |
-| `404` | Meta nao encontrada ou nao pertence ao usuario | `{ "error": "Meta nao encontrada" }` |
-| `500` | Falha inesperada | `{ "error": "Erro interno" }` |
+| Status | Condition                                      | Body Shape                           |
+| ------ | ---------------------------------------------- | ------------------------------------ |
+| `401`  | Sessao ausente/invalida                        | `{ "error": "Nao autorizado" }`      |
+| `404`  | Meta nao encontrada ou nao pertence ao usuario | `{ "error": "Meta nao encontrada" }` |
+| `500`  | Falha inesperada                               | `{ "error": "Erro interno" }`        |
 
 #### Side Effects
 
