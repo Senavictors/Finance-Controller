@@ -4,11 +4,11 @@
 
 ## Current Phase
 
-**Phase 27: SVG Brand Icons** — Concluido. A biblioteca `src/lib/brands/` passou a ser a fonte unica de marcas (bancos, bandeiras, pagamentos e assinaturas), o componente `BrandIcon`/`BrandDot`/`BrandPicker` substituiu os color-dots em contas, categorias, transacoes, recorrencias, metas, faturas e widgets do dashboard. A inferencia por `matchBrand(description)` gera logos automaticos nos fluxos operacionais quando nao ha `icon` explicito, e seed/reset-demo passaram a atribuir icones para Nubank e Itau. Testes unitarios do registry cobrem `matchBrand`, `resolveBrand` e fallbacks.
+**Phase 28: Real Brand Logo Assets** — Concluido. Os 33 logos curados em `system-images/logos/` foram promovidos para `public/brands/<brandKey>.<ext>` com naming normalizado (ex.: `bradeco.jpeg → bradesco.jpeg`, `microsoft.png → ms365.png`, `hbo.jpeg → hbomax.jpeg`). A registry `src/lib/brands/registry.ts` ganhou o tipo `BrandAsset` com `src`, `kind`, `fit`, `padding`, `border?`, e o campo `svg` virou opcional — todas as marcas com arquivo real passaram a referenciar o asset local; `Neon` e `Pix` continuam com SVG artesanal como fallback explicito. `BrandIcon`/`BrandDot` agora renderizam `<img>` quando ha `asset`, com `object-fit`, padding e border customizaveis, mantendo a API publica (`brandKey`, `fallbackLabel`, `fallbackText`, `fallbackColor`, `size`, `radius`, `className`, `title`) e o fallback textual. Testes novos garantem que todo `brandKey` com asset aponta para arquivo existente em `public/brands`, que `Neon`/`Pix` permanecem sob fallback e que `matchBrand`/`resolveBrand` nao perderam cobertura.
 
 ## Next Planned Step
 
-Phase 27 entregue. O proximo passo sera definido no proximo ciclo de planejamento; candidatos imediatos incluem extensao do registry para marcas ainda ausentes demandadas pela base real e propagacao de icones em relatorios/exports.
+**Validacao manual e curadoria visual** — validar em light/dark/mobile as superficies que consomem `BrandIcon`/`BrandDot` (contas, categorias, transacoes, recorrencias, metas, cartoes/faturas, dashboard) e decidir proxima fase (p.ex. curar assets reais para `Neon` e `Pix`, ou evoluir para SVG oficial).
 
 ## What Exists
 
@@ -46,6 +46,8 @@ Phase 27 entregue. O proximo passo sera definido no proximo ciclo de planejament
 - **Architecture Docs: sequence**: documento `.docs/architecture/sequence.md` criado com diagramas Mermaid e sequencias operacionais para transacoes, recorrencias, recalculate analitico e pagamento de fatura
 - **Design bundle de marcas**: `design_system/finance-controller-design-system/` inclui prototipo com registry `BRANDS`, helper `matchBrand()` e componente `BrandIcon` como referencia para substituir dots/color-only por logos SVG em contas, categorias, transacoes e recorrencias
 - **Brand registry em producao**: `src/lib/brands/` portou o registry para TypeScript com `BRANDS`, `getBrand`, `listBrands`, `matchBrand` e `resolveBrand`; `BrandIcon`, `BrandDot` e `BrandPicker` padronizam o visual em contas, categorias, transacoes, recorrencias, metas, faturas de cartao e widgets do dashboard; seed/reset-demo ja populam `icon` para Nubank e Itau; testes unitarios do registry cobrem matching, fallback e normalizacao de acento
+- **Extracted logo inventory**: `system-images/logos/` concentra 33 logos reais extraidas para o proximo ciclo de substituicao visual (24 `jpeg`, 9 `png`, 0 `svg`), cobrindo 33/35 marcas do registry atual; faltam `Neon` e `Pix`, e alguns arquivos exigem normalizacao de naming (`bradeco`, `google`, `microsoft`, `hbo`, etc.)
+- **Brand assets em producao (Phase 28)**: 33 assets promovidos para `public/brands/<brandKey>.<ext>` com naming estavel; a registry passou a expor `BrandAsset` (`src`, `kind`, `fit`, `padding`, `border?`) e `svg` virou opcional; `BrandIcon`/`BrandDot` renderizam `<img>` para `png`/`jpeg` e `<svg>` inline apenas como fallback (Neon, Pix); suite de testes cobre existencia do arquivo no disco, kind suportado e fallback explicito
 - **Documentation sync**: README, CONTEXT, architecture overview e flows alinhados ao codigo atual (`dashboards`, `recurring-rules`, Node >= 20.9, apply manual de recorrencias e registry atual de widgets)
 - **README roadmap sync**: roadmap do README agora reflete explicitamente as phases 13 a 26 ja concluidas e separa proximo passo documental do backlog de produto
 - **Repo hygiene**: `.gitignore` ajustado para ignorar configs locais de tooling em `.claude/`, logs genericos e artefatos comuns de chave/certificado (`*.key`, `*.crt`, `*.p12`, `*.pfx`)
@@ -55,7 +57,7 @@ Phase 27 entregue. O proximo passo sera definido no proximo ciclo de planejament
 - **CI**: GitHub Actions (lint + format:check + build)
 - **README**: overview alinhado ao codigo atual, com setup, stack, arquitetura alvo vs realidade e estrutura de rotas atual
 - **Future feature specs**: `.docs/future-features/` com Goal Engine, Forecast Engine, Score Financeiro, Insights Automaticos, Documentation Foundation e o roadmap documental das fases 14 a 26
-- **Execution backlog**: tasks formais criadas para as phases 8.5 a 27 em `.docs/tasks/`, incluindo a nova Phase 27 para implementar logos/icones SVG de bancos, bandeiras, pagamentos e assinaturas com fallback por cor
+- **Execution backlog**: tasks formais criadas para as phases 8.5 a 28 em `.docs/tasks/`, incluindo a nova Phase 28 para substituir os SVGs artesanais por assets reais extraidos em `system-images/logos`
 - **Technical plan**: task documentada para a fundacao analitica e ciclo de fatura de cartao
 - **31 API routes**, 15 models, 13 ADRs
 
@@ -97,6 +99,7 @@ User, Session, Account, Category, Transaction, CreditCardStatement, Dashboard, D
 - Phase 25: Architecture Docs - Flows
 - Phase 26: Architecture Docs - Sequence
 - Phase 27: SVG Brand Icons
+- Phase 28: Real Brand Logo Assets
 
 ## Key Decisions
 

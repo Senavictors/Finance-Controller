@@ -1,5 +1,5 @@
 import { cn } from '@/lib/utils'
-import { getBrand, matchBrand } from './registry'
+import { getBrand, matchBrand, type Brand } from './registry'
 
 type BrandIconRadius = 'sm' | 'md' | 'lg' | 'full' | number
 
@@ -29,6 +29,42 @@ function initialsFor(label: string) {
   return (words[0][0] + words[words.length - 1][0]).toUpperCase()
 }
 
+function BrandAssetMedia({ brand, title }: { brand: Brand; title: string }) {
+  if (brand.asset) {
+    const padding = brand.asset.padding ?? 0
+    const fit = brand.asset.fit ?? 'contain'
+    return (
+      // eslint-disable-next-line @next/next/no-img-element
+      <img
+        src={brand.asset.src}
+        alt={title}
+        aria-hidden="true"
+        draggable={false}
+        style={{
+          width: '100%',
+          height: '100%',
+          objectFit: fit,
+          padding: padding ? `${padding}px` : undefined,
+          display: 'block',
+        }}
+      />
+    )
+  }
+  if (brand.svg) {
+    return (
+      <svg
+        viewBox="0 0 100 100"
+        width="100%"
+        height="100%"
+        aria-hidden="true"
+        focusable="false"
+        dangerouslySetInnerHTML={{ __html: brand.svg }}
+      />
+    )
+  }
+  return null
+}
+
 export function BrandIcon({
   brandKey,
   fallbackLabel,
@@ -51,28 +87,23 @@ export function BrandIcon({
     ...radiusStyle,
   }
 
-  if (brand) {
+  if (brand && (brand.asset || brand.svg)) {
+    const assetBorder = brand.asset?.border ?? brand.border
+    const resolvedTitle = title ?? brand.name
     return (
       <span
         role="img"
-        aria-label={title ?? brand.name}
-        title={title ?? brand.name}
+        aria-label={resolvedTitle}
+        title={resolvedTitle}
         className={cn(
           'inline-flex items-center justify-center overflow-hidden',
           radiusClass,
-          brand.border && 'border border-gray-200',
+          assetBorder && 'border border-gray-200',
           className,
         )}
         style={{ ...style, backgroundColor: brand.bg, color: brand.fg }}
       >
-        <svg
-          viewBox="0 0 100 100"
-          width="100%"
-          height="100%"
-          aria-hidden="true"
-          focusable="false"
-          dangerouslySetInnerHTML={{ __html: brand.svg }}
-        />
+        <BrandAssetMedia brand={brand} title={resolvedTitle} />
       </span>
     )
   }
@@ -116,7 +147,7 @@ export function BrandDot({
   className?: string
 }) {
   const brand = getBrand(brandKey) ?? getBrand(matchBrand(fallbackText))
-  if (brand) {
+  if (brand && (brand.asset || brand.svg)) {
     return (
       <BrandIcon
         brandKey={brand.key}

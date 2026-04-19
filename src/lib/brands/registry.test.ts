@@ -1,3 +1,5 @@
+import { existsSync } from 'node:fs'
+import { resolve } from 'node:path'
 import { describe, expect, it } from 'vitest'
 import { BRANDS, getBrand, listBrands, matchBrand, resolveBrand } from './registry'
 
@@ -72,6 +74,36 @@ describe('brands/registry', () => {
     it('retorna null quando nada pode ser inferido', () => {
       expect(resolveBrand(null, 'Padaria do bairro')).toBeNull()
       expect(resolveBrand(undefined, null)).toBeNull()
+    })
+  })
+
+  describe('asset inventory (phase 28)', () => {
+    const BRANDS_WITHOUT_ASSET = new Set(['neon', 'pix'])
+
+    it('toda marca fora da lista de fallback possui asset local', () => {
+      for (const brand of Object.values(BRANDS)) {
+        if (BRANDS_WITHOUT_ASSET.has(brand.key)) continue
+        expect(brand.asset, `asset ausente para ${brand.key}`).toBeDefined()
+      }
+    })
+
+    it('asset.src aponta para arquivo existente em public/brands', () => {
+      for (const brand of Object.values(BRANDS)) {
+        if (!brand.asset) continue
+        expect(brand.asset.src.startsWith('/brands/')).toBe(true)
+        expect(['svg', 'png', 'jpeg']).toContain(brand.asset.kind)
+        const absolute = resolve(process.cwd(), 'public', brand.asset.src.replace(/^\//, ''))
+        expect(existsSync(absolute), `arquivo nao encontrado: ${absolute}`).toBe(true)
+      }
+    })
+
+    it('neon e pix mantem svg inline como fallback enquanto nao ha asset real', () => {
+      for (const key of BRANDS_WITHOUT_ASSET) {
+        const brand = BRANDS[key]
+        expect(brand).toBeDefined()
+        expect(brand.asset).toBeUndefined()
+        expect(brand.svg, `svg fallback ausente para ${key}`).toBeTruthy()
+      }
     })
   })
 })
