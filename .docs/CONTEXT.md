@@ -49,7 +49,7 @@
 - **Extracted logo inventory**: `system-images/logos/` concentra 33 logos reais extraidas para o proximo ciclo de substituicao visual (24 `jpeg`, 9 `png`, 0 `svg`), cobrindo 33/35 marcas do registry atual; faltam `Neon` e `Pix`, e alguns arquivos exigem normalizacao de naming (`bradeco`, `google`, `microsoft`, `hbo`, etc.)
 - **Brand assets em producao (Phase 28)**: 33 assets promovidos para `public/brands/<brandKey>.<ext>` com naming estavel; a registry passou a expor `BrandAsset` (`src`, `kind`, `fit`, `padding`, `border?`) e `svg` virou opcional; `BrandIcon`/`BrandDot` renderizam `<img>` para `png`/`jpeg` e `<svg>` inline apenas como fallback (Neon, Pix); suite de testes cobre existencia do arquivo no disco, kind suportado e fallback explicito
 - **Documentation sync**: README, CONTEXT, architecture overview e flows alinhados ao codigo atual (`dashboards`, `recurring-rules`, Node >= 20.9, apply manual de recorrencias e registry atual de widgets)
-- **README roadmap sync**: roadmap do README agora reflete explicitamente as phases 13 a 26 ja concluidas e separa proximo passo documental do backlog de produto
+- **README roadmap sync**: roadmap do README agora reflete explicitamente as phases 13 a 28 concluidas, registra o sistema visual de marcas/logos reais e alinha o proximo passo com a curadoria visual dos assets
 - **Repo hygiene**: `.gitignore` ajustado para ignorar configs locais de tooling em `.claude/`, logs genericos e artefatos comuns de chave/certificado (`*.key`, `*.crt`, `*.p12`, `*.pfx`)
 - **Seed demo**: script com dados ficticios (demo@finance.com / demo1234)
 - **Reset demo**: botao em /settings que recria dados

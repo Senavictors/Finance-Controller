@@ -52,6 +52,7 @@ O Finance Controller centraliza tudo em uma unica aplicacao:
 
 - Receitas, despesas e transferencias entre contas
 - Categorias customizaveis e hierarquicas
+- Identidade visual por marca para bancos, bandeiras, pagamentos e assinaturas
 - Dashboard visual e customizavel com drag-and-drop
 - Recorrencias configuraveis com apply manual idempotente (salario, aluguel, assinaturas)
 - Multi-contas com tipos distintos (corrente, cartao, investimento)
@@ -63,6 +64,8 @@ O Finance Controller centraliza tudo em uma unica aplicacao:
 - **Dashboard customizavel** — drag-and-drop de widgets com react-grid-layout, 10 tipos registrados, 5 widgets default e layout persistido por usuario
 - **Multi-contas** — corrente, carteira, poupanca, cartao de credito, investimento
 - **Categorias hierarquicas** — receitas e despesas com subcategorias, cores e contagem de transacoes
+- **Brand registry visual** — `src/lib/brands/` centraliza bancos, bandeiras, pagamentos e assinaturas; `BrandIcon`, `BrandDot` e `BrandPicker` padronizam contas, categorias, transacoes, recorrencias, metas, faturas e widgets
+- **Logos reais com fallback seguro** — 33 assets reais em `public/brands/` substituem os SVGs artesanais na maior parte das marcas; `Neon` e `Pix` permanecem com fallback vetorial explicito
 - **Transacoes** — CRUD completo com filtros por tipo, categoria e busca por descricao
 - **Transferencias atomicas** — par de transacoes vinculadas por `transferId` (debito na origem, credito no destino)
 - **Recorrencias** — regras com frequencia (diaria, semanal, mensal, anual), apply manual idempotente com logs
@@ -164,10 +167,14 @@ src/
   components/
     ui/                    shadcn/ui (Base UI)
     layout/                Sidebar, Topbar, AppShell
-  lib/                     Utilitarios (formatCurrency, cn)
+  lib/
+    brands/                Registry de marcas + BrandIcon/BrandDot/BrandPicker
+    utils.ts               Utilitarios (formatCurrency, cn)
   hooks/                   Custom hooks (usePeriod)
   types/                   Tipos TypeScript compartilhados
 prisma/                    Schema + migrations + seed
+public/                    Assets estaticos versionados
+  brands/                  Logos reais para bancos, bandeiras, pagamentos e assinaturas
 .docs/                     Documentacao viva (context, ADRs, tasks, domain/api/data/architecture)
 ```
 
@@ -545,7 +552,7 @@ npx prisma db seed   # Popular dados demo
 
 ## Roadmap
 
-Estado atual: backlog faseado inicial concluido ate a **Phase 26**.
+Estado atual: backlog faseado inicial concluido ate a **Phase 28**.
 
 ### Phases concluidas
 
@@ -576,10 +583,12 @@ Estado atual: backlog faseado inicial concluido ate a **Phase 26**.
 - [x] Phase 24: Data Docs - Data Dictionary
 - [x] Phase 25: Architecture Docs - Flows
 - [x] Phase 26: Architecture Docs - Sequence
+- [x] Phase 27: SVG Brand Icons
+- [x] Phase 28: Real Brand Logo Assets
 
 ### Proximo passo natural
 
-- [ ] Expandir cobertura documental para auth, accounts, categories, recurring CRUD, dashboards e credit-cards
+- [ ] Validar visualmente light/dark/mobile as superficies com `BrandIcon`/`BrandDot` e decidir a proxima iteracao de marcas (`Neon`, `Pix` ou SVG oficial)
 
 ### Backlog de produto
 
