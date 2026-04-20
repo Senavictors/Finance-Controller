@@ -117,7 +117,7 @@ export default async function CreditCardStatementPage({ params }: Props) {
       </div>
 
       <div className="grid gap-4 lg:grid-cols-4">
-        <Card className="rounded-[1.5rem] border-white/50 shadow-sm">
+        <Card className="ring-border/60 rounded-[1.5rem] shadow-sm">
           <CardHeader>
             <CardTitle>Status</CardTitle>
           </CardHeader>
@@ -127,7 +127,7 @@ export default async function CreditCardStatementPage({ params }: Props) {
             </Badge>
           </CardContent>
         </Card>
-        <Card className="rounded-[1.5rem] border-white/50 shadow-sm">
+        <Card className="ring-border/60 rounded-[1.5rem] shadow-sm">
           <CardHeader>
             <CardTitle>Total</CardTitle>
           </CardHeader>
@@ -135,7 +135,7 @@ export default async function CreditCardStatementPage({ params }: Props) {
             {formatCurrency(statement.totalAmount)}
           </CardContent>
         </Card>
-        <Card className="rounded-[1.5rem] border-white/50 shadow-sm">
+        <Card className="ring-border/60 rounded-[1.5rem] shadow-sm">
           <CardHeader>
             <CardTitle>Pago</CardTitle>
           </CardHeader>
@@ -143,7 +143,7 @@ export default async function CreditCardStatementPage({ params }: Props) {
             {formatCurrency(statement.paidAmount)}
           </CardContent>
         </Card>
-        <Card className="rounded-[1.5rem] border-white/50 shadow-sm">
+        <Card className="ring-border/60 rounded-[1.5rem] shadow-sm">
           <CardHeader>
             <CardTitle>Em aberto</CardTitle>
           </CardHeader>
@@ -154,21 +154,21 @@ export default async function CreditCardStatementPage({ params }: Props) {
       </div>
 
       <div className="grid gap-4 lg:grid-cols-[1.5fr_1fr]">
-        <Card className="rounded-[1.5rem] border-white/50 shadow-sm">
+        <Card className="ring-border/60 rounded-[1.5rem] shadow-sm">
           <CardHeader>
             <CardTitle>Resumo da Fatura</CardTitle>
           </CardHeader>
           <CardContent className="space-y-3 text-sm">
             <div className="flex items-center justify-between">
-              <span className="text-gray-500">Fechamento</span>
+              <span className="text-muted-foreground">Fechamento</span>
               <span>{formatDate(statement.closingDate)}</span>
             </div>
             <div className="flex items-center justify-between">
-              <span className="text-gray-500">Vencimento</span>
+              <span className="text-muted-foreground">Vencimento</span>
               <span>{formatDate(statement.dueDate)}</span>
             </div>
             <div className="flex items-center justify-between">
-              <span className="text-gray-500">Limite do cartao</span>
+              <span className="text-muted-foreground">Limite do cartao</span>
               <span>
                 {statement.account.creditLimit
                   ? formatCurrency(statement.account.creditLimit)
@@ -177,50 +177,54 @@ export default async function CreditCardStatementPage({ params }: Props) {
             </div>
             {usagePercent != null && (
               <div className="flex items-center justify-between">
-                <span className="text-gray-500">Utilizacao do limite</span>
+                <span className="text-muted-foreground">Utilizacao do limite</span>
                 <span>{usagePercent}%</span>
               </div>
             )}
             <div className="flex items-center justify-between">
-              <span className="text-gray-500">Compras</span>
+              <span className="text-muted-foreground">Compras</span>
               <span>{purchases.length}</span>
             </div>
             <div className="flex items-center justify-between">
-              <span className="text-gray-500">Pagamentos</span>
+              <span className="text-muted-foreground">Pagamentos</span>
               <span>{payments.length}</span>
             </div>
             {latestPayment && (
               <div className="flex items-center justify-between">
-                <span className="text-gray-500">Ultimo pagamento</span>
+                <span className="text-muted-foreground">Ultimo pagamento</span>
                 <span>{formatDate(latestPayment.date)}</span>
               </div>
             )}
           </CardContent>
         </Card>
 
-        <Card className="rounded-[1.5rem] border-white/50 shadow-sm">
+        <Card className="ring-border/60 rounded-[1.5rem] shadow-sm">
           <CardHeader>
             <CardTitle>Pagamento da Fatura</CardTitle>
           </CardHeader>
           <CardContent>
             {openAmount <= 0 ? (
               <div className="space-y-2 text-sm">
-                <p className="font-medium text-emerald-700">Esta fatura ja esta quitada.</p>
-                <p className="text-gray-500">
+                <p className="font-medium text-emerald-700 dark:text-emerald-300">
+                  Esta fatura ja esta quitada.
+                </p>
+                <p className="text-muted-foreground">
                   Nenhum pagamento adicional e necessario para este periodo.
                 </p>
               </div>
             ) : availableSourceAccounts.length === 0 ? (
               <div className="space-y-2 text-sm">
-                <p className="font-medium text-amber-700">Nenhuma conta de origem disponivel.</p>
-                <p className="text-gray-500">
+                <p className="font-medium text-amber-700 dark:text-amber-300">
+                  Nenhuma conta de origem disponivel.
+                </p>
+                <p className="text-muted-foreground">
                   Cadastre uma conta corrente, carteira ou investimento para registrar o pagamento
                   desta fatura.
                 </p>
               </div>
             ) : (
               <>
-                <p className="mb-4 text-sm text-gray-500">
+                <p className="text-muted-foreground mb-4 text-sm">
                   Registre um pagamento total ou parcial usando uma conta de origem.
                 </p>
                 <StatementPaymentForm
@@ -235,7 +239,7 @@ export default async function CreditCardStatementPage({ params }: Props) {
         </Card>
       </div>
 
-      <Card className="rounded-[1.5rem] border-white/50 shadow-sm">
+      <Card className="ring-border/60 rounded-[1.5rem] shadow-sm">
         <CardHeader>
           <CardTitle>Movimentacoes da Fatura</CardTitle>
         </CardHeader>

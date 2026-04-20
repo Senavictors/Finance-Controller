@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { ChevronLeft, ChevronRight, LogOut, Menu } from 'lucide-react'
+import { ThemeToggle } from '@/components/theme/theme-toggle'
 import { Button } from '@/components/ui/button'
 import { usePeriod } from '@/hooks/use-period'
 import { cn } from '@/lib/utils'
@@ -51,6 +52,7 @@ export function Topbar({ userName, userEmail, userImage, onToggleSidebar }: Topb
       </div>
 
       <div className="flex items-center gap-2">
+        <ThemeToggle />
         <Link
           href="/user"
           title="Sua conta"

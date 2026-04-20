@@ -34,7 +34,9 @@ export function StatementTransactionsList({
 
   if (transactions.length === 0) {
     return (
-      <div className="text-sm text-gray-500">Nenhuma movimentacao vinculada a esta fatura.</div>
+      <div className="text-muted-foreground text-sm">
+        Nenhuma movimentacao vinculada a esta fatura.
+      </div>
     )
   }
 
@@ -48,7 +50,7 @@ export function StatementTransactionsList({
         return (
           <div
             key={transaction.id}
-            className="flex items-center justify-between rounded-2xl border border-gray-100 px-4 py-3"
+            className="border-border/60 flex items-center justify-between rounded-2xl border px-4 py-3"
           >
             <div className="flex items-center gap-3">
               {inferredBrand ? (
@@ -68,8 +70,8 @@ export function StatementTransactionsList({
                 </div>
               )}
               <div>
-                <p className="text-sm font-medium text-gray-900">{transaction.description}</p>
-                <div className="mt-0.5 flex items-center gap-2 text-xs text-gray-500">
+                <p className="text-foreground text-sm font-medium">{transaction.description}</p>
+                <div className="text-muted-foreground mt-0.5 flex items-center gap-2 text-xs">
                   <span>{formatDate(transaction.date)}</span>
                   {transaction.category && (
                     <>

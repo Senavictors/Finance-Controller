@@ -1,9 +1,13 @@
 import { TrendingUp } from 'lucide-react'
 import Link from 'next/link'
+import { ThemeToggle } from '@/components/theme/theme-toggle'
 
 export default function AuthLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="bg-background flex min-h-screen flex-col items-center justify-center px-4">
+    <div className="bg-background relative flex min-h-screen flex-col items-center justify-center px-4">
+      <div className="absolute top-4 right-4">
+        <ThemeToggle />
+      </div>
       <Link href="/" className="mb-8 flex items-center gap-3">
         <div className="bg-primary shadow-primary/25 flex size-10 items-center justify-center rounded-xl shadow-lg">
           <TrendingUp className="text-primary-foreground size-5" />

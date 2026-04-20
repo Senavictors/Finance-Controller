@@ -9,6 +9,7 @@ import {
   Shield,
   Tag,
 } from 'lucide-react'
+import { ThemeToggle } from '@/components/theme/theme-toggle'
 
 const features = [
   {
@@ -57,6 +58,10 @@ const techStack = [
 export default function Home() {
   return (
     <div className="bg-background min-h-screen">
+      <div className="absolute top-4 right-4 z-10">
+        <ThemeToggle />
+      </div>
+
       {/* Hero */}
       <section className="flex flex-col items-center justify-center px-4 pt-24 pb-20 text-center">
         <div className="bg-primary shadow-primary/25 flex size-16 items-center justify-center rounded-2xl shadow-xl">
@@ -97,15 +102,15 @@ export default function Home() {
           {features.map((feature) => (
             <div
               key={feature.title}
-              className="rounded-[1.5rem] border border-white/50 bg-gradient-to-b from-white to-gray-50 p-6 shadow-sm"
+              className="border-border/60 from-card via-card to-muted/40 rounded-[1.5rem] border bg-gradient-to-b p-6 shadow-sm"
             >
               <div className="bg-primary/10 flex size-10 items-center justify-center rounded-xl">
                 <feature.icon className="text-primary size-5" />
               </div>
-              <h3 className="mt-4 text-sm font-semibold tracking-tight text-gray-900">
+              <h3 className="text-foreground mt-4 text-sm font-semibold tracking-tight">
                 {feature.title}
               </h3>
-              <p className="mt-1.5 text-sm text-gray-500">{feature.description}</p>
+              <p className="text-muted-foreground mt-1.5 text-sm">{feature.description}</p>
             </div>
           ))}
         </div>

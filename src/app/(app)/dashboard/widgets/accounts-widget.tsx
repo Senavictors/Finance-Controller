@@ -11,8 +11,8 @@ export function AccountsWidget({ data }: { data: DashboardData }) {
 
   return (
     <div className="flex h-full flex-col gap-3">
-      <div className="flex-1 rounded-[2rem] border border-white/50 bg-[#F2F2F2] p-5 shadow-sm">
-        <h3 className="mb-3 text-sm font-medium text-gray-500">Contas</h3>
+      <div className="fc-panel-subtle flex-1 p-5">
+        <h3 className="text-muted-foreground mb-3 text-sm font-medium">Contas</h3>
         {balanceByAccount.length > 0 ? (
           <div className="space-y-2.5">
             {balanceByAccount.map((acc) => (
@@ -25,12 +25,12 @@ export function AccountsWidget({ data }: { data: DashboardData }) {
                     fallbackLabel={acc.name}
                     size={12}
                   />
-                  <span className="text-xs font-medium text-gray-700">{acc.name}</span>
+                  <span className="text-foreground/85 text-xs font-medium">{acc.name}</span>
                 </div>
                 <span
                   className={cn(
                     'text-xs font-semibold',
-                    acc.balance >= 0 ? 'text-gray-900' : 'text-red-600',
+                    acc.balance >= 0 ? 'text-foreground' : 'text-red-600 dark:text-red-400',
                   )}
                 >
                   {formatCurrency(acc.balance)}
@@ -39,14 +39,14 @@ export function AccountsWidget({ data }: { data: DashboardData }) {
             ))}
           </div>
         ) : (
-          <p className="text-xs text-gray-400">Nenhuma conta</p>
+          <p className="text-muted-foreground text-xs">Nenhuma conta</p>
         )}
       </div>
 
-      <div className="relative overflow-hidden rounded-[2rem] bg-gray-900 p-5 text-white shadow-xl">
+      <div className="relative overflow-hidden rounded-[2rem] bg-slate-950 p-5 text-white shadow-xl dark:bg-slate-900">
         <div className="absolute top-1/2 right-[20%] size-24 -translate-y-1/2 rounded-full border border-white/10" />
         <div className="relative">
-          <p className="text-xs font-medium text-gray-400">Patrimonio</p>
+          <p className="text-xs font-medium text-white/60">Patrimonio</p>
           <p className="mt-2 text-xl font-medium tracking-tight text-white">
             {formatCurrency(totalBalance)}
           </p>

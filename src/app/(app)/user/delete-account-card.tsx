@@ -54,7 +54,7 @@ export function DeleteAccountCard() {
 
   return (
     <div className="flex items-start gap-4">
-      <div className="flex size-10 items-center justify-center rounded-xl bg-red-100 text-red-600">
+      <div className="flex size-10 items-center justify-center rounded-xl bg-red-100 text-red-600 dark:bg-red-950/50 dark:text-red-400">
         <Trash2 className="size-4" />
       </div>
       <div className="flex-1">
@@ -115,7 +115,7 @@ export function DeleteAccountCard() {
                 required
               />
             </div>
-            {error && <p className="text-sm font-medium text-red-600">{error}</p>}
+            {error && <p className="text-sm font-medium text-red-600 dark:text-red-400">{error}</p>}
             <DialogFooter>
               <Button
                 type="button"

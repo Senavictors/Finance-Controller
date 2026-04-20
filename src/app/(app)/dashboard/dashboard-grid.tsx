@@ -180,14 +180,14 @@ export function DashboardGrid({ data, widgets: initialWidgets }: Props) {
             <div key={widget.id} className="relative">
               {editing && (
                 <div className="absolute top-2 left-2 z-10 flex items-center gap-1">
-                  <div className="drag-handle flex size-7 cursor-grab items-center justify-center rounded-lg bg-white/90 shadow-sm backdrop-blur">
-                    <GripVertical className="size-3.5 text-gray-400" />
+                  <div className="drag-handle bg-background/90 border-border/60 flex size-7 cursor-grab items-center justify-center rounded-lg border shadow-sm backdrop-blur">
+                    <GripVertical className="text-muted-foreground size-3.5" />
                   </div>
                   <button
                     onClick={() => removeWidget(widget.id)}
-                    className="flex size-7 items-center justify-center rounded-lg bg-red-100/90 shadow-sm backdrop-blur transition-colors hover:bg-red-200"
+                    className="flex size-7 items-center justify-center rounded-lg bg-red-100/90 shadow-sm backdrop-blur transition-colors hover:bg-red-200 dark:bg-red-950/70 dark:hover:bg-red-900/80"
                   >
-                    <X className="size-3.5 text-red-600" />
+                    <X className="size-3.5 text-red-600 dark:text-red-400" />
                   </button>
                 </div>
               )}

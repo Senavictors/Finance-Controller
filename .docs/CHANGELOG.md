@@ -9,6 +9,8 @@ and this project adheres to [Conventional Commits](https://www.conventionalcommi
 
 ### Added
 
+- Phase 33: infraestrutura global de tema com `src/lib/theme.ts`, `ThemeProvider` e bootstrap no root layout para aplicar `.dark`, `data-theme` e `colorScheme`
+- Phase 33: componente reutilizavel `ThemeToggle` em `src/components/theme/theme-toggle.tsx`, integrado no `Topbar`, landing page e layout de auth
 - Phase 32: hook `useConfirm` + componente `ConfirmDialog` em `src/components/ui/confirm-dialog.tsx` com API promise-based e variacao visual destrutiva
 - Phase 32: nova area `/user` (`src/app/(app)/user/`) com secoes de foto de perfil, perfil (nome/email), senha e zona de risco
 - Phase 32: upload de avatar com preview/remocao, validacao de formato (PNG/JPEG/WebP/GIF) e limite de 300KB, armazenado como data URL no novo campo `User.image`
@@ -21,6 +23,9 @@ and this project adheres to [Conventional Commits](https://www.conventionalcommi
 
 ### Changed
 
+- Phase 33 polish: `IncomeExpensesWidget` remove o cursor padrao do Recharts no hover e forca texto do tooltip com `var(--foreground)` para corrigir o contorno claro e os valores pretos no modo dark
+- Phase 33: dashboard widgets, `/user`, `/settings`, contas, transacoes, recorrencias, metas, cartoes/faturas e `BrandPicker` migrados de estilos claros hardcoded para tokens semanticos e classes `.fc-panel*`
+- Phase 33: `README.md`, `.docs/CONTEXT.md` e `.docs/tasks/phase-33-dark-theme-and-theme-toggle.md` atualizados para refletir a conclusao da phase e a validacao visual manual pendente
 - Phase 32: topbar redesenhada — chip circular colorido com avatar (ou iniciais) virou um `Link` para `/user`, substituindo o bloco estatico antigo
 - Phase 32: `/settings` simplificado para conter apenas o reset demo dentro do novo padrao
 - Phase 32: migrados os seis usos de `confirm()`/`alert()` do app (`account-card`, `category-list`, `transaction-table`, `recurring-list`, `goal-card`, reset demo) para `useConfirm`

@@ -47,7 +47,7 @@ export function BrandPicker({
 
   return (
     <div className={cn('flex flex-col gap-3', className)}>
-      <div className="flex items-center gap-3 rounded-xl border border-gray-200 bg-gray-50/60 p-3">
+      <div className="border-border/60 bg-muted/50 flex items-center gap-3 rounded-xl border p-3">
         <BrandIcon
           brandKey={value}
           fallbackLabel={fallbackLabel}
@@ -56,8 +56,8 @@ export function BrandPicker({
           radius="md"
         />
         <div className="flex-1">
-          <p className="text-sm font-semibold text-gray-900">{selected?.name ?? fallbackLabel}</p>
-          <p className="text-xs text-gray-500">
+          <p className="text-foreground text-sm font-semibold">{selected?.name ?? fallbackLabel}</p>
+          <p className="text-muted-foreground text-xs">
             {selected
               ? `Marca: ${selected.name}`
               : 'Nenhuma marca selecionada — usando fallback por cor'}
@@ -67,7 +67,7 @@ export function BrandPicker({
           <button
             type="button"
             onClick={() => onChange(null)}
-            className="text-xs text-gray-500 underline-offset-2 hover:text-gray-700 hover:underline"
+            className="text-muted-foreground hover:text-foreground text-xs underline-offset-2 hover:underline"
           >
             Limpar
           </button>
@@ -79,14 +79,14 @@ export function BrandPicker({
         value={query}
         onChange={(e) => setQuery(e.target.value)}
         placeholder="Buscar marca..."
-        className="h-9 rounded-lg border border-gray-200 bg-white px-3 text-sm outline-none focus-visible:ring-2 focus-visible:ring-blue-500/30"
+        className="border-border bg-background focus-visible:ring-primary/20 h-9 rounded-lg border px-3 text-sm outline-none focus-visible:ring-2"
       />
 
       <div className="max-h-64 space-y-3 overflow-y-auto pr-1">
         {grouped.map(({ category, items }) =>
           items.length === 0 ? null : (
             <div key={category}>
-              <p className="mb-1.5 text-[10px] font-semibold tracking-wider text-gray-500 uppercase">
+              <p className="text-muted-foreground mb-1.5 text-[10px] font-semibold tracking-wider uppercase">
                 {CATEGORY_LABELS[category]}
               </p>
               <div className="grid grid-cols-6 gap-2 sm:grid-cols-8">
@@ -99,8 +99,8 @@ export function BrandPicker({
                     className={cn(
                       'group flex items-center justify-center rounded-xl p-1 transition-colors',
                       value === brand.key
-                        ? 'ring-2 ring-blue-500 ring-offset-1'
-                        : 'hover:bg-gray-100',
+                        ? 'ring-primary bg-muted/60 ring-offset-background ring-2 ring-offset-1'
+                        : 'hover:bg-muted/70',
                     )}
                   >
                     <BrandIcon

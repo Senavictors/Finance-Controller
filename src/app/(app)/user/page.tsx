@@ -21,14 +21,14 @@ export default async function UserPage() {
     <div className="mx-auto w-full max-w-3xl space-y-6">
       <div>
         <h1 className="text-2xl font-semibold tracking-tight">Sua conta</h1>
-        <p className="mt-1 text-sm text-gray-500">
+        <p className="text-muted-foreground mt-1 text-sm">
           Gerencie seu perfil, seguranca e dados pessoais
         </p>
       </div>
 
-      <section className="rounded-[2rem] border border-white/50 bg-gradient-to-br from-white to-gray-50 p-8 shadow-sm">
-        <h2 className="text-lg font-medium text-gray-900">Foto de perfil</h2>
-        <p className="mt-1 text-sm text-gray-500">
+      <section className="fc-panel p-8">
+        <h2 className="text-foreground text-lg font-medium">Foto de perfil</h2>
+        <p className="text-muted-foreground mt-1 text-sm">
           Aparece no menu superior e em areas de identificacao. Limite de 300KB.
         </p>
         <div className="mt-6">
@@ -40,17 +40,19 @@ export default async function UserPage() {
         </div>
       </section>
 
-      <section className="rounded-[2rem] border border-white/50 bg-gradient-to-br from-white to-gray-50 p-8 shadow-sm">
-        <h2 className="text-lg font-medium text-gray-900">Perfil</h2>
-        <p className="mt-1 text-sm text-gray-500">Nome e email usados para identificar sua conta</p>
+      <section className="fc-panel p-8">
+        <h2 className="text-foreground text-lg font-medium">Perfil</h2>
+        <p className="text-muted-foreground mt-1 text-sm">
+          Nome e email usados para identificar sua conta
+        </p>
         <div className="mt-6">
           <ProfileForm initialName={user.name ?? ''} initialEmail={user.email} />
         </div>
       </section>
 
-      <section className="rounded-[2rem] border border-white/50 bg-gradient-to-br from-white to-gray-50 p-8 shadow-sm">
-        <h2 className="text-lg font-medium text-gray-900">Senha</h2>
-        <p className="mt-1 text-sm text-gray-500">
+      <section className="fc-panel p-8">
+        <h2 className="text-foreground text-lg font-medium">Senha</h2>
+        <p className="text-muted-foreground mt-1 text-sm">
           Alterar a senha encerra sessoes ativas em outros dispositivos
         </p>
         <div className="mt-6">
@@ -58,7 +60,7 @@ export default async function UserPage() {
         </div>
       </section>
 
-      <section className="rounded-[2rem] border border-red-200/60 bg-gradient-to-br from-red-50/40 to-white p-8 shadow-sm">
+      <section className="fc-panel-danger p-8">
         <h2 className="text-lg font-medium text-red-700">Zona de risco</h2>
         <p className="mt-1 text-sm text-red-600/80">
           Acoes irreversiveis. Leia com atencao antes de prosseguir.

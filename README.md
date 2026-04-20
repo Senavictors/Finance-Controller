@@ -565,7 +565,7 @@ npx prisma db seed   # Popular dados demo
 
 ## Roadmap
 
-Estado atual: entregas concluidas ate a **Phase 32**, com validacao manual em light/dark/mobile como proxima trilha recomendada.
+Estado atual: entregas concluidas ate a **Phase 33**, com dark theme global e toggle `light/dark` implementados no sistema.
 
 ### Phases concluidas
 
@@ -602,6 +602,7 @@ Estado atual: entregas concluidas ate a **Phase 32**, com validacao manual em li
 - [x] Phase 30: Form Hardening And Status Feedback
 - [x] Phase 31: Progressive Disclosure And List Scaling
 - [x] Phase 32: Settings, Profile And Confirmation UX
+- [x] Phase 33: Dark Theme And Theme Toggle
 
 ### Phases abertas
 
@@ -609,9 +610,9 @@ Estado atual: entregas concluidas ate a **Phase 32**, com validacao manual em li
 
 ### Proximo passo recomendado
 
-- [ ] Rodada de validacao manual em light/dark/mobile cobrindo a nova area `/user` (foto, perfil, senha, exclusao de conta), o chip da topbar e os `ConfirmDialog`s migrados em contas, categorias, transacoes, recorrencias e metas
-- [ ] Validar em ambiente seguro o fluxo de exclusao de conta (cascade de Prisma apaga contas, categorias, transacoes, metas, recorrencias, cartoes e dashboards)
-- [ ] Manter em paralelo a validacao visual das superficies com `BrandIcon`/`BrandDot`, dos `MoneyInput`/`IntegerInput` e do padrao de `Carregar mais` aplicado em categorias, recorrencias e detalhe de fatura
+- [ ] Fazer uma rodada manual em browser real validando o toggle `light/dark` em landing, auth, dashboard, `/user`, `/settings`, contas, categorias, transacoes, recorrencias, metas e cartoes/faturas
+- [ ] Revisar contraste fino de charts, badges, dropdowns, dialogs, drag handles, hover/focus states e logos rasterizados no modo dark
+- [ ] Decidir se uma proxima subfase deve adicionar opcao visivel `System` ou persistencia da preferencia de tema no perfil do usuario
 
 ### Backlog de produto
 

@@ -9,8 +9,10 @@ export function CategoryDonutWidget({ data }: { data: DashboardData }) {
   const { expensesByCategory } = data
 
   return (
-    <div className="relative flex h-full min-h-0 flex-col overflow-hidden rounded-[2rem] border border-white/50 bg-gradient-to-br from-white to-gray-50 p-6 shadow-sm">
-      <h3 className="mb-4 shrink-0 text-sm font-medium text-gray-500">Gastos por Categoria</h3>
+    <div className="fc-panel relative flex h-full min-h-0 flex-col overflow-hidden p-6">
+      <h3 className="text-muted-foreground mb-4 shrink-0 text-sm font-medium">
+        Gastos por Categoria
+      </h3>
 
       {expensesByCategory.length > 0 ? (
         <div className="flex min-h-0 flex-1 flex-col items-center gap-6 sm:flex-row">
@@ -45,9 +47,9 @@ export function CategoryDonutWidget({ data }: { data: DashboardData }) {
                     fallbackLabel={cat.name}
                     size={12}
                   />
-                  <span className="truncate text-xs text-gray-600">{cat.name}</span>
+                  <span className="text-muted-foreground truncate text-xs">{cat.name}</span>
                 </div>
-                <span className="shrink-0 text-xs font-semibold whitespace-nowrap text-gray-900">
+                <span className="text-foreground shrink-0 text-xs font-semibold whitespace-nowrap">
                   {formatCurrency(cat.value)}
                 </span>
               </div>
@@ -55,7 +57,7 @@ export function CategoryDonutWidget({ data }: { data: DashboardData }) {
           </div>
         </div>
       ) : (
-        <div className="flex h-[150px] items-center justify-center text-sm text-gray-400">
+        <div className="text-muted-foreground flex h-[150px] items-center justify-center text-sm">
           Sem despesas neste periodo
         </div>
       )}

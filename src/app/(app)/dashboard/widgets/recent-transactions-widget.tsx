@@ -10,11 +10,13 @@ export function RecentTransactionsWidget({ data }: { data: DashboardData }) {
   const { recentTransactions } = data
 
   return (
-    <div className="flex h-full min-h-0 flex-col rounded-[2rem] border border-white/50 bg-gradient-to-br from-white to-[#F6F6F6] p-6 shadow-sm">
-      <h3 className="mb-4 shrink-0 text-sm font-medium text-gray-500">Últimas Transações</h3>
+    <div className="fc-panel flex h-full min-h-0 flex-col p-6">
+      <h3 className="text-muted-foreground mb-4 shrink-0 text-sm font-medium">
+        Últimas Transações
+      </h3>
 
       {recentTransactions.length > 0 ? (
-        <div className="min-h-0 flex-1 divide-y divide-gray-100 overflow-y-auto pr-1">
+        <div className="divide-border/60 min-h-0 flex-1 divide-y overflow-y-auto pr-1">
           {recentTransactions.map((tx) => {
             const inferredBrandKey =
               matchBrand(tx.description) ?? tx.category?.icon ?? tx.account.icon
@@ -36,7 +38,7 @@ export function RecentTransactionsWidget({ data }: { data: DashboardData }) {
                         'flex size-9 shrink-0 items-center justify-center rounded-xl',
                         tx.type === 'INCOME' && 'bg-emerald-100',
                         tx.type === 'EXPENSE' && 'bg-red-100',
-                        tx.type === 'TRANSFER' && 'bg-gray-100',
+                        tx.type === 'TRANSFER' && 'bg-muted',
                       )}
                     >
                       {tx.type === 'INCOME' ? (
@@ -44,13 +46,13 @@ export function RecentTransactionsWidget({ data }: { data: DashboardData }) {
                       ) : tx.type === 'EXPENSE' ? (
                         <TrendingDown className="size-4 text-red-600" />
                       ) : (
-                        <ArrowLeftRight className="size-4 text-gray-500" />
+                        <ArrowLeftRight className="text-muted-foreground size-4" />
                       )}
                     </div>
                   )}
                   <div className="min-w-0 flex-1">
-                    <p className="truncate text-sm font-medium text-gray-900">{tx.description}</p>
-                    <p className="flex min-w-0 flex-wrap items-center gap-x-1.5 gap-y-0.5 text-xs text-gray-400">
+                    <p className="text-foreground truncate text-sm font-medium">{tx.description}</p>
+                    <p className="text-muted-foreground flex min-w-0 flex-wrap items-center gap-x-1.5 gap-y-0.5 text-xs">
                       <BrandDot
                         brandKey={tx.account.icon}
                         fallbackText={tx.account.name}
@@ -69,7 +71,7 @@ export function RecentTransactionsWidget({ data }: { data: DashboardData }) {
                     'shrink-0 text-right text-sm font-semibold whitespace-nowrap',
                     tx.type === 'INCOME' && 'text-emerald-600',
                     tx.type === 'EXPENSE' && 'text-red-600',
-                    tx.type === 'TRANSFER' && 'text-gray-500',
+                    tx.type === 'TRANSFER' && 'text-muted-foreground',
                   )}
                 >
                   {tx.type === 'EXPENSE' ? '- ' : tx.type === 'INCOME' ? '+ ' : ''}
@@ -80,7 +82,9 @@ export function RecentTransactionsWidget({ data }: { data: DashboardData }) {
           })}
         </div>
       ) : (
-        <p className="py-6 text-center text-sm text-gray-400">Nenhuma transacao registrada</p>
+        <p className="text-muted-foreground py-6 text-center text-sm">
+          Nenhuma transacao registrada
+        </p>
       )}
     </div>
   )
