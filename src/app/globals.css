@@ -178,3 +178,17 @@
     @apply font-sans;
   }
 }
+
+/* react-grid-layout — drop placeholder tuned to the blue/teal theme */
+.react-grid-layout .react-grid-item.react-grid-placeholder,
+.react-grid-item.react-grid-placeholder {
+  background: var(--primary) !important;
+  border-radius: calc(var(--radius) * 1.4) !important;
+  opacity: 0.15 !important;
+}
+
+.dark .react-grid-layout .react-grid-item.react-grid-placeholder,
+.dark .react-grid-item.react-grid-placeholder {
+  background: var(--primary) !important;
+  opacity: 0.22 !important;
+}

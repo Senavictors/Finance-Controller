@@ -39,7 +39,7 @@ export const widgetRegistry: WidgetDefinition[] = [
   },
   {
     type: 'recent-transactions',
-    label: 'Ultimas Transações',
+    label: 'Últimas Transações',
     description: 'Lista das 5 transações mais recentes',
     defaultW: 12,
     defaultH: 5,

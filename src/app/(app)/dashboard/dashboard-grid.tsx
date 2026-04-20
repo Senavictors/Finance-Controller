@@ -16,7 +16,10 @@ import { ForecastWidget } from './widgets/forecast-widget'
 import { ScoreWidget } from './widgets/score-widget'
 import { InsightsWidget } from './widgets/insights-widget'
 import { AddWidgetDialog } from './add-widget-dialog'
+import { findPlacement } from './lib/auto-placement'
 import type { DashboardData } from './widgets/types'
+
+const GRID_COLS = 12
 import 'react-grid-layout/css/styles.css'
 import 'react-resizable/css/styles.css'
 
@@ -93,15 +96,20 @@ export function DashboardGrid({ data, widgets: initialWidgets }: Props) {
     const def = widgetRegistry.find((w) => w.type === type)
     if (!def) return
 
-    const maxY = widgets.reduce((max, w) => Math.max(max, w.y + w.h), 0)
+    const { x, y } = findPlacement({
+      items: widgets,
+      cols: GRID_COLS,
+      w: def.defaultW,
+      h: def.defaultH,
+    })
 
     const res = await fetch('/api/dashboards/widgets', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         type,
-        x: 0,
-        y: maxY,
+        x,
+        y,
         w: def.defaultW,
         h: def.defaultH,
       }),
@@ -125,9 +133,9 @@ export function DashboardGrid({ data, widgets: initialWidgets }: Props) {
 
   return (
     <div className="space-y-4" ref={containerRef}>
-      <div className="flex items-center justify-between">
+      <div className="flex flex-wrap items-center justify-between gap-3">
         <h1 className="text-2xl font-semibold tracking-tight">Dashboard</h1>
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           {editing && (
             <AddWidgetDialog existingTypes={widgets.map((w) => w.type)} onAdd={addWidget} />
           )}
