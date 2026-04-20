@@ -72,14 +72,14 @@ export type UpdateAccountInput = z.infer<typeof updateAccountSchema>
 export const createCategorySchema = z.object({
   name: z.string().min(2, 'Nome deve ter pelo menos 2 caracteres').max(100),
   type: z.enum(['INCOME', 'EXPENSE'], { message: 'Tipo deve ser INCOME ou EXPENSE' }),
-  icon: z.string().max(50).optional(),
+  icon: z.string().max(50).nullable().optional(),
   color: z.string().max(20).optional(),
   parentId: z.string().nullable().optional(),
 })
 
 export const updateCategorySchema = z.object({
   name: z.string().min(2, 'Nome deve ter pelo menos 2 caracteres').max(100).optional(),
-  icon: z.string().max(50).optional(),
+  icon: z.string().max(50).nullable().optional(),
   color: z.string().max(20).optional(),
   parentId: z.string().nullable().optional(),
 })
