@@ -10,12 +10,18 @@ export default async function AppLayout({ children }: { children: React.ReactNod
 
   const user = await prisma.user.findUnique({
     where: { id: session.userId },
-    select: { name: true, email: true },
+    select: { name: true, email: true, image: true },
   })
 
   return (
     <Suspense>
-      <AppShell userName={user?.name ?? user?.email ?? 'Usuario'}>{children}</AppShell>
+      <AppShell
+        userName={user?.name ?? user?.email ?? 'Usuario'}
+        userEmail={user?.email ?? ''}
+        userImage={user?.image ?? null}
+      >
+        {children}
+      </AppShell>
     </Suspense>
   )
 }

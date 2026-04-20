@@ -7,10 +7,12 @@ import { Sheet, SheetContent, SheetTitle } from '@/components/ui/sheet'
 
 type AppShellProps = {
   userName: string
+  userEmail: string
+  userImage: string | null
   children: React.ReactNode
 }
 
-export function AppShell({ userName, children }: AppShellProps) {
+export function AppShell({ userName, userEmail, userImage, children }: AppShellProps) {
   const [sidebarOpen, setSidebarOpen] = useState(false)
 
   return (
@@ -27,7 +29,12 @@ export function AppShell({ userName, children }: AppShellProps) {
       </Sheet>
 
       <div className="flex flex-1 flex-col overflow-hidden">
-        <Topbar userName={userName} onToggleSidebar={() => setSidebarOpen(true)} />
+        <Topbar
+          userName={userName}
+          userEmail={userEmail}
+          userImage={userImage}
+          onToggleSidebar={() => setSidebarOpen(true)}
+        />
         <main className="flex-1 overflow-y-auto p-4 md:p-6 lg:p-8">{children}</main>
       </div>
     </div>

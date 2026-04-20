@@ -9,6 +9,23 @@ and this project adheres to [Conventional Commits](https://www.conventionalcommi
 
 ### Added
 
+- Phase 32: hook `useConfirm` + componente `ConfirmDialog` em `src/components/ui/confirm-dialog.tsx` com API promise-based e variacao visual destrutiva
+- Phase 32: nova area `/user` (`src/app/(app)/user/`) com secoes de foto de perfil, perfil (nome/email), senha e zona de risco
+- Phase 32: upload de avatar com preview/remocao, validacao de formato (PNG/JPEG/WebP/GIF) e limite de 300KB, armazenado como data URL no novo campo `User.image`
+- Phase 32: migration `20260420192155_add_user_image` adicionando coluna `image TEXT?` em `users`
+- Phase 32: endpoint `PATCH /api/auth/me` para atualizar nome/email/avatar com checagem de email duplicado
+- Phase 32: endpoint `POST /api/auth/change-password` com helper `invalidateOtherSessions` que encerra sessoes em outros dispositivos
+- Phase 32: endpoint `DELETE /api/auth/me` protegido por senha atual + digitacao literal de `EXCLUIR`, aproveitando cascade do Prisma
+- Phase 32: schemas Zod `updateProfileSchema`, `changePasswordSchema` e `deleteAccountSchema` em `src/server/auth/schemas.ts`
+- Phase 32: `src/lib/user-chip.ts` com paleta deterministica de chip e helper `getInitials`
+
+### Changed
+
+- Phase 32: topbar redesenhada — chip circular colorido com avatar (ou iniciais) virou um `Link` para `/user`, substituindo o bloco estatico antigo
+- Phase 32: `/settings` simplificado para conter apenas o reset demo dentro do novo padrao
+- Phase 32: migrados os seis usos de `confirm()`/`alert()` do app (`account-card`, `category-list`, `transaction-table`, `recurring-list`, `goal-card`, reset demo) para `useConfirm`
+- Phase 32: `.docs/CONTEXT.md`, `README.md` e `.docs/tasks/phase-32-settings-profile-and-confirmation-ux.md` atualizados para refletir a conclusao da phase
+
 - Phase 31: componente `CategoryListCard` em `src/app/(app)/categories/category-list-card.tsx` com preview de 5 pais + filhos e `Dialog` `Ver todas (N)` que reusa `CategoryList` para edicao/exclusao
 - Phase 31: padrao `Carregar mais (N restantes)` em `RecurringList` (`INITIAL_VISIBLE=10`, `PAGE_SIZE=10`) para reduzir renderizacao inicial de listas densas
 - Phase 31: client component `StatementTransactionsList` em `src/app/(app)/credit-cards/[id]/statement-transactions-list.tsx` aplicando o mesmo padrao de divulgacao progressiva no detalhe de fatura

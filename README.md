@@ -565,7 +565,7 @@ npx prisma db seed   # Popular dados demo
 
 ## Roadmap
 
-Estado atual: entregas concluidas ate a **Phase 31**, com backlog ativo aberto da **Phase 32**.
+Estado atual: entregas concluidas ate a **Phase 32**, com validacao manual em light/dark/mobile como proxima trilha recomendada.
 
 ### Phases concluidas
 
@@ -601,15 +601,17 @@ Estado atual: entregas concluidas ate a **Phase 31**, com backlog ativo aberto d
 - [x] Phase 29: Dashboard Layout And Widget Polish
 - [x] Phase 30: Form Hardening And Status Feedback
 - [x] Phase 31: Progressive Disclosure And List Scaling
+- [x] Phase 32: Settings, Profile And Confirmation UX
 
 ### Phases abertas
 
-- [ ] Phase 32: Settings, Profile And Confirmation UX
+- Nenhuma phase aberta no momento
 
 ### Proximo passo recomendado
 
-- [ ] Iniciar a Phase 32 para evoluir settings/perfil e substituir `confirm()` nativo por componente proprio de confirmacao
-- [ ] Manter em paralelo a validacao visual light/dark/mobile das superficies com `BrandIcon`/`BrandDot`, dos novos `MoneyInput`/`IntegerInput` e do padrao de `Carregar mais` aplicado em categorias, recorrencias e detalhe de fatura
+- [ ] Rodada de validacao manual em light/dark/mobile cobrindo a nova area `/user` (foto, perfil, senha, exclusao de conta), o chip da topbar e os `ConfirmDialog`s migrados em contas, categorias, transacoes, recorrencias e metas
+- [ ] Validar em ambiente seguro o fluxo de exclusao de conta (cascade de Prisma apaga contas, categorias, transacoes, metas, recorrencias, cartoes e dashboards)
+- [ ] Manter em paralelo a validacao visual das superficies com `BrandIcon`/`BrandDot`, dos `MoneyInput`/`IntegerInput` e do padrao de `Carregar mais` aplicado em categorias, recorrencias e detalhe de fatura
 
 ### Backlog de produto
 

@@ -49,6 +49,15 @@ export async function validateSession(): Promise<{ userId: string; sessionId: st
   return { userId: session.userId, sessionId: session.id }
 }
 
+export async function invalidateOtherSessions(
+  userId: string,
+  keepSessionId: string,
+): Promise<void> {
+  await prisma.session.deleteMany({
+    where: { userId, NOT: { id: keepSessionId } },
+  })
+}
+
 export async function destroySession(): Promise<void> {
   const cookieStore = await cookies()
   const token = cookieStore.get(SESSION_COOKIE_NAME)?.value

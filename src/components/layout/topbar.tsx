@@ -1,18 +1,26 @@
 'use client'
 
+import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { ChevronLeft, ChevronRight, LogOut, Menu, User } from 'lucide-react'
+import { ChevronLeft, ChevronRight, LogOut, Menu } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { usePeriod } from '@/hooks/use-period'
+import { cn } from '@/lib/utils'
+import { getInitials, getUserChipPalette } from '@/lib/user-chip'
 
 type TopbarProps = {
   userName: string
+  userEmail: string
+  userImage: string | null
   onToggleSidebar?: () => void
 }
 
-export function Topbar({ userName, onToggleSidebar }: TopbarProps) {
+export function Topbar({ userName, userEmail, userImage, onToggleSidebar }: TopbarProps) {
   const router = useRouter()
   const { label, prevMonth, nextMonth } = usePeriod()
+
+  const palette = getUserChipPalette(userEmail || userName)
+  const initials = getInitials(userName || userEmail)
 
   async function handleLogout() {
     await fetch('/api/auth/logout', { method: 'POST' })
@@ -42,15 +50,33 @@ export function Topbar({ userName, onToggleSidebar }: TopbarProps) {
         </div>
       </div>
 
-      <div className="flex items-center gap-3">
-        <div className="hidden items-center gap-2 sm:flex">
-          <div className="bg-muted flex size-8 items-center justify-center rounded-full">
-            <User className="text-muted-foreground size-4" />
-          </div>
-          <span className="text-muted-foreground text-sm font-medium tracking-tight">
-            {userName}
+      <div className="flex items-center gap-2">
+        <Link
+          href="/user"
+          title="Sua conta"
+          className={cn(
+            'group flex items-center gap-2 rounded-full border py-1 pr-3 pl-1 text-sm font-medium tracking-tight transition-colors',
+            palette.bg,
+            palette.border,
+            palette.text,
+            'hover:shadow-sm',
+          )}
+        >
+          <span
+            className={cn(
+              'flex size-7 items-center justify-center overflow-hidden rounded-full text-xs font-semibold',
+              palette.dotBg,
+            )}
+          >
+            {userImage ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={userImage} alt={userName} className="size-full object-cover" />
+            ) : (
+              initials
+            )}
           </span>
-        </div>
+          <span className="hidden max-w-[160px] truncate sm:inline">{userName}</span>
+        </Link>
         <Button
           variant="ghost"
           size="icon-sm"

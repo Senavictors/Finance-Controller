@@ -13,6 +13,7 @@ import { formatCurrency } from '@/lib/format'
 import { useState } from 'react'
 import { AccountForm } from './account-form'
 import { BrandIcon } from '@/lib/brands'
+import { useConfirm } from '@/components/ui/confirm-dialog'
 
 type Account = {
   id: string
@@ -39,9 +40,15 @@ const typeLabels: Record<string, string> = {
 export function AccountCard({ account }: { account: Account }) {
   const router = useRouter()
   const [editOpen, setEditOpen] = useState(false)
+  const { confirm, ConfirmDialog } = useConfirm()
 
   async function handleDelete() {
-    if (!confirm('Excluir esta conta? As transacoes vinculadas tambem serao removidas.')) return
+    const ok = await confirm({
+      title: `Excluir conta "${account.name}"?`,
+      description: 'Todas as transacoes vinculadas a esta conta serao removidas.',
+      destructive: true,
+    })
+    if (!ok) return
     await fetch(`/api/accounts/${account.id}`, { method: 'DELETE' })
     router.refresh()
   }
@@ -110,6 +117,7 @@ export function AccountCard({ account }: { account: Account }) {
         </div>
       </div>
       <AccountForm open={editOpen} onOpenChange={setEditOpen} account={account} />
+      {ConfirmDialog}
     </>
   )
 }

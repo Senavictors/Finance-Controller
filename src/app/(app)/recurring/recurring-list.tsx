@@ -15,6 +15,7 @@ import { cn } from '@/lib/utils'
 import { useState } from 'react'
 import { RecurringForm } from './recurring-form'
 import { BrandDot, BrandIcon, getBrand, matchBrand } from '@/lib/brands'
+import { useConfirm } from '@/components/ui/confirm-dialog'
 
 const INITIAL_VISIBLE = 10
 const PAGE_SIZE = 10
@@ -96,6 +97,7 @@ function RecurringRow({
 }) {
   const router = useRouter()
   const [editOpen, setEditOpen] = useState(false)
+  const { confirm, ConfirmDialog } = useConfirm()
   const inferredBrandKey = matchBrand(rule.description) ?? rule.category?.icon ?? rule.account.icon
   const inferredBrand = getBrand(inferredBrandKey)
 
@@ -109,7 +111,12 @@ function RecurringRow({
   }
 
   async function handleDelete() {
-    if (!confirm(`Excluir regra "${rule.description}"?`)) return
+    const ok = await confirm({
+      title: `Excluir regra "${rule.description}"?`,
+      description: 'A regra recorrente e seu historico de execucoes serao removidos.',
+      destructive: true,
+    })
+    if (!ok) return
     await fetch(`/api/recurring-rules/${rule.id}`, { method: 'DELETE' })
     router.refresh()
   }
@@ -250,6 +257,7 @@ function RecurringRow({
         accounts={accounts}
         categories={categories}
       />
+      {ConfirmDialog}
     </>
   )
 }
