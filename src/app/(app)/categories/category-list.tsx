@@ -13,6 +13,7 @@ import { MoreVertical, Pencil, Trash2 } from 'lucide-react'
 import { useState } from 'react'
 import { CategoryForm } from './category-form'
 import { BrandDot } from '@/lib/brands'
+import { useConfirm } from '@/components/ui/confirm-dialog'
 
 type Category = {
   id: string
@@ -64,13 +65,24 @@ function CategoryRow({
 }) {
   const router = useRouter()
   const [editOpen, setEditOpen] = useState(false)
+  const { confirm, ConfirmDialog } = useConfirm()
 
   async function handleDelete() {
     if (category._count.transactions > 0) {
-      alert('Categoria possui transacoes vinculadas. Remova ou reatribua primeiro.')
+      await confirm({
+        title: 'Nao e possivel excluir',
+        description: 'Categoria possui transacoes vinculadas. Remova ou reatribua primeiro.',
+        confirmText: 'Entendi',
+        cancelText: 'Fechar',
+      })
       return
     }
-    if (!confirm(`Excluir "${category.name}"?`)) return
+    const ok = await confirm({
+      title: `Excluir "${category.name}"?`,
+      description: 'A categoria sera removida permanentemente.',
+      destructive: true,
+    })
+    if (!ok) return
     await fetch(`/api/categories/${category.id}`, { method: 'DELETE' })
     router.refresh()
   }
@@ -117,6 +129,7 @@ function CategoryRow({
         category={category}
         categories={allCategories}
       />
+      {ConfirmDialog}
     </>
   )
 }

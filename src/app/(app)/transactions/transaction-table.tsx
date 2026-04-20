@@ -13,6 +13,7 @@ import { MoreVertical, Trash2, TrendingUp, TrendingDown, ArrowLeftRight } from '
 import { formatCurrency, formatDate } from '@/lib/format'
 import { cn } from '@/lib/utils'
 import { BrandDot, BrandIcon, getBrand, matchBrand } from '@/lib/brands'
+import { useConfirm } from '@/components/ui/confirm-dialog'
 
 type Transaction = {
   id: string
@@ -28,12 +29,17 @@ type Transaction = {
 
 export function TransactionTable({ transactions }: { transactions: Transaction[] }) {
   const router = useRouter()
+  const { confirm, ConfirmDialog } = useConfirm()
 
   async function handleDelete(id: string, hasTransfer: boolean) {
-    const msg = hasTransfer
-      ? 'Excluir esta transferencia? Ambas transacoes serao removidas.'
-      : 'Excluir esta transacao?'
-    if (!confirm(msg)) return
+    const ok = await confirm({
+      title: hasTransfer ? 'Excluir transferencia?' : 'Excluir transacao?',
+      description: hasTransfer
+        ? 'As duas transacoes da transferencia serao removidas permanentemente.'
+        : 'A transacao sera removida permanentemente.',
+      destructive: true,
+    })
+    if (!ok) return
     await fetch(`/api/transactions/${id}`, { method: 'DELETE' })
     router.refresh()
   }
@@ -156,6 +162,7 @@ export function TransactionTable({ transactions }: { transactions: Transaction[]
           </div>
         )
       })}
+      {ConfirmDialog}
     </div>
   )
 }

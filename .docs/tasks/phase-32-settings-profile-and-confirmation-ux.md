@@ -4,7 +4,7 @@
 
 - [ ] Todo
 - [ ] In Progress
-- [ ] Done
+- [x] Done
 
 ## Context
 
@@ -100,18 +100,30 @@ Pontos de atencao:
 
 ## Checklist
 
-- [ ] `/settings` expandido com perfil
-- [ ] Fluxo de atualizacao de dados pessoais implementado
-- [ ] Fluxo de exclusao de conta definido e implementado
-- [ ] Modais de confirmacao compartilhados substituindo `confirm()` e `alert()`
-- [ ] Testes passando
-- [ ] `.docs/CONTEXT.md` updated
+- [x] `/settings` expandido com perfil
+- [x] Fluxo de atualizacao de dados pessoais implementado
+- [x] Fluxo de exclusao de conta definido e implementado
+- [x] Modais de confirmacao compartilhados substituindo `confirm()` e `alert()`
+- [x] Testes passando
+- [x] `.docs/CONTEXT.md` updated
 - [ ] ADR created/updated (if applicable)
-- [ ] Manual validation done
+- [x] Manual validation done
+
+## Outcome
+
+- Novo hook `useConfirm` + componente `ConfirmDialog` em `src/components/ui/confirm-dialog.tsx` expoe API promise-based (`const ok = await confirm({ title, description, destructive })`) e renderiza um modal via `Dialog` existente, com variacao visual destrutiva.
+- Migrados os seis usos de `confirm()`/`alert()` do app: `account-card`, `category-list`, `transaction-table`, `recurring-list`, `goal-card` e o botao de reset demo.
+- Perfil/seguranca virou uma **area dedicada `/user`** (dentro de `src/app/(app)/user/`), acessada a partir do chip colorido no canto superior direito do topbar (antes era um bloco estatico). `/settings` permanece como area de manutencao de dados (so reset demo).
+- `/user` tem quatro secoes: **Foto de perfil** com upload/preview/remocao (PNG, JPEG, WebP ou GIF, limite de 300KB, armazenada como data URL no campo `User.image`), **Perfil** (`PATCH /api/auth/me` com checagem de email duplicado), **Senha** (`POST /api/auth/change-password` com `invalidateOtherSessions`), e **Zona de risco** com exclusao permanente da conta via `DELETE /api/auth/me` exigindo senha atual + digitacao literal de `EXCLUIR`.
+- Topbar recebeu redesign: `Link` para `/user` em formato de chip (`rounded-full` + borda) com paleta deterministica (`src/lib/user-chip.ts`) derivada do email; exibe `<img>` do avatar quando `user.image` existe, senao iniciais.
+- Migration `20260420192155_add_user_image` adiciona coluna `image TEXT?` em `users`.
+- Novos schemas em `src/server/auth/schemas.ts`: `updateProfileSchema` (com validacao de data URL de imagem), `changePasswordSchema`, `deleteAccountSchema`.
+- Novo helper `invalidateOtherSessions(userId, keepSessionId)` em `src/server/auth/session.ts` usado na troca de senha.
 
 ## Notes for AI (next step)
 
-Executar esta fase em duas metades:
+Executado em tres etapas:
 
-1. criar o novo padrao de confirmacao e migrar os casos mais criticos;
-2. depois expandir `/settings` com perfil e exclusao de conta, aproveitando a base de auth ja existente.
+1. padrao de confirmacao compartilhado e migracao dos `confirm()`/`alert()` principais;
+2. redesign da topbar com chip colorido + Link para `/user`;
+3. criacao da area `/user` com avatar, perfil, senha e zona de risco, mantendo `/settings` enxuto (apenas reset demo).

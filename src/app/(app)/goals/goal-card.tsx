@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { formatCurrency } from '@/lib/format'
 import type { GoalProgressResult } from '@/server/modules/finance/application/goals'
+import { useConfirm } from '@/components/ui/confirm-dialog'
 
 const statusLabels: Record<string, string> = {
   ON_TRACK: 'No ritmo',
@@ -65,9 +66,15 @@ function ProgressBar({ percent, status }: { percent: number; status: string }) {
 export function GoalCard({ goal }: GoalCardProps) {
   const router = useRouter()
   const [loading, setLoading] = useState(false)
+  const { confirm, ConfirmDialog } = useConfirm()
 
   async function handleArchive() {
-    if (!confirm('Arquivar esta meta?')) return
+    const ok = await confirm({
+      title: `Arquivar "${goal.name}"?`,
+      description: 'A meta sera arquivada e deixa de aparecer na lista ativa.',
+      confirmText: 'Arquivar',
+    })
+    if (!ok) return
     setLoading(true)
     try {
       await fetch(`/api/goals/${goal.goalId}`, { method: 'DELETE' })
@@ -137,6 +144,7 @@ export function GoalCard({ goal }: GoalCardProps) {
           <p className="text-xs text-gray-500">Disponivel: {formatCurrency(remaining)}</p>
         )}
       </CardContent>
+      {ConfirmDialog}
     </Card>
   )
 }
