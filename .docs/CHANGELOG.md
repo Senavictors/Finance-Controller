@@ -9,6 +9,9 @@ and this project adheres to [Conventional Commits](https://www.conventionalcommi
 
 ### Added
 
+- Phase 31: componente `CategoryListCard` em `src/app/(app)/categories/category-list-card.tsx` com preview de 5 pais + filhos e `Dialog` `Ver todas (N)` que reusa `CategoryList` para edicao/exclusao
+- Phase 31: padrao `Carregar mais (N restantes)` em `RecurringList` (`INITIAL_VISIBLE=10`, `PAGE_SIZE=10`) para reduzir renderizacao inicial de listas densas
+- Phase 31: client component `StatementTransactionsList` em `src/app/(app)/credit-cards/[id]/statement-transactions-list.tsx` aplicando o mesmo padrao de divulgacao progressiva no detalhe de fatura
 - Phase 30: helper `parseMoneyToCents` / `formatCentsToInput` em `src/lib/money.ts` com testes (`src/lib/money.test.ts`) cobrindo virgula, ponto, sub-centavo, clamp negativo e valores nulos
 - Phase 30: componentes reutilizaveis `MoneyInput` e `IntegerInput` em `src/components/ui/money-input.tsx` bloqueando `e/+/-`, desarmando wheel e escondendo spinners nativos
 - Phase 30: padrao de input monetario aplicado em transacoes, recorrencias, metas, pagamento de fatura e contas (incluindo `IntegerInput` para dias de fechamento/vencimento de cartao)
@@ -17,6 +20,7 @@ and this project adheres to [Conventional Commits](https://www.conventionalcommi
 
 ### Changed
 
+- Phase 31: `.docs/CONTEXT.md`, `README.md` e `.docs/tasks/phase-31-progressive-disclosure-and-list-scaling.md` atualizados para refletir a conclusao da phase e apontar a Phase 32 como proximo passo
 - Phase 30: `.docs/CONTEXT.md`, `README.md` e `.docs/tasks/phase-30-form-hardening-and-status-feedback.md` atualizados com a conclusao da phase e novo proximo passo apontando para a Phase 31
 
 ### Added (earlier)

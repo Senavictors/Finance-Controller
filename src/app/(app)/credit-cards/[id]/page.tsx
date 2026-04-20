@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import { notFound, redirect } from 'next/navigation'
-import { ArrowLeftRight, ChevronLeft, CreditCard } from 'lucide-react'
+import { ChevronLeft } from 'lucide-react'
 import { validateSession } from '@/server/auth/session'
 import { prisma } from '@/server/db'
 import { refreshCreditCardStatement } from '@/server/modules/finance/application/credit-card/billing'
@@ -9,7 +9,8 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { StatementPaymentForm } from './statement-payment-form'
-import { BrandDot, BrandIcon, getBrand, matchBrand } from '@/lib/brands'
+import { StatementTransactionsList } from './statement-transactions-list'
+import { BrandIcon } from '@/lib/brands'
 
 const statusLabels: Record<string, string> = {
   OPEN: 'Aberta',
@@ -238,77 +239,18 @@ export default async function CreditCardStatementPage({ params }: Props) {
         <CardHeader>
           <CardTitle>Movimentacoes da Fatura</CardTitle>
         </CardHeader>
-        <CardContent className="space-y-3">
-          {statement.transactions.length === 0 ? (
-            <div className="text-sm text-gray-500">
-              Nenhuma movimentacao vinculada a esta fatura.
-            </div>
-          ) : (
-            statement.transactions.map((transaction) => {
-              const inferredBrandKey =
-                matchBrand(transaction.description) ??
-                transaction.category?.icon ??
-                statement.account.icon
-              const inferredBrand = getBrand(inferredBrandKey)
-
-              return (
-                <div
-                  key={transaction.id}
-                  className="flex items-center justify-between rounded-2xl border border-gray-100 px-4 py-3"
-                >
-                  <div className="flex items-center gap-3">
-                    {inferredBrand ? (
-                      <BrandIcon
-                        brandKey={inferredBrand.key}
-                        fallbackLabel={transaction.description}
-                        size={36}
-                        radius="md"
-                      />
-                    ) : (
-                      <div className="bg-muted flex size-9 items-center justify-center rounded-xl">
-                        {transaction.type === 'EXPENSE' ? (
-                          <CreditCard className="size-4 text-red-500" />
-                        ) : (
-                          <ArrowLeftRight className="size-4 text-emerald-600" />
-                        )}
-                      </div>
-                    )}
-                    <div>
-                      <p className="text-sm font-medium text-gray-900">{transaction.description}</p>
-                      <div className="mt-0.5 flex items-center gap-2 text-xs text-gray-500">
-                        <span>{formatDate(transaction.date)}</span>
-                        {transaction.category && (
-                          <>
-                            <span>&middot;</span>
-                            <span className="flex items-center gap-1">
-                              <BrandDot
-                                brandKey={transaction.category.icon}
-                                fallbackText={transaction.category.name}
-                                fallbackColor={transaction.category.color}
-                                fallbackLabel={transaction.category.name}
-                                size={10}
-                              />
-                              {transaction.category.name}
-                            </span>
-                          </>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                  <span
-                    className={
-                      transaction.type === 'TRANSFER'
-                        ? 'text-sm font-semibold text-emerald-600'
-                        : 'text-sm font-semibold text-red-600'
-                    }
-                  >
-                    {transaction.type === 'TRANSFER' ? '+ ' : '- '}
-                    {formatCurrency(transaction.amount)}
-                  </span>
-                </div>
-              )
-            })
-          )}
+        <CardContent>
+          <StatementTransactionsList
+            transactions={statement.transactions.map((transaction) => ({
+              id: transaction.id,
+              type: transaction.type,
+              description: transaction.description,
+              date: transaction.date,
+              amount: transaction.amount,
+              category: transaction.category,
+            }))}
+            accountIcon={statement.account.icon}
+          />
         </CardContent>
       </Card>
     </div>
