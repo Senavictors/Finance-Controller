@@ -12,7 +12,9 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
+import { MoneyInput, IntegerInput } from '@/components/ui/money-input'
 import { Label } from '@/components/ui/label'
+import { formatCentsToInput, parseMoneyToCents } from '@/lib/money'
 import {
   Select,
   SelectContent,
@@ -110,7 +112,6 @@ export function RecurringForm({ accounts, categories, rule, open, onOpenChange }
     setLoading(true)
 
     const fd = new FormData(e.currentTarget)
-    const amountStr = fd.get('amount') as string
     const categoryId = fd.get('categoryId') as string
     const dayOfMonth = fd.get('dayOfMonth') as string
     const dayOfWeek = fd.get('dayOfWeek') as string
@@ -118,7 +119,7 @@ export function RecurringForm({ accounts, categories, rule, open, onOpenChange }
     const body: Record<string, unknown> = {
       accountId: fd.get('accountId'),
       type: txType,
-      amount: Math.round(parseFloat(amountStr || '0') * 100),
+      amount: parseMoneyToCents(fd.get('amount') as string),
       description: fd.get('description'),
       notes: (fd.get('notes') as string) || undefined,
       frequency: freq,
@@ -189,14 +190,12 @@ export function RecurringForm({ accounts, categories, rule, open, onOpenChange }
           <div className="flex gap-3">
             <div className="flex flex-1 flex-col gap-1.5">
               <Label htmlFor="amount">Valor (R$)</Label>
-              <Input
+              <MoneyInput
                 id="amount"
                 name="amount"
-                type="number"
-                step="0.01"
-                min="0.01"
+                placeholder="0,00"
                 required
-                defaultValue={rule ? (rule.amount / 100).toFixed(2) : ''}
+                defaultValue={rule ? formatCentsToInput(rule.amount) : ''}
               />
             </div>
             <div className="flex flex-1 flex-col gap-1.5">
@@ -302,10 +301,9 @@ export function RecurringForm({ accounts, categories, rule, open, onOpenChange }
             {freq === 'MONTHLY' || freq === 'YEARLY' ? (
               <div className="flex flex-1 flex-col gap-1.5">
                 <Label htmlFor="dayOfMonth">Dia do mes</Label>
-                <Input
+                <IntegerInput
                   id="dayOfMonth"
                   name="dayOfMonth"
-                  type="number"
                   min="1"
                   max="31"
                   required

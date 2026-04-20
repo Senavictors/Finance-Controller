@@ -4,7 +4,7 @@
 
 - [ ] Todo
 - [ ] In Progress
-- [ ] Done
+- [x] Done
 
 ## Context
 
@@ -100,13 +100,21 @@ Pontos de atencao:
 
 ## Checklist
 
-- [ ] Filtros de transacoes com contraste melhorado
-- [ ] Padrao de input monetario endurecido nos fluxos principais
-- [ ] Recorrencias com status visual mais forte
-- [ ] Testes passando
-- [ ] `.docs/CONTEXT.md` updated
+- [x] Filtros de transacoes com contraste melhorado
+- [x] Padrao de input monetario endurecido nos fluxos principais
+- [x] Recorrencias com status visual mais forte
+- [x] Testes passando
+- [x] `.docs/CONTEXT.md` updated
 - [ ] ADR created/updated (if applicable)
-- [ ] Manual validation done
+- [x] Manual validation done
+
+## Outcome
+
+- Novo helper `parseMoneyToCents` / `formatCentsToInput` em `src/lib/money.ts` com 9 testes unitarios cobrindo virgula, ponto, sub-centavo e valores nulos.
+- Componentes `MoneyInput` e `IntegerInput` em `src/components/ui/money-input.tsx` bloqueiam `e/+/-`, desarmam o wheel e escondem spinners. Props opcionais como `allowZero` e `max` continuam sendo aceitas.
+- Inputs monetarios aplicados em transacoes, recorrencias, metas, pagamento de fatura e contas (incluindo dias de fechamento/vencimento como `IntegerInput`).
+- Filtros de `/transactions` agora vivem em um container `bg-card` com borda e sombra leve, preservando o tema azul/teal.
+- Recorrencias pausadas ganharam fundo ambar suave, descricao riscada e badge com icone `Pause`, substituindo o `opacity-50` neutro.
 
 ## Notes for AI (next step)
 

@@ -53,7 +53,7 @@ export function TransactionFilters({ accounts, categories }: Props) {
   }
 
   return (
-    <div className="flex flex-wrap gap-3">
+    <div className="bg-card flex flex-wrap items-center gap-3 rounded-lg border p-3 shadow-sm">
       <Select
         items={accountItems}
         defaultValue={searchParams.get('accountId') ?? 'all'}

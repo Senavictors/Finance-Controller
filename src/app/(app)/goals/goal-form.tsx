@@ -12,7 +12,9 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
+import { MoneyInput, IntegerInput } from '@/components/ui/money-input'
 import { Label } from '@/components/ui/label'
+import { parseMoneyToCents } from '@/lib/money'
 import {
   Select,
   SelectContent,
@@ -101,14 +103,13 @@ export function GoalForm({ categories, accounts, open, onOpenChange }: GoalFormP
 
     try {
       const formData = new FormData(e.currentTarget)
-      const amountStr = formData.get('targetAmount') as string
 
       const body: Record<string, unknown> = {
         name: formData.get('name') as string,
         description: (formData.get('description') as string) || undefined,
         metric,
         scopeType: metric === 'ACCOUNT_LIMIT' ? 'ACCOUNT' : scopeType,
-        targetAmount: Math.round(parseFloat(amountStr || '0') * 100),
+        targetAmount: parseMoneyToCents(formData.get('targetAmount') as string),
         period: formData.get('period') as string,
         warningPercent: Number(formData.get('warningPercent') ?? 80),
         dangerPercent: Number(formData.get('dangerPercent') ?? 95),
@@ -276,15 +277,7 @@ export function GoalForm({ categories, accounts, open, onOpenChange }: GoalFormP
 
           <div className="space-y-1.5">
             <Label htmlFor="targetAmount">Valor alvo (R$)</Label>
-            <Input
-              id="targetAmount"
-              name="targetAmount"
-              type="number"
-              min="0.01"
-              step="0.01"
-              placeholder="0,00"
-              required
-            />
+            <MoneyInput id="targetAmount" name="targetAmount" placeholder="0,00" required />
           </div>
 
           <div className="space-y-1.5">
@@ -306,10 +299,9 @@ export function GoalForm({ categories, accounts, open, onOpenChange }: GoalFormP
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-1.5">
               <Label htmlFor="warningPercent">Aviso (%)</Label>
-              <Input
+              <IntegerInput
                 id="warningPercent"
                 name="warningPercent"
-                type="number"
                 min="1"
                 max="99"
                 defaultValue="80"
@@ -317,10 +309,9 @@ export function GoalForm({ categories, accounts, open, onOpenChange }: GoalFormP
             </div>
             <div className="space-y-1.5">
               <Label htmlFor="dangerPercent">Perigo (%)</Label>
-              <Input
+              <IntegerInput
                 id="dangerPercent"
                 name="dangerPercent"
-                type="number"
                 min="1"
                 max="99"
                 defaultValue="95"
