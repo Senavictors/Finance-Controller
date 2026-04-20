@@ -8,9 +8,11 @@ Criar a fundacao da nova camada de documentacao do Finance Controller, preparand
 
 Depende do fluxo atual do projeto:
 
-- `future-features -> tasks -> execucao -> CONTEXT -> CHANGELOG`
+- criacao de task: `future-features -> tasks -> CONTEXT -> README`
+- conclusao de task: `execucao -> CONTEXT -> README -> CHANGELOG`
 - [CONTEXT](../CONTEXT.md)
 - [Task Template](../tasks/_TEMPLATE.md)
+- [README](../../README.md)
 
 ## Leitura do sistema atual
 
@@ -27,9 +29,10 @@ Ordem recomendada:
 
 1. Criar a spec da foundation.
 2. Converter a spec em task.
-3. Criar a estrutura de pastas e templates obrigatorios.
-4. Atualizar os artefatos vivos do projeto (`CONTEXT`, `CHANGELOG` e `README`).
-5. A partir dessa base, abrir as proximas fases: domain, business logic, API, data e architecture deep dive.
+3. Atualizar `CONTEXT` e `README` no momento em que a task entra no backlog.
+4. Criar a estrutura de pastas e templates obrigatorios.
+5. Ao concluir a entrega, atualizar os artefatos vivos do projeto (`CONTEXT`, `README` e `CHANGELOG`).
+6. A partir dessa base, abrir as proximas fases: domain, business logic, API, data e architecture deep dive.
 
 ## Estrutura recomendada
 

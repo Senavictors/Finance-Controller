@@ -9,6 +9,10 @@ and this project adheres to [Conventional Commits](https://www.conventionalcommi
 
 ### Added
 
+- Phase 29 task for dashboard layout and widget polish in `.docs/tasks/phase-29-dashboard-layout-and-widget-polish.md`
+- Phase 30 task for form hardening and status feedback in `.docs/tasks/phase-30-form-hardening-and-status-feedback.md`
+- Phase 31 task for progressive disclosure and list scaling in `.docs/tasks/phase-31-progressive-disclosure-and-list-scaling.md`
+- Phase 32 task for settings, profile and confirmation UX in `.docs/tasks/phase-32-settings-profile-and-confirmation-ux.md`
 - Phase 27: biblioteca de marcas SVG (`src/lib/brands/`) com `BRANDS`, `getBrand`, `listBrands`, `matchBrand` e `resolveBrand`
 - Componentes `BrandIcon`, `BrandDot` e `BrandPicker` para renderizar logos ou fallback colorido com iniciais
 - Seletor de marca em `AccountForm` (bancos + bandeiras) e `CategoryForm` (assinaturas + pagamentos)
@@ -70,6 +74,9 @@ and this project adheres to [Conventional Commits](https://www.conventionalcommi
 
 ### Changed
 
+- README documentation flow now treats `README.md` as mandatory on both task creation and task conclusion
+- README roadmap updated to show the open phases 29 to 32 and recommend starting with Phase 29
+- AGENTS, CLAUDE, docs foundation references and task template updated so `README.md` is no longer optional in the documentation ritual
 - README roadmap atualizado para refletir as phases concluidas ate a Phase 26 e separar proximo passo documental do backlog de produto
 - README, CONTEXT, architecture overview e architecture flows alinhados ao codigo atual (`dashboards`, `recurring-rules`, Node >= 20.9, apply manual de recorrencias e 10 widgets registrados)
 - `.docs/domain/insights.md` enriquecido com o deep dive da logica real do engine: metricas, heuristicas, dedupe, persistencia, dismiss e trade-offs

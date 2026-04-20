@@ -8,7 +8,10 @@
 
 ## Context
 
-O projeto chegou a um ponto em que a documentacao precisa evoluir para nivel de SaaS real, sem abandonar o fluxo atual baseado em `future-features -> tasks -> execucao -> CONTEXT -> CHANGELOG`.
+O projeto chegou a um ponto em que a documentacao precisa evoluir para nivel de SaaS real, sem abandonar o fluxo atual baseado em:
+
+- criacao de task: `future-features -> tasks -> CONTEXT -> README`
+- conclusao de task: `execucao -> CONTEXT -> README -> CHANGELOG`
 
 Esta task executa a spec [Documentation Foundation](../future-features/05-docs-foundation.md) e prepara a base para as proximas fases de domain docs, business logic deep dive, API docs, data docs e architecture deep dive.
 
@@ -62,6 +65,7 @@ Criar a estrutura inicial da nova camada de documentacao e os templates obrigato
 - [x] Code implemented
 - [x] Tests passing (not applicable for docs-only scope)
 - [x] `.docs/CONTEXT.md` updated
+- [x] `README.md` updated
 - [x] ADR created/updated (not applicable for this task)
 - [x] Manual validation done
 
@@ -74,4 +78,5 @@ Antes de criar cada documento:
 1. abrir uma spec em `future-features/`
 2. converter em task
 3. usar o template correto da camada
-4. atualizar `CONTEXT` e `CHANGELOG`
+4. atualizar `CONTEXT` e `README` ao colocar a task no backlog
+5. ao concluir, atualizar `CONTEXT`, `README` e `CHANGELOG`

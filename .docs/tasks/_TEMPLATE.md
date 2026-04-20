@@ -47,6 +47,7 @@
 - [ ] Code implemented
 - [ ] Tests passing
 - [ ] `.docs/CONTEXT.md` updated
+- [ ] `README.md` updated (roadmap/backlog/phases/proximo passo when applicable)
 - [ ] ADR created/updated (if applicable)
 - [ ] Manual validation done
 

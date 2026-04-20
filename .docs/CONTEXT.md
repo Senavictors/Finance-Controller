@@ -8,7 +8,9 @@
 
 ## Next Planned Step
 
-**Validacao manual e curadoria visual** — validar em light/dark/mobile as superficies que consomem `BrandIcon`/`BrandDot` (contas, categorias, transacoes, recorrencias, metas, cartoes/faturas, dashboard) e decidir proxima fase (p.ex. curar assets reais para `Neon` e `Pix`, ou evoluir para SVG oficial).
+**Phase 29: Dashboard Layout And Widget Polish** — atacar o feedback mais imediato de usabilidade com auto-placement melhor para widgets, placeholder de drag coerente com a paleta e containment com scroll em `Ultimas Transacoes`.
+
+**Validacao manual e curadoria visual** — continua recomendada como trilha paralela para revisar em light/dark/mobile as superficies que consomem `BrandIcon`/`BrandDot` (contas, categorias, transacoes, recorrencias, metas, cartoes/faturas, dashboard), especialmente agora que um novo ciclo de polish visual foi formalizado.
 
 ## What Exists
 
@@ -48,6 +50,8 @@
 - **Brand registry em producao**: `src/lib/brands/` portou o registry para TypeScript com `BRANDS`, `getBrand`, `listBrands`, `matchBrand` e `resolveBrand`; `BrandIcon`, `BrandDot` e `BrandPicker` padronizam o visual em contas, categorias, transacoes, recorrencias, metas, faturas de cartao e widgets do dashboard; seed/reset-demo ja populam `icon` para Nubank e Itau; testes unitarios do registry cobrem matching, fallback e normalizacao de acento
 - **Extracted logo inventory**: `system-images/logos/` concentra 33 logos reais extraidas para o proximo ciclo de substituicao visual (24 `jpeg`, 9 `png`, 0 `svg`), cobrindo 33/35 marcas do registry atual; faltam `Neon` e `Pix`, e alguns arquivos exigem normalizacao de naming (`bradeco`, `google`, `microsoft`, `hbo`, etc.)
 - **Brand assets em producao (Phase 28)**: 33 assets promovidos para `public/brands/<brandKey>.<ext>` com naming estavel; a registry passou a expor `BrandAsset` (`src`, `kind`, `fit`, `padding`, `border?`) e `svg` virou opcional; `BrandIcon`/`BrandDot` renderizam `<img>` para `png`/`jpeg` e `<svg>` inline apenas como fallback (Neon, Pix); suite de testes cobre existencia do arquivo no disco, kind suportado e fallback explicito
+- **UX backlog formalizado**: feedback externo de uso foi convertido nas tasks `phase-29` a `phase-32`, cobrindo polish do dashboard, hardening de formularios/status, divulgacao progressiva de listas densas e fundacao de settings/perfil com confirmacoes customizadas
+- **Documentation process hardening**: `README.md` passou a ser artefato obrigatorio tanto na criacao quanto na conclusao de tasks, com foco explicito em roadmap, backlog aberto, phases concluidas e proximo passo
 - **Documentation sync**: README, CONTEXT, architecture overview e flows alinhados ao codigo atual (`dashboards`, `recurring-rules`, Node >= 20.9, apply manual de recorrencias e registry atual de widgets)
 - **README roadmap sync**: roadmap do README agora reflete explicitamente as phases 13 a 28 concluidas, registra o sistema visual de marcas/logos reais e alinha o proximo passo com a curadoria visual dos assets
 - **Repo hygiene**: `.gitignore` ajustado para ignorar configs locais de tooling em `.claude/`, logs genericos e artefatos comuns de chave/certificado (`*.key`, `*.crt`, `*.p12`, `*.pfx`)
@@ -57,7 +61,7 @@
 - **CI**: GitHub Actions (lint + format:check + build)
 - **README**: overview alinhado ao codigo atual, com setup, stack, arquitetura alvo vs realidade e estrutura de rotas atual
 - **Future feature specs**: `.docs/future-features/` com Goal Engine, Forecast Engine, Score Financeiro, Insights Automaticos, Documentation Foundation e o roadmap documental das fases 14 a 26
-- **Execution backlog**: tasks formais criadas para as phases 8.5 a 28 em `.docs/tasks/`, incluindo a nova Phase 28 para substituir os SVGs artesanais por assets reais extraidos em `system-images/logos`
+- **Execution backlog**: tasks formais criadas para as phases 8.5 a 32 em `.docs/tasks/`, incluindo as novas phases 29 a 32 para polish de dashboard, hardening de formularios, listas densas e settings/perfil
 - **Technical plan**: task documentada para a fundacao analitica e ciclo de fatura de cartao
 - **31 API routes**, 15 models, 13 ADRs
 

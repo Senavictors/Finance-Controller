@@ -42,7 +42,7 @@ UI → Route Handlers (API) → Use Cases → Domain → Repositories → DB
 - **Multi-tenant**: Every financial table has `userId`. Every query filters by `userId`
 - **Theme**: Blue/teal/green palette. **NO purple**. Dark mode supported via `.dark` class
 - **Validation**: Zod schemas for all API inputs and form data
-- **Documentation**: Update `.docs/CONTEXT.md` after every task. Create ADRs for architectural decisions
+- **Documentation**: Update `.docs/CONTEXT.md` after every task, and update `README.md` whenever a task is created or concluded so roadmap/backlog/phases stay in sync. Create ADRs for architectural decisions
 
 ## Git Identity
 
@@ -59,6 +59,7 @@ git config core.hooksPath .githooks
 
 ## Documentation
 
+- `README.md` — Public roadmap, next step and concluded phases
 - `.docs/CONTEXT.md` — Living project state (read before any task)
 - `.docs/vision.md` — Project vision and goals
 - `.docs/architecture/README.md` — Architecture overview

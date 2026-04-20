@@ -182,14 +182,23 @@ public/                    Assets estaticos versionados
 
 ## Documentacao
 
-Toda evolucao documental do projeto vive em `.docs/` e segue o fluxo:
+Toda evolucao documental do projeto vive em `.docs/`, mas o `README.md` tambem faz parte obrigatoria do ritual documental porque concentra o roadmap publico, o proximo passo e as phases concluidas.
+
+Fluxo obrigatorio ao criar uma nova task:
 
 ```text
-future-features -> tasks -> execucao -> CONTEXT -> CHANGELOG
+future-features -> tasks -> CONTEXT -> README (roadmap, backlog aberto, proximo passo)
+```
+
+Fluxo obrigatorio ao concluir uma task/phase:
+
+```text
+execucao -> CONTEXT -> README (roadmap, phases concluidas, proximo passo) -> CHANGELOG
 ```
 
 Camadas principais:
 
+- `README.md` — roadmap publico do projeto, backlog aberto, phases concluidas e proximo passo recomendado
 - `.docs/CONTEXT.md` — estado vivo do projeto
 - `.docs/vision.md` — visao de produto
 - `.docs/architecture/README.md` — overview arquitetural
@@ -201,7 +210,11 @@ Camadas principais:
 - `.docs/tasks/` — execucao faseada
 - `.docs/CHANGELOG.md` — historico curado
 
-Regra operacional: novas docs dessas camadas devem nascer sempre a partir de `future-features/`, virar `task` e usar o `_TEMPLATE.md` correspondente.
+Regra operacional:
+
+- novas docs dessas camadas devem nascer sempre a partir de `future-features/`, virar `task` e usar o `_TEMPLATE.md` correspondente;
+- ao criar uma task nova, atualizar tambem o `README.md` na secao de roadmap/backlog;
+- ao concluir uma task ou phase, atualizar tambem o `README.md` nas secoes de roadmap, phases concluidas e proximo passo, alem do `CHANGELOG` quando fizer sentido.
 
 ---
 
@@ -552,7 +565,7 @@ npx prisma db seed   # Popular dados demo
 
 ## Roadmap
 
-Estado atual: backlog faseado inicial concluido ate a **Phase 28**.
+Estado atual: entregas concluidas ate a **Phase 28**, com backlog ativo aberto das **Phases 29 a 32**.
 
 ### Phases concluidas
 
@@ -586,9 +599,17 @@ Estado atual: backlog faseado inicial concluido ate a **Phase 28**.
 - [x] Phase 27: SVG Brand Icons
 - [x] Phase 28: Real Brand Logo Assets
 
-### Proximo passo natural
+### Phases abertas
 
-- [ ] Validar visualmente light/dark/mobile as superficies com `BrandIcon`/`BrandDot` e decidir a proxima iteracao de marcas (`Neon`, `Pix` ou SVG oficial)
+- [ ] Phase 29: Dashboard Layout And Widget Polish
+- [ ] Phase 30: Form Hardening And Status Feedback
+- [ ] Phase 31: Progressive Disclosure And List Scaling
+- [ ] Phase 32: Settings, Profile And Confirmation UX
+
+### Proximo passo recomendado
+
+- [ ] Iniciar a Phase 29 para melhorar auto-placement de widgets, placeholder de drag e containment com scroll em `Ultimas Transacoes`
+- [ ] Manter em paralelo a validacao visual light/dark/mobile das superficies com `BrandIcon`/`BrandDot` e decidir a proxima iteracao de marcas (`Neon`, `Pix` ou SVG oficial)
 
 ### Backlog de produto
 
