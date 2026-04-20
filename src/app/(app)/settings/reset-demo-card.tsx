@@ -42,12 +42,12 @@ export function ResetDemoCard() {
 
   return (
     <div className="flex items-start gap-4">
-      <div className="flex size-10 items-center justify-center rounded-xl bg-amber-100">
+      <div className="flex size-10 items-center justify-center rounded-xl bg-amber-100 dark:bg-amber-950/40">
         <AlertTriangle className="size-4 text-amber-600" />
       </div>
       <div className="flex-1">
-        <h3 className="text-sm font-medium text-gray-900">Resetar dados demo</h3>
-        <p className="mt-1 text-sm text-gray-500">
+        <h3 className="text-foreground text-sm font-medium">Resetar dados demo</h3>
+        <p className="text-muted-foreground mt-1 text-sm">
           Apaga todos os seus dados e recria um cenario de demonstracao completo, incluindo
           dashboard populado, recorrencias e cartao com fatura paga e outra em aberto.
         </p>

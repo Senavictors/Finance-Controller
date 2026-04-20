@@ -54,7 +54,7 @@ function ProgressBar({ percent, status }: { percent: number; status: string }) {
           : 'bg-red-500'
 
   return (
-    <div className="h-2 w-full overflow-hidden rounded-full bg-gray-100">
+    <div className="bg-muted h-2 w-full overflow-hidden rounded-full">
       <div
         className={`h-full rounded-full transition-all ${colorClass}`}
         style={{ width: `${Math.min(percent, 100)}%` }}
@@ -88,19 +88,19 @@ export function GoalCard({ goal }: GoalCardProps) {
   const remaining = goal.targetAmount - goal.actualAmount
 
   return (
-    <Card className="rounded-[1.5rem] border-white/50 shadow-sm">
+    <Card className="ring-border/60 rounded-[1.5rem] shadow-sm">
       <CardHeader className="pb-3">
         <div className="flex items-start justify-between gap-2">
           <div className="min-w-0 flex-1">
             <CardTitle className="truncate text-base">{goal.name}</CardTitle>
             {goal.description && (
-              <p className="mt-0.5 truncate text-xs text-gray-500">{goal.description}</p>
+              <p className="text-muted-foreground mt-0.5 truncate text-xs">{goal.description}</p>
             )}
           </div>
           <Button
             variant="ghost"
             size="icon"
-            className="size-7 shrink-0 text-gray-400 hover:text-red-600"
+            className="text-muted-foreground hover:text-destructive size-7 shrink-0"
             onClick={handleArchive}
             disabled={loading}
           >
@@ -112,9 +112,9 @@ export function GoalCard({ goal }: GoalCardProps) {
           <Badge variant={statusVariants[goal.status] ?? 'secondary'}>
             {statusLabels[goal.status] ?? goal.status}
           </Badge>
-          <span className="text-xs text-gray-400">{metricLabels[goal.metric]}</span>
-          <span className="text-xs text-gray-300">·</span>
-          <span className="text-xs text-gray-400">{scopeLabels[goal.scopeType]}</span>
+          <span className="text-muted-foreground text-xs">{metricLabels[goal.metric]}</span>
+          <span className="text-muted-foreground/60 text-xs">·</span>
+          <span className="text-muted-foreground text-xs">{scopeLabels[goal.scopeType]}</span>
         </div>
       </CardHeader>
 
@@ -124,10 +124,12 @@ export function GoalCard({ goal }: GoalCardProps) {
             <span className="text-2xl font-semibold tracking-tight">
               {formatCurrency(goal.actualAmount)}
             </span>
-            <span className="text-sm text-gray-500">de {formatCurrency(goal.targetAmount)}</span>
+            <span className="text-muted-foreground text-sm">
+              de {formatCurrency(goal.targetAmount)}
+            </span>
           </div>
           <ProgressBar percent={goal.progressPercent} status={goal.status} />
-          <p className="mt-1 text-right text-xs text-gray-400">{goal.progressPercent}%</p>
+          <p className="text-muted-foreground mt-1 text-right text-xs">{goal.progressPercent}%</p>
         </div>
 
         {goal.alerts.length > 0 && (
@@ -141,7 +143,7 @@ export function GoalCard({ goal }: GoalCardProps) {
         )}
 
         {isLimitMetric && remaining > 0 && goal.status !== 'EXCEEDED' && (
-          <p className="text-xs text-gray-500">Disponivel: {formatCurrency(remaining)}</p>
+          <p className="text-muted-foreground text-xs">Disponivel: {formatCurrency(remaining)}</p>
         )}
       </CardContent>
       {ConfirmDialog}

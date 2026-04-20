@@ -63,14 +63,14 @@ export function RecurringList({
   const remaining = rules.length - visibleRules.length
 
   return (
-    <div className="rounded-[2rem] border border-white/50 bg-gradient-to-br from-white to-gray-50 shadow-sm">
-      <div className="divide-y divide-gray-100">
+    <div className="fc-panel">
+      <div className="divide-border/60 divide-y">
         {visibleRules.map((rule) => (
           <RecurringRow key={rule.id} rule={rule} accounts={accounts} categories={categories} />
         ))}
       </div>
       {remaining > 0 && (
-        <div className="flex justify-center border-t border-gray-100 p-3">
+        <div className="border-border/60 flex justify-center border-t p-3">
           <Button
             type="button"
             variant="ghost"
@@ -157,13 +157,13 @@ function RecurringRow({
           <div>
             <p
               className={cn(
-                'text-sm font-medium text-gray-900',
+                'text-foreground text-sm font-medium',
                 !rule.isActive && 'text-muted-foreground line-through decoration-amber-500/60',
               )}
             >
               {rule.description}
             </p>
-            <div className="mt-0.5 flex items-center gap-2 text-xs text-gray-400">
+            <div className="text-muted-foreground mt-0.5 flex items-center gap-2 text-xs">
               <div className="flex items-center gap-1">
                 <BrandDot
                   brandKey={rule.account.icon}
@@ -219,7 +219,7 @@ function RecurringRow({
           <DropdownMenu>
             <DropdownMenuTrigger
               render={
-                <button className="flex size-8 items-center justify-center rounded-full text-gray-400 hover:bg-gray-100" />
+                <button className="text-muted-foreground hover:bg-muted flex size-8 items-center justify-center rounded-full" />
               }
             >
               <MoreVertical className="size-4" />

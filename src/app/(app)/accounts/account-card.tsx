@@ -55,7 +55,7 @@ export function AccountCard({ account }: { account: Account }) {
 
   return (
     <>
-      <div className="group relative overflow-hidden rounded-[1.5rem] border border-white/50 bg-gradient-to-b from-white to-gray-50 p-6 shadow-sm transition-all hover:shadow-md">
+      <div className="group border-border/60 from-card via-card to-muted/40 relative overflow-hidden rounded-[1.5rem] border bg-gradient-to-b p-6 shadow-sm transition-all hover:shadow-md">
         <div className="flex items-start justify-between">
           <div className="flex items-center gap-3">
             <BrandIcon
@@ -67,7 +67,9 @@ export function AccountCard({ account }: { account: Account }) {
               radius="md"
             />
             <div>
-              <h3 className="text-sm font-semibold tracking-tight text-gray-900">{account.name}</h3>
+              <h3 className="text-foreground text-sm font-semibold tracking-tight">
+                {account.name}
+              </h3>
               <Badge variant="secondary" className="mt-1 text-[11px]">
                 {typeLabels[account.type] ?? account.type}
               </Badge>
@@ -76,7 +78,7 @@ export function AccountCard({ account }: { account: Account }) {
           <DropdownMenu>
             <DropdownMenuTrigger
               render={
-                <button className="flex size-8 items-center justify-center rounded-full text-gray-400 opacity-0 transition-opacity group-hover:opacity-100 hover:bg-gray-100" />
+                <button className="text-muted-foreground hover:bg-muted flex size-8 items-center justify-center rounded-full opacity-0 transition-opacity group-hover:opacity-100" />
               }
             >
               <MoreVertical className="size-4" />
@@ -97,19 +99,19 @@ export function AccountCard({ account }: { account: Account }) {
         <div className="mt-6">
           {account.type === 'CREDIT_CARD' ? (
             <>
-              <p className="text-xs text-gray-400">Limite do cartao</p>
-              <p className="mt-0.5 text-xl font-semibold tracking-tight text-gray-900">
+              <p className="text-muted-foreground text-xs">Limite do cartao</p>
+              <p className="text-foreground mt-0.5 text-xl font-semibold tracking-tight">
                 {account.creditLimit ? formatCurrency(account.creditLimit) : 'Nao configurado'}
               </p>
-              <p className="mt-2 text-xs text-gray-500">
+              <p className="text-muted-foreground mt-2 text-xs">
                 Fechamento dia {account.statementClosingDay ?? '-'} • Vencimento dia{' '}
                 {account.statementDueDay ?? '-'}
               </p>
             </>
           ) : (
             <>
-              <p className="text-xs text-gray-400">Saldo inicial</p>
-              <p className="mt-0.5 text-xl font-semibold tracking-tight text-gray-900">
+              <p className="text-muted-foreground text-xs">Saldo inicial</p>
+              <p className="text-foreground mt-0.5 text-xl font-semibold tracking-tight">
                 {formatCurrency(account.initialBalance)}
               </p>
             </>

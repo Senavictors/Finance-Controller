@@ -4,18 +4,19 @@
 
 ## Current Phase
 
-**Phase 32: Settings, Profile And Confirmation UX** — Concluido. Novo hook `useConfirm` + componente `ConfirmDialog` em `src/components/ui/confirm-dialog.tsx` expoe API promise-based e substituiu os seis usos de `confirm()`/`alert()` do app (`account-card`, `category-list`, `transaction-table`, `recurring-list`, `goal-card`, reset demo). Perfil/seguranca virou uma **area dedicada `/user`** em `src/app/(app)/user/`, acessada pelo chip colorido do topbar (redesenhado como `Link` com paleta deterministica via `src/lib/user-chip.ts`). `/user` tem secoes de **Foto de perfil** (upload com preview, PNG/JPEG/WebP/GIF ate 300KB, data URL em `User.image`), **Perfil** (`PATCH /api/auth/me`), **Senha** (`POST /api/auth/change-password` com `invalidateOtherSessions`) e **Zona de risco** com exclusao via `DELETE /api/auth/me` exigindo senha + digitacao literal de `EXCLUIR`. `/settings` foi mantido enxuto, apenas com reset demo dentro do novo padrao. Migration `20260420192155_add_user_image` adiciona `image TEXT?` em `users`. Novos schemas `updateProfileSchema`/`changePasswordSchema`/`deleteAccountSchema` em `src/server/auth/schemas.ts`.
+**Phase 33: Dark Theme And Theme Toggle** — Concluida no codigo. O app agora possui infraestrutura global de tema com `ThemeProvider` (`src/components/theme/theme-provider.tsx`), bootstrap em `src/app/layout.tsx`, persistencia via cookie + `localStorage` (`src/lib/theme.ts`) e novo `ThemeToggle` reutilizado no `Topbar`, landing e auth. As principais superfices com visual claro hardcoded foram migradas para tokens semanticos e classes compartilhadas em `src/app/globals.css` (`.fc-panel`, `.fc-panel-subtle`, `.fc-panel-danger`), cobrindo dashboard widgets, `/user`, `/settings`, contas, transacoes, recorrencias, metas, cartoes/faturas e `BrandPicker`. `npm run format:check`, `npm run lint`, `npm test` e `npm run build` passaram. A validacao visual automatizada em browser real ficou pendente porque a permissao de `Computer Use` nao estava liberada no ambiente.
 
 ## Next Planned Step
 
-**Validacao manual e curadoria visual** — prioridade passa a ser revisar a nova area de settings em light/dark/mobile, validar o fluxo de exclusao de conta em ambiente seguro e aferir consistencia visual dos `ConfirmDialog`s em todas as superficies migradas.
+**Validacao visual manual do dark/light** — revisar a experiencia real em desktop/mobile, alternando o toggle em landing, auth, dashboard, `/user`, `/settings`, contas, categorias, transacoes, recorrencias, metas e cartoes/faturas para confirmar contraste, hover/focus e consistencia de gradientes/cards.
 
-**Validacao manual e curadoria visual** — continua recomendada como trilha paralela para revisar em light/dark/mobile as superficies que consomem `BrandIcon`/`BrandDot` (contas, categorias, transacoes, recorrencias, metas, cartoes/faturas, dashboard), especialmente agora que o polish do dashboard tambem precisa ser verificado visualmente (auto-placement, placeholder tematizado e scroll interno).
+**Curadoria fina de contraste** — observar especialmente charts/tooltips, logos rasterizados, `ConfirmDialog`, dropdowns, sidebars, drag handles do dashboard, estados vazios e badges semanticas para identificar eventuais ajustes residuais no modo dark.
 
 ## What Exists
 
 - Next.js 16 App Router + TypeScript + Inter font
 - Tailwind CSS v4 com tema Apex Holdings
+- **Dark theme global em producao (Phase 33)**: `src/lib/theme.ts` + `ThemeProvider` controlam tema `light|dark`, bootstrap no root layout, persistencia via cookie + `localStorage` e toggle reutilizado em `Topbar`, landing e auth; superficies principais migraram de cores claras hardcoded para tokens semanticos e classes `.fc-panel*`
 - shadcn/ui (Base UI)
 - Prisma 7 + PostgreSQL
 - **Auth**: bcrypt, sessions, cookies, rate limiting
@@ -54,18 +55,20 @@
 - **Form hardening (Phase 30)**: `src/lib/money.ts` expoe `parseMoneyToCents`/`formatCentsToInput` com 9 testes; `src/components/ui/money-input.tsx` entrega `MoneyInput` e `IntegerInput` bloqueando `e/+/-`, wheel e spinners; transacoes, recorrencias, metas, pagamento de fatura e contas usam o padrao compartilhado; filtros de `/transactions` ganharam container com contraste (`bg-card` + borda + shadow); recorrencias pausadas usam fundo ambar, descricao riscada e badge com icone `Pause` para leitura rapida do estado
 - **Progressive disclosure (Phase 31)**: `CategoryListCard` mostra 5 pais com filhos e abre `Dialog` com a lista completa preservando edicao; `RecurringList` passou a renderizar 10 + `Carregar mais`; `StatementTransactionsList` aplica o mesmo padrao no detalhe de fatura; `/transactions` continua usando a paginacao server-side existente
 - **Settings, profile and confirmation UX (Phase 32)**: hook `useConfirm` + `ConfirmDialog` compartilhado substitui todo `confirm()`/`alert()` nativo; perfil/seguranca migrou para `/user`, acessado pelo chip colorido redesenhado no topbar, com upload de avatar (data URL ate 300KB em `User.image`), troca de senha (`invalidateOtherSessions`) e zona de risco com exclusao exigindo senha + digitacao de `EXCLUIR`; `/settings` fica apenas para reset demo; novos endpoints `PATCH/DELETE /api/auth/me` e `POST /api/auth/change-password`; migration `20260420192155_add_user_image`
-- **UX backlog formalizado**: feedback externo de uso foi convertido nas tasks `phase-29` a `phase-32`, cobrindo polish do dashboard, hardening de formularios/status, divulgacao progressiva de listas densas e fundacao de settings/perfil com confirmacoes customizadas
+- **Dark theme and theme toggle (Phase 33)**: root layout agora aplica `data-theme`, `colorScheme`, `suppressHydrationWarning` e script de bootstrap; `ThemeToggle` alterna `light/dark` com persistencia; `Topbar`, landing e auth expõem o controle; dashboard widgets, `/user`, `/settings`, contas, transacoes, recorrencias, metas, cartoes/faturas e `BrandPicker` foram retocados para contraste consistente em dark
+- **Dark theme polish**: `IncomeExpensesWidget` teve o hover cursor padrao do Recharts removido (`Tooltip cursor={false}`) e passou a forcar `labelStyle`/`itemStyle` com `var(--foreground)`, eliminando o retangulo claro sobre a barra e o texto preto no tooltip em modo dark
+- **UX backlog formalizado**: feedback externo de uso foi convertido nas tasks `phase-29` a `phase-33`, cobrindo polish do dashboard, hardening de formularios/status, divulgacao progressiva de listas densas, fundacao de settings/perfil com confirmacoes customizadas e agora tema dark global com toggle light/dark
 - **Documentation process hardening**: `README.md` passou a ser artefato obrigatorio tanto na criacao quanto na conclusao de tasks, com foco explicito em roadmap, backlog aberto, phases concluidas e proximo passo
 - **Documentation sync**: README, CONTEXT, architecture overview e flows alinhados ao codigo atual (`dashboards`, `recurring-rules`, Node >= 20.9, apply manual de recorrencias e registry atual de widgets)
-- **README roadmap sync**: roadmap do README agora reflete explicitamente as phases 13 a 28 concluidas, registra o sistema visual de marcas/logos reais e alinha o proximo passo com a curadoria visual dos assets
+- **README roadmap sync**: roadmap do README agora reflete explicitamente as phases 13 a 33 concluidas e desloca o proximo passo para validacao visual manual do dark/light em browser real
 - **Repo hygiene**: `.gitignore` ajustado para ignorar configs locais de tooling em `.claude/`, logs genericos e artefatos comuns de chave/certificado (`*.key`, `*.crt`, `*.p12`, `*.pfx`)
 - **Seed demo**: script com dados ficticios (demo@finance.com / demo1234)
 - **Reset demo**: botao em /settings que recria dados
 - **Landing page**: hero + features + tech stack + footer
 - **CI**: GitHub Actions (lint + format:check + build)
 - **README**: overview alinhado ao codigo atual, com setup, stack, arquitetura alvo vs realidade e estrutura de rotas atual
-- **Future feature specs**: `.docs/future-features/` com Goal Engine, Forecast Engine, Score Financeiro, Insights Automaticos, Documentation Foundation e o roadmap documental das fases 14 a 26
-- **Execution backlog**: tasks formais criadas para as phases 8.5 a 32 em `.docs/tasks/`, incluindo as novas phases 29 a 32 para polish de dashboard, hardening de formularios, listas densas e settings/perfil
+- **Future feature specs**: `.docs/future-features/` com Goal Engine, Forecast Engine, Score Financeiro, Insights Automaticos, Documentation Foundation, o roadmap documental das fases 14 a 26 e a nova spec de dark theme global com toggle
+- **Execution backlog**: tasks formais criadas para as phases 8.5 a 33 em `.docs/tasks/`, incluindo as novas phases 29 a 33 para polish de dashboard, hardening de formularios, listas densas, settings/perfil e tema dark global
 - **Technical plan**: task documentada para a fundacao analitica e ciclo de fatura de cartao
 - **31 API routes**, 15 models, 13 ADRs
 

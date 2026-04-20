@@ -12,7 +12,9 @@ function VariationBadge({ value }: { value: number }) {
     <span
       className={cn(
         'inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-medium',
-        isPositive ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-700',
+        isPositive
+          ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300'
+          : 'bg-red-100 text-red-700 dark:bg-red-950/40 dark:text-red-300',
       )}
     >
       {isPositive ? '+' : ''}
@@ -28,25 +30,25 @@ export function IncomeExpensesWidget({ data }: { data: DashboardData }) {
   ]
 
   return (
-    <div className="relative h-full rounded-[2rem] border border-white/50 bg-[#EAEAEA] p-6 shadow-sm">
+    <div className="fc-panel-subtle relative h-full p-6">
       <div className="mb-4 grid gap-4 sm:grid-cols-2">
         <div>
-          <h3 className="text-sm font-medium text-gray-500">Receitas</h3>
-          <p className="mt-1 text-xl font-semibold tracking-tight text-gray-900">
+          <h3 className="text-muted-foreground text-sm font-medium">Receitas</h3>
+          <p className="text-foreground mt-1 text-xl font-semibold tracking-tight">
             {formatCurrency(data.totalIncome)}
           </p>
           <VariationBadge value={data.incomeVariation} />
         </div>
         <div>
-          <h3 className="text-sm font-medium text-gray-500">Despesas</h3>
-          <p className="mt-1 text-xl font-semibold tracking-tight text-gray-900">
+          <h3 className="text-muted-foreground text-sm font-medium">Despesas</h3>
+          <p className="text-foreground mt-1 text-xl font-semibold tracking-tight">
             {formatCurrency(data.totalExpenses)}
           </p>
           <VariationBadge value={data.expenseVariation} />
         </div>
       </div>
 
-      <div className="my-4 h-px w-full bg-gray-300" />
+      <div className="bg-border/70 my-4 h-px w-full" />
 
       {barData.some((d) => d.value > 0) ? (
         <ResponsiveContainer width="100%" height={120}>
@@ -56,16 +58,25 @@ export function IncomeExpensesWidget({ data }: { data: DashboardData }) {
               type="category"
               dataKey="name"
               width={75}
-              tick={{ fontSize: 12, fill: '#6b7280' }}
+              tick={{ fontSize: 12, fill: 'var(--muted-foreground)' }}
               axisLine={false}
               tickLine={false}
             />
             <Tooltip
+              cursor={false}
               formatter={(value) => formatCurrency(Math.round(Number(value) * 100))}
               contentStyle={{
+                backgroundColor: 'var(--card)',
                 borderRadius: '16px',
-                border: 'none',
-                boxShadow: '0 4px 24px rgba(0,0,0,0.08)',
+                border: '1px solid var(--border)',
+                boxShadow: '0 8px 32px rgba(15, 23, 42, 0.12)',
+              }}
+              labelStyle={{
+                color: 'var(--foreground)',
+                fontWeight: 600,
+              }}
+              itemStyle={{
+                color: 'var(--foreground)',
               }}
             />
             <Bar dataKey="value" radius={[0, 12, 12, 0]}>
@@ -76,7 +87,7 @@ export function IncomeExpensesWidget({ data }: { data: DashboardData }) {
           </BarChart>
         </ResponsiveContainer>
       ) : (
-        <div className="flex h-[120px] items-center justify-center text-sm text-gray-400">
+        <div className="text-muted-foreground flex h-[120px] items-center justify-center text-sm">
           Sem dados neste periodo
         </div>
       )}

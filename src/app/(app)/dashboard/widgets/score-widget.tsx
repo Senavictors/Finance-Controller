@@ -11,17 +11,17 @@ const statusLabels = {
 } as const
 
 const statusClasses = {
-  CRITICAL: 'bg-red-100 text-red-700',
-  ATTENTION: 'bg-amber-100 text-amber-700',
-  GOOD: 'bg-emerald-100 text-emerald-700',
-  EXCELLENT: 'bg-teal-100 text-teal-800',
+  CRITICAL: 'bg-red-100 text-red-700 dark:bg-red-950/40 dark:text-red-300',
+  ATTENTION: 'bg-amber-100 text-amber-700 dark:bg-amber-950/40 dark:text-amber-300',
+  GOOD: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300',
+  EXCELLENT: 'bg-teal-100 text-teal-800 dark:bg-teal-950/40 dark:text-teal-300',
 } as const
 
 const toneClasses = {
   positive: 'text-emerald-700',
   warning: 'text-amber-700',
   negative: 'text-red-700',
-  info: 'text-gray-600',
+  info: 'text-muted-foreground',
 } as const
 
 const gaugeColors = {
@@ -54,7 +54,13 @@ function ScoreGauge({ value, color }: { value: number; color: string }) {
       viewBox={`0 0 ${size} ${size / 2 + stroke}`}
       className="overflow-visible"
     >
-      <path d={arcPath} fill="none" stroke="#e5e7eb" strokeWidth={stroke} strokeLinecap="round" />
+      <path
+        d={arcPath}
+        fill="none"
+        stroke="var(--border)"
+        strokeWidth={stroke}
+        strokeLinecap="round"
+      />
       <path
         d={arcPath}
         fill="none"
@@ -78,9 +84,9 @@ export function ScoreWidget({ data }: { data: DashboardData }) {
     delta === null ? 'Sem historico anterior' : delta === 0 ? 'Sem variacao vs mes anterior' : null
 
   return (
-    <div className="flex h-full flex-col rounded-[2rem] border border-white/50 bg-[#F2F2F2] p-5 shadow-sm">
+    <div className="fc-panel-subtle flex h-full flex-col p-5">
       <div className="mb-3 flex items-center justify-between">
-        <h3 className="text-sm font-medium text-gray-500">Score financeiro</h3>
+        <h3 className="text-muted-foreground text-sm font-medium">Score financeiro</h3>
         <span
           className={cn('rounded-full px-2 py-0.5 text-[10px] font-medium', statusClasses[status])}
         >
@@ -91,16 +97,18 @@ export function ScoreWidget({ data }: { data: DashboardData }) {
       <div className="relative mb-2 flex flex-col items-center">
         <ScoreGauge value={value} color={gaugeColors[status]} />
         <div className="pointer-events-none absolute inset-x-0 top-[38%] flex flex-col items-center">
-          <p className="text-4xl font-semibold tracking-tight text-gray-900">{value}</p>
-          <p className="-mt-0.5 text-[11px] text-gray-500">de 100</p>
+          <p className="text-foreground text-4xl font-semibold tracking-tight">{value}</p>
+          <p className="text-muted-foreground -mt-0.5 text-[11px]">de 100</p>
         </div>
-        <div className="mt-1 flex w-full items-center justify-between text-[10px] text-gray-400">
+        <div className="text-muted-foreground mt-1 flex w-full items-center justify-between text-[10px]">
           <span>0</span>
           {delta !== null && delta !== 0 && (
             <span
               className={cn(
                 'rounded-full px-2 py-0.5 text-[11px] font-medium',
-                delta > 0 ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-700',
+                delta > 0
+                  ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300'
+                  : 'bg-red-100 text-red-700 dark:bg-red-950/40 dark:text-red-300',
               )}
             >
               {delta > 0 ? '+' : ''}
@@ -110,21 +118,25 @@ export function ScoreWidget({ data }: { data: DashboardData }) {
           <span>100</span>
         </div>
       </div>
-      {deltaText && <p className="mb-3 text-center text-[11px] text-gray-400">{deltaText}</p>}
+      {deltaText && (
+        <p className="text-muted-foreground mb-3 text-center text-[11px]">{deltaText}</p>
+      )}
 
       <div className="flex-1 space-y-2 overflow-y-auto">
-        <p className="text-[10px] font-medium tracking-wide text-gray-400 uppercase">Fatores</p>
+        <p className="text-muted-foreground text-[10px] font-medium tracking-wide uppercase">
+          Fatores
+        </p>
         {activeFactors.map((factor) => {
           const pct = factor.weight > 0 ? Math.round((factor.points / factor.weight) * 100) : 0
           return (
-            <div key={factor.key} className="rounded-xl bg-white/70 p-2.5">
+            <div key={factor.key} className="bg-card/80 rounded-xl p-2.5">
               <div className="flex items-center justify-between text-[11px]">
-                <span className="font-medium text-gray-800">{factor.label}</span>
-                <span className="text-gray-500">
+                <span className="text-foreground font-medium">{factor.label}</span>
+                <span className="text-muted-foreground">
                   {factor.points}/{factor.weight}
                 </span>
               </div>
-              <div className="mt-1.5 h-1 overflow-hidden rounded-full bg-gray-200">
+              <div className="bg-border/70 mt-1.5 h-1 overflow-hidden rounded-full">
                 <div
                   className={cn(
                     'h-full rounded-full',
@@ -133,7 +145,7 @@ export function ScoreWidget({ data }: { data: DashboardData }) {
                   style={{ width: `${pct}%` }}
                 />
               </div>
-              <p className="mt-1 text-[11px] text-gray-500">{factor.reason}</p>
+              <p className="text-muted-foreground mt-1 text-[11px]">{factor.reason}</p>
             </div>
           )
         })}

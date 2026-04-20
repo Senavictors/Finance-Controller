@@ -196,7 +196,7 @@ export function GoalForm({ categories, accounts, open, onOpenChange }: GoalFormP
                 ))}
               </SelectContent>
             </Select>
-            <p className="text-xs text-gray-500">{metricDescriptions[metric]}</p>
+            <p className="text-muted-foreground text-xs">{metricDescriptions[metric]}</p>
           </div>
 
           {showScope && (

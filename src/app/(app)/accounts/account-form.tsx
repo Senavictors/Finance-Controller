@@ -219,7 +219,7 @@ export function AccountForm({ account, open, onOpenChange }: AccountFormProps) {
                   />
                 </div>
               </div>
-              <p className="text-xs text-gray-500">
+              <p className="text-muted-foreground text-xs">
                 O sistema usara esses dias para criar e agrupar automaticamente as faturas do
                 cartao.
               </p>
@@ -228,7 +228,7 @@ export function AccountForm({ account, open, onOpenChange }: AccountFormProps) {
 
           <div className="flex flex-col gap-1.5">
             <Label>Marca (opcional)</Label>
-            <p className="text-xs text-gray-500">
+            <p className="text-muted-foreground text-xs">
               Escolha o banco ou bandeira. A cor abaixo continua como fallback quando nao houver
               marca.
             </p>

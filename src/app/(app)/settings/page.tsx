@@ -5,9 +5,11 @@ export default function SettingsPage() {
     <div className="space-y-6">
       <h1 className="text-2xl font-semibold tracking-tight">Configuracoes</h1>
 
-      <section className="rounded-[2rem] border border-white/50 bg-gradient-to-br from-white to-gray-50 p-8 shadow-sm">
-        <h2 className="text-lg font-medium text-gray-900">Dados da conta</h2>
-        <p className="mt-1 text-sm text-gray-500">Ferramentas de manutencao dos seus dados</p>
+      <section className="fc-panel p-8">
+        <h2 className="text-foreground text-lg font-medium">Dados da conta</h2>
+        <p className="text-muted-foreground mt-1 text-sm">
+          Ferramentas de manutencao dos seus dados
+        </p>
         <div className="mt-6">
           <ResetDemoCard />
         </div>

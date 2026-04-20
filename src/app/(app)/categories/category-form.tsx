@@ -170,7 +170,7 @@ export function CategoryForm({ category, categories, open, onOpenChange }: Categ
 
           <div className="flex flex-col gap-1.5">
             <Label>Marca/icone (opcional)</Label>
-            <p className="text-xs text-gray-500">
+            <p className="text-muted-foreground text-xs">
               Util para assinaturas e servicos conhecidos. A cor continua sendo fallback.
             </p>
             <BrandPicker

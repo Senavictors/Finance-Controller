@@ -45,14 +45,14 @@ export function TransactionTable({ transactions }: { transactions: Transaction[]
   }
 
   return (
-    <div className="divide-y divide-gray-100">
+    <div className="divide-border/60 divide-y">
       {transactions.map((tx) => {
         const inferredBrandKey = matchBrand(tx.description) ?? tx.category?.icon ?? tx.account.icon
         const inferredBrand = getBrand(inferredBrandKey)
         return (
           <div
             key={tx.id}
-            className="flex items-center justify-between px-6 py-4 transition-colors hover:bg-gray-50/50"
+            className="hover:bg-muted/40 flex items-center justify-between px-6 py-4 transition-colors"
           >
             <div className="flex items-center gap-4">
               {inferredBrand ? (
@@ -68,7 +68,7 @@ export function TransactionTable({ transactions }: { transactions: Transaction[]
                     'flex size-10 items-center justify-center rounded-xl',
                     tx.type === 'INCOME' && 'bg-emerald-100',
                     tx.type === 'EXPENSE' && 'bg-red-100',
-                    tx.type === 'TRANSFER' && 'bg-gray-100',
+                    tx.type === 'TRANSFER' && 'bg-muted',
                   )}
                 >
                   {tx.type === 'INCOME' ? (
@@ -76,13 +76,13 @@ export function TransactionTable({ transactions }: { transactions: Transaction[]
                   ) : tx.type === 'EXPENSE' ? (
                     <TrendingDown className="size-4 text-red-600" />
                   ) : (
-                    <ArrowLeftRight className="size-4 text-gray-500" />
+                    <ArrowLeftRight className="text-muted-foreground size-4" />
                   )}
                 </div>
               )}
               <div>
                 <div className="flex items-center gap-2">
-                  <p className="text-sm font-medium text-gray-900">{tx.description}</p>
+                  <p className="text-foreground text-sm font-medium">{tx.description}</p>
                   {tx.transferId && (
                     <Badge variant="secondary" className="text-[10px]">
                       Transfer
@@ -96,7 +96,7 @@ export function TransactionTable({ transactions }: { transactions: Transaction[]
                     </Link>
                   )}
                 </div>
-                <div className="mt-0.5 flex items-center gap-2 text-xs text-gray-400">
+                <div className="text-muted-foreground mt-0.5 flex items-center gap-2 text-xs">
                   <span>{formatDate(tx.date)}</span>
                   <span>&middot;</span>
                   <div className="flex items-center gap-1">
@@ -134,7 +134,7 @@ export function TransactionTable({ transactions }: { transactions: Transaction[]
                   'text-sm font-semibold',
                   tx.type === 'INCOME' && 'text-emerald-600',
                   tx.type === 'EXPENSE' && 'text-red-600',
-                  tx.type === 'TRANSFER' && 'text-gray-500',
+                  tx.type === 'TRANSFER' && 'text-muted-foreground',
                 )}
               >
                 {tx.type === 'EXPENSE' ? '- ' : tx.type === 'INCOME' ? '+ ' : ''}
@@ -143,7 +143,7 @@ export function TransactionTable({ transactions }: { transactions: Transaction[]
               <DropdownMenu>
                 <DropdownMenuTrigger
                   render={
-                    <button className="flex size-8 items-center justify-center rounded-full text-gray-400 hover:bg-gray-100" />
+                    <button className="text-muted-foreground hover:bg-muted flex size-8 items-center justify-center rounded-full" />
                   }
                 >
                   <MoreVertical className="size-4" />

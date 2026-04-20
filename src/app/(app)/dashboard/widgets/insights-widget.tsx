@@ -8,9 +8,11 @@ import { cn } from '@/lib/utils'
 import type { DashboardData } from './types'
 
 const severityClasses = {
-  CRITICAL: 'bg-red-50 border-red-200 text-red-900',
-  WARNING: 'bg-amber-50 border-amber-200 text-amber-900',
-  INFO: 'bg-sky-50 border-sky-200 text-sky-900',
+  CRITICAL:
+    'bg-red-50 border-red-200 text-red-900 dark:bg-red-950/30 dark:border-red-900/70 dark:text-red-100',
+  WARNING:
+    'bg-amber-50 border-amber-200 text-amber-900 dark:bg-amber-950/30 dark:border-amber-900/70 dark:text-amber-100',
+  INFO: 'bg-sky-50 border-sky-200 text-sky-900 dark:bg-sky-950/30 dark:border-sky-900/70 dark:text-sky-100',
 } as const
 
 const severityIcons = {
@@ -35,16 +37,16 @@ export function InsightsWidget({ data }: { data: DashboardData }) {
   }
 
   return (
-    <div className="flex h-full flex-col rounded-[2rem] border border-white/50 bg-[#F2F2F2] p-5 shadow-sm">
+    <div className="fc-panel-subtle flex h-full flex-col p-5">
       <div className="mb-3 flex items-center justify-between">
-        <h3 className="text-sm font-medium text-gray-500">Insights</h3>
-        <span className="rounded-full bg-white/70 px-2 py-0.5 text-[10px] font-medium text-gray-600">
+        <h3 className="text-muted-foreground text-sm font-medium">Insights</h3>
+        <span className="bg-card/80 text-muted-foreground rounded-full px-2 py-0.5 text-[10px] font-medium">
           {visible.length}
         </span>
       </div>
 
       {visible.length === 0 ? (
-        <div className="flex flex-1 items-center justify-center text-center text-[12px] text-gray-500">
+        <div className="text-muted-foreground flex flex-1 items-center justify-center text-center text-[12px]">
           Nenhum insight relevante no momento. Tudo sob controle.
         </div>
       ) : (

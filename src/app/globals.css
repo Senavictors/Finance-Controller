@@ -179,6 +179,24 @@
   }
 }
 
+@layer components {
+  .fc-panel {
+    @apply border-border/60 from-card via-card to-muted/35 rounded-[2rem] border bg-gradient-to-br shadow-sm;
+  }
+
+  .fc-panel-subtle {
+    @apply border-border/60 bg-muted/60 rounded-[2rem] border shadow-sm;
+  }
+
+  .fc-panel-strong {
+    @apply border-border/70 bg-card rounded-[2rem] border shadow-sm;
+  }
+
+  .fc-panel-danger {
+    @apply via-card to-card dark:via-card dark:to-card rounded-[2rem] border border-red-200/60 bg-gradient-to-br from-red-50/70 shadow-sm dark:border-red-900/70 dark:from-red-950/40;
+  }
+}
+
 /* react-grid-layout — drop placeholder tuned to the blue/teal theme */
 .react-grid-layout .react-grid-item.react-grid-placeholder,
 .react-grid-item.react-grid-placeholder {
