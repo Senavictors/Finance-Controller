@@ -50,11 +50,8 @@ export function TransactionTable({ transactions }: { transactions: Transaction[]
         const inferredBrandKey = matchBrand(tx.description) ?? tx.category?.icon ?? tx.account.icon
         const inferredBrand = getBrand(inferredBrandKey)
         return (
-          <div
-            key={tx.id}
-            className="hover:bg-muted/40 flex items-center justify-between px-6 py-4 transition-colors"
-          >
-            <div className="flex items-center gap-4">
+          <div key={tx.id} className="hover:bg-muted/40 px-4 py-4 transition-colors sm:px-6">
+            <div className="flex items-start gap-3 sm:items-center sm:gap-4">
               {inferredBrand ? (
                 <BrandIcon
                   brandKey={inferredBrand.key}
@@ -80,25 +77,29 @@ export function TransactionTable({ transactions }: { transactions: Transaction[]
                   )}
                 </div>
               )}
-              <div>
-                <div className="flex items-center gap-2">
-                  <p className="text-foreground text-sm font-medium">{tx.description}</p>
-                  {tx.transferId && (
-                    <Badge variant="secondary" className="text-[10px]">
-                      Transfer
-                    </Badge>
-                  )}
-                  {tx.creditCardStatement && (
-                    <Link href={`/credit-cards/${tx.creditCardStatement.id}`}>
-                      <Badge variant="outline" className="text-[10px]">
-                        Fatura {formatDate(tx.creditCardStatement.dueDate)}
+              <div className="min-w-0 flex-1">
+                <div className="space-y-2">
+                  <p className="text-foreground text-sm font-medium break-words">
+                    {tx.description}
+                  </p>
+                  <div className="flex flex-wrap items-center gap-2">
+                    {tx.transferId && (
+                      <Badge variant="secondary" className="text-[10px]">
+                        Transfer
                       </Badge>
-                    </Link>
-                  )}
+                    )}
+                    {tx.creditCardStatement && (
+                      <Link href={`/credit-cards/${tx.creditCardStatement.id}`}>
+                        <Badge variant="outline" className="max-w-full text-[10px]">
+                          Fatura {formatDate(tx.creditCardStatement.dueDate)}
+                        </Badge>
+                      </Link>
+                    )}
+                  </div>
                 </div>
-                <div className="text-muted-foreground mt-0.5 flex items-center gap-2 text-xs">
-                  <span>{formatDate(tx.date)}</span>
-                  <span>&middot;</span>
+
+                <div className="text-muted-foreground mt-2 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs">
+                  <span className="shrink-0">{formatDate(tx.date)}</span>
                   <div className="flex items-center gap-1">
                     <BrandDot
                       brandKey={tx.account.icon}
@@ -107,57 +108,86 @@ export function TransactionTable({ transactions }: { transactions: Transaction[]
                       fallbackLabel={tx.account.name}
                       size={10}
                     />
-                    <span>{tx.account.name}</span>
+                    <span className="break-words">{tx.account.name}</span>
                   </div>
                   {tx.category && (
-                    <>
-                      <span>&middot;</span>
-                      <div className="flex items-center gap-1">
-                        <BrandDot
-                          brandKey={tx.category.icon}
-                          fallbackText={tx.category.name}
-                          fallbackColor={tx.category.color}
-                          fallbackLabel={tx.category.name}
-                          size={10}
-                        />
-                        <span>{tx.category.name}</span>
-                      </div>
-                    </>
+                    <div className="flex items-center gap-1">
+                      <BrandDot
+                        brandKey={tx.category.icon}
+                        fallbackText={tx.category.name}
+                        fallbackColor={tx.category.color}
+                        fallbackLabel={tx.category.name}
+                        size={10}
+                      />
+                      <span className="break-words">{tx.category.name}</span>
+                    </div>
                   )}
                 </div>
-              </div>
-            </div>
 
-            <div className="flex items-center gap-3">
-              <span
-                className={cn(
-                  'text-sm font-semibold',
-                  tx.type === 'INCOME' && 'text-emerald-600',
-                  tx.type === 'EXPENSE' && 'text-red-600',
-                  tx.type === 'TRANSFER' && 'text-muted-foreground',
-                )}
-              >
-                {tx.type === 'EXPENSE' ? '- ' : tx.type === 'INCOME' ? '+ ' : ''}
-                {formatCurrency(tx.amount)}
-              </span>
-              <DropdownMenu>
-                <DropdownMenuTrigger
-                  render={
-                    <button className="text-muted-foreground hover:bg-muted flex size-8 items-center justify-center rounded-full" />
-                  }
-                >
-                  <MoreVertical className="size-4" />
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <DropdownMenuItem
-                    onClick={() => handleDelete(tx.id, !!tx.transferId)}
-                    className="text-destructive"
+                <div className="mt-3 flex items-center justify-between gap-3 sm:hidden">
+                  <span
+                    className={cn(
+                      'shrink-0 text-sm font-semibold',
+                      tx.type === 'INCOME' && 'text-emerald-600',
+                      tx.type === 'EXPENSE' && 'text-red-600',
+                      tx.type === 'TRANSFER' && 'text-muted-foreground',
+                    )}
                   >
-                    <Trash2 className="mr-2 size-3.5" />
-                    Excluir
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
+                    {tx.type === 'EXPENSE' ? '- ' : tx.type === 'INCOME' ? '+ ' : ''}
+                    {formatCurrency(tx.amount)}
+                  </span>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger
+                      render={
+                        <button className="text-muted-foreground hover:bg-muted flex size-8 shrink-0 items-center justify-center rounded-full" />
+                      }
+                    >
+                      <MoreVertical className="size-4" />
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem
+                        onClick={() => handleDelete(tx.id, !!tx.transferId)}
+                        className="text-destructive"
+                      >
+                        <Trash2 className="mr-2 size-3.5" />
+                        Excluir
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </div>
+              </div>
+
+              <div className="hidden shrink-0 items-center gap-3 sm:flex">
+                <span
+                  className={cn(
+                    'text-right text-sm font-semibold',
+                    tx.type === 'INCOME' && 'text-emerald-600',
+                    tx.type === 'EXPENSE' && 'text-red-600',
+                    tx.type === 'TRANSFER' && 'text-muted-foreground',
+                  )}
+                >
+                  {tx.type === 'EXPENSE' ? '- ' : tx.type === 'INCOME' ? '+ ' : ''}
+                  {formatCurrency(tx.amount)}
+                </span>
+                <DropdownMenu>
+                  <DropdownMenuTrigger
+                    render={
+                      <button className="text-muted-foreground hover:bg-muted flex size-8 items-center justify-center rounded-full" />
+                    }
+                  >
+                    <MoreVertical className="size-4" />
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuItem
+                      onClick={() => handleDelete(tx.id, !!tx.transferId)}
+                      className="text-destructive"
+                    >
+                      <Trash2 className="mr-2 size-3.5" />
+                      Excluir
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
             </div>
           </div>
         )

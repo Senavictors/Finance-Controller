@@ -32,6 +32,7 @@ and this project adheres to [Conventional Commits](https://www.conventionalcommi
 - Phase 34: `/credit-cards/[id]` agora aplica a identidade do emissor em todos os cards principais da tela, incluindo status, totais, pagamento e movimentacoes, mantendo o fluxo intacto
 - Phase 34: seed e reset-demo passaram a criar o cartao demo com `nubank + mastercard` para tornar a feature demonstravel
 - Phase 34: `README.md`, `.docs/CONTEXT.md` e `.docs/tasks/phase-34-credit-card-issuer-network-and-brand-themed-statements.md` atualizados para refletir a conclusao da phase
+- Transactions: `src/app/(app)/transactions/transaction-table.tsx` reorganiza a linha no mobile para impedir overflow horizontal do valor e dos metadados em viewports estreitos
 - Phase 33 polish: `IncomeExpensesWidget` remove o cursor padrao do Recharts no hover e forca texto do tooltip com `var(--foreground)` para corrigir o contorno claro e os valores pretos no modo dark
 - Phase 33: dashboard widgets, `/user`, `/settings`, contas, transacoes, recorrencias, metas, cartoes/faturas e `BrandPicker` migrados de estilos claros hardcoded para tokens semanticos e classes `.fc-panel*`
 - Phase 33: `README.md`, `.docs/CONTEXT.md` e `.docs/tasks/phase-33-dark-theme-and-theme-toggle.md` atualizados para refletir a conclusao da phase e a validacao visual manual pendente
