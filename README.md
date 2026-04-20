@@ -565,7 +565,7 @@ npx prisma db seed   # Popular dados demo
 
 ## Roadmap
 
-Estado atual: entregas concluidas ate a **Phase 28**, com backlog ativo aberto das **Phases 29 a 32**.
+Estado atual: entregas concluidas ate a **Phase 29**, com backlog ativo aberto das **Phases 30 a 32**.
 
 ### Phases concluidas
 
@@ -598,18 +598,18 @@ Estado atual: entregas concluidas ate a **Phase 28**, com backlog ativo aberto d
 - [x] Phase 26: Architecture Docs - Sequence
 - [x] Phase 27: SVG Brand Icons
 - [x] Phase 28: Real Brand Logo Assets
+- [x] Phase 29: Dashboard Layout And Widget Polish
 
 ### Phases abertas
 
-- [ ] Phase 29: Dashboard Layout And Widget Polish
 - [ ] Phase 30: Form Hardening And Status Feedback
 - [ ] Phase 31: Progressive Disclosure And List Scaling
 - [ ] Phase 32: Settings, Profile And Confirmation UX
 
 ### Proximo passo recomendado
 
-- [ ] Iniciar a Phase 29 para melhorar auto-placement de widgets, placeholder de drag e containment com scroll em `Ultimas Transacoes`
-- [ ] Manter em paralelo a validacao visual light/dark/mobile das superficies com `BrandIcon`/`BrandDot` e decidir a proxima iteracao de marcas (`Neon`, `Pix` ou SVG oficial)
+- [ ] Iniciar a Phase 30 para endurecer o feedback de submissao/estado dos formularios conforme task ja documentada
+- [ ] Manter em paralelo a validacao visual light/dark/mobile das superficies com `BrandIcon`/`BrandDot` e do novo polish de dashboard (auto-placement, placeholder tematizado, scroll interno em `Ultimas Transacoes`)
 
 ### Backlog de produto
 

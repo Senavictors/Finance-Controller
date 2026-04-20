@@ -9,6 +9,9 @@ and this project adheres to [Conventional Commits](https://www.conventionalcommi
 
 ### Added
 
+- Phase 29: helper `findPlacement` em `src/app/(app)/dashboard/lib/auto-placement.ts` com testes (`auto-placement.test.ts`) para posicionamento automatico de widgets sem sobreposicao
+- Phase 29: override do placeholder de drag da react-grid-layout em `src/app/globals.css` usando `var(--primary)` com baixa opacidade e `border-radius` alinhado aos widgets
+- Phase 29: scroll interno em `RecentTransactionsWidget` via `flex flex-col` + `min-h-0` + `overflow-y-auto` para conter listas longas dentro do card
 - Phase 29 task for dashboard layout and widget polish in `.docs/tasks/phase-29-dashboard-layout-and-widget-polish.md`
 - Phase 30 task for form hardening and status feedback in `.docs/tasks/phase-30-form-hardening-and-status-feedback.md`
 - Phase 31 task for progressive disclosure and list scaling in `.docs/tasks/phase-31-progressive-disclosure-and-list-scaling.md`

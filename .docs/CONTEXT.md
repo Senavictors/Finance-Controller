@@ -4,13 +4,13 @@
 
 ## Current Phase
 
-**Phase 28: Real Brand Logo Assets** — Concluido. Os 33 logos curados em `system-images/logos/` foram promovidos para `public/brands/<brandKey>.<ext>` com naming normalizado (ex.: `bradeco.jpeg → bradesco.jpeg`, `microsoft.png → ms365.png`, `hbo.jpeg → hbomax.jpeg`). A registry `src/lib/brands/registry.ts` ganhou o tipo `BrandAsset` com `src`, `kind`, `fit`, `padding`, `border?`, e o campo `svg` virou opcional — todas as marcas com arquivo real passaram a referenciar o asset local; `Neon` e `Pix` continuam com SVG artesanal como fallback explicito. `BrandIcon`/`BrandDot` agora renderizam `<img>` quando ha `asset`, com `object-fit`, padding e border customizaveis, mantendo a API publica (`brandKey`, `fallbackLabel`, `fallbackText`, `fallbackColor`, `size`, `radius`, `className`, `title`) e o fallback textual. Testes novos garantem que todo `brandKey` com asset aponta para arquivo existente em `public/brands`, que `Neon`/`Pix` permanecem sob fallback e que `matchBrand`/`resolveBrand` nao perderam cobertura.
+**Phase 29: Dashboard Layout And Widget Polish** — Concluido. `DashboardGrid.addWidget` passou a usar o helper `findPlacement` em `src/app/(app)/dashboard/lib/auto-placement.ts`, que varre o grid linha a linha e escolhe o primeiro slot livre sem sobreposicao (clamp de `w > cols`, fallback para nova linha so quando ha colisao em toda a varredura). O helper e coberto por `auto-placement.test.ts` com 6 cenarios (grid vazio, slot na mesma linha, overflow, gap horizontal, clamp e nao sobreposicao). O placeholder do drag foi tematizado em `src/app/globals.css`: `.react-grid-item.react-grid-placeholder` agora usa `var(--primary)` com baixa opacidade e mesmo `border-radius` dos widgets, em vez do vermelho default da lib, mantendo coerencia entre light e dark. O widget `RecentTransactionsWidget` virou `flex flex-col` com `min-h-0` e `overflow-y-auto` na lista interna, contendo o scroll dentro do card quando a altura do item no grid e menor que o conteudo.
 
 ## Next Planned Step
 
-**Phase 29: Dashboard Layout And Widget Polish** — atacar o feedback mais imediato de usabilidade com auto-placement melhor para widgets, placeholder de drag coerente com a paleta e containment com scroll em `Ultimas Transacoes`.
+**Phase 30: Form Hardening And Status Feedback** — evoluir a camada de formularios e feedback de status conforme a task ja documentada em `.docs/tasks/phase-30-form-hardening-and-status-feedback.md`.
 
-**Validacao manual e curadoria visual** — continua recomendada como trilha paralela para revisar em light/dark/mobile as superficies que consomem `BrandIcon`/`BrandDot` (contas, categorias, transacoes, recorrencias, metas, cartoes/faturas, dashboard), especialmente agora que um novo ciclo de polish visual foi formalizado.
+**Validacao manual e curadoria visual** — continua recomendada como trilha paralela para revisar em light/dark/mobile as superficies que consomem `BrandIcon`/`BrandDot` (contas, categorias, transacoes, recorrencias, metas, cartoes/faturas, dashboard), especialmente agora que o polish do dashboard tambem precisa ser verificado visualmente (auto-placement, placeholder tematizado e scroll interno).
 
 ## What Exists
 
@@ -50,6 +50,7 @@
 - **Brand registry em producao**: `src/lib/brands/` portou o registry para TypeScript com `BRANDS`, `getBrand`, `listBrands`, `matchBrand` e `resolveBrand`; `BrandIcon`, `BrandDot` e `BrandPicker` padronizam o visual em contas, categorias, transacoes, recorrencias, metas, faturas de cartao e widgets do dashboard; seed/reset-demo ja populam `icon` para Nubank e Itau; testes unitarios do registry cobrem matching, fallback e normalizacao de acento
 - **Extracted logo inventory**: `system-images/logos/` concentra 33 logos reais extraidas para o proximo ciclo de substituicao visual (24 `jpeg`, 9 `png`, 0 `svg`), cobrindo 33/35 marcas do registry atual; faltam `Neon` e `Pix`, e alguns arquivos exigem normalizacao de naming (`bradeco`, `google`, `microsoft`, `hbo`, etc.)
 - **Brand assets em producao (Phase 28)**: 33 assets promovidos para `public/brands/<brandKey>.<ext>` com naming estavel; a registry passou a expor `BrandAsset` (`src`, `kind`, `fit`, `padding`, `border?`) e `svg` virou opcional; `BrandIcon`/`BrandDot` renderizam `<img>` para `png`/`jpeg` e `<svg>` inline apenas como fallback (Neon, Pix); suite de testes cobre existencia do arquivo no disco, kind suportado e fallback explicito
+- **Dashboard polish (Phase 29)**: helper `findPlacement` em `src/app/(app)/dashboard/lib/auto-placement.ts` guia o `addWidget` para o primeiro slot livre sem sobreposicao (coberto por `auto-placement.test.ts`); `.react-grid-item.react-grid-placeholder` em `globals.css` usa `var(--primary)` com baixa opacidade e mesmo `border-radius` dos cards; `RecentTransactionsWidget` virou flex column com scroll interno (`min-h-0 overflow-y-auto`) para conter listas longas dentro do card
 - **UX backlog formalizado**: feedback externo de uso foi convertido nas tasks `phase-29` a `phase-32`, cobrindo polish do dashboard, hardening de formularios/status, divulgacao progressiva de listas densas e fundacao de settings/perfil com confirmacoes customizadas
 - **Documentation process hardening**: `README.md` passou a ser artefato obrigatorio tanto na criacao quanto na conclusao de tasks, com foco explicito em roadmap, backlog aberto, phases concluidas e proximo passo
 - **Documentation sync**: README, CONTEXT, architecture overview e flows alinhados ao codigo atual (`dashboards`, `recurring-rules`, Node >= 20.9, apply manual de recorrencias e registry atual de widgets)
@@ -104,6 +105,7 @@ User, Session, Account, Category, Transaction, CreditCardStatement, Dashboard, D
 - Phase 26: Architecture Docs - Sequence
 - Phase 27: SVG Brand Icons
 - Phase 28: Real Brand Logo Assets
+- Phase 29: Dashboard Layout And Widget Polish
 
 ## Key Decisions
 

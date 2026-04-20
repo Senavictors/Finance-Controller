@@ -4,7 +4,7 @@
 
 - [ ] Todo
 - [ ] In Progress
-- [ ] Done
+- [x] Done
 
 ## Context
 
@@ -94,13 +94,20 @@ Pontos de validacao visual:
 
 ## Checklist
 
-- [ ] Auto-placement de widget implementado
-- [ ] Placeholder de drag alinhado ao tema
-- [ ] `Ultimas Transacoes` com scroll interno
-- [ ] Testes passando
-- [ ] `.docs/CONTEXT.md` updated
+- [x] Auto-placement de widget implementado
+- [x] Placeholder de drag alinhado ao tema
+- [x] `Ultimas Transacoes` com scroll interno
+- [x] Testes passando
+- [x] `.docs/CONTEXT.md` updated
 - [ ] ADR created/updated (if applicable)
 - [ ] Manual validation done
+
+## Result
+
+- `src/app/(app)/dashboard/lib/auto-placement.ts` expoe `findPlacement({ items, cols, w, h })` que varre linha a linha procurando o primeiro slot livre sem sobreposicao e cai para nova linha so quando necessario. O helper e coberto por `auto-placement.test.ts` (6 casos: grid vazio, slot na mesma linha, overflow para nova linha, gap horizontal, width maior que cols, nao sobreposicao).
+- `DashboardGrid.addWidget` agora consulta `findPlacement` com `cols=12` e a dimensao default do widget antes de chamar `POST /api/dashboards/widgets`, eliminando o comportamento antigo que sempre jogava o widget em `x=0` na ultima linha.
+- `src/app/globals.css` sobrescreve `.react-grid-item.react-grid-placeholder` usando `var(--primary)` com opacidade baixa e o mesmo `border-radius` dos widgets, substituindo o vermelho default da lib e mantendo coerencia em light e dark.
+- `RecentTransactionsWidget` passou a usar `flex flex-col` + `min-h-0` + `overflow-y-auto` na lista interna, contendo o scroll no proprio card quando o conteudo ultrapassa a altura.
 
 ## Notes for AI (next step)
 
