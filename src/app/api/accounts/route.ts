@@ -46,6 +46,7 @@ export async function POST(request: NextRequest) {
             creditLimit: null,
             statementClosingDay: null,
             statementDueDay: null,
+            networkBrandKey: null,
           }
 
     const account = await prisma.account.create({

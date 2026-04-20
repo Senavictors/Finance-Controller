@@ -12,7 +12,7 @@ import { MoreVertical, Pencil, Trash2 } from 'lucide-react'
 import { formatCurrency } from '@/lib/format'
 import { useState } from 'react'
 import { AccountForm } from './account-form'
-import { BrandIcon } from '@/lib/brands'
+import { BrandChip, BrandIcon } from '@/lib/brands'
 import { useConfirm } from '@/components/ui/confirm-dialog'
 
 type Account = {
@@ -25,6 +25,7 @@ type Account = {
   statementDueDay: number | null
   color: string | null
   icon: string | null
+  networkBrandKey: string | null
   isArchived: boolean
 }
 
@@ -73,6 +74,26 @@ export function AccountCard({ account }: { account: Account }) {
               <Badge variant="secondary" className="mt-1 text-[11px]">
                 {typeLabels[account.type] ?? account.type}
               </Badge>
+              {account.type === 'CREDIT_CARD' && (
+                <div className="mt-2 flex flex-wrap gap-1.5">
+                  {account.icon && (
+                    <BrandChip
+                      brandKey={account.icon}
+                      fallbackLabel="Banco emissor"
+                      fallbackText={account.name}
+                      fallbackColor={account.color}
+                    />
+                  )}
+                  {account.networkBrandKey && (
+                    <BrandChip
+                      brandKey={account.networkBrandKey}
+                      fallbackLabel="Bandeira"
+                      fallbackText={account.name}
+                      fallbackColor={account.color}
+                    />
+                  )}
+                </div>
+              )}
             </div>
           </div>
           <DropdownMenu>

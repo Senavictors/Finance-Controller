@@ -64,12 +64,13 @@ O Finance Controller centraliza tudo em uma unica aplicacao:
 - **Dashboard customizavel** — drag-and-drop de widgets com react-grid-layout, 10 tipos registrados, 5 widgets default e layout persistido por usuario
 - **Multi-contas** — corrente, carteira, poupanca, cartao de credito, investimento
 - **Categorias hierarquicas** — receitas e despesas com subcategorias, cores e contagem de transacoes
-- **Brand registry visual** — `src/lib/brands/` centraliza bancos, bandeiras, pagamentos e assinaturas; `BrandIcon`, `BrandDot` e `BrandPicker` padronizam contas, categorias, transacoes, recorrencias, metas, faturas e widgets
+- **Brand registry visual** — `src/lib/brands/` centraliza bancos, bandeiras, pagamentos e assinaturas; `BrandIcon`, `BrandDot`, `BrandChip` e `BrandPicker` padronizam contas, categorias, transacoes, recorrencias, metas, faturas e widgets
+- **Cartoes com emissor + bandeira** — contas `CREDIT_CARD` agora separam banco emissor e bandeira (`icon` + `networkBrandKey`), evitando conflito entre Itau/Mastercard, Nubank/Visa e combinacoes equivalentes
 - **Logos reais com fallback seguro** — 33 assets reais em `public/brands/` substituem os SVGs artesanais na maior parte das marcas; `Neon` e `Pix` permanecem com fallback vetorial explicito
 - **Transacoes** — CRUD completo com filtros por tipo, categoria e busca por descricao
 - **Transferencias atomicas** — par de transacoes vinculadas por `transferId` (debito na origem, credito no destino)
 - **Recorrencias** — regras com frequencia (diaria, semanal, mensal, anual), apply manual idempotente com logs
-- **Billing de cartao de credito** — limite, fechamento, vencimento, faturas e pagamento parcial/total
+- **Billing de cartao de credito** — limite, fechamento, vencimento, faturas, pagamento parcial/total e cards tematizados por banco emissor em `/credit-cards`
 - **Goal Engine** — metas de economia, limite de gasto, meta de receita e limite por conta/cartao, com calculo de progresso por periodo, status (no ritmo, atencao, em risco, atingida, ultrapassada) e snapshots historicos
 - **Forecast Engine** — previsao do fechamento do mes combinando realizado, recorrencias futuras, projecao variavel (media movel) e faturas em aberto, com classificacao de risco e breakdown audit das premissas
 - **Financial Score** — pontuacao 0-100 com 5 fatores explicaveis (economia, estabilidade, renda, cartao, metas), status CRITICAL/ATTENTION/GOOD/EXCELLENT, delta vs mes anterior e redistribuicao por ausencia de dados
@@ -565,7 +566,7 @@ npx prisma db seed   # Popular dados demo
 
 ## Roadmap
 
-Estado atual: entregas concluidas ate a **Phase 33**, com dark theme global e toggle `light/dark` implementados no sistema.
+Estado atual: entregas concluidas ate a **Phase 34**, com dark theme global, cadastro de cartoes separando emissor + bandeira e cards de fatura tematizados por banco emissor.
 
 ### Phases concluidas
 
@@ -603,6 +604,7 @@ Estado atual: entregas concluidas ate a **Phase 33**, com dark theme global e to
 - [x] Phase 31: Progressive Disclosure And List Scaling
 - [x] Phase 32: Settings, Profile And Confirmation UX
 - [x] Phase 33: Dark Theme And Theme Toggle
+- [x] Phase 34: Credit Card Issuer Network And Brand Themed Statements
 
 ### Phases abertas
 
@@ -610,8 +612,9 @@ Estado atual: entregas concluidas ate a **Phase 33**, com dark theme global e to
 
 ### Proximo passo recomendado
 
-- [ ] Fazer uma rodada manual em browser real validando o toggle `light/dark` em landing, auth, dashboard, `/user`, `/settings`, contas, categorias, transacoes, recorrencias, metas e cartoes/faturas
-- [ ] Revisar contraste fino de charts, badges, dropdowns, dialogs, drag handles, hover/focus states e logos rasterizados no modo dark
+- [ ] Fazer uma rodada manual em browser real validando o toggle `light/dark` em landing, auth, dashboard, `/user`, `/settings`, contas, categorias, transacoes, recorrencias, metas e cartoes/faturas, incluindo os novos cards tematizados por banco
+- [ ] Revisar contraste fino de charts, badges, dropdowns, dialogs, drag handles, hover/focus states, logos rasterizados e `BrandChip`s no modo dark
+- [ ] Expandir `src/lib/brands/credit-card-theme.ts` se surgirem novos emissores prioritarios no uso real
 - [ ] Decidir se uma proxima subfase deve adicionar opcao visivel `System` ou persistencia da preferencia de tema no perfil do usuario
 
 ### Backlog de produto

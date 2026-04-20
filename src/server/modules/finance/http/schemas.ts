@@ -15,7 +15,8 @@ export const createAccountSchema = z
     statementClosingDay: z.union([z.number().int().min(1).max(31), z.null()]).optional(),
     statementDueDay: z.union([z.number().int().min(1).max(31), z.null()]).optional(),
     color: z.string().max(20).optional(),
-    icon: z.string().max(50).optional(),
+    icon: z.string().max(50).nullable().optional(),
+    networkBrandKey: z.string().max(50).nullable().optional(),
   })
   .superRefine((data, ctx) => {
     if (data.type !== 'CREDIT_CARD') return
@@ -59,7 +60,8 @@ export const updateAccountSchema = z.object({
   statementClosingDay: z.union([z.number().int().min(1).max(31), z.null()]).optional(),
   statementDueDay: z.union([z.number().int().min(1).max(31), z.null()]).optional(),
   color: z.string().max(20).optional(),
-  icon: z.string().max(50).optional(),
+  icon: z.string().max(50).nullable().optional(),
+  networkBrandKey: z.string().max(50).nullable().optional(),
 })
 
 export type CreateAccountInput = z.infer<typeof createAccountSchema>

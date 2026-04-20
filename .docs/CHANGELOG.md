@@ -9,6 +9,10 @@ and this project adheres to [Conventional Commits](https://www.conventionalcommi
 
 ### Added
 
+- Phase 34: migration `20260420220000_add_account_network_brand_key` adicionando `network_brand_key TEXT?` em `accounts`
+- Phase 34: helper `src/lib/brands/credit-card-theme.ts` com paletas por banco emissor e builders de surface/accent/glow/chip para os cards de fatura
+- Phase 34: componente `BrandChip` em `src/lib/brands/brand-chip.tsx` para exibir emissor e bandeira como identidade secundaria reutilizavel
+- Phase 34: testes unitarios em `src/lib/brands/credit-card-theme.test.ts` e `src/server/modules/finance/http/schemas.test.ts`
 - Phase 33: infraestrutura global de tema com `src/lib/theme.ts`, `ThemeProvider` e bootstrap no root layout para aplicar `.dark`, `data-theme` e `colorScheme`
 - Phase 33: componente reutilizavel `ThemeToggle` em `src/components/theme/theme-toggle.tsx`, integrado no `Topbar`, landing page e layout de auth
 - Phase 32: hook `useConfirm` + componente `ConfirmDialog` em `src/components/ui/confirm-dialog.tsx` com API promise-based e variacao visual destrutiva
@@ -23,6 +27,11 @@ and this project adheres to [Conventional Commits](https://www.conventionalcommi
 
 ### Changed
 
+- Phase 34: contas `CREDIT_CARD` agora separam banco emissor e bandeira via `icon` + `networkBrandKey`, com `AccountForm` exibindo dois `BrandPicker`s distintos
+- Phase 34: `/credit-cards` aplica tema por banco emissor apenas nos cards individuais e preserva os cards agregados no visual neutro do sistema
+- Phase 34: `/credit-cards/[id]` agora aplica a identidade do emissor em todos os cards principais da tela, incluindo status, totais, pagamento e movimentacoes, mantendo o fluxo intacto
+- Phase 34: seed e reset-demo passaram a criar o cartao demo com `nubank + mastercard` para tornar a feature demonstravel
+- Phase 34: `README.md`, `.docs/CONTEXT.md` e `.docs/tasks/phase-34-credit-card-issuer-network-and-brand-themed-statements.md` atualizados para refletir a conclusao da phase
 - Phase 33 polish: `IncomeExpensesWidget` remove o cursor padrao do Recharts no hover e forca texto do tooltip com `var(--foreground)` para corrigir o contorno claro e os valores pretos no modo dark
 - Phase 33: dashboard widgets, `/user`, `/settings`, contas, transacoes, recorrencias, metas, cartoes/faturas e `BrandPicker` migrados de estilos claros hardcoded para tokens semanticos e classes `.fc-panel*`
 - Phase 33: `README.md`, `.docs/CONTEXT.md` e `.docs/tasks/phase-33-dark-theme-and-theme-toggle.md` atualizados para refletir a conclusao da phase e a validacao visual manual pendente

@@ -85,6 +85,7 @@ export async function PATCH(request: NextRequest, { params }: Params) {
             creditLimit: null,
             statementClosingDay: null,
             statementDueDay: null,
+            networkBrandKey: null,
           }
 
     const account = await prisma.account.update({

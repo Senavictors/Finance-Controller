@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import type { CSSProperties, ReactNode } from 'react'
 import { notFound, redirect } from 'next/navigation'
 import { ChevronLeft } from 'lucide-react'
 import { validateSession } from '@/server/auth/session'
@@ -10,7 +11,15 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { StatementPaymentForm } from './statement-payment-form'
 import { StatementTransactionsList } from './statement-transactions-list'
-import { BrandIcon } from '@/lib/brands'
+import {
+  BrandChip,
+  BrandIcon,
+  getCreditCardBrandAccentStyle,
+  getCreditCardBrandChipStyle,
+  getCreditCardBrandGlowStyle,
+  getCreditCardBrandSurfaceStyle,
+  getCreditCardBrandTheme,
+} from '@/lib/brands'
 
 const statusLabels: Record<string, string> = {
   OPEN: 'Aberta',
@@ -30,6 +39,42 @@ type Props = {
   params: Promise<{ id: string }>
 }
 
+function BrandThemedCard({
+  title,
+  children,
+  className,
+  contentClassName,
+  style,
+  accentStyle,
+  glowStyle,
+}: {
+  title: string
+  children: ReactNode
+  className?: string
+  contentClassName?: string
+  style?: CSSProperties
+  accentStyle?: CSSProperties
+  glowStyle?: CSSProperties
+}) {
+  return (
+    <Card className={className} style={style}>
+      {style && accentStyle && (
+        <>
+          <div className="absolute inset-x-0 top-0 h-1.5" style={accentStyle} />
+          <div
+            className="absolute -top-10 -right-6 size-28 rounded-full blur-3xl"
+            style={glowStyle}
+          />
+        </>
+      )}
+      <CardHeader>
+        <CardTitle>{title}</CardTitle>
+      </CardHeader>
+      <CardContent className={contentClassName}>{children}</CardContent>
+    </Card>
+  )
+}
+
 export default async function CreditCardStatementPage({ params }: Props) {
   const session = await validateSession()
   if (!session) redirect('/login')
@@ -47,6 +92,7 @@ export default async function CreditCardStatementPage({ params }: Props) {
             name: true,
             color: true,
             icon: true,
+            networkBrandKey: true,
             creditLimit: true,
             statementClosingDay: true,
             statementDueDay: true,
@@ -84,9 +130,16 @@ export default async function CreditCardStatementPage({ params }: Props) {
     statement.account.creditLimit && statement.account.creditLimit > 0
       ? Math.round((statement.totalAmount / statement.account.creditLimit) * 100)
       : null
+  const brandTheme = getCreditCardBrandTheme(statement.account.icon)
+  const summaryCardStyle = getCreditCardBrandSurfaceStyle(brandTheme)
+  const accentStyle = getCreditCardBrandAccentStyle(brandTheme)
+  const glowStyle = getCreditCardBrandGlowStyle(brandTheme)
+  const chipStyle = getCreditCardBrandChipStyle(brandTheme)
   const latestPayment = payments
     .slice()
     .sort((left, right) => right.date.getTime() - left.date.getTime())[0]
+  const themedCardClassName = 'ring-border/60 relative rounded-[1.5rem] shadow-sm'
+  const themedContentClassName = 'relative'
 
   return (
     <div className="space-y-6">
@@ -113,150 +166,187 @@ export default async function CreditCardStatementPage({ params }: Props) {
           <p className="text-muted-foreground mt-1 text-sm">
             Periodo {formatDate(statement.periodStart)} - {formatDate(statement.periodEnd)}
           </p>
+          <div className="mt-3 flex flex-wrap gap-2">
+            {statement.account.icon && (
+              <BrandChip
+                brandKey={statement.account.icon}
+                fallbackLabel="Banco emissor"
+                fallbackText={statement.account.name}
+                fallbackColor={statement.account.color}
+                style={chipStyle}
+              />
+            )}
+            {statement.account.networkBrandKey && (
+              <BrandChip
+                brandKey={statement.account.networkBrandKey}
+                fallbackLabel="Bandeira"
+                fallbackText={statement.account.name}
+                fallbackColor={statement.account.color}
+                style={chipStyle}
+              />
+            )}
+          </div>
         </div>
       </div>
 
       <div className="grid gap-4 lg:grid-cols-4">
-        <Card className="ring-border/60 rounded-[1.5rem] shadow-sm">
-          <CardHeader>
-            <CardTitle>Status</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <Badge variant={statusVariants[statement.status] ?? 'secondary'}>
-              {statusLabels[statement.status] ?? statement.status}
-            </Badge>
-          </CardContent>
-        </Card>
-        <Card className="ring-border/60 rounded-[1.5rem] shadow-sm">
-          <CardHeader>
-            <CardTitle>Total</CardTitle>
-          </CardHeader>
-          <CardContent className="text-xl font-semibold tracking-tight">
-            {formatCurrency(statement.totalAmount)}
-          </CardContent>
-        </Card>
-        <Card className="ring-border/60 rounded-[1.5rem] shadow-sm">
-          <CardHeader>
-            <CardTitle>Pago</CardTitle>
-          </CardHeader>
-          <CardContent className="text-xl font-semibold tracking-tight">
-            {formatCurrency(statement.paidAmount)}
-          </CardContent>
-        </Card>
-        <Card className="ring-border/60 rounded-[1.5rem] shadow-sm">
-          <CardHeader>
-            <CardTitle>Em aberto</CardTitle>
-          </CardHeader>
-          <CardContent className="text-xl font-semibold tracking-tight">
-            {formatCurrency(openAmount)}
-          </CardContent>
-        </Card>
+        <BrandThemedCard
+          title="Status"
+          className={themedCardClassName}
+          contentClassName={themedContentClassName}
+          style={summaryCardStyle}
+          accentStyle={accentStyle}
+          glowStyle={glowStyle}
+        >
+          <Badge variant={statusVariants[statement.status] ?? 'secondary'}>
+            {statusLabels[statement.status] ?? statement.status}
+          </Badge>
+        </BrandThemedCard>
+
+        <BrandThemedCard
+          title="Total"
+          className={themedCardClassName}
+          contentClassName={`${themedContentClassName} text-xl font-semibold tracking-tight`}
+          style={summaryCardStyle}
+          accentStyle={accentStyle}
+          glowStyle={glowStyle}
+        >
+          {formatCurrency(statement.totalAmount)}
+        </BrandThemedCard>
+
+        <BrandThemedCard
+          title="Pago"
+          className={themedCardClassName}
+          contentClassName={`${themedContentClassName} text-xl font-semibold tracking-tight`}
+          style={summaryCardStyle}
+          accentStyle={accentStyle}
+          glowStyle={glowStyle}
+        >
+          {formatCurrency(statement.paidAmount)}
+        </BrandThemedCard>
+
+        <BrandThemedCard
+          title="Em aberto"
+          className={themedCardClassName}
+          contentClassName={`${themedContentClassName} text-xl font-semibold tracking-tight`}
+          style={summaryCardStyle}
+          accentStyle={accentStyle}
+          glowStyle={glowStyle}
+        >
+          {formatCurrency(openAmount)}
+        </BrandThemedCard>
       </div>
 
       <div className="grid gap-4 lg:grid-cols-[1.5fr_1fr]">
-        <Card className="ring-border/60 rounded-[1.5rem] shadow-sm">
-          <CardHeader>
-            <CardTitle>Resumo da Fatura</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3 text-sm">
+        <BrandThemedCard
+          title="Resumo da Fatura"
+          className={themedCardClassName}
+          contentClassName={`${themedContentClassName} space-y-3 text-sm`}
+          style={summaryCardStyle}
+          accentStyle={accentStyle}
+          glowStyle={glowStyle}
+        >
+          <div className="flex items-center justify-between">
+            <span className="text-muted-foreground">Fechamento</span>
+            <span>{formatDate(statement.closingDate)}</span>
+          </div>
+          <div className="flex items-center justify-between">
+            <span className="text-muted-foreground">Vencimento</span>
+            <span>{formatDate(statement.dueDate)}</span>
+          </div>
+          <div className="flex items-center justify-between">
+            <span className="text-muted-foreground">Limite do cartao</span>
+            <span>
+              {statement.account.creditLimit
+                ? formatCurrency(statement.account.creditLimit)
+                : 'Não configurado'}
+            </span>
+          </div>
+          {usagePercent != null && (
             <div className="flex items-center justify-between">
-              <span className="text-muted-foreground">Fechamento</span>
-              <span>{formatDate(statement.closingDate)}</span>
+              <span className="text-muted-foreground">Utilizacao do limite</span>
+              <span>{usagePercent}%</span>
             </div>
+          )}
+          <div className="flex items-center justify-between">
+            <span className="text-muted-foreground">Compras</span>
+            <span>{purchases.length}</span>
+          </div>
+          <div className="flex items-center justify-between">
+            <span className="text-muted-foreground">Pagamentos</span>
+            <span>{payments.length}</span>
+          </div>
+          {latestPayment && (
             <div className="flex items-center justify-between">
-              <span className="text-muted-foreground">Vencimento</span>
-              <span>{formatDate(statement.dueDate)}</span>
+              <span className="text-muted-foreground">Ultimo pagamento</span>
+              <span>{formatDate(latestPayment.date)}</span>
             </div>
-            <div className="flex items-center justify-between">
-              <span className="text-muted-foreground">Limite do cartao</span>
-              <span>
-                {statement.account.creditLimit
-                  ? formatCurrency(statement.account.creditLimit)
-                  : 'Não configurado'}
-              </span>
-            </div>
-            {usagePercent != null && (
-              <div className="flex items-center justify-between">
-                <span className="text-muted-foreground">Utilizacao do limite</span>
-                <span>{usagePercent}%</span>
-              </div>
-            )}
-            <div className="flex items-center justify-between">
-              <span className="text-muted-foreground">Compras</span>
-              <span>{purchases.length}</span>
-            </div>
-            <div className="flex items-center justify-between">
-              <span className="text-muted-foreground">Pagamentos</span>
-              <span>{payments.length}</span>
-            </div>
-            {latestPayment && (
-              <div className="flex items-center justify-between">
-                <span className="text-muted-foreground">Ultimo pagamento</span>
-                <span>{formatDate(latestPayment.date)}</span>
-              </div>
-            )}
-          </CardContent>
-        </Card>
+          )}
+        </BrandThemedCard>
 
-        <Card className="ring-border/60 rounded-[1.5rem] shadow-sm">
-          <CardHeader>
-            <CardTitle>Pagamento da Fatura</CardTitle>
-          </CardHeader>
-          <CardContent>
-            {openAmount <= 0 ? (
-              <div className="space-y-2 text-sm">
-                <p className="font-medium text-emerald-700 dark:text-emerald-300">
-                  Esta fatura ja esta quitada.
-                </p>
-                <p className="text-muted-foreground">
-                  Nenhum pagamento adicional e necessario para este periodo.
-                </p>
-              </div>
-            ) : availableSourceAccounts.length === 0 ? (
-              <div className="space-y-2 text-sm">
-                <p className="font-medium text-amber-700 dark:text-amber-300">
-                  Nenhuma conta de origem disponivel.
-                </p>
-                <p className="text-muted-foreground">
-                  Cadastre uma conta corrente, carteira ou investimento para registrar o pagamento
-                  desta fatura.
-                </p>
-              </div>
-            ) : (
-              <>
-                <p className="text-muted-foreground mb-4 text-sm">
-                  Registre um pagamento total ou parcial usando uma conta de origem.
-                </p>
-                <StatementPaymentForm
-                  statementId={statement.id}
-                  cardName={statement.account.name}
-                  openAmount={openAmount}
-                  sourceAccounts={availableSourceAccounts}
-                />
-              </>
-            )}
-          </CardContent>
-        </Card>
+        <BrandThemedCard
+          title="Pagamento da Fatura"
+          className={themedCardClassName}
+          contentClassName={themedContentClassName}
+          style={summaryCardStyle}
+          accentStyle={accentStyle}
+          glowStyle={glowStyle}
+        >
+          {openAmount <= 0 ? (
+            <div className="space-y-2 text-sm">
+              <p className="font-medium text-emerald-700 dark:text-emerald-300">
+                Esta fatura ja esta quitada.
+              </p>
+              <p className="text-muted-foreground">
+                Nenhum pagamento adicional e necessario para este periodo.
+              </p>
+            </div>
+          ) : availableSourceAccounts.length === 0 ? (
+            <div className="space-y-2 text-sm">
+              <p className="font-medium text-amber-700 dark:text-amber-300">
+                Nenhuma conta de origem disponivel.
+              </p>
+              <p className="text-muted-foreground">
+                Cadastre uma conta corrente, carteira ou investimento para registrar o pagamento
+                desta fatura.
+              </p>
+            </div>
+          ) : (
+            <>
+              <p className="text-muted-foreground mb-4 text-sm">
+                Registre um pagamento total ou parcial usando uma conta de origem.
+              </p>
+              <StatementPaymentForm
+                statementId={statement.id}
+                cardName={statement.account.name}
+                openAmount={openAmount}
+                sourceAccounts={availableSourceAccounts}
+              />
+            </>
+          )}
+        </BrandThemedCard>
       </div>
 
-      <Card className="ring-border/60 rounded-[1.5rem] shadow-sm">
-        <CardHeader>
-          <CardTitle>Movimentacoes da Fatura</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <StatementTransactionsList
-            transactions={statement.transactions.map((transaction) => ({
-              id: transaction.id,
-              type: transaction.type,
-              description: transaction.description,
-              date: transaction.date,
-              amount: transaction.amount,
-              category: transaction.category,
-            }))}
-            accountIcon={statement.account.icon}
-          />
-        </CardContent>
-      </Card>
+      <BrandThemedCard
+        title="Movimentacoes da Fatura"
+        className={themedCardClassName}
+        contentClassName={themedContentClassName}
+        style={summaryCardStyle}
+        accentStyle={accentStyle}
+        glowStyle={glowStyle}
+      >
+        <StatementTransactionsList
+          transactions={statement.transactions.map((transaction) => ({
+            id: transaction.id,
+            type: transaction.type,
+            description: transaction.description,
+            date: transaction.date,
+            amount: transaction.amount,
+            category: transaction.category,
+          }))}
+          accountIcon={statement.account.icon}
+        />
+      </BrandThemedCard>
     </div>
   )
 }

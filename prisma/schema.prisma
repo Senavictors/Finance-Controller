@@ -82,6 +82,7 @@ model Account {
   statementDueDay     Int?        @map("statement_due_day")
   color               String?
   icon                String?
+  networkBrandKey     String?     @map("network_brand_key")
   isArchived          Boolean     @default(false) @map("is_archived")
   createdAt           DateTime    @default(now()) @map("created_at")
   updatedAt           DateTime    @updatedAt @map("updated_at")

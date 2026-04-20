@@ -75,6 +75,7 @@ export async function POST() {
           statementDueDay: 17,
           color: '#8b5cf6',
           icon: 'nubank',
+          networkBrandKey: 'mastercard',
         },
       }),
       prisma.account.create({

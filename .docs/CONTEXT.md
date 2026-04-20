@@ -4,13 +4,13 @@
 
 ## Current Phase
 
-**Phase 33: Dark Theme And Theme Toggle** — Concluida no codigo. O app agora possui infraestrutura global de tema com `ThemeProvider` (`src/components/theme/theme-provider.tsx`), bootstrap em `src/app/layout.tsx`, persistencia via cookie + `localStorage` (`src/lib/theme.ts`) e novo `ThemeToggle` reutilizado no `Topbar`, landing e auth. As principais superfices com visual claro hardcoded foram migradas para tokens semanticos e classes compartilhadas em `src/app/globals.css` (`.fc-panel`, `.fc-panel-subtle`, `.fc-panel-danger`), cobrindo dashboard widgets, `/user`, `/settings`, contas, transacoes, recorrencias, metas, cartoes/faturas e `BrandPicker`. `npm run format:check`, `npm run lint`, `npm test` e `npm run build` passaram. A validacao visual automatizada em browser real ficou pendente porque a permissao de `Computer Use` nao estava liberada no ambiente.
+**Phase 34: Credit Card Issuer Network And Brand Themed Statements** — Concluida no codigo. O dominio de `Account` agora separa banco emissor e bandeira via `icon` + `networkBrandKey` (migration `20260420220000_add_account_network_brand_key`), os schemas/rotas de contas aceitam o novo campo, e o cadastro de `CREDIT_CARD` em `src/app/(app)/accounts/account-form.tsx` passou a exibir dois `BrandPicker`s distintos. A library `src/lib/brands/credit-card-theme.ts` centraliza as paletas por banco emissor, `BrandChip` reaproveita a exibicao compacta de emissor/bandeira, e `/credit-cards` mais `/credit-cards/[id]` agora usam tema por banco apenas nas superfices individuais do cartao/fatura, preservando fallback para o tema padrao em emissores nao mapeados. Seed/reset demo foram atualizados com `nubank + mastercard`. `npx prisma generate`, `npm run format`, `npm test`, `npm run lint` e `npm run build` passaram.
 
 ## Next Planned Step
 
-**Validacao visual manual do dark/light** — revisar a experiencia real em desktop/mobile, alternando o toggle em landing, auth, dashboard, `/user`, `/settings`, contas, categorias, transacoes, recorrencias, metas e cartoes/faturas para confirmar contraste, hover/focus e consistencia de gradientes/cards.
+**Validacao visual manual do dark/light e dos novos cards de fatura** — revisar a experiencia real em desktop/mobile, alternando o toggle em landing, auth, dashboard, `/user`, `/settings`, contas, categorias, transacoes, recorrencias, metas e cartoes/faturas para confirmar contraste, hover/focus, legibilidade dos `BrandChip`s e consistencia dos cards tematizados por banco.
 
-**Curadoria fina de contraste** — observar especialmente charts/tooltips, logos rasterizados, `ConfirmDialog`, dropdowns, sidebars, drag handles do dashboard, estados vazios e badges semanticas para identificar eventuais ajustes residuais no modo dark.
+**Curadoria fina de contraste** — observar especialmente charts/tooltips, logos rasterizados, `ConfirmDialog`, dropdowns, sidebars, drag handles do dashboard, estados vazios, badges semanticas e os gradientes brandizados de `/credit-cards` para identificar eventuais ajustes residuais no modo dark.
 
 ## What Exists
 
@@ -25,7 +25,7 @@
 - **Recorrencias**: RecurringRule + RecurringLog + apply idempotente
 - **Analytics core compartilhado**: `resolveMonthPeriod` + `getMonthlyAnalyticsSummary` reutilizados por dashboard, analytics API e transactions page
 - **Test foundation**: Vitest configurado com suites para analytics core, invalidation, statement cycle, goals, forecast, score e insights
-- **Credit card billing**: configuracao de limite/fechamento/vencimento, faturas, pagina de leitura e pagamento de fatura
+- **Credit card billing**: configuracao de limite/fechamento/vencimento, faturas, pagina de leitura/pagamento e agora separacao de banco emissor + bandeira no cadastro do cartao
 - **Snapshot and invalidation base**: tags por usuario/modulo/mes e invalidação central de analytics em mutacoes financeiras
 - **Demo hardening**: seed/reset demo agora montam um cartao com fatura paga e outra em aberto, e a UI de faturas/transacoes ficou mais demonstravel
 - **Goal Engine**: modulo de metas com SAVING, EXPENSE_LIMIT, INCOME_TARGET e ACCOUNT_LIMIT; calculo de progresso com projecao; snapshots; pagina `/goals`; widget `goal-progress` no dashboard; 3 metas demo no seed
@@ -57,18 +57,19 @@
 - **Settings, profile and confirmation UX (Phase 32)**: hook `useConfirm` + `ConfirmDialog` compartilhado substitui todo `confirm()`/`alert()` nativo; perfil/seguranca migrou para `/user`, acessado pelo chip colorido redesenhado no topbar, com upload de avatar (data URL ate 300KB em `User.image`), troca de senha (`invalidateOtherSessions`) e zona de risco com exclusao exigindo senha + digitacao de `EXCLUIR`; `/settings` fica apenas para reset demo; novos endpoints `PATCH/DELETE /api/auth/me` e `POST /api/auth/change-password`; migration `20260420192155_add_user_image`
 - **Dark theme and theme toggle (Phase 33)**: root layout agora aplica `data-theme`, `colorScheme`, `suppressHydrationWarning` e script de bootstrap; `ThemeToggle` alterna `light/dark` com persistencia; `Topbar`, landing e auth expõem o controle; dashboard widgets, `/user`, `/settings`, contas, transacoes, recorrencias, metas, cartoes/faturas e `BrandPicker` foram retocados para contraste consistente em dark
 - **Dark theme polish**: `IncomeExpensesWidget` teve o hover cursor padrao do Recharts removido (`Tooltip cursor={false}`) e passou a forcar `labelStyle`/`itemStyle` com `var(--foreground)`, eliminando o retangulo claro sobre a barra e o texto preto no tooltip em modo dark
-- **UX backlog formalizado**: feedback externo de uso foi convertido nas tasks `phase-29` a `phase-33`, cobrindo polish do dashboard, hardening de formularios/status, divulgacao progressiva de listas densas, fundacao de settings/perfil com confirmacoes customizadas e agora tema dark global com toggle light/dark
+- **Credit card issuer/network modeling (Phase 34)**: `Account.icon` foi consolidado como banco emissor, `Account.networkBrandKey` passou a guardar a bandeira, `AccountForm` separou os pickers de `bank` e `network`, e `BrandChip` + `credit-card-theme.ts` passaram a tematizar os cards individuais de `/credit-cards` e agora todos os cards principais do detalhe da fatura, com fallback seguro
+- **UX backlog formalizado**: feedback externo de uso foi convertido nas tasks `phase-29` a `phase-34`, cobrindo polish do dashboard, hardening de formularios/status, divulgacao progressiva de listas densas, fundacao de settings/perfil com confirmacoes customizadas, tema dark global com toggle light/dark e agora a separacao emissor x bandeira com tema visual por banco nas faturas
 - **Documentation process hardening**: `README.md` passou a ser artefato obrigatorio tanto na criacao quanto na conclusao de tasks, com foco explicito em roadmap, backlog aberto, phases concluidas e proximo passo
 - **Documentation sync**: README, CONTEXT, architecture overview e flows alinhados ao codigo atual (`dashboards`, `recurring-rules`, Node >= 20.9, apply manual de recorrencias e registry atual de widgets)
-- **README roadmap sync**: roadmap do README agora reflete explicitamente as phases 13 a 33 concluidas e desloca o proximo passo para validacao visual manual do dark/light em browser real
+- **README roadmap sync**: roadmap do README agora reflete explicitamente as phases 13 a 34 concluidas e preserva a validacao visual manual do dark/light + cards tematizados como proximo passo recomendado
 - **Repo hygiene**: `.gitignore` ajustado para ignorar configs locais de tooling em `.claude/`, logs genericos e artefatos comuns de chave/certificado (`*.key`, `*.crt`, `*.p12`, `*.pfx`)
 - **Seed demo**: script com dados ficticios (demo@finance.com / demo1234)
 - **Reset demo**: botao em /settings que recria dados
 - **Landing page**: hero + features + tech stack + footer
 - **CI**: GitHub Actions (lint + format:check + build)
 - **README**: overview alinhado ao codigo atual, com setup, stack, arquitetura alvo vs realidade e estrutura de rotas atual
-- **Future feature specs**: `.docs/future-features/` com Goal Engine, Forecast Engine, Score Financeiro, Insights Automaticos, Documentation Foundation, o roadmap documental das fases 14 a 26 e a nova spec de dark theme global com toggle
-- **Execution backlog**: tasks formais criadas para as phases 8.5 a 33 em `.docs/tasks/`, incluindo as novas phases 29 a 33 para polish de dashboard, hardening de formularios, listas densas, settings/perfil e tema dark global
+- **Future feature specs**: `.docs/future-features/` com Goal Engine, Forecast Engine, Score Financeiro, Insights Automaticos, Documentation Foundation, o roadmap documental das fases 14 a 26, a spec de dark theme global com toggle e a nova spec de separacao emissor x bandeira com tema visual por banco nas faturas
+- **Execution backlog**: tasks formais criadas para as phases 8.5 a 34 em `.docs/tasks/`, incluindo as phases 29 a 33 para polish de dashboard, hardening de formularios, listas densas, settings/perfil e tema dark global, alem da Phase 34 concluida para emissor/bandeira de cartao e cards de fatura por banco
 - **Technical plan**: task documentada para a fundacao analitica e ciclo de fatura de cartao
 - **31 API routes**, 15 models, 13 ADRs
 
@@ -85,6 +86,7 @@ User, Session, Account, Category, Transaction, CreditCardStatement, Dashboard, D
 - A fundacao da camada analitica server-side comecou a sair de `route.ts` e foi centralizada em `src/server/modules/finance/application/analytics/`
 - A mesma camada agora possui convencoes de snapshot e invalidação para summary, goals, forecast, score, insights e billing de cartao
 - O dominio de cartao agora possui ciclo de fatura em `src/server/modules/finance/application/credit-card/` e superfice inicial em `/credit-cards`
+- `Account.icon` passou a representar o banco emissor do cartao e `networkBrandKey` guarda a bandeira, permitindo tratar Itau + Mastercard, Nubank + Visa e combinacoes equivalentes sem conflitar modelagem com visual
 - A Phase 8.5 esta refinando demonstrabilidade: demo mais forte, faturas mais legiveis e navegação mais clara entre compra e fatura
 
 ## Documentation Layers

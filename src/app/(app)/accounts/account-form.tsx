@@ -35,6 +35,7 @@ type Account = {
   statementDueDay: number | null
   color: string | null
   icon: string | null
+  networkBrandKey: string | null
 }
 
 type AccountFormProps = {
@@ -62,7 +63,10 @@ export function AccountForm({ account, open, onOpenChange }: AccountFormProps) {
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
   const [accountType, setAccountType] = useState(account?.type ?? 'CHECKING')
-  const [brandKey, setBrandKey] = useState<string | null>(account?.icon ?? null)
+  const [issuerBrandKey, setIssuerBrandKey] = useState<string | null>(account?.icon ?? null)
+  const [networkBrandKey, setNetworkBrandKey] = useState<string | null>(
+    account?.networkBrandKey ?? null,
+  )
   const [color, setColor] = useState<string>(account?.color ?? '#3b82f6')
 
   const isControlled = open !== undefined
@@ -72,9 +76,10 @@ export function AccountForm({ account, open, onOpenChange }: AccountFormProps) {
 
   useEffect(() => {
     setAccountType(account?.type ?? 'CHECKING')
-    setBrandKey(account?.icon ?? null)
+    setIssuerBrandKey(account?.icon ?? null)
+    setNetworkBrandKey(account?.networkBrandKey ?? null)
     setColor(account?.color ?? '#3b82f6')
-  }, [account?.type, account?.icon, account?.color, isOpen])
+  }, [account?.type, account?.icon, account?.networkBrandKey, account?.color, isOpen])
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
@@ -99,7 +104,8 @@ export function AccountForm({ account, open, onOpenChange }: AccountFormProps) {
           ? parseInt(formData.get('statementDueDay') as string)
           : null,
       color: color || undefined,
-      icon: brandKey ?? null,
+      icon: issuerBrandKey ?? null,
+      networkBrandKey: accountType === 'CREDIT_CARD' ? (networkBrandKey ?? null) : null,
     }
 
     try {
@@ -136,7 +142,7 @@ export function AccountForm({ account, open, onOpenChange }: AccountFormProps) {
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       {trigger}
-      <DialogContent>
+      <DialogContent className="max-h-[calc(100vh-2rem)] overflow-y-auto sm:max-w-lg">
         <DialogHeader>
           <DialogTitle>{isEdit ? 'Editar Conta' : 'Nova Conta'}</DialogTitle>
           <DialogDescription>
@@ -226,20 +232,52 @@ export function AccountForm({ account, open, onOpenChange }: AccountFormProps) {
             </>
           )}
 
-          <div className="flex flex-col gap-1.5">
-            <Label>Marca (opcional)</Label>
-            <p className="text-muted-foreground text-xs">
-              Escolha o banco ou bandeira. A cor abaixo continua como fallback quando nao houver
-              marca.
-            </p>
-            <BrandPicker
-              value={brandKey}
-              onChange={setBrandKey}
-              fallbackLabel={account?.name ?? 'Conta'}
-              fallbackColor={color}
-              categories={accountType === 'CREDIT_CARD' ? ['network', 'bank'] : ['bank', 'payment']}
-            />
-          </div>
+          {accountType === 'CREDIT_CARD' ? (
+            <div className="flex flex-col gap-4">
+              <div className="flex flex-col gap-1.5">
+                <Label>Banco emissor (opcional)</Label>
+                <p className="text-muted-foreground text-xs">
+                  Define a instituicao do cartao e a identidade visual principal nas faturas.
+                </p>
+                <BrandPicker
+                  value={issuerBrandKey}
+                  onChange={setIssuerBrandKey}
+                  fallbackLabel={account?.name ?? 'Banco emissor'}
+                  fallbackColor={color}
+                  categories={['bank']}
+                />
+              </div>
+
+              <div className="flex flex-col gap-1.5">
+                <Label>Bandeira (opcional)</Label>
+                <p className="text-muted-foreground text-xs">
+                  Escolha a rede do cartao, como Visa, Mastercard, Elo ou American Express.
+                </p>
+                <BrandPicker
+                  value={networkBrandKey}
+                  onChange={setNetworkBrandKey}
+                  fallbackLabel="Bandeira"
+                  fallbackColor={color}
+                  categories={['network']}
+                />
+              </div>
+            </div>
+          ) : (
+            <div className="flex flex-col gap-1.5">
+              <Label>Marca (opcional)</Label>
+              <p className="text-muted-foreground text-xs">
+                Escolha o banco ou metodo principal. A cor abaixo continua como fallback quando nao
+                houver marca.
+              </p>
+              <BrandPicker
+                value={issuerBrandKey}
+                onChange={setIssuerBrandKey}
+                fallbackLabel={account?.name ?? 'Conta'}
+                fallbackColor={color}
+                categories={['bank', 'payment']}
+              />
+            </div>
+          )}
 
           <div className="flex flex-col gap-1.5">
             <Label htmlFor="color">Cor de fallback</Label>

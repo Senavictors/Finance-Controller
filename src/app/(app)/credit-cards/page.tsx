@@ -8,7 +8,15 @@ import { formatCurrency, formatDate } from '@/lib/format'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { BrandIcon } from '@/lib/brands'
+import {
+  BrandChip,
+  BrandIcon,
+  getCreditCardBrandAccentStyle,
+  getCreditCardBrandChipStyle,
+  getCreditCardBrandGlowStyle,
+  getCreditCardBrandSurfaceStyle,
+  getCreditCardBrandTheme,
+} from '@/lib/brands'
 import {
   Table,
   TableBody,
@@ -54,7 +62,13 @@ export default async function CreditCardsPage() {
       where: { userId: session.userId },
       include: {
         account: {
-          select: { name: true, color: true, icon: true, creditLimit: true },
+          select: {
+            name: true,
+            color: true,
+            icon: true,
+            networkBrandKey: true,
+            creditLimit: true,
+          },
         },
       },
       orderBy: [{ dueDate: 'asc' }, { createdAt: 'desc' }],
@@ -181,6 +195,11 @@ export default async function CreditCardsPage() {
           <div className="grid gap-4 lg:grid-cols-3">
             {accounts.map((account) => {
               const accountStatements = statementsByAccount.get(account.id) ?? []
+              const brandTheme = getCreditCardBrandTheme(account.icon)
+              const cardStyle = getCreditCardBrandSurfaceStyle(brandTheme)
+              const accentStyle = getCreditCardBrandAccentStyle(brandTheme)
+              const glowStyle = getCreditCardBrandGlowStyle(brandTheme)
+              const chipStyle = getCreditCardBrandChipStyle(brandTheme)
               const currentStatement =
                 accountStatements.find((statement) => statement.status !== 'PAID') ??
                 accountStatements[0] ??
@@ -198,8 +217,21 @@ export default async function CreditCardsPage() {
                   : 0
 
               return (
-                <Card key={account.id} className="ring-border/60 rounded-[1.5rem] shadow-sm">
-                  <CardHeader>
+                <Card
+                  key={account.id}
+                  className="ring-border/60 relative rounded-[1.5rem] shadow-sm"
+                  style={cardStyle}
+                >
+                  {brandTheme && (
+                    <>
+                      <div className="absolute inset-x-0 top-0 h-1.5" style={accentStyle} />
+                      <div
+                        className="absolute -top-10 -right-6 size-28 rounded-full blur-3xl"
+                        style={glowStyle}
+                      />
+                    </>
+                  )}
+                  <CardHeader className="relative">
                     <div className="flex items-center gap-3">
                       <BrandIcon
                         brandKey={account.icon}
@@ -209,10 +241,32 @@ export default async function CreditCardsPage() {
                         size={40}
                         radius="md"
                       />
-                      <CardTitle>{account.name}</CardTitle>
+                      <div className="min-w-0 flex-1">
+                        <CardTitle className="truncate">{account.name}</CardTitle>
+                        <div className="mt-2 flex flex-wrap gap-2">
+                          {account.icon && (
+                            <BrandChip
+                              brandKey={account.icon}
+                              fallbackLabel="Banco emissor"
+                              fallbackText={account.name}
+                              fallbackColor={account.color}
+                              style={chipStyle}
+                            />
+                          )}
+                          {account.networkBrandKey && (
+                            <BrandChip
+                              brandKey={account.networkBrandKey}
+                              fallbackLabel="Bandeira"
+                              fallbackText={account.name}
+                              fallbackColor={account.color}
+                              style={chipStyle}
+                            />
+                          )}
+                        </div>
+                      </div>
                     </div>
                   </CardHeader>
-                  <CardContent className="space-y-3">
+                  <CardContent className="relative space-y-3">
                     <div>
                       <p className="text-muted-foreground text-xs">Limite</p>
                       <p className="text-foreground text-lg font-semibold tracking-tight">
@@ -307,6 +361,16 @@ export default async function CreditCardsPage() {
                                 size={24}
                                 radius="sm"
                               />
+                              {statement.account.networkBrandKey && (
+                                <BrandIcon
+                                  brandKey={statement.account.networkBrandKey}
+                                  fallbackLabel="Bandeira"
+                                  fallbackText={statement.account.name}
+                                  fallbackColor={statement.account.color}
+                                  size={18}
+                                  radius="sm"
+                                />
+                              )}
                               {statement.account.name}
                             </div>
                           </TableCell>
