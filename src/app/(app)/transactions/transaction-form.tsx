@@ -12,7 +12,9 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
+import { MoneyInput } from '@/components/ui/money-input'
 import { Label } from '@/components/ui/label'
+import { parseMoneyToCents } from '@/lib/money'
 import {
   Select,
   SelectContent,
@@ -60,8 +62,7 @@ export function TransactionForm({ accounts, categories }: Props) {
     setLoading(true)
 
     const formData = new FormData(e.currentTarget)
-    const amountStr = formData.get('amount') as string
-    const amount = Math.round(parseFloat(amountStr || '0') * 100)
+    const amount = parseMoneyToCents(formData.get('amount') as string)
 
     try {
       let res: Response
@@ -155,7 +156,7 @@ export function TransactionForm({ accounts, categories }: Props) {
           <div className="flex gap-3">
             <div className="flex flex-1 flex-col gap-1.5">
               <Label htmlFor="amount">Valor (R$)</Label>
-              <Input id="amount" name="amount" type="number" step="0.01" min="0.01" required />
+              <MoneyInput id="amount" name="amount" placeholder="0,00" required />
             </div>
             <div className="flex flex-1 flex-col gap-1.5">
               <Label htmlFor="date">Data</Label>

@@ -12,7 +12,9 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
+import { MoneyInput, IntegerInput } from '@/components/ui/money-input'
 import { Label } from '@/components/ui/label'
+import { parseMoneyToCents, formatCentsToInput } from '@/lib/money'
 import {
   Select,
   SelectContent,
@@ -80,14 +82,13 @@ export function AccountForm({ account, open, onOpenChange }: AccountFormProps) {
     setLoading(true)
 
     const formData = new FormData(e.currentTarget)
-    const balanceStr = formData.get('initialBalance') as string
     const body = {
       name: formData.get('name') as string,
       type: formData.get('type') as string,
-      initialBalance: Math.round(parseFloat(balanceStr || '0') * 100),
+      initialBalance: parseMoneyToCents(formData.get('initialBalance') as string),
       creditLimit:
         formData.get('creditLimit') && accountType === 'CREDIT_CARD'
-          ? Math.round(parseFloat((formData.get('creditLimit') as string) || '0') * 100)
+          ? parseMoneyToCents(formData.get('creditLimit') as string)
           : null,
       statementClosingDay:
         formData.get('statementClosingDay') && accountType === 'CREDIT_CARD'
@@ -173,12 +174,11 @@ export function AccountForm({ account, open, onOpenChange }: AccountFormProps) {
 
           <div className="flex flex-col gap-1.5">
             <Label htmlFor="initialBalance">Saldo inicial (R$)</Label>
-            <Input
+            <MoneyInput
+              allowZero
               id="initialBalance"
               name="initialBalance"
-              type="number"
-              step="0.01"
-              defaultValue={account ? (account.initialBalance / 100).toFixed(2) : '0.00'}
+              defaultValue={account ? formatCentsToInput(account.initialBalance) : '0.00'}
             />
           </div>
 
@@ -187,24 +187,20 @@ export function AccountForm({ account, open, onOpenChange }: AccountFormProps) {
               <div className="grid gap-3 sm:grid-cols-3">
                 <div className="flex flex-col gap-1.5">
                   <Label htmlFor="creditLimit">Limite (R$)</Label>
-                  <Input
+                  <MoneyInput
                     id="creditLimit"
                     name="creditLimit"
-                    type="number"
-                    step="0.01"
-                    min="0.01"
                     required
                     defaultValue={
-                      account?.creditLimit ? (account.creditLimit / 100).toFixed(2) : ''
+                      account?.creditLimit ? formatCentsToInput(account.creditLimit) : ''
                     }
                   />
                 </div>
                 <div className="flex flex-col gap-1.5">
                   <Label htmlFor="statementClosingDay">Fechamento</Label>
-                  <Input
+                  <IntegerInput
                     id="statementClosingDay"
                     name="statementClosingDay"
-                    type="number"
                     min="1"
                     max="31"
                     required
@@ -213,10 +209,9 @@ export function AccountForm({ account, open, onOpenChange }: AccountFormProps) {
                 </div>
                 <div className="flex flex-col gap-1.5">
                   <Label htmlFor="statementDueDay">Vencimento</Label>
-                  <Input
+                  <IntegerInput
                     id="statementDueDay"
                     name="statementDueDay"
-                    type="number"
                     min="1"
                     max="31"
                     required

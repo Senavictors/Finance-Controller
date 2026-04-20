@@ -4,7 +4,9 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { MoneyInput } from '@/components/ui/money-input'
 import { Label } from '@/components/ui/label'
+import { parseMoneyToCents } from '@/lib/money'
 import {
   Select,
   SelectContent,
@@ -36,7 +38,7 @@ export function StatementPaymentForm({ statementId, cardName, openAmount, source
     setLoading(true)
 
     const formData = new FormData(event.currentTarget)
-    const amount = Math.round(parseFloat((formData.get('amount') as string) || '0') * 100)
+    const amount = parseMoneyToCents(formData.get('amount') as string)
 
     try {
       const response = await fetch(`/api/credit-cards/statements/${statementId}/payments`, {
@@ -98,12 +100,9 @@ export function StatementPaymentForm({ statementId, cardName, openAmount, source
       <div className="grid gap-3 sm:grid-cols-2">
         <div className="flex flex-col gap-1.5">
           <Label htmlFor="amount">Valor (R$)</Label>
-          <Input
+          <MoneyInput
             id="amount"
             name="amount"
-            type="number"
-            step="0.01"
-            min="0.01"
             max={(openAmount / 100).toFixed(2)}
             defaultValue={(openAmount / 100).toFixed(2)}
             required

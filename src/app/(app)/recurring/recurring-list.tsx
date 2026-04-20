@@ -97,8 +97,8 @@ function RecurringRow({
     <>
       <div
         className={cn(
-          'flex items-center justify-between px-6 py-4',
-          !rule.isActive && 'opacity-50',
+          'flex items-center justify-between px-6 py-4 transition-colors',
+          !rule.isActive && 'bg-amber-50/60 dark:bg-amber-950/20',
         )}
       >
         <div className="flex items-center gap-4">
@@ -127,7 +127,14 @@ function RecurringRow({
             </div>
           )}
           <div>
-            <p className="text-sm font-medium text-gray-900">{rule.description}</p>
+            <p
+              className={cn(
+                'text-sm font-medium text-gray-900',
+                !rule.isActive && 'text-muted-foreground line-through decoration-amber-500/60',
+              )}
+            >
+              {rule.description}
+            </p>
             <div className="mt-0.5 flex items-center gap-2 text-xs text-gray-400">
               <div className="flex items-center gap-1">
                 <BrandDot
@@ -159,7 +166,11 @@ function RecurringRow({
                 {freqLabels[rule.frequency] ?? rule.frequency}
               </Badge>
               {!rule.isActive && (
-                <Badge variant="secondary" className="text-muted-foreground text-[10px]">
+                <Badge
+                  variant="secondary"
+                  className="gap-1 border border-amber-300 bg-amber-100 text-[10px] font-semibold text-amber-800 dark:border-amber-700 dark:bg-amber-900/40 dark:text-amber-200"
+                >
+                  <Pause className="size-2.5" />
                   Pausada
                 </Badge>
               )}
@@ -172,6 +183,7 @@ function RecurringRow({
             className={cn(
               'text-sm font-semibold',
               rule.type === 'INCOME' ? 'text-emerald-600' : 'text-red-600',
+              !rule.isActive && 'opacity-60',
             )}
           >
             {formatCurrency(rule.amount)}

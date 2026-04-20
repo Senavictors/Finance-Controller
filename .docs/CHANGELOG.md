@@ -9,6 +9,18 @@ and this project adheres to [Conventional Commits](https://www.conventionalcommi
 
 ### Added
 
+- Phase 30: helper `parseMoneyToCents` / `formatCentsToInput` em `src/lib/money.ts` com testes (`src/lib/money.test.ts`) cobrindo virgula, ponto, sub-centavo, clamp negativo e valores nulos
+- Phase 30: componentes reutilizaveis `MoneyInput` e `IntegerInput` em `src/components/ui/money-input.tsx` bloqueando `e/+/-`, desarmando wheel e escondendo spinners nativos
+- Phase 30: padrao de input monetario aplicado em transacoes, recorrencias, metas, pagamento de fatura e contas (incluindo `IntegerInput` para dias de fechamento/vencimento de cartao)
+- Phase 30: container com contraste (`bg-card` + borda + shadow) na barra de filtros de `/transactions`
+- Phase 30: estado pausado de recorrencias reforcado com fundo ambar, descricao riscada e badge com icone `Pause` no lugar do antigo `opacity-50`
+
+### Changed
+
+- Phase 30: `.docs/CONTEXT.md`, `README.md` e `.docs/tasks/phase-30-form-hardening-and-status-feedback.md` atualizados com a conclusao da phase e novo proximo passo apontando para a Phase 31
+
+### Added (earlier)
+
 - Phase 29: helper `findPlacement` em `src/app/(app)/dashboard/lib/auto-placement.ts` com testes (`auto-placement.test.ts`) para posicionamento automatico de widgets sem sobreposicao
 - Phase 29: override do placeholder de drag da react-grid-layout em `src/app/globals.css` usando `var(--primary)` com baixa opacidade e `border-radius` alinhado aos widgets
 - Phase 29: scroll interno em `RecentTransactionsWidget` via `flex flex-col` + `min-h-0` + `overflow-y-auto` para conter listas longas dentro do card
