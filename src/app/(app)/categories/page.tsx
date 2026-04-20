@@ -1,7 +1,7 @@
 import { validateSession } from '@/server/auth/session'
 import { prisma } from '@/server/db'
 import { redirect } from 'next/navigation'
-import { CategoryList } from './category-list'
+import { CategoryListCard } from './category-list-card'
 import { CategoryForm } from './category-form'
 import { Tag } from 'lucide-react'
 
@@ -45,7 +45,11 @@ export default async function CategoriesPage() {
                 Nenhuma categoria de receita
               </p>
             ) : (
-              <CategoryList categories={incomeCategories} allCategories={categories} />
+              <CategoryListCard
+                categories={incomeCategories}
+                allCategories={categories}
+                dialogTitle="Todas as categorias de receita"
+              />
             )}
           </Card>
           <Card title="Despesas" color="text-destructive">
@@ -54,7 +58,11 @@ export default async function CategoriesPage() {
                 Nenhuma categoria de despesa
               </p>
             ) : (
-              <CategoryList categories={expenseCategories} allCategories={categories} />
+              <CategoryListCard
+                categories={expenseCategories}
+                allCategories={categories}
+                dialogTitle="Todas as categorias de despesa"
+              />
             )}
           </Card>
         </div>

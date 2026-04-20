@@ -565,7 +565,7 @@ npx prisma db seed   # Popular dados demo
 
 ## Roadmap
 
-Estado atual: entregas concluidas ate a **Phase 30**, com backlog ativo aberto das **Phases 31 e 32**.
+Estado atual: entregas concluidas ate a **Phase 31**, com backlog ativo aberto da **Phase 32**.
 
 ### Phases concluidas
 
@@ -600,16 +600,16 @@ Estado atual: entregas concluidas ate a **Phase 30**, com backlog ativo aberto d
 - [x] Phase 28: Real Brand Logo Assets
 - [x] Phase 29: Dashboard Layout And Widget Polish
 - [x] Phase 30: Form Hardening And Status Feedback
+- [x] Phase 31: Progressive Disclosure And List Scaling
 
 ### Phases abertas
 
-- [ ] Phase 31: Progressive Disclosure And List Scaling
 - [ ] Phase 32: Settings, Profile And Confirmation UX
 
 ### Proximo passo recomendado
 
-- [ ] Iniciar a Phase 31 para reduzir a carga visual de listas densas (transacoes, recorrencias, metas) com paginacao/disclosure progressiva
-- [ ] Manter em paralelo a validacao visual light/dark/mobile das superficies com `BrandIcon`/`BrandDot`, do polish de dashboard e dos novos `MoneyInput`/`IntegerInput` em transacoes, recorrencias, metas, faturas e contas
+- [ ] Iniciar a Phase 32 para evoluir settings/perfil e substituir `confirm()` nativo por componente proprio de confirmacao
+- [ ] Manter em paralelo a validacao visual light/dark/mobile das superficies com `BrandIcon`/`BrandDot`, dos novos `MoneyInput`/`IntegerInput` e do padrao de `Carregar mais` aplicado em categorias, recorrencias e detalhe de fatura
 
 ### Backlog de produto
 

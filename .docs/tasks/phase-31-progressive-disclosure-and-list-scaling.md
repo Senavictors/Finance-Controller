@@ -4,7 +4,7 @@
 
 - [ ] Todo
 - [ ] In Progress
-- [ ] Done
+- [x] Done
 
 ## Context
 
@@ -95,13 +95,20 @@ Pontos de atencao:
 
 ## Checklist
 
-- [ ] Preview curta de categorias implementada
-- [ ] Modal ou sheet de lista completa de categorias implementado
-- [ ] Padrao de divulgacao progressiva aplicado nas listas prioritarias
-- [ ] Testes passando
-- [ ] `.docs/CONTEXT.md` updated
+- [x] Preview curta de categorias implementada
+- [x] Modal ou sheet de lista completa de categorias implementado
+- [x] Padrao de divulgacao progressiva aplicado nas listas prioritarias
+- [x] Testes passando
+- [x] `.docs/CONTEXT.md` updated
 - [ ] ADR created/updated (if applicable)
-- [ ] Manual validation done
+- [x] Manual validation done
+
+## Outcome
+
+- Novo componente `CategoryListCard` em `src/app/(app)/categories/category-list-card.tsx` renderiza os primeiros 5 pais com seus filhos e expoe um `Ver todas (N)` que abre um `Dialog` com a lista completa reutilizando `CategoryList` (edicao/exclusao preservadas).
+- `RecurringList` agora controla visibilidade com state local (`INITIAL_VISIBLE=10`, `PAGE_SIZE=10`) e expoe um botao `Carregar mais (N restantes)` abaixo da lista.
+- Detalhe de fatura migrou as movimentacoes para `StatementTransactionsList` (client component) que aplica o mesmo `carregar mais` incremental sobre a lista passada pelo server component.
+- Pagina de transacoes permanece com paginacao server-side inalterada.
 
 ## Notes for AI (next step)
 

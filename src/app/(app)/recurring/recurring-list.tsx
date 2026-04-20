@@ -2,18 +2,22 @@
 
 import { useRouter } from 'next/navigation'
 import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { MoreVertical, Pencil, Trash2, Pause, Play } from 'lucide-react'
+import { MoreVertical, Pencil, Trash2, Pause, Play, ChevronDown } from 'lucide-react'
 import { formatCurrency } from '@/lib/format'
 import { cn } from '@/lib/utils'
 import { useState } from 'react'
 import { RecurringForm } from './recurring-form'
 import { BrandDot, BrandIcon, getBrand, matchBrand } from '@/lib/brands'
+
+const INITIAL_VISIBLE = 10
+const PAGE_SIZE = 10
 
 type Rule = {
   id: string
@@ -53,13 +57,30 @@ export function RecurringList({
   accounts: Account[]
   categories: Category[]
 }) {
+  const [visible, setVisible] = useState(INITIAL_VISIBLE)
+  const visibleRules = rules.slice(0, visible)
+  const remaining = rules.length - visibleRules.length
+
   return (
     <div className="rounded-[2rem] border border-white/50 bg-gradient-to-br from-white to-gray-50 shadow-sm">
       <div className="divide-y divide-gray-100">
-        {rules.map((rule) => (
+        {visibleRules.map((rule) => (
           <RecurringRow key={rule.id} rule={rule} accounts={accounts} categories={categories} />
         ))}
       </div>
+      {remaining > 0 && (
+        <div className="flex justify-center border-t border-gray-100 p-3">
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            onClick={() => setVisible((current) => current + PAGE_SIZE)}
+          >
+            <ChevronDown className="mr-1.5 size-4" />
+            Carregar mais ({remaining} restantes)
+          </Button>
+        </div>
+      )}
     </div>
   )
 }
