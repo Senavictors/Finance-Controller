@@ -560,6 +560,96 @@ async function main() {
   ])
   console.log('  Created 3 demo goals')
 
+  const [techWishlist, homeWishlist, officeWishlist] = await Promise.all([
+    prisma.wishlistCategory.create({
+      data: { userId: user.id, name: 'Tecnologia' },
+    }),
+    prisma.wishlistCategory.create({
+      data: { userId: user.id, name: 'Casa' },
+    }),
+    prisma.wishlistCategory.create({
+      data: { userId: user.id, name: 'Home Office' },
+    }),
+  ])
+
+  const wishlistPurchaseDate = new Date(
+    now.getFullYear(),
+    now.getMonth(),
+    Math.max(1, now.getDate() - 2),
+    12,
+    0,
+    0,
+    0,
+  )
+
+  const purchasedWishlistTransaction = await prisma.transaction.create({
+    data: {
+      userId: user.id,
+      accountId: nubank.id,
+      categoryId: lazer.id,
+      type: 'EXPENSE',
+      amount: 64990,
+      description: 'Headphone Bluetooth',
+      notes: 'Compra demo originada da wishlist',
+      date: wishlistPurchaseDate,
+    },
+  })
+
+  await Promise.all([
+    prisma.wishlistItem.create({
+      data: {
+        userId: user.id,
+        categoryId: techWishlist.id,
+        name: 'Kindle Paperwhite',
+        desiredPrice: 79990,
+        productUrl: 'https://www.amazon.com.br',
+        priority: 'HIGH',
+        status: 'READY_TO_BUY',
+        desiredPurchaseDate: createDemoMonthDate(now, 0, Math.min(now.getDate() + 4, 28)),
+      },
+    }),
+    prisma.wishlistItem.create({
+      data: {
+        userId: user.id,
+        categoryId: homeWishlist.id,
+        name: 'Air Fryer 5L',
+        desiredPrice: 45990,
+        productUrl: 'https://www.magazineluiza.com.br',
+        priority: 'MEDIUM',
+        status: 'MONITORING',
+        desiredPurchaseDate: new Date(now.getFullYear(), now.getMonth() + 1, 10, 12, 0, 0, 0),
+      },
+    }),
+    prisma.wishlistItem.create({
+      data: {
+        userId: user.id,
+        categoryId: officeWishlist.id,
+        name: 'Cadeira ergonomica',
+        desiredPrice: 119990,
+        productUrl: 'https://www.mercadolivre.com.br',
+        priority: 'LOW',
+        status: 'DESIRED',
+        desiredPurchaseDate: new Date(now.getFullYear(), now.getMonth() + 1, 20, 12, 0, 0, 0),
+      },
+    }),
+    prisma.wishlistItem.create({
+      data: {
+        userId: user.id,
+        categoryId: officeWishlist.id,
+        name: 'Headphone Bluetooth',
+        desiredPrice: 69990,
+        paidPrice: 64990,
+        productUrl: 'https://www.kabum.com.br',
+        priority: 'HIGH',
+        status: 'PURCHASED',
+        desiredPurchaseDate: createDemoMonthDate(now, 0, Math.max(1, now.getDate() - 10)),
+        purchasedAt: wishlistPurchaseDate,
+        purchaseTransactionId: purchasedWishlistTransaction.id,
+      },
+    }),
+  ])
+  console.log('  Created wishlist demo categories and items')
+
   // Create dashboard with default widgets
   await prisma.dashboard.create({
     data: {

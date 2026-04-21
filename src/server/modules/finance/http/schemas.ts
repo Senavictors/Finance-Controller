@@ -198,6 +198,73 @@ export const updateRecurringRuleSchema = z.object({
 export type CreateRecurringRuleInput = z.infer<typeof createRecurringRuleSchema>
 export type UpdateRecurringRuleInput = z.infer<typeof updateRecurringRuleSchema>
 
+// ── Wishlist ─────────────────────────────────────────────
+
+const wishlistStatusEnum = z.enum(
+  ['DESIRED', 'MONITORING', 'READY_TO_BUY', 'PURCHASED', 'CANCELED'],
+  {
+    message: 'Status invalido',
+  },
+)
+
+const editableWishlistStatusEnum = z.enum(['DESIRED', 'MONITORING', 'READY_TO_BUY', 'CANCELED'], {
+  message: 'Status invalido',
+})
+
+const wishlistPriorityEnum = z.enum(['LOW', 'MEDIUM', 'HIGH'], {
+  message: 'Prioridade invalida',
+})
+
+export const createWishlistCategorySchema = z.object({
+  name: z.string().trim().min(2, 'Nome deve ter pelo menos 2 caracteres').max(80),
+})
+
+const wishlistItemBaseSchema = z.object({
+  name: z.string().trim().min(2, 'Nome deve ter pelo menos 2 caracteres').max(120),
+  categoryId: z.string().nullable().optional(),
+  desiredPrice: z.number().int().positive('Preco desejado deve ser positivo'),
+  productUrl: z.url('Link do produto invalido').nullable().optional(),
+  priority: wishlistPriorityEnum.default('MEDIUM'),
+  status: wishlistStatusEnum.default('DESIRED'),
+  desiredPurchaseDate: z.coerce.date().nullable().optional(),
+})
+
+export const createWishlistItemSchema = wishlistItemBaseSchema.superRefine((data, ctx) => {
+  if (data.status === 'PURCHASED') {
+    ctx.addIssue({
+      code: 'custom',
+      path: ['status'],
+      message: 'Use o fluxo de compra para marcar um item como comprado',
+    })
+  }
+})
+
+export const updateWishlistItemSchema = wishlistItemBaseSchema.partial().extend({
+  productUrl: z.url('Link do produto invalido').nullable().optional(),
+  status: editableWishlistStatusEnum.optional(),
+})
+
+export const wishlistItemQuerySchema = z.object({
+  status: wishlistStatusEnum.optional(),
+  priority: wishlistPriorityEnum.optional(),
+  categoryId: z.string().optional(),
+  q: z.string().max(120).optional(),
+})
+
+export const purchaseWishlistItemSchema = z.object({
+  accountId: z.string({ error: 'Conta obrigatoria' }),
+  categoryId: z.string().optional(),
+  amount: z.number().int().positive('Valor deve ser positivo'),
+  date: z.coerce.date({ message: 'Data invalida' }),
+  notes: z.string().max(1000).optional(),
+})
+
+export type CreateWishlistCategoryInput = z.infer<typeof createWishlistCategorySchema>
+export type CreateWishlistItemInput = z.infer<typeof createWishlistItemSchema>
+export type UpdateWishlistItemInput = z.infer<typeof updateWishlistItemSchema>
+export type WishlistItemQuery = z.infer<typeof wishlistItemQuerySchema>
+export type PurchaseWishlistItemInput = z.infer<typeof purchaseWishlistItemSchema>
+
 // ── Goal ─────────────────────────────────────────────────
 
 const goalBaseSchema = z.object({

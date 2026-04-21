@@ -72,6 +72,7 @@ O Finance Controller centraliza tudo em uma unica aplicacao:
 - **Recorrencias** — regras com frequencia (diaria, semanal, mensal, anual), apply manual idempotente com logs
 - **Billing de cartao de credito** — limite, fechamento, vencimento, faturas, pagamento parcial/total e cards tematizados por banco emissor em `/credit-cards`
 - **Goal Engine** — metas de economia, limite de gasto, meta de receita e limite por conta/cartao, com calculo de progresso por periodo, status (no ritmo, atencao, em risco, atingida, ultrapassada) e snapshots historicos
+- **Wishlist com conversao em compra** — modulo `/wishlist` com categorias proprias, cards por status, prioridades, datas desejada/efetiva e fluxo de compra que cria uma despesa real nas transacoes
 - **Forecast Engine** — previsao do fechamento do mes combinando realizado, recorrencias futuras, projecao variavel (media movel) e faturas em aberto, com classificacao de risco e breakdown audit das premissas
 - **Financial Score** — pontuacao 0-100 com 5 fatores explicaveis (economia, estabilidade, renda, cartao, metas), status CRITICAL/ATTENTION/GOOD/EXCELLENT, delta vs mes anterior e redistribuicao por ausencia de dados
 - **Automatic Insights** — motor deterministico com 6 heuristicas de alta confianca (variacao por categoria, concentracao, metas em risco, forecast negativo, fatura vencendo/vencida, utilizacao alta de cartao), dedupe por fingerprint, cap de 8 por periodo e dismiss persistente
@@ -79,7 +80,7 @@ O Finance Controller centraliza tudo em uma unica aplicacao:
 - **Analytics** — resumo mensal com variacao percentual, gastos por categoria, saldo por conta, patrimonio total
 - **Snapshot e invalidacao** — estrategia central de tags por usuario/modulo/mes, invalidada em mutacoes financeiras
 - **Tema refinado** — design inspirado em Apex Holdings (Inter font, cantos arredondados, sombras suaves, gradientes sutis)
-- **Seed demo** — dados ficticios realistas + botao de reset em `/settings`, com fatura paga, outra em aberto e 3 metas demo
+- **Seed demo** — dados ficticios realistas + botao de reset em `/settings`, com fatura paga, outra em aberto, 3 metas demo e itens de wishlist em multiplos status
 
 ---
 
@@ -119,7 +120,7 @@ graph TD
     end
 ```
 
-> Estado atual: analytics, billing de cartao, metas, forecast, score e insights ja usam `src/server/modules/finance/application/`, mas parte dos CRUDs e algumas Server Components ainda acessam Prisma diretamente.
+> Estado atual: analytics, billing de cartao, metas, wishlist, forecast, score e insights ja usam `src/server/modules/finance/application/`, mas parte dos CRUDs e algumas Server Components ainda acessam Prisma diretamente.
 
 ### Principios
 
@@ -146,8 +147,9 @@ src/
       credit-cards/        Faturas e pagamento de cartao
       recurring/           Regras recorrentes
       goals/               Metas financeiras e progresso
+      wishlist/            Lista de desejos e conversao em compra
       settings/            Configuracoes + reset demo
-    api/                   31 Route Handlers
+    api/                   36 Route Handlers
       auth/                login, register, logout, me
       accounts/            CRUD + [id]
       categories/          CRUD + [id]
@@ -157,12 +159,13 @@ src/
       dashboards/          GET/PUT layout + POST/DELETE widgets
       recurring-rules/     CRUD + apply
       goals/               CRUD + [id] de metas
+      wishlist/            categories + items + purchase conversion
       settings/            reset-demo
   server/
     auth/                  Sessions, hashing, guards, rate-limit
     modules/finance/
       domain/              Entidades e regras de negocio
-      application/         analytics + credit-card billing + goals + forecast + score + insights
+      application/         analytics + credit-card billing + goals + wishlist + forecast + score + insights
       infra/               Repositorios Prisma
       http/                DTOs e validators Zod
   components/
@@ -299,7 +302,7 @@ Regra operacional:
 
 ## Banco de Dados
 
-15 models, 12 enums (incluindo `GoalMetric`, `GoalScopeType`, `GoalPeriod`, `GoalStatus`, `ForecastRiskLevel`, `FinancialScoreStatus`, `InsightSeverity`):
+17 models, 14 enums (incluindo `WishlistItemPriority`, `WishlistItemStatus`, `GoalMetric`, `GoalScopeType`, `GoalPeriod`, `GoalStatus`, `ForecastRiskLevel`, `FinancialScoreStatus`, `InsightSeverity`):
 
 ```mermaid
 erDiagram
@@ -311,6 +314,8 @@ erDiagram
     User ||--|| Dashboard : "dashboard"
     User ||--o{ RecurringRule : "recorrencias"
     User ||--o{ Goal : "metas"
+    User ||--o{ WishlistCategory : "categorias de desejos"
+    User ||--o{ WishlistItem : "itens desejados"
     User ||--o{ ForecastSnapshot : "previsoes"
     User ||--o{ FinancialScoreSnapshot : "score"
     User ||--o{ InsightSnapshot : "insights"
@@ -326,6 +331,8 @@ erDiagram
     Category ||--o{ RecurringRule : "regras"
     Category ||--o{ Goal : "metas por categoria"
     Goal ||--o{ GoalSnapshot : "historico"
+    WishlistCategory ||--o{ WishlistItem : "classificacao"
+    Transaction ||--o| WishlistItem : "compra vinculada"
 
     User {
         string id PK
@@ -442,6 +449,27 @@ erDiagram
         int projectedAmount
         int progressPercent
         enum status
+    }
+
+    WishlistCategory {
+        string id PK
+        string userId FK
+        string name
+    }
+
+    WishlistItem {
+        string id PK
+        string userId FK
+        string categoryId FK
+        string name
+        int desiredPrice
+        int paidPrice
+        string productUrl
+        enum priority
+        enum status
+        datetime desiredPurchaseDate
+        datetime purchasedAt
+        string purchaseTransactionId FK
     }
 
     ForecastSnapshot {
@@ -566,7 +594,7 @@ npx prisma db seed   # Popular dados demo
 
 ## Roadmap
 
-Estado atual: entregas concluidas ate a **Phase 34**, com dark theme global, cadastro de cartoes separando emissor + bandeira e cards de fatura tematizados por banco emissor.
+Estado atual: entregas concluidas ate a **Phase 35**, com dark theme global, cadastro de cartoes separando emissor + bandeira, cards de fatura tematizados por banco emissor e novo modulo de wishlist com conversao em compra.
 
 ### Phases concluidas
 
@@ -605,6 +633,7 @@ Estado atual: entregas concluidas ate a **Phase 34**, com dark theme global, cad
 - [x] Phase 32: Settings, Profile And Confirmation UX
 - [x] Phase 33: Dark Theme And Theme Toggle
 - [x] Phase 34: Credit Card Issuer Network And Brand Themed Statements
+- [x] Phase 35: Wishlist Module And Purchase Conversion
 
 ### Phases abertas
 
@@ -612,10 +641,10 @@ Estado atual: entregas concluidas ate a **Phase 34**, com dark theme global, cad
 
 ### Proximo passo recomendado
 
-- [ ] Fazer uma rodada manual em browser real validando o toggle `light/dark` em landing, auth, dashboard, `/user`, `/settings`, contas, categorias, transacoes, recorrencias, metas e cartoes/faturas, incluindo os novos cards tematizados por banco
-- [ ] Revisar contraste fino de charts, badges, dropdowns, dialogs, drag handles, hover/focus states, logos rasterizados e `BrandChip`s no modo dark
-- [ ] Expandir `src/lib/brands/credit-card-theme.ts` se surgirem novos emissores prioritarios no uso real
-- [ ] Decidir se uma proxima subfase deve adicionar opcao visivel `System` ou persistencia da preferencia de tema no perfil do usuario
+- [ ] Validar manualmente o modulo `/wishlist` em desktop/mobile, cobrindo filtros, cards, light/dark e o fluxo de compra convertendo o item em despesa real
+- [ ] Revisar contraste fino de charts, badges, dropdowns, dialogs, drag handles, hover/focus states, logos rasterizados, `BrandChip`s e os novos cards da wishlist no modo dark
+- [ ] Confirmar seed/reset demo com os novos itens de wishlist em status diferentes e o link de transacao do item comprado
+- [ ] Decidir se a proxima subfase da wishlist deve priorizar widget de dashboard, alertas de preco ou historico mais rico de compras
 
 ### Backlog de produto
 

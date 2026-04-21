@@ -24,6 +24,8 @@ model User {
   dashboard            Dashboard?
   recurringRules       RecurringRule[]
   goals                Goal[]
+  wishlistCategories   WishlistCategory[]
+  wishlistItems        WishlistItem[]
   forecastSnapshots    ForecastSnapshot[]
   scoreSnapshots       FinancialScoreSnapshot[]
   insightSnapshots     InsightSnapshot[]
@@ -139,6 +141,7 @@ model Transaction {
   account             Account              @relation(fields: [accountId], references: [id], onDelete: Cascade)
   category            Category?            @relation(fields: [categoryId], references: [id], onDelete: SetNull)
   creditCardStatement CreditCardStatement? @relation("CreditCardStatementTransactions", fields: [creditCardStatementId], references: [id], onDelete: SetNull)
+  purchasedWishlistItem WishlistItem?      @relation("WishlistPurchase")
 
   @@index([userId])
   @@index([accountId])
@@ -262,6 +265,65 @@ model RecurringLog {
 
   @@index([recurringRuleId])
   @@map("recurring_logs")
+}
+
+enum WishlistItemPriority {
+  LOW
+  MEDIUM
+  HIGH
+
+  @@map("wishlist_item_priority")
+}
+
+enum WishlistItemStatus {
+  DESIRED
+  MONITORING
+  READY_TO_BUY
+  PURCHASED
+  CANCELED
+
+  @@map("wishlist_item_status")
+}
+
+model WishlistCategory {
+  id        String   @id @default(cuid())
+  userId    String   @map("user_id")
+  name      String
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  user  User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  items WishlistItem[]
+
+  @@unique([userId, name])
+  @@index([userId])
+  @@map("wishlist_categories")
+}
+
+model WishlistItem {
+  id                   String               @id @default(cuid())
+  userId               String               @map("user_id")
+  categoryId           String?              @map("category_id")
+  name                 String
+  desiredPrice         Int                  @map("desired_price")
+  paidPrice            Int?                 @map("paid_price")
+  productUrl           String?              @map("product_url")
+  priority             WishlistItemPriority @default(MEDIUM)
+  status               WishlistItemStatus   @default(DESIRED)
+  desiredPurchaseDate  DateTime?            @map("desired_purchase_date")
+  purchasedAt          DateTime?            @map("purchased_at")
+  purchaseTransactionId String?             @unique @map("purchase_transaction_id")
+  createdAt            DateTime             @default(now()) @map("created_at")
+  updatedAt            DateTime             @updatedAt @map("updated_at")
+
+  user                User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  category            WishlistCategory? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  purchaseTransaction Transaction?      @relation("WishlistPurchase", fields: [purchaseTransactionId], references: [id], onDelete: SetNull)
+
+  @@index([userId])
+  @@index([userId, status])
+  @@index([categoryId])
+  @@map("wishlist_items")
 }
 
 enum GoalMetric {

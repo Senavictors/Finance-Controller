@@ -1,13 +1,15 @@
 'use client'
 
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import { ChevronLeft, ChevronRight, LogOut, Menu } from 'lucide-react'
 import { ThemeToggle } from '@/components/theme/theme-toggle'
 import { Button } from '@/components/ui/button'
 import { usePeriod } from '@/hooks/use-period'
 import { cn } from '@/lib/utils'
 import { getInitials, getUserChipPalette } from '@/lib/user-chip'
+
+const PERIOD_ENABLED_PATHS = ['/dashboard', '/transactions', '/goals']
 
 type TopbarProps = {
   userName: string
@@ -18,7 +20,9 @@ type TopbarProps = {
 
 export function Topbar({ userName, userEmail, userImage, onToggleSidebar }: TopbarProps) {
   const router = useRouter()
+  const pathname = usePathname()
   const { label, prevMonth, nextMonth } = usePeriod()
+  const showPeriodSelector = PERIOD_ENABLED_PATHS.some((path) => pathname.startsWith(path))
 
   const palette = getUserChipPalette(userEmail || userName)
   const initials = getInitials(userName || userEmail)
@@ -38,17 +42,19 @@ export function Topbar({ userName, userEmail, userImage, onToggleSidebar }: Topb
           </Button>
         )}
 
-        <div className="bg-muted flex items-center rounded-full p-1">
-          <Button variant="ghost" size="icon-xs" onClick={prevMonth} className="rounded-full">
-            <ChevronLeft className="size-4" />
-          </Button>
-          <span className="min-w-[140px] text-center text-sm font-medium tracking-tight capitalize">
-            {label}
-          </span>
-          <Button variant="ghost" size="icon-xs" onClick={nextMonth} className="rounded-full">
-            <ChevronRight className="size-4" />
-          </Button>
-        </div>
+        {showPeriodSelector && (
+          <div className="bg-muted flex items-center rounded-full p-1">
+            <Button variant="ghost" size="icon-xs" onClick={prevMonth} className="rounded-full">
+              <ChevronLeft className="size-4" />
+            </Button>
+            <span className="min-w-[140px] text-center text-sm font-medium tracking-tight capitalize">
+              {label}
+            </span>
+            <Button variant="ghost" size="icon-xs" onClick={nextMonth} className="rounded-full">
+              <ChevronRight className="size-4" />
+            </Button>
+          </div>
+        )}
       </div>
 
       <div className="flex items-center gap-2">

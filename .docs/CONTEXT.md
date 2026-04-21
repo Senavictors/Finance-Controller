@@ -4,13 +4,13 @@
 
 ## Current Phase
 
-**Phase 34: Credit Card Issuer Network And Brand Themed Statements** — Concluida no codigo. O dominio de `Account` agora separa banco emissor e bandeira via `icon` + `networkBrandKey` (migration `20260420220000_add_account_network_brand_key`), os schemas/rotas de contas aceitam o novo campo, e o cadastro de `CREDIT_CARD` em `src/app/(app)/accounts/account-form.tsx` passou a exibir dois `BrandPicker`s distintos. A library `src/lib/brands/credit-card-theme.ts` centraliza as paletas por banco emissor, `BrandChip` reaproveita a exibicao compacta de emissor/bandeira, e `/credit-cards` mais `/credit-cards/[id]` agora usam tema por banco apenas nas superfices individuais do cartao/fatura, preservando fallback para o tema padrao em emissores nao mapeados. Seed/reset demo foram atualizados com `nubank + mastercard`. `npx prisma generate`, `npm run format`, `npm test`, `npm run lint` e `npm run build` passaram.
+**Phase 35: Wishlist Module And Purchase Conversion** — Concluida no codigo. O schema ganhou `WishlistCategory` + `WishlistItem` com enums de prioridade/status e ligacao opcional a `Transaction` via migration `20260421103000_add_wishlist_module`. O modulo server-side nasceu em `src/server/modules/finance/application/wishlist/` com CRUD de categorias/itens e compra atomica que cria despesa real, sincroniza billing de cartao e invalida analytics. A UI ganhou `/wishlist` com filtros leves, cards por status, modal de criar/editar e modal curto de compra dentro do proprio card; a sidebar agora expoe `Desejos`. Seed/reset demo passaram a incluir categorias proprias da wishlist e itens em multiplos status, inclusive um item comprado com transacao vinculada. `npx prisma generate`, `npm run format`, `npm test`, `npm run lint` e `npm run build` passaram.
 
 ## Next Planned Step
 
-**Validacao visual manual do dark/light e dos novos cards de fatura** — revisar a experiencia real em desktop/mobile, alternando o toggle em landing, auth, dashboard, `/user`, `/settings`, contas, categorias, transacoes, recorrencias, metas e cartoes/faturas para confirmar contraste, hover/focus, legibilidade dos `BrandChip`s e consistencia dos cards tematizados por banco.
+**Validacao manual do modulo `/wishlist`** — revisar em browser real a experiencia desktop/mobile de filtros, cards, modais e do fluxo de compra convertendo o item em despesa real, incluindo o link de navegacao para a transacao relacionada.
 
-**Curadoria fina de contraste** — observar especialmente charts/tooltips, logos rasterizados, `ConfirmDialog`, dropdowns, sidebars, drag handles do dashboard, estados vazios, badges semanticas e os gradientes brandizados de `/credit-cards` para identificar eventuais ajustes residuais no modo dark.
+**Curadoria visual ampla em dark/light** — observar especialmente `/wishlist`, `/credit-cards`, charts/tooltips, logos rasterizados, `ConfirmDialog`, dropdowns, sidebars, drag handles do dashboard e badges semanticas para confirmar contraste e leitura consistente entre superficies novas e antigas.
 
 ## What Exists
 
@@ -29,6 +29,7 @@
 - **Snapshot and invalidation base**: tags por usuario/modulo/mes e invalidação central de analytics em mutacoes financeiras
 - **Demo hardening**: seed/reset demo agora montam um cartao com fatura paga e outra em aberto, e a UI de faturas/transacoes ficou mais demonstravel
 - **Goal Engine**: modulo de metas com SAVING, EXPENSE_LIMIT, INCOME_TARGET e ACCOUNT_LIMIT; calculo de progresso com projecao; snapshots; pagina `/goals`; widget `goal-progress` no dashboard; 3 metas demo no seed
+- **Wishlist module (Phase 35)**: `WishlistCategory` + `WishlistItem`; pagina `/wishlist`; filtros por status/prioridade/categoria/busca; cards com datas desejada/efetiva; compra atomica gerando `Transaction` e link opcional para a despesa relacionada
 - **Forecast Engine**: previsao mensal com saldo previsto, nivel de risco (LOW/MEDIUM/HIGH), projecao de recorrencias futuras, media movel de despesa variavel e snapshot persistido; widget `forecast` no dashboard; APIs `GET /api/analytics/forecast` e `POST /api/analytics/forecast/recalculate`
 - **Financial Score**: pontuacao 0-100 com 5 fatores explicaveis e redistribuicao por ausencia de dados; status CRITICAL/ATTENTION/GOOD/EXCELLENT; snapshot persistido com delta vs mes anterior; widget `score` no dashboard; APIs `GET /api/analytics/score` e `GET /api/analytics/score/history`
 - **Automatic Insights**: motor deterministico com 6 heuristicas (variacao por categoria, concentracao, metas em risco, forecast negativo, fatura vencendo/vencida, utilizacao alta de cartao), dedupe por fingerprint, cap de 8 por periodo, dismiss persistente; widget `insights` no dashboard; APIs `GET /api/analytics/insights`, `POST /recalculate`, `PATCH /[id]/dismiss`
@@ -58,6 +59,7 @@
 - **Dark theme and theme toggle (Phase 33)**: root layout agora aplica `data-theme`, `colorScheme`, `suppressHydrationWarning` e script de bootstrap; `ThemeToggle` alterna `light/dark` com persistencia; `Topbar`, landing e auth expõem o controle; dashboard widgets, `/user`, `/settings`, contas, transacoes, recorrencias, metas, cartoes/faturas e `BrandPicker` foram retocados para contraste consistente em dark
 - **Dark theme polish**: `IncomeExpensesWidget` teve o hover cursor padrao do Recharts removido (`Tooltip cursor={false}`) e passou a forcar `labelStyle`/`itemStyle` com `var(--foreground)`, eliminando o retangulo claro sobre a barra e o texto preto no tooltip em modo dark
 - **Credit card issuer/network modeling (Phase 34)**: `Account.icon` foi consolidado como banco emissor, `Account.networkBrandKey` passou a guardar a bandeira, `AccountForm` separou os pickers de `bank` e `network`, e `BrandChip` + `credit-card-theme.ts` passaram a tematizar os cards individuais de `/credit-cards` e agora todos os cards principais do detalhe da fatura, com fallback seguro
+- **Wishlist purchase conversion (Phase 35)**: `src/server/modules/finance/application/wishlist/` centraliza ownership, CRUD e compra atomica; as rotas `src/app/api/wishlist/` expoem categorias, itens e `/purchase`; a UI de `src/app/(app)/wishlist/` segue o padrao de cards do produto, mas com dados especificos do dominio de desejo/compra
 - **Transactions mobile responsiveness**: `src/app/(app)/transactions/transaction-table.tsx` deixou de comprimir a linha desktop em telas estreitas e passou a reorganizar cada item em bloco mobile, com descricao/badges acima, metadados quebrando em multiplas linhas e valor/acoes em uma faixa inferior dedicada para evitar overflow no viewport de 390px
 - **UX backlog formalizado**: feedback externo de uso foi convertido nas tasks `phase-29` a `phase-34`, cobrindo polish do dashboard, hardening de formularios/status, divulgacao progressiva de listas densas, fundacao de settings/perfil com confirmacoes customizadas, tema dark global com toggle light/dark e agora a separacao emissor x bandeira com tema visual por banco nas faturas
 - **Documentation process hardening**: `README.md` passou a ser artefato obrigatorio tanto na criacao quanto na conclusao de tasks, com foco explicito em roadmap, backlog aberto, phases concluidas e proximo passo
@@ -69,14 +71,14 @@
 - **Landing page**: hero + features + tech stack + footer
 - **CI**: GitHub Actions (lint + format:check + build)
 - **README**: overview alinhado ao codigo atual, com setup, stack, arquitetura alvo vs realidade e estrutura de rotas atual
-- **Future feature specs**: `.docs/future-features/` com Goal Engine, Forecast Engine, Score Financeiro, Insights Automaticos, Documentation Foundation, o roadmap documental das fases 14 a 26, a spec de dark theme global com toggle e a nova spec de separacao emissor x bandeira com tema visual por banco nas faturas
-- **Execution backlog**: tasks formais criadas para as phases 8.5 a 34 em `.docs/tasks/`, incluindo as phases 29 a 33 para polish de dashboard, hardening de formularios, listas densas, settings/perfil e tema dark global, alem da Phase 34 concluida para emissor/bandeira de cartao e cards de fatura por banco
+- **Future feature specs**: `.docs/future-features/` com Goal Engine, Forecast Engine, Score Financeiro, Insights Automaticos, Documentation Foundation, o roadmap documental das fases 14 a 26, a spec de dark theme global com toggle, a spec de separacao emissor x bandeira com tema visual por banco nas faturas e agora a spec do modulo de wishlist com purchase conversion
+- **Execution backlog**: tasks formais criadas para as phases 8.5 a 35 em `.docs/tasks/`, incluindo as phases 29 a 33 para polish de dashboard, hardening de formularios, listas densas, settings/perfil e tema dark global, a Phase 34 de emissor/bandeira de cartao e a Phase 35 concluida para wishlist com compra atomica
 - **Technical plan**: task documentada para a fundacao analitica e ciclo de fatura de cartao
-- **31 API routes**, 15 models, 13 ADRs
+- **36 API routes**, 17 models, 14 ADRs
 
 ## Database Models
 
-User, Session, Account, Category, Transaction, CreditCardStatement, Dashboard, DashboardWidget, RecurringRule, RecurringLog, Goal, GoalSnapshot, ForecastSnapshot, FinancialScoreSnapshot, InsightSnapshot
+User, Session, Account, Category, Transaction, CreditCardStatement, Dashboard, DashboardWidget, RecurringRule, RecurringLog, WishlistCategory, WishlistItem, Goal, GoalSnapshot, ForecastSnapshot, FinancialScoreSnapshot, InsightSnapshot
 
 ## Current Architectural Reality
 
@@ -87,6 +89,7 @@ User, Session, Account, Category, Transaction, CreditCardStatement, Dashboard, D
 - A fundacao da camada analitica server-side comecou a sair de `route.ts` e foi centralizada em `src/server/modules/finance/application/analytics/`
 - A mesma camada agora possui convencoes de snapshot e invalidação para summary, goals, forecast, score, insights e billing de cartao
 - O dominio de cartao agora possui ciclo de fatura em `src/server/modules/finance/application/credit-card/` e superfice inicial em `/credit-cards`
+- O novo dominio de wishlist vive em `src/server/modules/finance/application/wishlist/`, separado de `goals`, e converte compra em `Transaction` sem quebrar a arquitetura financeira atual
 - `Account.icon` passou a representar o banco emissor do cartao e `networkBrandKey` guarda a bandeira, permitindo tratar Itau + Mastercard, Nubank + Visa e combinacoes equivalentes sem conflitar modelagem com visual
 - A Phase 8.5 esta refinando demonstrabilidade: demo mais forte, faturas mais legiveis e navegação mais clara entre compra e fatura
 
@@ -131,3 +134,4 @@ User, Session, Account, Category, Transaction, CreditCardStatement, Dashboard, D
 - [ADR-011](decisions/ADR-011-forecast-engine.md): Forecast Engine
 - [ADR-012](decisions/ADR-012-financial-score.md): Financial Score
 - [ADR-013](decisions/ADR-013-automatic-insights.md): Automatic Insights
+- [ADR-014](decisions/ADR-014-wishlist-purchase-conversion.md): Wishlist dedicated module with atomic purchase conversion

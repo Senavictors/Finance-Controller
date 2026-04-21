@@ -9,6 +9,12 @@ and this project adheres to [Conventional Commits](https://www.conventionalcommi
 
 ### Added
 
+- Phase 35: migration `20260421103000_add_wishlist_module` adicionando enums/tabelas `wishlist_item_priority`, `wishlist_item_status`, `wishlist_categories` e `wishlist_items`
+- Phase 35: modulo server-side `src/server/modules/finance/application/wishlist/` com CRUD de categorias/itens e fluxo de compra atomica com `Transaction`
+- Phase 35: rota autenticada `/wishlist` com filtros, cards por status, modal de item e modal de compra
+- Phase 35: endpoints `GET/POST /api/wishlist/categories`, `GET/POST /api/wishlist/items`, `PATCH/DELETE /api/wishlist/items/[id]` e `POST /api/wishlist/items/[id]/purchase`
+- Phase 35: ADR `ADR-014-wishlist-purchase-conversion.md`, spec `.docs/future-features/21-wishlist-module-and-purchase-conversion.md` e task `.docs/tasks/phase-35-wishlist-module-and-purchase-conversion.md`
+- Phase 35: testes em `src/server/modules/finance/application/wishlist/use-cases.test.ts` cobrindo ownership, categoria duplicada e compra atomica
 - Phase 34: migration `20260420220000_add_account_network_brand_key` adicionando `network_brand_key TEXT?` em `accounts`
 - Phase 34: helper `src/lib/brands/credit-card-theme.ts` com paletas por banco emissor e builders de surface/accent/glow/chip para os cards de fatura
 - Phase 34: componente `BrandChip` em `src/lib/brands/brand-chip.tsx` para exibir emissor e bandeira como identidade secundaria reutilizavel
@@ -27,6 +33,9 @@ and this project adheres to [Conventional Commits](https://www.conventionalcommi
 
 ### Changed
 
+- Phase 35: sidebar ganhou a entrada `Desejos`, `README.md` e `.docs/CONTEXT.md` foram atualizados para refletir a conclusao da phase e o novo proximo passo recomendado
+- Phase 35: seed demo e reset-demo agora incluem categorias/itens de wishlist em multiplos status, inclusive um item comprado com transacao vinculada
+- Phase 35: `src/server/modules/finance/http/schemas.ts` passou a expor os contratos Zod de wishlist, incluindo bloqueio de `PURCHASED` fora do fluxo de compra
 - Phase 34: contas `CREDIT_CARD` agora separam banco emissor e bandeira via `icon` + `networkBrandKey`, com `AccountForm` exibindo dois `BrandPicker`s distintos
 - Phase 34: `/credit-cards` aplica tema por banco emissor apenas nos cards individuais e preserva os cards agregados no visual neutro do sistema
 - Phase 34: `/credit-cards/[id]` agora aplica a identidade do emissor em todos os cards principais da tela, incluindo status, totais, pagamento e movimentacoes, mantendo o fluxo intacto
