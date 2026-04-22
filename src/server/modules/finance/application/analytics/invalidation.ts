@@ -44,6 +44,13 @@ function compactUnique<T>(values: ReadonlyArray<T | null | undefined>) {
   return Array.from(new Set(values.filter((value): value is T => value != null)))
 }
 
+function isMissingStaticGenerationStore(error: unknown) {
+  return (
+    error instanceof Error &&
+    error.message.includes('static generation store missing in revalidateTag')
+  )
+}
+
 export function getAnalyticsInvalidationTags({
   userId,
   modules = ANALYTICS_SNAPSHOT_MODULES,
@@ -101,7 +108,15 @@ export async function invalidateAnalyticsSnapshots(context: AnalyticsInvalidatio
   const tags = getAnalyticsInvalidationTags(context)
 
   for (const tag of tags) {
-    revalidateTag(tag, 'max')
+    try {
+      revalidateTag(tag, 'max')
+    } catch (error) {
+      if (isMissingStaticGenerationStore(error)) {
+        continue
+      }
+
+      throw error
+    }
   }
 
   return tags

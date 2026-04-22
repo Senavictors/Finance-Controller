@@ -124,4 +124,34 @@ describe('analytics/monthly-summary', () => {
     expect(summary.recentTransactions).toEqual([])
     expect(prismaMock.transaction.findMany).toHaveBeenCalledTimes(2)
   })
+
+  it('limita o mes atual ate a data observada para nao contar parcelas futuras como realizadas', async () => {
+    const now = new Date('2026-04-22T09:30:00.000Z')
+
+    prismaMock.transaction.findMany
+      .mockResolvedValueOnce([])
+      .mockResolvedValueOnce([])
+      .mockResolvedValueOnce([])
+    prismaMock.account.findMany.mockResolvedValue([])
+    prismaMock.category.findMany.mockResolvedValue([])
+
+    await getMonthlyAnalyticsSummary({
+      userId: 'user-1',
+      monthParam: '2026-04',
+      now,
+    })
+
+    expect(prismaMock.transaction.findMany).toHaveBeenNthCalledWith(
+      1,
+      expect.objectContaining({
+        where: expect.objectContaining({
+          userId: 'user-1',
+          date: expect.objectContaining({
+            gte: new Date(2026, 3, 1),
+            lte: now,
+          }),
+        }),
+      }),
+    )
+  })
 })

@@ -93,7 +93,11 @@ export type UpdateCategoryInput = z.infer<typeof updateCategorySchema>
 
 // ── Transaction ──────────────────────────────────────────
 
-export const createTransactionSchema = z.object({
+const creditCardPaymentModeEnum = z.enum(['SINGLE', 'INSTALLMENT'], {
+  message: 'Forma de pagamento invalida',
+})
+
+const transactionBaseSchema = z.object({
   amount: z.number().int().positive('Valor deve ser positivo'),
   date: z.coerce.date({ message: 'Data invalida' }),
   description: z.string().min(1, 'Descricao obrigatoria').max(255),
@@ -103,7 +107,44 @@ export const createTransactionSchema = z.object({
   notes: z.string().max(1000).optional(),
 })
 
-export const updateTransactionSchema = createTransactionSchema.partial()
+export const createTransactionSchema = transactionBaseSchema
+  .extend({
+    paymentMode: creditCardPaymentModeEnum.default('SINGLE'),
+    installmentCount: z.number().int().min(1).max(24).optional(),
+  })
+  .superRefine((data, ctx) => {
+    if (data.paymentMode === 'INSTALLMENT') {
+      if (data.type !== 'EXPENSE') {
+        ctx.addIssue({
+          code: 'custom',
+          path: ['paymentMode'],
+          message: 'Parcelamento so pode ser usado em despesas',
+        })
+      }
+
+      if (data.installmentCount == null || data.installmentCount < 2) {
+        ctx.addIssue({
+          code: 'custom',
+          path: ['installmentCount'],
+          message: 'Informe entre 2 e 24 parcelas para compra parcelada',
+        })
+      }
+    }
+
+    if (
+      data.paymentMode === 'SINGLE' &&
+      data.installmentCount != null &&
+      data.installmentCount !== 1
+    ) {
+      ctx.addIssue({
+        code: 'custom',
+        path: ['installmentCount'],
+        message: 'Compras a vista devem usar 1 parcela ou omitir o campo',
+      })
+    }
+  })
+
+export const updateTransactionSchema = transactionBaseSchema.partial()
 
 export const transactionQuerySchema = z.object({
   from: z.coerce.date().optional(),
@@ -251,19 +292,79 @@ export const wishlistItemQuerySchema = z.object({
   q: z.string().max(120).optional(),
 })
 
-export const purchaseWishlistItemSchema = z.object({
-  accountId: z.string({ error: 'Conta obrigatoria' }),
-  categoryId: z.string().optional(),
-  amount: z.number().int().positive('Valor deve ser positivo'),
-  date: z.coerce.date({ message: 'Data invalida' }),
-  notes: z.string().max(1000).optional(),
-})
+export const purchaseWishlistItemSchema = z
+  .object({
+    accountId: z.string({ error: 'Conta obrigatoria' }),
+    categoryId: z.string().optional(),
+    amount: z.number().int().positive('Valor deve ser positivo'),
+    date: z.coerce.date({ message: 'Data invalida' }),
+    paymentMode: creditCardPaymentModeEnum.default('SINGLE'),
+    installmentCount: z.number().int().min(1).max(24).optional(),
+    notes: z.string().max(1000).optional(),
+  })
+  .superRefine((data, ctx) => {
+    if (
+      data.paymentMode === 'INSTALLMENT' &&
+      (data.installmentCount == null || data.installmentCount < 2)
+    ) {
+      ctx.addIssue({
+        code: 'custom',
+        path: ['installmentCount'],
+        message: 'Informe entre 2 e 24 parcelas para compra parcelada',
+      })
+    }
+
+    if (
+      data.paymentMode === 'SINGLE' &&
+      data.installmentCount != null &&
+      data.installmentCount !== 1
+    ) {
+      ctx.addIssue({
+        code: 'custom',
+        path: ['installmentCount'],
+        message: 'Compras a vista devem usar 1 parcela ou omitir o campo',
+      })
+    }
+  })
 
 export type CreateWishlistCategoryInput = z.infer<typeof createWishlistCategorySchema>
 export type CreateWishlistItemInput = z.infer<typeof createWishlistItemSchema>
 export type UpdateWishlistItemInput = z.infer<typeof updateWishlistItemSchema>
 export type WishlistItemQuery = z.infer<typeof wishlistItemQuerySchema>
 export type PurchaseWishlistItemInput = z.infer<typeof purchaseWishlistItemSchema>
+
+export const createCreditCardInstallmentAdvanceSchema = z
+  .object({
+    advancedAt: z.coerce.date({ message: 'Data invalida' }),
+    notes: z.string().max(1000).optional(),
+    installments: z
+      .array(
+        z.object({
+          installmentId: z.string({ error: 'Parcela obrigatoria' }),
+          paidAmount: z.number().int().positive('Valor pago deve ser positivo'),
+        }),
+      )
+      .min(1, 'Selecione ao menos uma parcela'),
+  })
+  .superRefine((data, ctx) => {
+    const seen = new Set<string>()
+
+    for (const [index, installment] of data.installments.entries()) {
+      if (seen.has(installment.installmentId)) {
+        ctx.addIssue({
+          code: 'custom',
+          path: ['installments', index, 'installmentId'],
+          message: 'Parcela duplicada no adiantamento',
+        })
+      }
+
+      seen.add(installment.installmentId)
+    }
+  })
+
+export type CreateCreditCardInstallmentAdvanceInput = z.infer<
+  typeof createCreditCardInstallmentAdvanceSchema
+>
 
 // ── Goal ─────────────────────────────────────────────────
 

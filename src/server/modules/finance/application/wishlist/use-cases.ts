@@ -8,6 +8,7 @@ import type {
   WishlistItemQuery,
 } from '../../http'
 import { syncCreditCardTransactionStatement } from '../credit-card/billing'
+import { createCreditCardPurchase } from '../credit-card-purchases'
 import { ANALYTICS_MUTATION_MODULES, invalidateAnalyticsSnapshots } from '../analytics'
 import type {
   WishlistCategorySummary,
@@ -30,6 +31,12 @@ const wishlistItemInclude = {
       date: true,
       amount: true,
       description: true,
+    },
+  },
+  creditCardPurchase: {
+    select: {
+      id: true,
+      installmentCount: true,
     },
   },
 } satisfies Prisma.WishlistItemInclude
@@ -68,10 +75,11 @@ function toWishlistListItem(
     desiredPurchaseDate: item.desiredPurchaseDate,
     purchasedAt: item.purchasedAt,
     purchaseTransactionId: item.purchaseTransactionId,
+    creditCardPurchase: item.creditCardPurchase ?? null,
     createdAt: item.createdAt,
     updatedAt: item.updatedAt,
     category: item.category,
-    purchaseTransaction: item.purchaseTransaction,
+    purchaseTransaction: item.purchaseTransaction ?? null,
   }
 }
 
@@ -263,7 +271,7 @@ export async function purchaseWishlistItem(
 
   const account = await prisma.account.findFirst({
     where: { id: input.accountId, userId, isArchived: false },
-    select: { id: true },
+    select: { id: true, type: true },
   })
 
   if (!account) {
@@ -272,6 +280,32 @@ export async function purchaseWishlistItem(
 
   if (input.categoryId) {
     await ensureExpenseCategory(input.categoryId, userId)
+  }
+
+  if (account.type === 'CREDIT_CARD') {
+    const purchase = await createCreditCardPurchase({
+      userId,
+      accountId: input.accountId,
+      categoryId: input.categoryId ?? null,
+      description: item.name,
+      notes: input.notes,
+      date: input.date,
+      amount: input.amount,
+      installmentCount: input.paymentMode === 'INSTALLMENT' ? input.installmentCount! : 1,
+      source: 'WISHLIST',
+      wishlistItemId: item.id,
+    })
+
+    const purchasedItem = await getWishlistItemOrThrow(itemId, userId)
+
+    return {
+      item: toWishlistListItem(purchasedItem),
+      transaction: purchase.primaryTransaction,
+      creditCardPurchase: {
+        id: purchase.purchase.id,
+        installmentCount: purchase.purchase.installmentCount,
+      },
+    }
   }
 
   const result = await prisma.$transaction(async (tx) => {
@@ -316,5 +350,8 @@ export async function purchaseWishlistItem(
     statementIds: [statement?.id],
   })
 
-  return result
+  return {
+    ...result,
+    creditCardPurchase: null,
+  }
 }

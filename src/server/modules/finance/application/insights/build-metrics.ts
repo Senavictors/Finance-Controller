@@ -1,4 +1,5 @@
 import { prisma } from '@/server/db'
+import { resolveObservationWindow } from '../analytics/observation-window'
 import { resolveMonthPeriod } from '../analytics/period'
 import { calculateForecast } from '../forecast'
 import { listGoalsWithProgress } from '../goals'
@@ -60,16 +61,19 @@ export async function buildInsightMetrics(
 ): Promise<InsightMetrics> {
   const period = resolveMonthPeriod(monthParam, now)
   const { from: periodStart, to: periodEnd, prevFrom, prevTo } = period
+  const observation = resolveObservationWindow(periodStart, periodEnd, now)
 
   const [currentTxs, previousTxs, categories, creditCards, forecast, goals] = await Promise.all([
-    prisma.transaction.findMany({
-      where: {
-        userId,
-        type: { in: ['INCOME', 'EXPENSE'] },
-        date: { gte: periodStart, lte: periodEnd },
-      },
-      select: { type: true, amount: true, categoryId: true },
-    }),
+    observation.actualRange
+      ? prisma.transaction.findMany({
+          where: {
+            userId,
+            type: { in: ['INCOME', 'EXPENSE'] },
+            date: { gte: observation.actualRange.from, lte: observation.actualRange.to },
+          },
+          select: { type: true, amount: true, categoryId: true },
+        })
+      : Promise.resolve([]),
     prisma.transaction.findMany({
       where: {
         userId,
@@ -105,7 +109,7 @@ export async function buildInsightMetrics(
       },
     }),
     calculateForecast(userId, monthParam, now),
-    listGoalsWithProgress(userId, monthParam).catch(() => [] as GoalProgressResult[]),
+    listGoalsWithProgress(userId, monthParam, now).catch(() => [] as GoalProgressResult[]),
   ])
 
   let totalIncome = 0

@@ -6,6 +6,7 @@ import {
   refreshCreditCardStatement,
   syncCreditCardTransactionStatement,
 } from '@/server/modules/finance/application/credit-card/billing'
+import { deleteCreditCardPurchaseByTransactionId } from '@/server/modules/finance/application/credit-card-purchases'
 import {
   ANALYTICS_MUTATION_MODULES,
   invalidateAnalyticsSnapshots,
@@ -27,7 +28,16 @@ export async function PATCH(request: NextRequest, { params }: Params) {
       )
     }
 
-    const existing = await prisma.transaction.findFirst({ where: { id, userId } })
+    const existing = await prisma.transaction.findFirst({
+      where: { id, userId },
+      include: {
+        creditCardPurchaseInstallment: {
+          select: {
+            purchaseId: true,
+          },
+        },
+      },
+    })
     if (!existing) {
       return NextResponse.json({ error: 'Transacao nao encontrada' }, { status: 404 })
     }
@@ -35,6 +45,13 @@ export async function PATCH(request: NextRequest, { params }: Params) {
     if (existing.transferId) {
       return NextResponse.json(
         { error: 'Transferencias nao podem ser editadas diretamente' },
+        { status: 400 },
+      )
+    }
+
+    if (existing.creditCardPurchaseInstallment) {
+      return NextResponse.json(
+        { error: 'Parcelas de compras no cartao devem ser gerenciadas pela compra parcelada' },
         { status: 400 },
       )
     }
@@ -93,12 +110,23 @@ export async function DELETE(_request: NextRequest, { params }: Params) {
     const { userId } = await requireAuth()
     const { id } = await params
 
-    const existing = await prisma.transaction.findFirst({ where: { id, userId } })
+    const existing = await prisma.transaction.findFirst({
+      where: { id, userId },
+      include: {
+        creditCardPurchaseInstallment: {
+          select: {
+            purchaseId: true,
+          },
+        },
+      },
+    })
     if (!existing) {
       return NextResponse.json({ error: 'Transacao nao encontrada' }, { status: 404 })
     }
 
-    if (existing.transferId) {
+    if (existing.creditCardPurchaseInstallment) {
+      await deleteCreditCardPurchaseByTransactionId(existing.id, userId)
+    } else if (existing.transferId) {
       const linkedTransactions = await prisma.transaction.findMany({
         where: { transferId: existing.transferId, userId },
         select: {

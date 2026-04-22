@@ -1,5 +1,6 @@
 import { prisma } from '@/server/db'
 import type { FinancialScoreStatus } from '@/generated/prisma/client'
+import { resolveObservationWindow } from '../analytics/observation-window'
 import { resolveMonthPeriod } from '../analytics/period'
 import { listGoalsWithProgress } from '../goals'
 import type { FinancialScoreResult, ScoreFactor, ScoreFactorKey, ScoreInsight } from './types'
@@ -308,6 +309,7 @@ export async function calculateFinancialScore(
 ): Promise<FinancialScoreResult> {
   const period = resolveMonthPeriod(monthParam, now)
   const { from: periodStart, to: periodEnd } = period
+  const observation = resolveObservationWindow(periodStart, periodEnd, now)
 
   const historyStart = new Date(
     periodStart.getFullYear(),
@@ -317,14 +319,16 @@ export async function calculateFinancialScore(
   const historyEnd = new Date(periodStart.getTime() - 1)
 
   const [currentTxs, historyTxs, creditCards, goalsProgress, prevSnapshot] = await Promise.all([
-    prisma.transaction.findMany({
-      where: {
-        userId,
-        type: { in: ['INCOME', 'EXPENSE'] },
-        date: { gte: periodStart, lte: periodEnd },
-      },
-      select: { type: true, amount: true },
-    }),
+    observation.actualRange
+      ? prisma.transaction.findMany({
+          where: {
+            userId,
+            type: { in: ['INCOME', 'EXPENSE'] },
+            date: { gte: observation.actualRange.from, lte: observation.actualRange.to },
+          },
+          select: { type: true, amount: true },
+        })
+      : Promise.resolve([]),
     prisma.transaction.findMany({
       where: {
         userId,
@@ -354,7 +358,7 @@ export async function calculateFinancialScore(
         },
       },
     }),
-    listGoalsWithProgress(userId, monthParam).catch(() => [] as const),
+    listGoalsWithProgress(userId, monthParam, now).catch(() => [] as const),
     prisma.financialScoreSnapshot.findFirst({
       where: { userId, periodStart: { lt: periodStart } },
       orderBy: { periodStart: 'desc' },

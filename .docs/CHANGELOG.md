@@ -9,6 +9,12 @@ and this project adheres to [Conventional Commits](https://www.conventionalcommi
 
 ### Added
 
+- Phase 36: migration `20260422143000_add_credit_card_purchase_installments` adicionando enum `credit_card_purchase_source` e tabelas `credit_card_purchases`, `credit_card_purchase_installments` e `credit_card_installment_advances`
+- Phase 36: modulo server-side `src/server/modules/finance/application/credit-card-purchases/` com criacao de compra `1x..24x`, detalhe do plano, adiantamento manual e exclusao estruturada da compra parcelada
+- Phase 36: endpoints `GET /api/credit-card-purchases/[id]` e `POST /api/credit-card-purchases/[id]/advances`
+- Phase 36: rota `/credit-card-purchases/[id]` com historico do plano, resumo da compra e formulario de adiantamento
+- Phase 36: ADR `ADR-015-credit-card-installment-purchases.md`, spec `.docs/future-features/22-credit-card-installment-ecosystem-and-installment-advance.md` e task `.docs/tasks/phase-36-credit-card-installment-ecosystem-and-installment-advance.md`
+- Phase 36: testes em `src/server/modules/finance/application/credit-card-purchases/use-cases.test.ts`, `src/server/modules/finance/application/analytics/monthly-summary.test.ts`, `src/server/modules/finance/application/analytics/invalidation-runtime.test.ts`, `src/server/modules/finance/application/wishlist/use-cases.test.ts` e `src/server/modules/finance/http/schemas.test.ts`
 - Phase 35: migration `20260421103000_add_wishlist_module` adicionando enums/tabelas `wishlist_item_priority`, `wishlist_item_status`, `wishlist_categories` e `wishlist_items`
 - Phase 35: modulo server-side `src/server/modules/finance/application/wishlist/` com CRUD de categorias/itens e fluxo de compra atomica com `Transaction`
 - Phase 35: rota autenticada `/wishlist` com filtros, cards por status, modal de item e modal de compra
@@ -33,6 +39,11 @@ and this project adheres to [Conventional Commits](https://www.conventionalcommi
 
 ### Changed
 
+- Phase 36: `POST /api/transactions` e `POST /api/wishlist/items/[id]/purchase` agora criam compras de cartao via agregado parcelado, com `paymentMode` e `installmentCount`
+- Phase 36: `PATCH/DELETE /api/transactions/[id]`, tabela de transacoes e detalhe de fatura passaram a reconhecer parcelas, bloquear edicao direta e excluir o plano inteiro quando necessario
+- Phase 36: analytics, goals, forecast, score e insights passaram a limitar o realizado pela janela observada do periodo para evitar contagem antecipada de parcelas futuras
+- Phase 36: seed demo e reset-demo agora sobem cenarios reais de compra `1x`, compra parcelada, adiantamento de parcelas e wishlist comprada no cartao
+- Phase 36: `invalidateAnalyticsSnapshots` passou a tolerar ausencia do static generation store fora do contexto HTTP, permitindo reuso do dominio em scripts como `prisma/seed.ts`
 - Phase 35: sidebar ganhou a entrada `Desejos`, `README.md` e `.docs/CONTEXT.md` foram atualizados para refletir a conclusao da phase e o novo proximo passo recomendado
 - Phase 35: seed demo e reset-demo agora incluem categorias/itens de wishlist em multiplos status, inclusive um item comprado com transacao vinculada
 - Phase 35: `src/server/modules/finance/http/schemas.ts` passou a expor os contratos Zod de wishlist, incluindo bloqueio de `PURCHASED` fora do fluxo de compra

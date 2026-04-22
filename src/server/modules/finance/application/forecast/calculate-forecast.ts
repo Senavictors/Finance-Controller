@@ -1,5 +1,6 @@
 import { prisma } from '@/server/db'
 import type { ForecastRiskLevel } from '@/generated/prisma/client'
+import { resolveObservationWindow } from '../analytics/observation-window'
 import { resolveMonthPeriod } from '../analytics/period'
 import { listProjectedRecurringDates } from './project-recurrences'
 import type { ForecastAssumption, ForecastResult } from './types'
@@ -17,12 +18,6 @@ function classifyRisk(predictedBalance: number): ForecastRiskLevel {
   return 'LOW'
 }
 
-function clampReferenceToPeriod(periodStart: Date, periodEnd: Date, referenceDate: Date): Date {
-  if (referenceDate < periodStart) return periodStart
-  if (referenceDate > periodEnd) return periodEnd
-  return referenceDate
-}
-
 export async function calculateForecast(
   userId: string,
   monthParam?: string | null,
@@ -30,7 +25,8 @@ export async function calculateForecast(
 ): Promise<ForecastResult> {
   const period = resolveMonthPeriod(monthParam, now)
   const { from: periodStart, to: periodEnd } = period
-  const referenceDate = clampReferenceToPeriod(periodStart, periodEnd, now)
+  const observation = resolveObservationWindow(periodStart, periodEnd, now)
+  const referenceDate = observation.referenceDate
 
   const historicalStart = new Date(
     periodStart.getFullYear(),
@@ -41,14 +37,16 @@ export async function calculateForecast(
 
   const [actualTransactions, historicalTransactions, recurringRules, openStatements] =
     await Promise.all([
-      prisma.transaction.findMany({
-        where: {
-          userId,
-          type: { in: ['INCOME', 'EXPENSE'] },
-          date: { gte: periodStart, lte: referenceDate },
-        },
-        select: { type: true, amount: true },
-      }),
+      observation.actualRange
+        ? prisma.transaction.findMany({
+            where: {
+              userId,
+              type: { in: ['INCOME', 'EXPENSE'] },
+              date: { gte: observation.actualRange.from, lte: observation.actualRange.to },
+            },
+            select: { type: true, amount: true },
+          })
+        : Promise.resolve([]),
       prisma.transaction.findMany({
         where: {
           userId,

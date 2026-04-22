@@ -25,18 +25,40 @@ type Transaction = {
   account: { name: string; color: string | null; icon: string | null }
   category: { name: string; color: string | null; icon: string | null } | null
   creditCardStatement?: { id: string; dueDate: string | Date } | null
+  creditCardPurchaseInstallment?: {
+    id: string
+    installmentNumber: number
+    advanceId: string | null
+    purchase: {
+      id: string
+      installmentCount: number
+    }
+  } | null
 }
 
 export function TransactionTable({ transactions }: { transactions: Transaction[] }) {
   const router = useRouter()
   const { confirm, ConfirmDialog } = useConfirm()
 
-  async function handleDelete(id: string, hasTransfer: boolean) {
+  async function handleDelete(
+    id: string,
+    options: {
+      hasTransfer: boolean
+      purchaseInstallmentCount?: number
+    },
+  ) {
+    const isInstallmentPurchase = (options.purchaseInstallmentCount ?? 0) > 0
     const ok = await confirm({
-      title: hasTransfer ? 'Excluir transferência?' : 'Excluir transação?',
-      description: hasTransfer
+      title: options.hasTransfer
+        ? 'Excluir transferência?'
+        : isInstallmentPurchase
+          ? 'Excluir compra parcelada?'
+          : 'Excluir transação?',
+      description: options.hasTransfer
         ? 'As duas transações da transferência serão removidas permanentemente.'
-        : 'A transação será removida permanentemente.',
+        : isInstallmentPurchase
+          ? `Todas as ${options.purchaseInstallmentCount} parcelas e seus vínculos com faturas serão removidos permanentemente.`
+          : 'A transação será removida permanentemente.',
       destructive: true,
     })
     if (!ok) return
@@ -95,6 +117,21 @@ export function TransactionTable({ transactions }: { transactions: Transaction[]
                         </Badge>
                       </Link>
                     )}
+                    {tx.creditCardPurchaseInstallment && (
+                      <Link
+                        href={`/credit-card-purchases/${tx.creditCardPurchaseInstallment.purchase.id}`}
+                      >
+                        <Badge variant="secondary" className="text-[10px]">
+                          {tx.creditCardPurchaseInstallment.installmentNumber}/
+                          {tx.creditCardPurchaseInstallment.purchase.installmentCount}
+                        </Badge>
+                      </Link>
+                    )}
+                    {tx.creditCardPurchaseInstallment?.advanceId && (
+                      <Badge variant="outline" className="text-[10px]">
+                        Adiantada
+                      </Badge>
+                    )}
                   </div>
                 </div>
 
@@ -146,7 +183,13 @@ export function TransactionTable({ transactions }: { transactions: Transaction[]
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
                       <DropdownMenuItem
-                        onClick={() => handleDelete(tx.id, !!tx.transferId)}
+                        onClick={() =>
+                          handleDelete(tx.id, {
+                            hasTransfer: !!tx.transferId,
+                            purchaseInstallmentCount:
+                              tx.creditCardPurchaseInstallment?.purchase.installmentCount,
+                          })
+                        }
                         className="text-destructive"
                       >
                         <Trash2 className="mr-2 size-3.5" />
@@ -179,7 +222,13 @@ export function TransactionTable({ transactions }: { transactions: Transaction[]
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end">
                     <DropdownMenuItem
-                      onClick={() => handleDelete(tx.id, !!tx.transferId)}
+                      onClick={() =>
+                        handleDelete(tx.id, {
+                          hasTransfer: !!tx.transferId,
+                          purchaseInstallmentCount:
+                            tx.creditCardPurchaseInstallment?.purchase.installmentCount,
+                        })
+                      }
                       className="text-destructive"
                     >
                       <Trash2 className="mr-2 size-3.5" />

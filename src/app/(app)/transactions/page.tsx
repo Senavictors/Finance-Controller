@@ -45,6 +45,19 @@ export default async function TransactionsPage({ searchParams }: Props) {
         account: { select: { name: true, color: true, icon: true } },
         category: { select: { name: true, color: true, icon: true } },
         creditCardStatement: { select: { id: true, dueDate: true } },
+        creditCardPurchaseInstallment: {
+          select: {
+            id: true,
+            installmentNumber: true,
+            advanceId: true,
+            purchase: {
+              select: {
+                id: true,
+                installmentCount: true,
+              },
+            },
+          },
+        },
       },
       orderBy: { date: 'desc' },
       skip: (page - 1) * limit,
@@ -53,7 +66,7 @@ export default async function TransactionsPage({ searchParams }: Props) {
     prisma.transaction.count({ where }),
     prisma.account.findMany({
       where: { userId: session.userId },
-      select: { id: true, name: true, color: true, icon: true },
+      select: { id: true, name: true, type: true, color: true, icon: true },
       orderBy: { name: 'asc' },
     }),
     prisma.category.findMany({

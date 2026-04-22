@@ -3,10 +3,19 @@ import { prisma } from '@/server/db'
 import { requireAuth, AuthError } from '@/server/auth'
 import { createTransactionSchema, transactionQuerySchema } from '@/server/modules/finance/http'
 import { syncCreditCardTransactionStatement } from '@/server/modules/finance/application/credit-card/billing'
+import { createCreditCardPurchase } from '@/server/modules/finance/application/credit-card-purchases'
 import {
   ANALYTICS_MUTATION_MODULES,
   invalidateAnalyticsSnapshots,
 } from '@/server/modules/finance/application/analytics'
+
+const expectedErrors = [
+  'Conta nao encontrada',
+  'Categoria financeira nao encontrada',
+  'Parcelamento so pode ser usado em contas de cartao de credito',
+  'Quantidade de parcelas invalida',
+  'Valor da compra deve ser maior que zero',
+] as const
 
 export async function GET(request: NextRequest) {
   try {
@@ -41,6 +50,19 @@ export async function GET(request: NextRequest) {
           account: { select: { name: true, color: true } },
           category: { select: { name: true, color: true } },
           creditCardStatement: { select: { id: true, dueDate: true } },
+          creditCardPurchaseInstallment: {
+            select: {
+              id: true,
+              installmentNumber: true,
+              advanceId: true,
+              purchase: {
+                select: {
+                  id: true,
+                  installmentCount: true,
+                },
+              },
+            },
+          },
         },
         orderBy: { date: 'desc' },
         skip: (page - 1) * limit,
@@ -74,9 +96,12 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const { accountId, categoryId, ...data } = parsed.data
+    const { accountId, categoryId, paymentMode, installmentCount, ...data } = parsed.data
 
-    const account = await prisma.account.findFirst({ where: { id: accountId, userId } })
+    const account = await prisma.account.findFirst({
+      where: { id: accountId, userId },
+      select: { id: true, type: true },
+    })
     if (!account) {
       return NextResponse.json({ error: 'Conta nao encontrada' }, { status: 400 })
     }
@@ -86,6 +111,30 @@ export async function POST(request: NextRequest) {
       if (!category) {
         return NextResponse.json({ error: 'Categoria nao encontrada' }, { status: 400 })
       }
+    }
+
+    if (account.type === 'CREDIT_CARD' && data.type === 'EXPENSE') {
+      const result = await createCreditCardPurchase({
+        userId,
+        accountId,
+        categoryId: categoryId ?? null,
+        description: data.description,
+        notes: data.notes,
+        date: data.date,
+        amount: data.amount,
+        installmentCount: paymentMode === 'INSTALLMENT' ? installmentCount! : 1,
+      })
+
+      return NextResponse.json(
+        {
+          data: result.primaryTransaction,
+          purchase: {
+            id: result.purchase.id,
+            installmentCount: result.purchase.installmentCount,
+          },
+        },
+        { status: 201 },
+      )
     }
 
     const transaction = await prisma.transaction.create({
@@ -108,6 +157,14 @@ export async function POST(request: NextRequest) {
     if (error instanceof AuthError) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
+
+    if (
+      error instanceof Error &&
+      expectedErrors.includes(error.message as (typeof expectedErrors)[number])
+    ) {
+      return NextResponse.json({ error: error.message }, { status: 400 })
+    }
+
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }

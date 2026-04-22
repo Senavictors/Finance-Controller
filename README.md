@@ -71,8 +71,9 @@ O Finance Controller centraliza tudo em uma unica aplicacao:
 - **Transferencias atomicas** — par de transacoes vinculadas por `transferId` (debito na origem, credito no destino)
 - **Recorrencias** — regras com frequencia (diaria, semanal, mensal, anual), apply manual idempotente com logs
 - **Billing de cartao de credito** — limite, fechamento, vencimento, faturas, pagamento parcial/total e cards tematizados por banco emissor em `/credit-cards`
+- **Parcelamento completo de cartao** — compras `1x..24x` usam o agregado `CreditCardPurchase`, geram uma `Transaction` real por parcela, exibem detalhe dedicado em `/credit-card-purchases/[id]` e suportam adiantamento manual de parcelas futuras com valor efetivamente pago
 - **Goal Engine** — metas de economia, limite de gasto, meta de receita e limite por conta/cartao, com calculo de progresso por periodo, status (no ritmo, atencao, em risco, atingida, ultrapassada) e snapshots historicos
-- **Wishlist com conversao em compra** — modulo `/wishlist` com categorias proprias, cards por status, prioridades, datas desejada/efetiva e fluxo de compra que cria uma despesa real nas transacoes
+- **Wishlist com compra parcelada** — modulo `/wishlist` com categorias proprias, cards por status, prioridades, datas desejada/efetiva e fluxo de compra que cria despesa real, inclusive compra parcelada no cartao com link para o plano da compra
 - **Forecast Engine** — previsao do fechamento do mes combinando realizado, recorrencias futuras, projecao variavel (media movel) e faturas em aberto, com classificacao de risco e breakdown audit das premissas
 - **Financial Score** — pontuacao 0-100 com 5 fatores explicaveis (economia, estabilidade, renda, cartao, metas), status CRITICAL/ATTENTION/GOOD/EXCELLENT, delta vs mes anterior e redistribuicao por ausencia de dados
 - **Automatic Insights** — motor deterministico com 6 heuristicas de alta confianca (variacao por categoria, concentracao, metas em risco, forecast negativo, fatura vencendo/vencida, utilizacao alta de cartao), dedupe por fingerprint, cap de 8 por periodo e dismiss persistente
@@ -80,7 +81,7 @@ O Finance Controller centraliza tudo em uma unica aplicacao:
 - **Analytics** — resumo mensal com variacao percentual, gastos por categoria, saldo por conta, patrimonio total
 - **Snapshot e invalidacao** — estrategia central de tags por usuario/modulo/mes, invalidada em mutacoes financeiras
 - **Tema refinado** — design inspirado em Apex Holdings (Inter font, cantos arredondados, sombras suaves, gradientes sutis)
-- **Seed demo** — dados ficticios realistas + botao de reset em `/settings`, com fatura paga, outra em aberto, 3 metas demo e itens de wishlist em multiplos status
+- **Seed demo** — dados ficticios realistas + botao de reset em `/settings`, com fatura paga, outra em aberto, compra `1x`, compra parcelada, adiantamento de parcelas e wishlist comprada no cartao
 
 ---
 
@@ -120,7 +121,7 @@ graph TD
     end
 ```
 
-> Estado atual: analytics, billing de cartao, metas, wishlist, forecast, score e insights ja usam `src/server/modules/finance/application/`, mas parte dos CRUDs e algumas Server Components ainda acessam Prisma diretamente.
+> Estado atual: analytics, billing de cartao, compras parceladas de cartao, metas, wishlist, forecast, score e insights ja usam `src/server/modules/finance/application/`, mas parte dos CRUDs e algumas Server Components ainda acessam Prisma diretamente.
 
 ### Principios
 
@@ -145,15 +146,17 @@ src/
       categories/          Receitas e despesas
       accounts/            Multi-contas
       credit-cards/        Faturas e pagamento de cartao
+      credit-card-purchases/ Detalhe de compra parcelada + adiantamento
       recurring/           Regras recorrentes
       goals/               Metas financeiras e progresso
       wishlist/            Lista de desejos e conversao em compra
       settings/            Configuracoes + reset demo
-    api/                   36 Route Handlers
+    api/                   38 Route Handlers
       auth/                login, register, logout, me
       accounts/            CRUD + [id]
       categories/          CRUD + [id]
       transactions/        CRUD + [id] + transfer
+      credit-card-purchases/ detail + advances
       analytics/           summary + forecast + score + score/history + insights + insights/recalculate + insights/[id]/dismiss
       credit-cards/        statements, detail, payments
       dashboards/          GET/PUT layout + POST/DELETE widgets
@@ -165,7 +168,7 @@ src/
     auth/                  Sessions, hashing, guards, rate-limit
     modules/finance/
       domain/              Entidades e regras de negocio
-      application/         analytics + credit-card billing + goals + wishlist + forecast + score + insights
+      application/         analytics + credit-card billing + credit-card purchases + goals + wishlist + forecast + score + insights + demo data
       infra/               Repositorios Prisma
       http/                DTOs e validators Zod
   components/
@@ -594,7 +597,7 @@ npx prisma db seed   # Popular dados demo
 
 ## Roadmap
 
-Estado atual: entregas concluidas ate a **Phase 35**, com dark theme global, cadastro de cartoes separando emissor + bandeira, cards de fatura tematizados por banco emissor e novo modulo de wishlist com conversao em compra.
+Estado atual: entregas concluidas ate a **Phase 36**, com dark theme global, cadastro de cartoes separando emissor + bandeira, cards de fatura tematizados por banco emissor, wishlist com conversao em compra e agora o ecossistema completo de parcelamento do cartao com adiantamento manual de parcelas.
 
 ### Phases concluidas
 
@@ -634,17 +637,17 @@ Estado atual: entregas concluidas ate a **Phase 35**, com dark theme global, cad
 - [x] Phase 33: Dark Theme And Theme Toggle
 - [x] Phase 34: Credit Card Issuer Network And Brand Themed Statements
 - [x] Phase 35: Wishlist Module And Purchase Conversion
+- [x] Phase 36: Credit Card Installment Ecosystem And Installment Advance
 
 ### Phases abertas
 
-- Nenhuma phase aberta no momento
+- [ ] Proxima phase a formalizar a partir do backlog de produto
 
 ### Proximo passo recomendado
 
-- [ ] Validar manualmente o modulo `/wishlist` em desktop/mobile, cobrindo filtros, cards, light/dark e o fluxo de compra convertendo o item em despesa real
-- [ ] Revisar contraste fino de charts, badges, dropdowns, dialogs, drag handles, hover/focus states, logos rasterizados, `BrandChip`s e os novos cards da wishlist no modo dark
-- [ ] Confirmar seed/reset demo com os novos itens de wishlist em status diferentes e o link de transacao do item comprado
-- [ ] Decidir se a proxima subfase da wishlist deve priorizar widget de dashboard, alertas de preco ou historico mais rico de compras
+- [ ] Formalizar a proxima phase do backlog com **Import/export CSV**, agora considerando compras parceladas, parcelas adiantadas e lookup por compra de cartao
+- [ ] Fazer a rodada de validacao visual/manual do novo fluxo em `/transactions`, `/credit-cards`, `/credit-card-purchases/[id]` e `/wishlist`
+- [ ] Avaliar evolucao futura do dominio para recorrencias em cartao e importacao automatica de compras parceladas
 
 ### Backlog de produto
 

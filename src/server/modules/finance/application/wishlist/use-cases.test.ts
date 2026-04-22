@@ -5,6 +5,7 @@ const {
   txMock,
   invalidateAnalyticsSnapshotsMock,
   syncCreditCardTransactionStatementMock,
+  createCreditCardPurchaseMock,
 } = vi.hoisted(() => {
   const txMock = {
     transaction: {
@@ -40,6 +41,7 @@ const {
     },
     invalidateAnalyticsSnapshotsMock: vi.fn(),
     syncCreditCardTransactionStatementMock: vi.fn(),
+    createCreditCardPurchaseMock: vi.fn(),
   }
 })
 
@@ -56,6 +58,10 @@ vi.mock('../analytics', () => ({
 
 vi.mock('../credit-card/billing', () => ({
   syncCreditCardTransactionStatement: syncCreditCardTransactionStatementMock,
+}))
+
+vi.mock('../credit-card-purchases', () => ({
+  createCreditCardPurchase: createCreditCardPurchaseMock,
 }))
 
 import {
@@ -271,5 +277,104 @@ describe('wishlist/use-cases', () => {
         'user-1',
       ),
     ).rejects.toThrow('Item ja foi comprado')
+  })
+
+  it('delegates credit-card wishlist purchases to the installment purchase aggregate', async () => {
+    const purchaseDate = new Date('2026-04-21T12:00:00.000Z')
+
+    prismaMock.wishlistItem.findFirst
+      .mockResolvedValueOnce({
+        id: 'item-1',
+        name: 'Notebook Gamer',
+        categoryId: 'wish-cat-1',
+        desiredPrice: 459990,
+        paidPrice: null,
+        productUrl: 'https://example.com/notebook',
+        priority: 'HIGH',
+        status: 'READY_TO_BUY',
+        desiredPurchaseDate: new Date('2026-04-30T12:00:00.000Z'),
+        purchasedAt: null,
+        purchaseTransactionId: null,
+        createdAt: new Date('2026-04-20T12:00:00.000Z'),
+        updatedAt: new Date('2026-04-20T12:00:00.000Z'),
+        category: { id: 'wish-cat-1', name: 'Tecnologia' },
+        purchaseTransaction: null,
+        creditCardPurchase: null,
+      })
+      .mockResolvedValueOnce({
+        id: 'item-1',
+        name: 'Notebook Gamer',
+        categoryId: 'wish-cat-1',
+        desiredPrice: 459990,
+        paidPrice: 439990,
+        productUrl: 'https://example.com/notebook',
+        priority: 'HIGH',
+        status: 'PURCHASED',
+        desiredPurchaseDate: new Date('2026-04-30T12:00:00.000Z'),
+        purchasedAt: purchaseDate,
+        purchaseTransactionId: null,
+        createdAt: new Date('2026-04-20T12:00:00.000Z'),
+        updatedAt: purchaseDate,
+        category: { id: 'wish-cat-1', name: 'Tecnologia' },
+        purchaseTransaction: null,
+        creditCardPurchase: {
+          id: 'purchase-1',
+          installmentCount: 10,
+        },
+      })
+    prismaMock.account.findFirst.mockResolvedValue({ id: 'acc-card', type: 'CREDIT_CARD' })
+    prismaMock.category.findFirst.mockResolvedValue({ id: 'cat-1' })
+    createCreditCardPurchaseMock.mockResolvedValue({
+      purchase: { id: 'purchase-1', installmentCount: 10 },
+      primaryTransaction: {
+        id: 'tx-1',
+        userId: 'user-1',
+        accountId: 'acc-card',
+        categoryId: 'cat-1',
+        creditCardStatementId: 'statement-1',
+        type: 'EXPENSE',
+        amount: 43999,
+        description: 'Notebook Gamer',
+        notes: 'Promo relampago',
+        date: purchaseDate,
+        transferId: null,
+        createdAt: purchaseDate,
+        updatedAt: purchaseDate,
+      },
+    })
+
+    const result = await purchaseWishlistItem(
+      'item-1',
+      {
+        accountId: 'acc-card',
+        categoryId: 'cat-1',
+        amount: 439990,
+        date: purchaseDate,
+        paymentMode: 'INSTALLMENT',
+        installmentCount: 10,
+        notes: 'Promo relampago',
+      },
+      'user-1',
+    )
+
+    expect(createCreditCardPurchaseMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        userId: 'user-1',
+        accountId: 'acc-card',
+        categoryId: 'cat-1',
+        wishlistItemId: 'item-1',
+        source: 'WISHLIST',
+        installmentCount: 10,
+      }),
+    )
+    expect(result.transaction?.id).toBe('tx-1')
+    expect(result.creditCardPurchase).toEqual({
+      id: 'purchase-1',
+      installmentCount: 10,
+    })
+    expect(result.item.creditCardPurchase).toEqual({
+      id: 'purchase-1',
+      installmentCount: 10,
+    })
   })
 })

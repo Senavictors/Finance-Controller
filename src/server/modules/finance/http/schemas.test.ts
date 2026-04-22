@@ -1,6 +1,8 @@
 import { describe, expect, it } from 'vitest'
 import {
+  createCreditCardInstallmentAdvanceSchema,
   createAccountSchema,
+  createTransactionSchema,
   createWishlistCategorySchema,
   createWishlistItemSchema,
   purchaseWishlistItemSchema,
@@ -112,5 +114,85 @@ describe('finance/http schemas - wishlist', () => {
     })
 
     expect(parsed.success).toBe(true)
+  })
+
+  it('aceita compra parcelada na wishlist para cartao de credito', () => {
+    const parsed = purchaseWishlistItemSchema.safeParse({
+      accountId: 'acc-card',
+      categoryId: 'cat-expense',
+      amount: 259990,
+      date: '2026-04-21',
+      paymentMode: 'INSTALLMENT',
+      installmentCount: 12,
+      notes: 'Notebook parcelado',
+    })
+
+    expect(parsed.success).toBe(true)
+  })
+})
+
+describe('finance/http schemas - transactions', () => {
+  it('aceita compra parcelada no cartao com ate 24 parcelas', () => {
+    const parsed = createTransactionSchema.safeParse({
+      accountId: 'acc-card',
+      categoryId: 'cat-expense',
+      amount: 199990,
+      date: '2026-04-21',
+      description: 'Celular novo',
+      type: 'EXPENSE',
+      paymentMode: 'INSTALLMENT',
+      installmentCount: 24,
+    })
+
+    expect(parsed.success).toBe(true)
+  })
+
+  it('bloqueia parcelamento para transacao que nao seja despesa', () => {
+    const parsed = createTransactionSchema.safeParse({
+      accountId: 'acc-card',
+      amount: 199990,
+      date: '2026-04-21',
+      description: 'Receita incorreta',
+      type: 'INCOME',
+      paymentMode: 'INSTALLMENT',
+      installmentCount: 3,
+    })
+
+    expect(parsed.success).toBe(false)
+    if (parsed.success) return
+    expect(parsed.error.flatten().fieldErrors.paymentMode).toContain(
+      'Parcelamento so pode ser usado em despesas',
+    )
+  })
+})
+
+describe('finance/http schemas - credit card advances', () => {
+  it('aceita adiantamento manual de multiplas parcelas', () => {
+    const parsed = createCreditCardInstallmentAdvanceSchema.safeParse({
+      advancedAt: '2026-04-22',
+      notes: 'Antecipado pelo app do banco',
+      installments: [
+        { installmentId: 'inst-1', paidAmount: 15000 },
+        { installmentId: 'inst-2', paidAmount: 14900 },
+      ],
+    })
+
+    expect(parsed.success).toBe(true)
+  })
+
+  it('bloqueia parcelas duplicadas no mesmo adiantamento', () => {
+    const parsed = createCreditCardInstallmentAdvanceSchema.safeParse({
+      advancedAt: '2026-04-22',
+      installments: [
+        { installmentId: 'inst-1', paidAmount: 15000 },
+        { installmentId: 'inst-1', paidAmount: 14900 },
+      ],
+    })
+
+    expect(parsed.success).toBe(false)
+    if (parsed.success) return
+    expect(parsed.error.flatten().fieldErrors.installments).toContain(
+      'Parcela duplicada no adiantamento',
+    )
   })
 })

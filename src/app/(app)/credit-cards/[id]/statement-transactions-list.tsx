@@ -1,5 +1,6 @@
 'use client'
 
+import Link from 'next/link'
 import { useState } from 'react'
 import { ArrowLeftRight, ChevronDown, CreditCard } from 'lucide-react'
 import { Button } from '@/components/ui/button'
@@ -13,6 +14,15 @@ type StatementTransaction = {
   date: string | Date
   amount: number
   category: { name: string; color: string | null; icon: string | null } | null
+  creditCardPurchaseInstallment?: {
+    id: string
+    installmentNumber: number
+    advanceId: string | null
+    purchase: {
+      id: string
+      installmentCount: number
+    }
+  } | null
 }
 
 type Props = {
@@ -73,6 +83,24 @@ export function StatementTransactionsList({
                 <p className="text-foreground text-sm font-medium">{transaction.description}</p>
                 <div className="text-muted-foreground mt-0.5 flex items-center gap-2 text-xs">
                   <span>{formatDate(transaction.date)}</span>
+                  {transaction.creditCardPurchaseInstallment && (
+                    <>
+                      <span>&middot;</span>
+                      <Link
+                        href={`/credit-card-purchases/${transaction.creditCardPurchaseInstallment.purchase.id}`}
+                        className="text-foreground hover:text-primary font-medium transition-colors"
+                      >
+                        {transaction.creditCardPurchaseInstallment.installmentNumber}/
+                        {transaction.creditCardPurchaseInstallment.purchase.installmentCount}
+                      </Link>
+                      {transaction.creditCardPurchaseInstallment.advanceId && (
+                        <>
+                          <span>&middot;</span>
+                          <span>Adiantada</span>
+                        </>
+                      )}
+                    </>
+                  )}
                   {transaction.category && (
                     <>
                       <span>&middot;</span>

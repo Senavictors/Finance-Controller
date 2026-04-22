@@ -34,6 +34,9 @@ export async function POST(request: NextRequest, { params }: Params) {
         'Categoria financeira nao encontrada',
         'Item ja foi comprado',
         'Itens cancelados nao podem ser comprados',
+        'Parcelamento so pode ser usado em contas de cartao de credito',
+        'Quantidade de parcelas invalida',
+        'Valor da compra deve ser maior que zero',
       ].includes(error.message)
     ) {
       return NextResponse.json(

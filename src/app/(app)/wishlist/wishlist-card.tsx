@@ -45,6 +45,10 @@ type WishlistItem = {
   desiredPurchaseDate: Date | string | null
   purchasedAt: Date | string | null
   purchaseTransactionId: string | null
+  creditCardPurchase: {
+    id: string
+    installmentCount: number
+  } | null
   category: WishlistCategory | null
   purchaseTransaction: {
     id: string
@@ -109,9 +113,10 @@ export function WishlistCard({ item, categories, accounts, expenseCategories }: 
   async function handleDelete() {
     const ok = await confirm({
       title: `Excluir "${item.name}"?`,
-      description: item.purchaseTransactionId
-        ? 'O item sera removido da wishlist, mas a transação financeira vinculada permanecerá registrada.'
-        : 'O item sera removido da sua wishlist.',
+      description:
+        item.purchaseTransactionId || item.creditCardPurchase
+          ? 'O item será removido da wishlist, mas a compra financeira já registrada continuará existindo.'
+          : 'O item sera removido da sua wishlist.',
       confirmText: 'Excluir',
       destructive: true,
     })
@@ -132,6 +137,9 @@ export function WishlistCard({ item, categories, accounts, expenseCategories }: 
     item.purchaseTransaction && item.purchasedAt
       ? `/transactions?month=${monthKeyFromDate(item.purchasedAt)}&q=${encodeURIComponent(item.name)}`
       : null
+  const creditCardPurchaseHref = item.creditCardPurchase
+    ? `/credit-card-purchases/${item.creditCardPurchase.id}`
+    : null
 
   return (
     <Card className="fc-panel-strong rounded-[1.75rem]">
@@ -239,6 +247,18 @@ export function WishlistCard({ item, categories, accounts, expenseCategories }: 
             >
               <Receipt className="mr-1.5 size-4" />
               Ver transação
+            </Button>
+          )}
+
+          {creditCardPurchaseHref && (
+            <Button
+              nativeButton={false}
+              variant="outline"
+              size="sm"
+              render={<Link href={creditCardPurchaseHref} />}
+            >
+              <Receipt className="mr-1.5 size-4" />
+              Ver compra parcelada
             </Button>
           )}
 

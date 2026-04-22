@@ -1,11 +1,13 @@
 import { prisma } from '@/server/db'
 import type { MonthlyAnalyticsSummary } from './types'
+import { resolveObservationWindow } from './observation-window'
 import { resolveMonthPeriod } from './period'
 
 export type GetMonthlyAnalyticsSummaryInput = {
   userId: string
   monthParam?: string | null
   recentTransactionsLimit?: number
+  now?: Date
 }
 
 function sumTransactionsByType(
@@ -26,15 +28,22 @@ export async function getMonthlyAnalyticsSummary({
   userId,
   monthParam,
   recentTransactionsLimit = 5,
+  now = new Date(),
 }: GetMonthlyAnalyticsSummaryInput): Promise<MonthlyAnalyticsSummary> {
-  const period = resolveMonthPeriod(monthParam)
+  const period = resolveMonthPeriod(monthParam, now)
+  const observation = resolveObservationWindow(period.from, period.to, now)
 
   const [transactions, previousTransactions, accounts, categories, recentTransactions] =
     await Promise.all([
-      prisma.transaction.findMany({
-        where: { userId, date: { gte: period.from, lte: period.to } },
-        select: { type: true, amount: true, categoryId: true, accountId: true },
-      }),
+      observation.actualRange
+        ? prisma.transaction.findMany({
+            where: {
+              userId,
+              date: { gte: observation.actualRange.from, lte: observation.actualRange.to },
+            },
+            select: { type: true, amount: true, categoryId: true, accountId: true },
+          })
+        : Promise.resolve([]),
       prisma.transaction.findMany({
         where: { userId, date: { gte: period.prevFrom, lte: period.prevTo } },
         select: { type: true, amount: true },
@@ -56,7 +65,7 @@ export async function getMonthlyAnalyticsSummary({
       }),
       recentTransactionsLimit > 0
         ? prisma.transaction.findMany({
-            where: { userId },
+            where: { userId, date: { lte: now } },
             include: {
               account: { select: { name: true, color: true, icon: true } },
               category: { select: { name: true, color: true, icon: true } },

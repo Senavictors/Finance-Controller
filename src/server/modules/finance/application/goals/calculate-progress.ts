@@ -1,5 +1,6 @@
 import { prisma } from '@/server/db'
 import type { GoalMetric, GoalStatus } from '@/generated/prisma/client'
+import { resolveObservationWindow } from '../analytics/observation-window'
 import { resolveMonthPeriod } from '../analytics/period'
 import type { GoalProgressResult } from './types'
 
@@ -102,6 +103,7 @@ export async function calculateGoalProgress(
   const period = resolveMonthPeriod(monthParam, now)
   const { from, to } = period
   const isCurrentPeriod = now >= from && now <= to
+  const observation = resolveObservationWindow(from, to, now)
 
   let actualAmount = 0
 
@@ -121,10 +123,17 @@ export async function calculateGoalProgress(
         ? Math.max(openStatement.totalAmount - openStatement.paidAmount, 0)
         : 0
     } else {
-      const txs = await prisma.transaction.findMany({
-        where: { userId, accountId: goal.accountId, type: 'EXPENSE', date: { gte: from, lte: to } },
-        select: { amount: true },
-      })
+      const txs = observation.actualRange
+        ? await prisma.transaction.findMany({
+            where: {
+              userId,
+              accountId: goal.accountId,
+              type: 'EXPENSE',
+              date: { gte: observation.actualRange.from, lte: observation.actualRange.to },
+            },
+            select: { amount: true },
+          })
+        : []
       actualAmount = txs.reduce((s, t) => s + t.amount, 0)
     }
   } else if (goal.metric === 'EXPENSE_LIMIT') {
@@ -133,16 +142,20 @@ export async function calculateGoalProgress(
         ? await collectDescendantCategoryIds(userId, goal.categoryId)
         : null
 
-    const txs = await prisma.transaction.findMany({
-      where: {
-        userId,
-        type: 'EXPENSE',
-        date: { gte: from, lte: to },
-        ...(categoryIds ? { categoryId: { in: categoryIds } } : {}),
-        ...(goal.scopeType === 'ACCOUNT' && goal.accountId ? { accountId: goal.accountId } : {}),
-      },
-      select: { amount: true },
-    })
+    const txs = observation.actualRange
+      ? await prisma.transaction.findMany({
+          where: {
+            userId,
+            type: 'EXPENSE',
+            date: { gte: observation.actualRange.from, lte: observation.actualRange.to },
+            ...(categoryIds ? { categoryId: { in: categoryIds } } : {}),
+            ...(goal.scopeType === 'ACCOUNT' && goal.accountId
+              ? { accountId: goal.accountId }
+              : {}),
+          },
+          select: { amount: true },
+        })
+      : []
     actualAmount = txs.reduce((s, t) => s + t.amount, 0)
   } else if (goal.metric === 'INCOME_TARGET') {
     const categoryIds =
@@ -150,22 +163,32 @@ export async function calculateGoalProgress(
         ? await collectDescendantCategoryIds(userId, goal.categoryId)
         : null
 
-    const txs = await prisma.transaction.findMany({
-      where: {
-        userId,
-        type: 'INCOME',
-        date: { gte: from, lte: to },
-        ...(categoryIds ? { categoryId: { in: categoryIds } } : {}),
-        ...(goal.scopeType === 'ACCOUNT' && goal.accountId ? { accountId: goal.accountId } : {}),
-      },
-      select: { amount: true },
-    })
+    const txs = observation.actualRange
+      ? await prisma.transaction.findMany({
+          where: {
+            userId,
+            type: 'INCOME',
+            date: { gte: observation.actualRange.from, lte: observation.actualRange.to },
+            ...(categoryIds ? { categoryId: { in: categoryIds } } : {}),
+            ...(goal.scopeType === 'ACCOUNT' && goal.accountId
+              ? { accountId: goal.accountId }
+              : {}),
+          },
+          select: { amount: true },
+        })
+      : []
     actualAmount = txs.reduce((s, t) => s + t.amount, 0)
   } else if (goal.metric === 'SAVING') {
-    const txs = await prisma.transaction.findMany({
-      where: { userId, type: { in: ['INCOME', 'EXPENSE'] }, date: { gte: from, lte: to } },
-      select: { type: true, amount: true },
-    })
+    const txs = observation.actualRange
+      ? await prisma.transaction.findMany({
+          where: {
+            userId,
+            type: { in: ['INCOME', 'EXPENSE'] },
+            date: { gte: observation.actualRange.from, lte: observation.actualRange.to },
+          },
+          select: { type: true, amount: true },
+        })
+      : []
     const income = txs.filter((t) => t.type === 'INCOME').reduce((s, t) => s + t.amount, 0)
     const expense = txs.filter((t) => t.type === 'EXPENSE').reduce((s, t) => s + t.amount, 0)
     actualAmount = Math.max(income - expense, 0)

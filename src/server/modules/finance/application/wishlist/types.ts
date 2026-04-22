@@ -28,6 +28,10 @@ export type WishlistListItem = {
   desiredPurchaseDate: Date | null
   purchasedAt: Date | null
   purchaseTransactionId: string | null
+  creditCardPurchase: {
+    id: string
+    installmentCount: number
+  } | null
   createdAt: Date
   updatedAt: Date
   category: WishlistCategorySummary | null
@@ -56,5 +60,9 @@ export type WishlistPurchaseResult = {
     transferId: string | null
     createdAt: Date
     updatedAt: Date
-  }
+  } | null
+  creditCardPurchase: {
+    id: string
+    installmentCount: number
+  } | null
 }

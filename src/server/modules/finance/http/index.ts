@@ -27,9 +27,11 @@ export {
   updateWishlistItemSchema,
   wishlistItemQuerySchema,
   purchaseWishlistItemSchema,
+  createCreditCardInstallmentAdvanceSchema,
   type CreateWishlistCategoryInput,
   type CreateWishlistItemInput,
   type UpdateWishlistItemInput,
   type WishlistItemQuery,
   type PurchaseWishlistItemInput,
+  type CreateCreditCardInstallmentAdvanceInput,
 } from './schemas'

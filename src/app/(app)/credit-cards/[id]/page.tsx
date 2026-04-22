@@ -101,6 +101,19 @@ export default async function CreditCardStatementPage({ params }: Props) {
         transactions: {
           include: {
             category: { select: { name: true, color: true, icon: true } },
+            creditCardPurchaseInstallment: {
+              select: {
+                id: true,
+                installmentNumber: true,
+                advanceId: true,
+                purchase: {
+                  select: {
+                    id: true,
+                    installmentCount: true,
+                  },
+                },
+              },
+            },
           },
           orderBy: { date: 'desc' },
         },

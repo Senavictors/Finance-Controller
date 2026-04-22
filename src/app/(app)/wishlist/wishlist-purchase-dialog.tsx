@@ -12,7 +12,7 @@ import {
 } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { MoneyInput } from '@/components/ui/money-input'
+import { IntegerInput, MoneyInput } from '@/components/ui/money-input'
 import {
   Select,
   SelectContent,
@@ -68,14 +68,31 @@ export function WishlistPurchaseDialog({
   const [loading, setLoading] = useState(false)
   const [selectedAccountId, setSelectedAccountId] = useState(accounts[0]?.id ?? '')
   const [selectedCategoryId, setSelectedCategoryId] = useState('none')
+  const [paymentMode, setPaymentMode] = useState<'SINGLE' | 'INSTALLMENT'>('SINGLE')
+  const [installmentCount, setInstallmentCount] = useState(2)
 
   useEffect(() => {
     if (open) {
       setError(null)
       setSelectedAccountId(accounts[0]?.id ?? '')
       setSelectedCategoryId('none')
+      setPaymentMode('SINGLE')
+      setInstallmentCount(2)
     }
   }, [accounts, open])
+
+  const selectedAccount = useMemo(
+    () => accounts.find((account) => account.id === selectedAccountId) ?? null,
+    [accounts, selectedAccountId],
+  )
+  const isCreditCard = selectedAccount?.type === 'CREDIT_CARD'
+
+  useEffect(() => {
+    if (isCreditCard) return
+
+    setPaymentMode('SINGLE')
+    setInstallmentCount(2)
+  }, [isCreditCard])
 
   const accountItems = useMemo(
     () => Object.fromEntries(accounts.map((account) => [account.id, account.name])),
@@ -100,6 +117,12 @@ export function WishlistPurchaseDialog({
       categoryId: selectedCategoryId === 'none' ? undefined : selectedCategoryId,
       amount: parseMoneyToCents(formData.get('amount') as string),
       date: formData.get('date') as string,
+      paymentMode: isCreditCard ? paymentMode : 'SINGLE',
+      installmentCount: isCreditCard
+        ? paymentMode === 'INSTALLMENT'
+          ? installmentCount
+          : 1
+        : undefined,
       notes: ((formData.get('notes') as string) || '').trim() || undefined,
     }
 
@@ -173,6 +196,49 @@ export function WishlistPurchaseDialog({
               </SelectContent>
             </Select>
           </div>
+
+          {isCreditCard && (
+            <div className="flex flex-col gap-3 rounded-2xl border p-3">
+              <div className="flex flex-col gap-1.5">
+                <Label>Pagamento no cartão</Label>
+                <div className="flex gap-2">
+                  <Button
+                    type="button"
+                    variant={paymentMode === 'SINGLE' ? 'default' : 'outline'}
+                    size="sm"
+                    onClick={() => setPaymentMode('SINGLE')}
+                  >
+                    À vista
+                  </Button>
+                  <Button
+                    type="button"
+                    variant={paymentMode === 'INSTALLMENT' ? 'default' : 'outline'}
+                    size="sm"
+                    onClick={() => setPaymentMode('INSTALLMENT')}
+                  >
+                    Parcelado
+                  </Button>
+                </div>
+              </div>
+
+              {paymentMode === 'INSTALLMENT' && (
+                <div className="flex max-w-32 flex-col gap-1.5">
+                  <Label htmlFor="wishlistInstallmentCount">Parcelas</Label>
+                  <IntegerInput
+                    id="wishlistInstallmentCount"
+                    min={2}
+                    max={24}
+                    value={String(installmentCount)}
+                    onChange={(event) =>
+                      setInstallmentCount(
+                        Math.min(24, Math.max(2, Number(event.target.value || 2))),
+                      )
+                    }
+                  />
+                </div>
+              )}
+            </div>
+          )}
 
           <div className="flex flex-col gap-1.5">
             <Label>Categoria financeira</Label>

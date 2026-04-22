@@ -21,6 +21,8 @@ model User {
   categories           Category[]
   transactions         Transaction[]
   creditCardStatements CreditCardStatement[]
+  creditCardPurchases  CreditCardPurchase[]
+  installmentAdvances  CreditCardInstallmentAdvance[]
   dashboard            Dashboard?
   recurringRules       RecurringRule[]
   goals                Goal[]
@@ -89,9 +91,11 @@ model Account {
   createdAt           DateTime    @default(now()) @map("created_at")
   updatedAt           DateTime    @updatedAt @map("updated_at")
 
-  user                 User                  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user                 User                           @relation(fields: [userId], references: [id], onDelete: Cascade)
   transactions         Transaction[]
   creditCardStatements CreditCardStatement[]
+  creditCardPurchases  CreditCardPurchase[]
+  installmentAdvances  CreditCardInstallmentAdvance[]
   recurringRules       RecurringRule[]
   goals                Goal[]
 
@@ -110,12 +114,13 @@ model Category {
   createdAt DateTime     @default(now()) @map("created_at")
   updatedAt DateTime     @updatedAt @map("updated_at")
 
-  user           User            @relation(fields: [userId], references: [id], onDelete: Cascade)
-  parent         Category?       @relation("CategoryHierarchy", fields: [parentId], references: [id], onDelete: SetNull)
-  children       Category[]      @relation("CategoryHierarchy")
-  transactions   Transaction[]
-  recurringRules RecurringRule[]
-  goals          Goal[]
+  user                User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+  parent              Category?            @relation("CategoryHierarchy", fields: [parentId], references: [id], onDelete: SetNull)
+  children            Category[]           @relation("CategoryHierarchy")
+  transactions        Transaction[]
+  creditCardPurchases CreditCardPurchase[]
+  recurringRules      RecurringRule[]
+  goals               Goal[]
 
   @@index([userId])
   @@index([parentId])
@@ -137,11 +142,12 @@ model Transaction {
   createdAt             DateTime        @default(now()) @map("created_at")
   updatedAt             DateTime        @updatedAt @map("updated_at")
 
-  user                User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
-  account             Account              @relation(fields: [accountId], references: [id], onDelete: Cascade)
-  category            Category?            @relation(fields: [categoryId], references: [id], onDelete: SetNull)
-  creditCardStatement CreditCardStatement? @relation("CreditCardStatementTransactions", fields: [creditCardStatementId], references: [id], onDelete: SetNull)
-  purchasedWishlistItem WishlistItem?      @relation("WishlistPurchase")
+  user                          User                           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  account                       Account                        @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  category                      Category?                      @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  creditCardStatement           CreditCardStatement?           @relation("CreditCardStatementTransactions", fields: [creditCardStatementId], references: [id], onDelete: SetNull)
+  purchasedWishlistItem         WishlistItem?                  @relation("WishlistPurchase")
+  creditCardPurchaseInstallment CreditCardPurchaseInstallment?
 
   @@index([userId])
   @@index([accountId])
@@ -184,6 +190,89 @@ model CreditCardStatement {
   @@index([accountId])
   @@index([dueDate])
   @@map("credit_card_statements")
+}
+
+enum CreditCardPurchaseSource {
+  MANUAL
+  WISHLIST
+
+  @@map("credit_card_purchase_source")
+}
+
+model CreditCardPurchase {
+  id               String                   @id @default(cuid())
+  userId           String                   @map("user_id")
+  accountId        String                   @map("account_id")
+  categoryId       String?                  @map("category_id")
+  wishlistItemId   String?                  @unique @map("wishlist_item_id")
+  description      String
+  notes            String?
+  purchaseDate     DateTime                 @map("purchase_date")
+  totalAmount      Int                      @map("total_amount")
+  installmentCount Int                      @map("installment_count")
+  source           CreditCardPurchaseSource @default(MANUAL)
+  createdAt        DateTime                 @default(now()) @map("created_at")
+  updatedAt        DateTime                 @updatedAt @map("updated_at")
+
+  user         User                            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  account      Account                         @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  category     Category?                       @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  wishlistItem WishlistItem?                   @relation("WishlistCreditCardPurchase", fields: [wishlistItemId], references: [id], onDelete: SetNull)
+  installments CreditCardPurchaseInstallment[]
+  advances     CreditCardInstallmentAdvance[]
+
+  @@index([userId])
+  @@index([accountId])
+  @@index([categoryId])
+  @@index([purchaseDate])
+  @@map("credit_card_purchases")
+}
+
+model CreditCardInstallmentAdvance {
+  id                  String   @id @default(cuid())
+  purchaseId          String   @map("purchase_id")
+  userId              String   @map("user_id")
+  accountId           String   @map("account_id")
+  advancedAt          DateTime @map("advanced_at")
+  totalOriginalAmount Int      @map("total_original_amount")
+  totalPaidAmount     Int      @map("total_paid_amount")
+  totalDiscountAmount Int      @map("total_discount_amount")
+  notes               String?
+  createdAt           DateTime @default(now()) @map("created_at")
+  updatedAt           DateTime @updatedAt @map("updated_at")
+
+  purchase     CreditCardPurchase              @relation(fields: [purchaseId], references: [id], onDelete: Cascade)
+  user         User                            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  account      Account                         @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  installments CreditCardPurchaseInstallment[]
+
+  @@index([purchaseId])
+  @@index([userId])
+  @@index([accountId])
+  @@index([advancedAt])
+  @@map("credit_card_installment_advances")
+}
+
+model CreditCardPurchaseInstallment {
+  id                  String   @id @default(cuid())
+  purchaseId          String   @map("purchase_id")
+  advanceId           String?  @map("advance_id")
+  installmentNumber   Int      @map("installment_number")
+  originalAmount      Int      @map("original_amount")
+  originalDate        DateTime @map("original_date")
+  ledgerTransactionId String   @unique @map("ledger_transaction_id")
+  createdAt           DateTime @default(now()) @map("created_at")
+  updatedAt           DateTime @updatedAt @map("updated_at")
+
+  purchase          CreditCardPurchase            @relation(fields: [purchaseId], references: [id], onDelete: Cascade)
+  advance           CreditCardInstallmentAdvance? @relation(fields: [advanceId], references: [id], onDelete: SetNull)
+  ledgerTransaction Transaction                   @relation(fields: [ledgerTransactionId], references: [id], onDelete: Cascade)
+
+  @@unique([purchaseId, installmentNumber])
+  @@index([purchaseId])
+  @@index([advanceId])
+  @@index([originalDate])
+  @@map("credit_card_purchase_installments")
 }
 
 model Dashboard {
@@ -301,24 +390,25 @@ model WishlistCategory {
 }
 
 model WishlistItem {
-  id                   String               @id @default(cuid())
-  userId               String               @map("user_id")
-  categoryId           String?              @map("category_id")
-  name                 String
-  desiredPrice         Int                  @map("desired_price")
-  paidPrice            Int?                 @map("paid_price")
-  productUrl           String?              @map("product_url")
-  priority             WishlistItemPriority @default(MEDIUM)
-  status               WishlistItemStatus   @default(DESIRED)
-  desiredPurchaseDate  DateTime?            @map("desired_purchase_date")
-  purchasedAt          DateTime?            @map("purchased_at")
-  purchaseTransactionId String?             @unique @map("purchase_transaction_id")
-  createdAt            DateTime             @default(now()) @map("created_at")
-  updatedAt            DateTime             @updatedAt @map("updated_at")
+  id                    String               @id @default(cuid())
+  userId                String               @map("user_id")
+  categoryId            String?              @map("category_id")
+  name                  String
+  desiredPrice          Int                  @map("desired_price")
+  paidPrice             Int?                 @map("paid_price")
+  productUrl            String?              @map("product_url")
+  priority              WishlistItemPriority @default(MEDIUM)
+  status                WishlistItemStatus   @default(DESIRED)
+  desiredPurchaseDate   DateTime?            @map("desired_purchase_date")
+  purchasedAt           DateTime?            @map("purchased_at")
+  purchaseTransactionId String?              @unique @map("purchase_transaction_id")
+  createdAt             DateTime             @default(now()) @map("created_at")
+  updatedAt             DateTime             @updatedAt @map("updated_at")
 
-  user                User              @relation(fields: [userId], references: [id], onDelete: Cascade)
-  category            WishlistCategory? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
-  purchaseTransaction Transaction?      @relation("WishlistPurchase", fields: [purchaseTransactionId], references: [id], onDelete: SetNull)
+  user                User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  category            WishlistCategory?   @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  purchaseTransaction Transaction?        @relation("WishlistPurchase", fields: [purchaseTransactionId], references: [id], onDelete: SetNull)
+  creditCardPurchase  CreditCardPurchase? @relation("WishlistCreditCardPurchase")
 
   @@index([userId])
   @@index([userId, status])

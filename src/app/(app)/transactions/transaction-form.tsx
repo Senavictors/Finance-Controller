@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import {
@@ -12,7 +12,7 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
-import { MoneyInput } from '@/components/ui/money-input'
+import { IntegerInput, MoneyInput } from '@/components/ui/money-input'
 import { Label } from '@/components/ui/label'
 import { parseMoneyToCents } from '@/lib/money'
 import {
@@ -25,7 +25,13 @@ import {
 import { Plus } from 'lucide-react'
 import { BrandDot } from '@/lib/brands'
 
-type Account = { id: string; name: string; color?: string | null; icon?: string | null }
+type Account = {
+  id: string
+  name: string
+  type: string
+  color?: string | null
+  icon?: string | null
+}
 type Category = {
   id: string
   name: string
@@ -46,8 +52,17 @@ export function TransactionForm({ accounts, categories }: Props) {
   const [loading, setLoading] = useState(false)
   const [mode, setMode] = useState<'transaction' | 'transfer'>('transaction')
   const [txType, setTxType] = useState<'INCOME' | 'EXPENSE'>('EXPENSE')
+  const [selectedAccountId, setSelectedAccountId] = useState(accounts[0]?.id ?? '')
+  const [paymentMode, setPaymentMode] = useState<'SINGLE' | 'INSTALLMENT'>('SINGLE')
+  const [installmentCount, setInstallmentCount] = useState(2)
 
   const filteredCategories = categories.filter((c) => c.type === txType)
+  const selectedAccount = useMemo(
+    () => accounts.find((account) => account.id === selectedAccountId) ?? null,
+    [accounts, selectedAccountId],
+  )
+  const isCreditCardExpense =
+    mode === 'transaction' && txType === 'EXPENSE' && selectedAccount?.type === 'CREDIT_CARD'
   const accountItems: Record<string, string> = Object.fromEntries(
     accounts.map((a) => [a.id, a.name]),
   )
@@ -55,6 +70,25 @@ export function TransactionForm({ accounts, categories }: Props) {
     none: 'Nenhuma',
     ...Object.fromEntries(filteredCategories.map((c) => [c.id, c.name])),
   }
+
+  useEffect(() => {
+    if (!open) return
+
+    setError(null)
+    setLoading(false)
+    setMode('transaction')
+    setTxType('EXPENSE')
+    setSelectedAccountId(accounts[0]?.id ?? '')
+    setPaymentMode('SINGLE')
+    setInstallmentCount(2)
+  }, [accounts, open])
+
+  useEffect(() => {
+    if (isCreditCardExpense) return
+
+    setPaymentMode('SINGLE')
+    setInstallmentCount(2)
+  }, [isCreditCardExpense])
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
@@ -89,10 +123,16 @@ export function TransactionForm({ accounts, categories }: Props) {
             amount,
             date: formData.get('date'),
             description: formData.get('description'),
-            accountId: formData.get('accountId'),
+            accountId: selectedAccountId,
             type: txType,
             categoryId: categoryId === 'none' ? undefined : categoryId,
             notes: (formData.get('notes') as string) || undefined,
+            paymentMode: isCreditCardExpense ? paymentMode : 'SINGLE',
+            installmentCount: isCreditCardExpense
+              ? paymentMode === 'INSTALLMENT'
+                ? installmentCount
+                : 1
+              : undefined,
           }),
         })
       }
@@ -190,7 +230,13 @@ export function TransactionForm({ accounts, categories }: Props) {
 
               <div className="flex flex-col gap-1.5">
                 <Label htmlFor="accountId">Conta</Label>
-                <Select name="accountId" required items={accountItems}>
+                <Select
+                  name="accountId"
+                  required
+                  items={accountItems}
+                  value={selectedAccountId}
+                  onValueChange={(value) => setSelectedAccountId(value ?? '')}
+                >
                   <SelectTrigger>
                     <SelectValue placeholder="Selecione" />
                   </SelectTrigger>
@@ -212,6 +258,49 @@ export function TransactionForm({ accounts, categories }: Props) {
                   </SelectContent>
                 </Select>
               </div>
+
+              {isCreditCardExpense && (
+                <div className="flex flex-col gap-3 rounded-2xl border p-3">
+                  <div className="flex flex-col gap-1.5">
+                    <Label>Pagamento no cartao</Label>
+                    <div className="flex gap-2">
+                      <Button
+                        type="button"
+                        variant={paymentMode === 'SINGLE' ? 'default' : 'outline'}
+                        size="sm"
+                        onClick={() => setPaymentMode('SINGLE')}
+                      >
+                        A vista
+                      </Button>
+                      <Button
+                        type="button"
+                        variant={paymentMode === 'INSTALLMENT' ? 'default' : 'outline'}
+                        size="sm"
+                        onClick={() => setPaymentMode('INSTALLMENT')}
+                      >
+                        Parcelado
+                      </Button>
+                    </div>
+                  </div>
+
+                  {paymentMode === 'INSTALLMENT' && (
+                    <div className="flex max-w-32 flex-col gap-1.5">
+                      <Label htmlFor="installmentCount">Parcelas</Label>
+                      <IntegerInput
+                        id="installmentCount"
+                        min={2}
+                        max={24}
+                        value={String(installmentCount)}
+                        onChange={(event) =>
+                          setInstallmentCount(
+                            Math.min(24, Math.max(2, Number(event.target.value || 2))),
+                          )
+                        }
+                      />
+                    </div>
+                  )}
+                </div>
+              )}
 
               <div className="flex flex-col gap-1.5">
                 <Label htmlFor="categoryId">Categoria (opcional)</Label>
