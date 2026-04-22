@@ -178,7 +178,7 @@ export function CategoryForm({ category, categories, open, onOpenChange }: Categ
               onChange={setBrandKey}
               fallbackLabel={category?.name ?? 'Categoria'}
               fallbackColor={color}
-              categories={['subscription', 'payment', 'bank', 'network']}
+              categories={['subscription']}
             />
           </div>
 
