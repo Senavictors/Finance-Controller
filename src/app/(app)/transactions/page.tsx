@@ -68,7 +68,7 @@ export default async function TransactionsPage({ searchParams }: Props) {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-semibold tracking-tight">Transacoes</h1>
+        <h1 className="text-2xl font-semibold tracking-tight">Transações</h1>
         <TransactionForm accounts={accounts} categories={categories} />
       </div>
 
@@ -80,10 +80,10 @@ export default async function TransactionsPage({ searchParams }: Props) {
             <ArrowLeftRight className="text-muted-foreground size-6" />
           </div>
           <p className="text-muted-foreground mt-4 text-sm font-medium">
-            Nenhuma transacao encontrada
+            Nenhuma transação encontrada
           </p>
           <p className="text-muted-foreground/60 mt-1 text-xs">
-            Registre uma transacao para comecar
+            Registre uma transação para começar
           </p>
         </div>
       ) : (

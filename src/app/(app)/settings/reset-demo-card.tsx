@@ -16,7 +16,7 @@ export function ResetDemoCard() {
     const ok = await confirm({
       title: 'Resetar dados demo?',
       description:
-        'Todos os seus dados (contas, categorias, transacoes, dashboard) serao apagados e substituidos por um cenario de demonstracao.',
+        'Todos os seus dados (contas, categorias, transações, dashboard) serão apagados e substituídos por um cenário de demonstração.',
       confirmText: 'Resetar dados',
       destructive: true,
     })
@@ -48,8 +48,8 @@ export function ResetDemoCard() {
       <div className="flex-1">
         <h3 className="text-foreground text-sm font-medium">Resetar dados demo</h3>
         <p className="text-muted-foreground mt-1 text-sm">
-          Apaga todos os seus dados e recria um cenario de demonstracao completo, incluindo
-          dashboard populado, recorrencias e cartao com fatura paga e outra em aberto.
+          Apaga todos os seus dados e recria um cenário de demonstração completo, incluindo
+          dashboard populado, recorrências e cartão com fatura paga e outra em aberto.
         </p>
         {result && <p className="mt-2 text-sm font-medium text-emerald-600">{result}</p>}
         <Button

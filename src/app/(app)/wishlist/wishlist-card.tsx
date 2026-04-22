@@ -110,7 +110,7 @@ export function WishlistCard({ item, categories, accounts, expenseCategories }: 
     const ok = await confirm({
       title: `Excluir "${item.name}"?`,
       description: item.purchaseTransactionId
-        ? 'O item sera removido da wishlist, mas a transacao financeira vinculada permanecera registrada.'
+        ? 'O item sera removido da wishlist, mas a transação financeira vinculada permanecerá registrada.'
         : 'O item sera removido da sua wishlist.',
       confirmText: 'Excluir',
       destructive: true,
@@ -238,7 +238,7 @@ export function WishlistCard({ item, categories, accounts, expenseCategories }: 
               render={<Link href={transactionHref} />}
             >
               <Receipt className="mr-1.5 size-4" />
-              Ver transacao
+              Ver transação
             </Button>
           )}
 

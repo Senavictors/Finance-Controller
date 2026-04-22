@@ -5,7 +5,7 @@ import type { DashboardData } from './types'
 
 const statusLabels = {
   CRITICAL: 'Critico',
-  ATTENTION: 'Em atencao',
+  ATTENTION: 'Em atenção',
   GOOD: 'Bom',
   EXCELLENT: 'Excelente',
 } as const
@@ -81,7 +81,7 @@ export function ScoreWidget({ data }: { data: DashboardData }) {
 
   const activeFactors = factors.filter((f) => f.weight > 0)
   const deltaText =
-    delta === null ? 'Sem historico anterior' : delta === 0 ? 'Sem variacao vs mes anterior' : null
+    delta === null ? 'Sem histórico anterior' : delta === 0 ? 'Sem variação vs mes anterior' : null
 
   return (
     <div className="fc-panel-subtle flex h-full flex-col p-5">

@@ -68,7 +68,7 @@ export default async function GoalsPage({ searchParams }: Props) {
           {atRisk.length > 0 && (
             <section>
               <h2 className="text-muted-foreground mb-3 text-sm font-medium tracking-wide uppercase">
-                Requer atencao ({atRisk.length})
+                Requer atenção ({atRisk.length})
               </h2>
               <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
                 {atRisk.map((goal) => (

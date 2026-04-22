@@ -118,12 +118,12 @@ export function TransactionForm({ accounts, categories }: Props) {
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger render={<Button />}>
         <Plus className="mr-1.5 size-4" />
-        Nova Transacao
+        Nova Transação
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Nova Transacao</DialogTitle>
-          <DialogDescription>Registre uma receita, despesa ou transferencia</DialogDescription>
+          <DialogTitle>Nova Transação</DialogTitle>
+          <DialogDescription>Registre uma receita, despesa ou transferência</DialogDescription>
         </DialogHeader>
 
         <div className="mb-2 flex gap-2">
@@ -141,7 +141,7 @@ export function TransactionForm({ accounts, categories }: Props) {
             onClick={() => setMode('transfer')}
             type="button"
           >
-            Transferencia
+            Transferência
           </Button>
         </div>
 
@@ -149,7 +149,7 @@ export function TransactionForm({ accounts, categories }: Props) {
           {error && <p className="text-destructive text-sm">{error}</p>}
 
           <div className="flex flex-col gap-1.5">
-            <Label htmlFor="description">Descricao</Label>
+            <Label htmlFor="description">Descrição</Label>
             <Input id="description" name="description" required />
           </div>
 

@@ -58,7 +58,7 @@ export function CategoryDonutWidget({ data }: { data: DashboardData }) {
         </div>
       ) : (
         <div className="text-muted-foreground flex h-[150px] items-center justify-center text-sm">
-          Sem despesas neste periodo
+          Sem despesas neste período
         </div>
       )}
     </div>

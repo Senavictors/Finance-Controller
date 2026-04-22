@@ -88,7 +88,7 @@ export function IncomeExpensesWidget({ data }: { data: DashboardData }) {
         </ResponsiveContainer>
       ) : (
         <div className="text-muted-foreground flex h-[120px] items-center justify-center text-sm">
-          Sem dados neste periodo
+          Sem dados neste período
         </div>
       )}
     </div>

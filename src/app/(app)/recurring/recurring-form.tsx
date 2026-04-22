@@ -68,11 +68,11 @@ const frequencies = [
 const weekDays = [
   { value: '0', label: 'Domingo' },
   { value: '1', label: 'Segunda' },
-  { value: '2', label: 'Terca' },
+  { value: '2', label: 'Terça' },
   { value: '3', label: 'Quarta' },
   { value: '4', label: 'Quinta' },
   { value: '5', label: 'Sexta' },
-  { value: '6', label: 'Sabado' },
+  { value: '6', label: 'Sábado' },
 ]
 
 export function RecurringForm({ accounts, categories, rule, open, onOpenChange }: Props) {
@@ -176,14 +176,14 @@ export function RecurringForm({ accounts, categories, rule, open, onOpenChange }
           <DialogDescription>
             {isEdit
               ? 'Altere os dados da regra'
-              : 'Configure uma transacao que se repete automaticamente'}
+              : 'Configure uma transação que se repete automaticamente'}
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           {error && <p className="text-destructive text-sm">{error}</p>}
 
           <div className="flex flex-col gap-1.5">
-            <Label htmlFor="description">Descricao</Label>
+            <Label htmlFor="description">Descrição</Label>
             <Input id="description" name="description" required defaultValue={rule?.description} />
           </div>
 

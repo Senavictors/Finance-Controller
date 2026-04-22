@@ -35,7 +35,7 @@ export function StatementTransactionsList({
   if (transactions.length === 0) {
     return (
       <div className="text-muted-foreground text-sm">
-        Nenhuma movimentacao vinculada a esta fatura.
+        Nenhuma movimentação vinculada a esta fatura.
       </div>
     )
   }

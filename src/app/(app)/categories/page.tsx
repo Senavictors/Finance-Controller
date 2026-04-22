@@ -34,7 +34,7 @@ export default async function CategoriesPage() {
             Nenhuma categoria cadastrada
           </p>
           <p className="text-muted-foreground/60 mt-1 text-xs">
-            Crie categorias para organizar suas transacoes
+            Crie categorias para organizar suas transações
           </p>
         </div>
       ) : (

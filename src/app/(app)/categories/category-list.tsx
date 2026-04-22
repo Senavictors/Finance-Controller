@@ -71,7 +71,7 @@ function CategoryRow({
     if (category._count.transactions > 0) {
       await confirm({
         title: 'Nao e possivel excluir',
-        description: 'Categoria possui transacoes vinculadas. Remova ou reatribua primeiro.',
+        description: 'Categoria possui transações vinculadas. Remova ou reatribua primeiro.',
         confirmText: 'Entendi',
         cancelText: 'Fechar',
       })
@@ -79,7 +79,7 @@ function CategoryRow({
     }
     const ok = await confirm({
       title: `Excluir "${category.name}"?`,
-      description: 'A categoria sera removida permanentemente.',
+      description: 'A categoria será removida permanentemente.',
       destructive: true,
     })
     if (!ok) return

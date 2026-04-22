@@ -18,14 +18,14 @@ import { cn } from '@/lib/utils'
 
 const navItems = [
   { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
-  { href: '/transactions', label: 'Transacoes', icon: ArrowLeftRight },
+  { href: '/transactions', label: 'Transações', icon: ArrowLeftRight },
   { href: '/categories', label: 'Categorias', icon: Tag },
   { href: '/accounts', label: 'Contas', icon: Wallet },
   { href: '/credit-cards', label: 'Faturas', icon: CreditCard },
   { href: '/goals', label: 'Metas', icon: Target },
   { href: '/wishlist', label: 'Desejos', icon: ShoppingBag },
-  { href: '/recurring', label: 'Recorrencias', icon: RefreshCw },
-  { href: '/settings', label: 'Configuracoes', icon: Settings },
+  { href: '/recurring', label: 'Recorrências', icon: RefreshCw },
+  { href: '/settings', label: 'Configurações', icon: Settings },
 ]
 
 export function Sidebar({ className }: { className?: string }) {

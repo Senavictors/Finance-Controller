@@ -33,10 +33,10 @@ export function TransactionTable({ transactions }: { transactions: Transaction[]
 
   async function handleDelete(id: string, hasTransfer: boolean) {
     const ok = await confirm({
-      title: hasTransfer ? 'Excluir transferencia?' : 'Excluir transacao?',
+      title: hasTransfer ? 'Excluir transferência?' : 'Excluir transação?',
       description: hasTransfer
-        ? 'As duas transacoes da transferencia serao removidas permanentemente.'
-        : 'A transacao sera removida permanentemente.',
+        ? 'As duas transações da transferência serão removidas permanentemente.'
+        : 'A transação será removida permanentemente.',
       destructive: true,
     })
     if (!ok) return

@@ -35,7 +35,7 @@ export default async function RecurringPage() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-semibold tracking-tight">Recorrencias</h1>
+        <h1 className="text-2xl font-semibold tracking-tight">Recorrências</h1>
         <div className="flex items-center gap-2">
           <ApplyButton />
           <RecurringForm accounts={accounts} categories={categories} />
@@ -49,7 +49,7 @@ export default async function RecurringPage() {
           </div>
           <p className="text-muted-foreground mt-4 text-sm font-medium">Nenhuma regra recorrente</p>
           <p className="text-muted-foreground/60 mt-1 text-xs">
-            Crie regras para automatizar transacoes repetitivas
+            Crie regras para automatizar transações repetitivas
           </p>
         </div>
       ) : (

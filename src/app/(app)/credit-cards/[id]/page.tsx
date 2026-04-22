@@ -164,7 +164,7 @@ export default async function CreditCardStatementPage({ params }: Props) {
         <div>
           <h1 className="text-2xl font-semibold tracking-tight">{statement.account.name}</h1>
           <p className="text-muted-foreground mt-1 text-sm">
-            Periodo {formatDate(statement.periodStart)} - {formatDate(statement.periodEnd)}
+            Período {formatDate(statement.periodStart)} - {formatDate(statement.periodEnd)}
           </p>
           <div className="mt-3 flex flex-wrap gap-2">
             {statement.account.icon && (
@@ -255,7 +255,7 @@ export default async function CreditCardStatementPage({ params }: Props) {
             <span>{formatDate(statement.dueDate)}</span>
           </div>
           <div className="flex items-center justify-between">
-            <span className="text-muted-foreground">Limite do cartao</span>
+            <span className="text-muted-foreground">Limite do cartão</span>
             <span>
               {statement.account.creditLimit
                 ? formatCurrency(statement.account.creditLimit)
@@ -264,7 +264,7 @@ export default async function CreditCardStatementPage({ params }: Props) {
           </div>
           {usagePercent != null && (
             <div className="flex items-center justify-between">
-              <span className="text-muted-foreground">Utilizacao do limite</span>
+              <span className="text-muted-foreground">Utilização do limite</span>
               <span>{usagePercent}%</span>
             </div>
           )}
@@ -298,7 +298,7 @@ export default async function CreditCardStatementPage({ params }: Props) {
                 Esta fatura ja esta quitada.
               </p>
               <p className="text-muted-foreground">
-                Nenhum pagamento adicional e necessario para este periodo.
+                Nenhum pagamento adicional e necessário para este período.
               </p>
             </div>
           ) : availableSourceAccounts.length === 0 ? (

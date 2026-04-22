@@ -8,11 +8,11 @@ export function TransactionCountWidget({ data }: { data: DashboardData }) {
       <div className="border-foreground/5 absolute -top-6 -right-6 size-28 rounded-full border" />
       <div className="border-foreground/5 absolute -top-2 -right-2 size-28 rounded-full border" />
       <div className="relative">
-        <p className="text-accent-foreground/70 text-sm font-medium">Transacoes</p>
+        <p className="text-accent-foreground/70 text-sm font-medium">Transações</p>
         <p className="text-accent-foreground mt-2 text-3xl font-medium tracking-tight">
           {data.transactionCount}
         </p>
-        <p className="text-accent-foreground/50 mt-1 text-sm">registradas neste mes</p>
+        <p className="text-accent-foreground/50 mt-1 text-sm">registradas neste mês</p>
       </div>
     </div>
   )

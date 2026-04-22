@@ -309,7 +309,7 @@ export default async function CreditCardsPage() {
                     </div>
 
                     <div>
-                      <p className="text-muted-foreground text-xs">Ultima fatura quitada</p>
+                      <p className="text-muted-foreground text-xs">Última fatura quitada</p>
                       <p className="text-foreground/85 text-sm">
                         {lastPaidStatement
                           ? `${formatCurrency(lastPaidStatement.totalAmount)} • vencimento ${formatDate(lastPaidStatement.dueDate)}`
@@ -336,13 +336,13 @@ export default async function CreditCardsPage() {
                   <TableHeader>
                     <TableRow>
                       <TableHead>Cartao</TableHead>
-                      <TableHead>Periodo</TableHead>
+                      <TableHead>Período</TableHead>
                       <TableHead>Vencimento</TableHead>
                       <TableHead>Status</TableHead>
                       <TableHead className="text-right">Total</TableHead>
                       <TableHead className="text-right">Pago</TableHead>
                       <TableHead className="text-right">Aberto</TableHead>
-                      <TableHead className="text-right">Acao</TableHead>
+                      <TableHead className="text-right">Ação</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>

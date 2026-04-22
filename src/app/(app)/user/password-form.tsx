@@ -19,7 +19,7 @@ export function PasswordForm() {
     setFeedback(null)
 
     if (newPassword !== confirmPassword) {
-      setFeedback({ type: 'error', message: 'Nova senha e confirmacao nao coincidem' })
+      setFeedback({ type: 'error', message: 'Nova senha e confirmação não coincidem' })
       return
     }
 

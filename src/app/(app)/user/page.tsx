@@ -22,14 +22,14 @@ export default async function UserPage() {
       <div>
         <h1 className="text-2xl font-semibold tracking-tight">Sua conta</h1>
         <p className="text-muted-foreground mt-1 text-sm">
-          Gerencie seu perfil, seguranca e dados pessoais
+          Gerencie seu perfil, segurança e dados pessoais
         </p>
       </div>
 
       <section className="fc-panel p-8">
         <h2 className="text-foreground text-lg font-medium">Foto de perfil</h2>
         <p className="text-muted-foreground mt-1 text-sm">
-          Aparece no menu superior e em areas de identificacao. Limite de 300KB.
+          Aparece no menu superior e em áreas de identificação. Limite de 300KB.
         </p>
         <div className="mt-6">
           <AvatarSection
@@ -53,7 +53,7 @@ export default async function UserPage() {
       <section className="fc-panel p-8">
         <h2 className="text-foreground text-lg font-medium">Senha</h2>
         <p className="text-muted-foreground mt-1 text-sm">
-          Alterar a senha encerra sessoes ativas em outros dispositivos
+          Alterar a senha encerra sessões ativas em outros dispositivos
         </p>
         <div className="mt-6">
           <PasswordForm />
@@ -63,7 +63,7 @@ export default async function UserPage() {
       <section className="fc-panel-danger p-8">
         <h2 className="text-lg font-medium text-red-700">Zona de risco</h2>
         <p className="mt-1 text-sm text-red-600/80">
-          Acoes irreversiveis. Leia com atencao antes de prosseguir.
+          Ações irreversiveis. Leia com atenção antes de prosseguir.
         </p>
         <div className="mt-6">
           <DeleteAccountCard />

@@ -266,8 +266,7 @@ export function AccountForm({ account, open, onOpenChange }: AccountFormProps) {
             <div className="flex flex-col gap-1.5">
               <Label>Marca (opcional)</Label>
               <p className="text-muted-foreground text-xs">
-                Escolha o banco ou metodo principal. A cor abaixo continua como fallback quando nao
-                houver marca.
+                Escolha o banco ou método principal. A cor abaixo continua como fallback quando não houver marca.
               </p>
               <BrandPicker
                 value={issuerBrandKey}

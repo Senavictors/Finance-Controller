@@ -109,7 +109,7 @@ export function TransactionFilters({ accounts, categories }: Props) {
       </Select>
 
       <Input
-        placeholder="Buscar descricao..."
+        placeholder="Buscar descrição..."
         defaultValue={searchParams.get('q') ?? ''}
         className="w-[200px]"
         onChange={(e) => {

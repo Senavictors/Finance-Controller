@@ -29,17 +29,17 @@ const features = [
   },
   {
     icon: RefreshCw,
-    title: 'Recorrencias',
+    title: 'Recorrências',
     description: 'Automatize salário, aluguel e assinaturas com regras recorrentes.',
   },
   {
     icon: LayoutGrid,
-    title: 'Transferencias',
+    title: 'Transferências',
     description: 'Mova dinheiro entre contas com transações atomicas vinculadas.',
   },
   {
     icon: Shield,
-    title: 'Autenticacao Segura',
+    title: 'Autenticação Segura',
     description: 'Sessões server-side com bcrypt, cookies HttpOnly e rate limiting.',
   },
 ]
@@ -71,15 +71,15 @@ export default function Home() {
           Finance Controller
         </h1>
         <p className="text-muted-foreground mt-4 max-w-lg text-lg">
-          Sistema de gestao financeira pessoal. Acompanhe receitas, despesas e investimentos com
-          dashboard customizavel e transações recorrentes.
+          Sistema de gestão financeira pessoal. Acompanhe receitas, despesas e investimentos com
+          dashboard customizável e transações recorrentes.
         </p>
         <div className="mt-8 flex gap-3">
           <Link
             href="/register"
             className="bg-primary text-primary-foreground shadow-primary/25 inline-flex items-center gap-2 rounded-full px-7 py-3.5 text-sm font-semibold shadow-lg transition-all hover:-translate-y-0.5 hover:shadow-xl"
           >
-            Comecar agora
+            Começar agora
             <ArrowRight className="size-4" />
           </Link>
           <Link
@@ -134,7 +134,7 @@ export default function Home() {
       {/* Footer */}
       <footer className="border-border/50 border-t py-8 text-center">
         <p className="text-muted-foreground text-sm">
-          Finance Controller &mdash; Projeto de portfolio por{' '}
+          Finance Controller &mdash; Projeto de portifólio por{' '}
           <a
             href="https://github.com/Senavictors"
             className="text-primary font-medium hover:underline"

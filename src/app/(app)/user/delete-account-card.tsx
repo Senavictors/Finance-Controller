@@ -60,8 +60,8 @@ export function DeleteAccountCard() {
       <div className="flex-1">
         <h3 className="text-sm font-medium text-red-700">Excluir conta</h3>
         <p className="mt-1 text-sm text-red-600/80">
-          Remove permanentemente sua conta, contas financeiras, categorias, transacoes, metas,
-          recorrencias, cartoes e dashboards. Esta acao nao pode ser desfeita.
+          Remove permanentemente sua conta, contas financeiras, categorias, transações, metas,
+          recorrências, cartões e dashboards. Esta ação não pode ser desfeita.
         </p>
         <Button
           variant="destructive"

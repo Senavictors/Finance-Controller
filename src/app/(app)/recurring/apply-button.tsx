@@ -19,9 +19,9 @@ export function ApplyButton() {
       const { data } = await res.json()
 
       if (data.created > 0) {
-        setResult(`${data.created} transacao(oes) criada(s)`)
+        setResult(`${data.created} transação(ões) criada(s)`)
       } else {
-        setResult('Nenhuma transacao pendente')
+        setResult('Nenhuma transação pendente')
       }
 
       router.refresh()

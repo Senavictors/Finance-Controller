@@ -83,7 +83,7 @@ export function RecentTransactionsWidget({ data }: { data: DashboardData }) {
         </div>
       ) : (
         <p className="text-muted-foreground py-6 text-center text-sm">
-          Nenhuma transacao registrada
+          Nenhuma transação registrada
         </p>
       )}
     </div>

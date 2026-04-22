@@ -55,10 +55,10 @@ const metricOptions = [
 ]
 
 const metricDescriptions: Record<string, string> = {
-  SAVING: 'Economia mensal: receitas menos despesas do periodo',
-  EXPENSE_LIMIT: 'Limite maximo de gastos (global, por categoria ou conta)',
-  INCOME_TARGET: 'Meta minima de receitas (global, por categoria ou conta)',
-  ACCOUNT_LIMIT: 'Limite de gasto em uma conta ou cartao especifico',
+  SAVING: 'Economia mensal: receitas menos despesas do período',
+  EXPENSE_LIMIT: 'Limite máximo de gastos (global, por categoria ou conta)',
+  INCOME_TARGET: 'Meta mínima de receitas (global, por categoria ou conta)',
+  ACCOUNT_LIMIT: 'Limite de gasto em uma conta ou cartão especifico',
 }
 
 const periodOptions = [
@@ -178,7 +178,7 @@ export function GoalForm({ categories, accounts, open, onOpenChange }: GoalFormP
           </div>
 
           <div className="space-y-1.5">
-            <Label htmlFor="description">Descricao (opcional)</Label>
+            <Label htmlFor="description">Descrição (opcional)</Label>
             <Input id="description" name="description" placeholder="Detalhes da meta" />
           </div>
 
@@ -281,7 +281,7 @@ export function GoalForm({ categories, accounts, open, onOpenChange }: GoalFormP
           </div>
 
           <div className="space-y-1.5">
-            <Label>Periodo</Label>
+            <Label>Período</Label>
             <Select name="period" items={periodItems} defaultValue="MONTHLY">
               <SelectTrigger>
                 <SelectValue />

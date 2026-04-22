@@ -46,7 +46,7 @@ export function AccountCard({ account }: { account: Account }) {
   async function handleDelete() {
     const ok = await confirm({
       title: `Excluir conta "${account.name}"?`,
-      description: 'Todas as transacoes vinculadas a esta conta serao removidas.',
+      description: 'Todas as transações vinculadas a esta conta serão removidas.',
       destructive: true,
     })
     if (!ok) return
@@ -120,9 +120,9 @@ export function AccountCard({ account }: { account: Account }) {
         <div className="mt-6">
           {account.type === 'CREDIT_CARD' ? (
             <>
-              <p className="text-muted-foreground text-xs">Limite do cartao</p>
+              <p className="text-muted-foreground text-xs">Limite do cartão</p>
               <p className="text-foreground mt-0.5 text-xl font-semibold tracking-tight">
-                {account.creditLimit ? formatCurrency(account.creditLimit) : 'Nao configurado'}
+                {account.creditLimit ? formatCurrency(account.creditLimit) : 'Não configurado'}
               </p>
               <p className="text-muted-foreground mt-2 text-xs">
                 Fechamento dia {account.statementClosingDay ?? '-'} • Vencimento dia{' '}

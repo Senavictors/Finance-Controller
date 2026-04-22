@@ -6,7 +6,7 @@ import type { DashboardData } from './types'
 
 const statusLabels: Record<string, string> = {
   ON_TRACK: 'No ritmo',
-  WARNING: 'Atencao',
+  WARNING: 'Atenção',
   AT_RISK: 'Em risco',
   ACHIEVED: 'Atingida',
   EXCEEDED: 'Ultrapassada',

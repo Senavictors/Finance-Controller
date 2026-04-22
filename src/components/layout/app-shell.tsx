@@ -23,7 +23,7 @@ export function AppShell({ userName, userEmail, userImage, children }: AppShellP
 
       <Sheet open={sidebarOpen} onOpenChange={setSidebarOpen}>
         <SheetContent side="left" className="w-64 p-0" showCloseButton={false}>
-          <SheetTitle className="sr-only">Menu de navegacao</SheetTitle>
+          <SheetTitle className="sr-only">Menu de navegção</SheetTitle>
           <Sidebar />
         </SheetContent>
       </Sheet>

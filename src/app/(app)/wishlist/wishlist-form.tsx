@@ -208,7 +208,7 @@ export function WishlistForm({ categories, item, open, onOpenChange }: WishlistF
           <DialogDescription>
             {isEdit
               ? 'Atualize os dados para continuar acompanhando essa compra.'
-              : 'Cadastre um produto que voce quer acompanhar e comprar depois.'}
+              : 'Cadastre um produto que você quer acompanhar e comprar depois.'}
           </DialogDescription>
         </DialogHeader>
 
