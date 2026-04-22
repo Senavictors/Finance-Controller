@@ -12,7 +12,7 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
-import { IntegerInput, MoneyInput } from '@/components/ui/money-input'
+import { MoneyInput } from '@/components/ui/money-input'
 import { Label } from '@/components/ui/label'
 import { parseMoneyToCents } from '@/lib/money'
 import {
@@ -262,7 +262,7 @@ export function TransactionForm({ accounts, categories }: Props) {
               {isCreditCardExpense && (
                 <div className="flex flex-col gap-3 rounded-2xl border p-3">
                   <div className="flex flex-col gap-1.5">
-                    <Label>Pagamento no cartao</Label>
+                    <Label>Pagamento no cartão</Label>
                     <div className="flex gap-2">
                       <Button
                         type="button"
@@ -284,19 +284,33 @@ export function TransactionForm({ accounts, categories }: Props) {
                   </div>
 
                   {paymentMode === 'INSTALLMENT' && (
-                    <div className="flex max-w-32 flex-col gap-1.5">
-                      <Label htmlFor="installmentCount">Parcelas</Label>
-                      <IntegerInput
-                        id="installmentCount"
-                        min={2}
-                        max={24}
-                        value={String(installmentCount)}
-                        onChange={(event) =>
-                          setInstallmentCount(
-                            Math.min(24, Math.max(2, Number(event.target.value || 2))),
-                          )
-                        }
-                      />
+                    <div className="flex flex-col gap-1.5">
+                      <Label>Parcelas</Label>
+                      <div className="flex items-center gap-2">
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          className="h-9 w-9 rounded-full p-0 text-lg"
+                          onClick={() => setInstallmentCount((n) => Math.max(2, n - 1))}
+                          disabled={installmentCount <= 2}
+                        >
+                          −
+                        </Button>
+                        <span className="w-16 text-center text-sm font-medium">
+                          {installmentCount}x
+                        </span>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          className="h-9 w-9 rounded-full p-0 text-lg"
+                          onClick={() => setInstallmentCount((n) => Math.min(24, n + 1))}
+                          disabled={installmentCount >= 24}
+                        >
+                          +
+                        </Button>
+                      </div>
                     </div>
                   )}
                 </div>
