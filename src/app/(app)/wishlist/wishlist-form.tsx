@@ -193,8 +193,8 @@ export function WishlistForm({ categories, item, open, onOpenChange }: WishlistF
   )
 
   const trigger = !isControlled ? (
-    <DialogTrigger render={<Button />}>
-      <Plus className="mr-1.5 size-4" />
+    <DialogTrigger render={<Button variant="action" />}>
+      <Plus className="mr-1.5 size-4 transition-transform duration-200 group-hover/button:rotate-90" />
       Novo item
     </DialogTrigger>
   ) : null
@@ -345,8 +345,8 @@ export function WishlistForm({ categories, item, open, onOpenChange }: WishlistF
             </div>
           </div>
 
-          <Button type="submit" disabled={loading} className="w-full">
-            {loading ? 'Salvando...' : isEdit ? 'Salvar alteracoes' : 'Criar item'}
+          <Button type="submit" variant={isEdit ? 'save' : 'action'} disabled={loading} className="w-full">
+            {loading ? 'Salvando...' : isEdit ? 'Salvar alterações' : 'Criar item'}
           </Button>
         </form>
       </DialogContent>

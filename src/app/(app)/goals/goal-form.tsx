@@ -160,8 +160,8 @@ export function GoalForm({ categories, accounts, open, onOpenChange }: GoalFormP
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       {!isControlled && (
-        <DialogTrigger render={<Button />}>
-          <Plus className="mr-2 size-4" />
+        <DialogTrigger render={<Button variant="action" />}>
+          <Plus className="mr-2 size-4 transition-transform duration-200 group-hover/button:rotate-90" />
           Nova meta
         </DialogTrigger>
       )}
@@ -325,7 +325,7 @@ export function GoalForm({ categories, accounts, open, onOpenChange }: GoalFormP
             <Button type="button" variant="outline" onClick={() => setIsOpen(false)}>
               Cancelar
             </Button>
-            <Button type="submit" disabled={loading}>
+            <Button type="submit" variant="action" disabled={loading}>
               {loading ? 'Salvando...' : 'Criar meta'}
             </Button>
           </div>

@@ -34,8 +34,8 @@ export function Sidebar({ className }: { className?: string }) {
   return (
     <aside className={cn('bg-sidebar flex h-full w-64 flex-col', className)}>
       <div className="flex h-16 items-center gap-3 px-5">
-        <div className="bg-primary shadow-primary/25 flex size-9 items-center justify-center rounded-xl shadow-lg">
-          <TrendingUp className="text-primary-foreground size-4" />
+        <div className="bg-sidebar-primary shadow-sidebar-primary/25 flex size-9 items-center justify-center rounded-xl shadow-lg">
+          <TrendingUp className="text-sidebar-primary-foreground size-4" />
         </div>
         <Link href="/dashboard" className="text-foreground text-base font-semibold tracking-tight">
           Finance Controller
@@ -54,7 +54,7 @@ export function Sidebar({ className }: { className?: string }) {
               className={cn(
                 'flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all',
                 isActive
-                  ? 'bg-primary text-primary-foreground shadow-primary/20 shadow-md'
+                  ? 'bg-sidebar-primary text-sidebar-primary-foreground shadow-sidebar-primary/20 shadow-md'
                   : 'text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground',
               )}
             >

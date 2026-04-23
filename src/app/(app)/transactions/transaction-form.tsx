@@ -52,7 +52,7 @@ export function TransactionForm({ accounts, categories }: Props) {
   const [loading, setLoading] = useState(false)
   const [mode, setMode] = useState<'transaction' | 'transfer'>('transaction')
   const [txType, setTxType] = useState<'INCOME' | 'EXPENSE'>('EXPENSE')
-  const [selectedAccountId, setSelectedAccountId] = useState(accounts[0]?.id ?? '')
+  const [selectedAccountId, setSelectedAccountId] = useState<string | null>(accounts[0]?.id ?? null)
   const [paymentMode, setPaymentMode] = useState<'SINGLE' | 'INSTALLMENT'>('SINGLE')
   const [installmentCount, setInstallmentCount] = useState(2)
 
@@ -78,7 +78,7 @@ export function TransactionForm({ accounts, categories }: Props) {
     setLoading(false)
     setMode('transaction')
     setTxType('EXPENSE')
-    setSelectedAccountId(accounts[0]?.id ?? '')
+    setSelectedAccountId(accounts[0]?.id ?? null)
     setPaymentMode('SINGLE')
     setInstallmentCount(2)
   }, [accounts, open])
@@ -156,8 +156,8 @@ export function TransactionForm({ accounts, categories }: Props) {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger render={<Button />}>
-        <Plus className="mr-1.5 size-4" />
+      <DialogTrigger render={<Button variant="action" />}>
+        <Plus className="mr-1.5 size-4 transition-transform duration-200 group-hover/button:rotate-90" />
         Nova Transação
       </DialogTrigger>
       <DialogContent>
@@ -235,7 +235,7 @@ export function TransactionForm({ accounts, categories }: Props) {
                   required
                   items={accountItems}
                   value={selectedAccountId}
-                  onValueChange={(value) => setSelectedAccountId(value ?? '')}
+                  onValueChange={(value) => setSelectedAccountId(value ?? null)}
                 >
                   <SelectTrigger>
                     <SelectValue placeholder="Selecione" />
@@ -400,8 +400,8 @@ export function TransactionForm({ accounts, categories }: Props) {
             <Input id="notes" name="notes" />
           </div>
 
-          <Button type="submit" disabled={loading} className="w-full">
-            {loading ? 'Salvando...' : 'Criar'}
+          <Button type="submit" variant="action" disabled={loading} className="w-full">
+            {loading ? 'Salvando...' : 'Criar Transação'}
           </Button>
         </form>
       </DialogContent>

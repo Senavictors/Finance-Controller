@@ -107,8 +107,8 @@ export function CategoryForm({ category, categories, open, onOpenChange }: Categ
   }
 
   const trigger = !isControlled ? (
-    <DialogTrigger render={<Button />}>
-      <Plus className="mr-1.5 size-4" />
+    <DialogTrigger render={<Button variant="action" />}>
+      <Plus className="mr-1.5 size-4 transition-transform duration-200 group-hover/button:rotate-90" />
       Nova Categoria
     </DialogTrigger>
   ) : null
@@ -194,7 +194,7 @@ export function CategoryForm({ category, categories, open, onOpenChange }: Categ
             />
           </div>
 
-          <Button type="submit" disabled={loading} className="w-full">
+          <Button type="submit" variant={isEdit ? 'save' : 'action'} disabled={loading} className="w-full">
             {loading ? 'Salvando...' : isEdit ? 'Salvar' : 'Criar Categoria'}
           </Button>
         </form>

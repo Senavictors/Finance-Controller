@@ -161,8 +161,8 @@ export function RecurringForm({ accounts, categories, rule, open, onOpenChange }
   const today = new Date().toISOString().split('T')[0]
 
   const trigger = !isControlled ? (
-    <DialogTrigger render={<Button />}>
-      <Plus className="mr-1.5 size-4" />
+    <DialogTrigger render={<Button variant="action" />}>
+      <Plus className="mr-1.5 size-4 transition-transform duration-200 group-hover/button:rotate-90" />
       Nova Regra
     </DialogTrigger>
   ) : null
@@ -351,7 +351,7 @@ export function RecurringForm({ accounts, categories, rule, open, onOpenChange }
             <Input id="notes" name="notes" defaultValue={rule?.notes ?? ''} />
           </div>
 
-          <Button type="submit" disabled={loading} className="w-full">
+          <Button type="submit" variant={isEdit ? 'save' : 'action'} disabled={loading} className="w-full">
             {loading ? 'Salvando...' : isEdit ? 'Salvar' : 'Criar Regra'}
           </Button>
         </form>

@@ -140,19 +140,19 @@ export function DashboardGrid({ data, widgets: initialWidgets }: Props) {
             <AddWidgetDialog existingTypes={widgets.map((w) => w.type)} onAdd={addWidget} />
           )}
           <Button
-            variant={editing ? 'default' : 'outline'}
+            variant={editing ? 'save' : 'action'}
             size="sm"
             className="rounded-full"
             onClick={editing ? saveLayout : () => setEditing(true)}
           >
             {editing ? (
               <>
-                <Check className="mr-1.5 size-4" />
+                <Check className="mr-1.5 size-4 transition-transform duration-200 group-hover/button:scale-110" />
                 Salvar Layout
               </>
             ) : (
               <>
-                <Pencil className="mr-1.5 size-4" />
+                <Pencil className="mr-1.5 size-4 transition-transform duration-200 group-hover/button:-rotate-12" />
                 Editar Layout
               </>
             )}
