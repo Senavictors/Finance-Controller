@@ -20,6 +20,10 @@ const buttonVariants = cva(
         link: 'text-primary underline-offset-4 hover:underline',
         action:
           'bg-[#38BDF8] text-white shadow-sm hover:bg-[#29ABE2] hover:shadow-md hover:shadow-[#38BDF8]/30 hover:scale-[1.03] active:scale-[0.97]',
+        choice:
+          'border-[#38BDF8]/45 bg-[#38BDF8]/10 text-sky-700 shadow-sm hover:border-[#38BDF8] hover:bg-[#38BDF8]/15 hover:text-sky-800 hover:shadow-md hover:shadow-[#38BDF8]/20 hover:scale-[1.03] active:scale-[0.97] dark:text-sky-200 dark:hover:bg-[#38BDF8]/20 dark:hover:text-white',
+        'choice-active':
+          'border-[#38BDF8] bg-[#38BDF8] text-white shadow-sm hover:bg-[#29ABE2] hover:shadow-md hover:shadow-[#38BDF8]/30 hover:scale-[1.03] active:scale-[0.97]',
         save: 'bg-[#10B981] text-white shadow-sm hover:bg-[#0EA572] hover:shadow-md hover:shadow-[#10B981]/30 hover:scale-[1.03] active:scale-[0.97]',
       },
       size: {

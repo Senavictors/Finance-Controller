@@ -9,6 +9,8 @@ and this project adheres to [Conventional Commits](https://www.conventionalcommi
 
 ### Added
 
+- Post-Phase 36 polish: componente reutilizavel `DatePicker` em `src/components/ui/date-picker.tsx`, usando `@base-ui/react` `Popover` com calendario customizado e suporte a estado vazio para substituir inputs nativos de data em formularios financeiros
+- Post-Phase 36 polish: variantes `choice` e `choice-active` no `Button`, alinhadas ao azul de acao `#38BDF8`
 - Phase 36: migration `20260422143000_add_credit_card_purchase_installments` adicionando enum `credit_card_purchase_source` e tabelas `credit_card_purchases`, `credit_card_purchase_installments` e `credit_card_installment_advances`
 - Phase 36: modulo server-side `src/server/modules/finance/application/credit-card-purchases/` com criacao de compra `1x..24x`, detalhe do plano, adiantamento manual e exclusao estruturada da compra parcelada
 - Phase 36: endpoints `GET /api/credit-card-purchases/[id]` e `POST /api/credit-card-purchases/[id]/advances`
@@ -39,6 +41,7 @@ and this project adheres to [Conventional Commits](https://www.conventionalcommi
 
 ### Changed
 
+- Post-Phase 36 polish: modais de nova transacao, registrar compra e nova regra recorrente passaram a usar o mesmo azul nos botoes de tipo/pagamento, wishlist ganhou efeitos nos botoes `Comprar`, `Abrir produto` e `Ver compra parcelada`, e o `Select` de conta da nova transacao deixou de alternar entre estado controlado/uncontrolled
 - Phase 36: `POST /api/transactions` e `POST /api/wishlist/items/[id]/purchase` agora criam compras de cartao via agregado parcelado, com `paymentMode` e `installmentCount`
 - Phase 36: `PATCH/DELETE /api/transactions/[id]`, tabela de transacoes e detalhe de fatura passaram a reconhecer parcelas, bloquear edicao direta e excluir o plano inteiro quando necessario
 - Phase 36: analytics, goals, forecast, score e insights passaram a limitar o realizado pela janela observada do periodo para evitar contagem antecipada de parcelas futuras

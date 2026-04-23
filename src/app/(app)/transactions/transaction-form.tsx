@@ -11,6 +11,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog'
+import { DatePicker } from '@/components/ui/date-picker'
 import { Input } from '@/components/ui/input'
 import { MoneyInput } from '@/components/ui/money-input'
 import { Label } from '@/components/ui/label'
@@ -52,7 +53,7 @@ export function TransactionForm({ accounts, categories }: Props) {
   const [loading, setLoading] = useState(false)
   const [mode, setMode] = useState<'transaction' | 'transfer'>('transaction')
   const [txType, setTxType] = useState<'INCOME' | 'EXPENSE'>('EXPENSE')
-  const [selectedAccountId, setSelectedAccountId] = useState<string | null>(accounts[0]?.id ?? null)
+  const [selectedAccountId, setSelectedAccountId] = useState(accounts[0]?.id ?? '')
   const [paymentMode, setPaymentMode] = useState<'SINGLE' | 'INSTALLMENT'>('SINGLE')
   const [installmentCount, setInstallmentCount] = useState(2)
 
@@ -78,7 +79,7 @@ export function TransactionForm({ accounts, categories }: Props) {
     setLoading(false)
     setMode('transaction')
     setTxType('EXPENSE')
-    setSelectedAccountId(accounts[0]?.id ?? null)
+    setSelectedAccountId(accounts[0]?.id ?? '')
     setPaymentMode('SINGLE')
     setInstallmentCount(2)
   }, [accounts, open])
@@ -168,7 +169,7 @@ export function TransactionForm({ accounts, categories }: Props) {
 
         <div className="mb-2 flex gap-2">
           <Button
-            variant={mode === 'transaction' ? 'default' : 'outline'}
+            variant={mode === 'transaction' ? 'choice-active' : 'choice'}
             size="sm"
             onClick={() => setMode('transaction')}
             type="button"
@@ -176,7 +177,7 @@ export function TransactionForm({ accounts, categories }: Props) {
             Receita / Despesa
           </Button>
           <Button
-            variant={mode === 'transfer' ? 'default' : 'outline'}
+            variant={mode === 'transfer' ? 'choice-active' : 'choice'}
             size="sm"
             onClick={() => setMode('transfer')}
             type="button"
@@ -200,7 +201,7 @@ export function TransactionForm({ accounts, categories }: Props) {
             </div>
             <div className="flex flex-1 flex-col gap-1.5">
               <Label htmlFor="date">Data</Label>
-              <Input id="date" name="date" type="date" required defaultValue={today} />
+              <DatePicker id="date" name="date" required defaultValue={today} />
             </div>
           </div>
 
@@ -211,7 +212,7 @@ export function TransactionForm({ accounts, categories }: Props) {
                 <div className="flex gap-2">
                   <Button
                     type="button"
-                    variant={txType === 'EXPENSE' ? 'default' : 'outline'}
+                    variant={txType === 'EXPENSE' ? 'choice-active' : 'choice'}
                     size="sm"
                     onClick={() => setTxType('EXPENSE')}
                   >
@@ -219,7 +220,7 @@ export function TransactionForm({ accounts, categories }: Props) {
                   </Button>
                   <Button
                     type="button"
-                    variant={txType === 'INCOME' ? 'default' : 'outline'}
+                    variant={txType === 'INCOME' ? 'choice-active' : 'choice'}
                     size="sm"
                     onClick={() => setTxType('INCOME')}
                   >
@@ -235,7 +236,7 @@ export function TransactionForm({ accounts, categories }: Props) {
                   required
                   items={accountItems}
                   value={selectedAccountId}
-                  onValueChange={(value) => setSelectedAccountId(value ?? null)}
+                  onValueChange={(value) => setSelectedAccountId(value ?? '')}
                 >
                   <SelectTrigger>
                     <SelectValue placeholder="Selecione" />
@@ -266,7 +267,7 @@ export function TransactionForm({ accounts, categories }: Props) {
                     <div className="flex gap-2">
                       <Button
                         type="button"
-                        variant={paymentMode === 'SINGLE' ? 'default' : 'outline'}
+                        variant={paymentMode === 'SINGLE' ? 'choice-active' : 'choice'}
                         size="sm"
                         onClick={() => setPaymentMode('SINGLE')}
                       >
@@ -274,7 +275,7 @@ export function TransactionForm({ accounts, categories }: Props) {
                       </Button>
                       <Button
                         type="button"
-                        variant={paymentMode === 'INSTALLMENT' ? 'default' : 'outline'}
+                        variant={paymentMode === 'INSTALLMENT' ? 'choice-active' : 'choice'}
                         size="sm"
                         onClick={() => setPaymentMode('INSTALLMENT')}
                       >

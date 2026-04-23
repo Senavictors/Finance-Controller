@@ -229,7 +229,7 @@ export function WishlistCard({ item, categories, accounts, expenseCategories }: 
           {item.productUrl && (
             <Button
               nativeButton={false}
-              variant="outline"
+              variant="choice"
               size="sm"
               render={<a href={item.productUrl} target="_blank" rel="noreferrer" />}
             >
@@ -253,7 +253,7 @@ export function WishlistCard({ item, categories, accounts, expenseCategories }: 
           {creditCardPurchaseHref && (
             <Button
               nativeButton={false}
-              variant="outline"
+              variant="choice"
               size="sm"
               render={<Link href={creditCardPurchaseHref} />}
             >
@@ -263,7 +263,7 @@ export function WishlistCard({ item, categories, accounts, expenseCategories }: 
           )}
 
           {canPurchase && (
-            <Button size="sm" onClick={() => setPurchaseOpen(true)}>
+            <Button variant="action" size="sm" onClick={() => setPurchaseOpen(true)}>
               <ShoppingCart className="mr-1.5 size-4" />
               Comprar
             </Button>

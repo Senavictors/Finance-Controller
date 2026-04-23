@@ -194,7 +194,12 @@ export function CategoryForm({ category, categories, open, onOpenChange }: Categ
             />
           </div>
 
-          <Button type="submit" variant={isEdit ? 'save' : 'action'} disabled={loading} className="w-full">
+          <Button
+            type="submit"
+            variant={isEdit ? 'save' : 'action'}
+            disabled={loading}
+            className="w-full"
+          >
             {loading ? 'Salvando...' : isEdit ? 'Salvar' : 'Criar Categoria'}
           </Button>
         </form>

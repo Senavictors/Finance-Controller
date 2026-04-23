@@ -11,6 +11,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog'
+import { DatePicker } from '@/components/ui/date-picker'
 import { Input } from '@/components/ui/input'
 import { MoneyInput, IntegerInput } from '@/components/ui/money-input'
 import { Label } from '@/components/ui/label'
@@ -203,7 +204,7 @@ export function RecurringForm({ accounts, categories, rule, open, onOpenChange }
               <div className="flex gap-2">
                 <Button
                   type="button"
-                  variant={txType === 'EXPENSE' ? 'default' : 'outline'}
+                  variant={txType === 'EXPENSE' ? 'choice-active' : 'choice'}
                   size="sm"
                   onClick={() => setTxType('EXPENSE')}
                 >
@@ -211,7 +212,7 @@ export function RecurringForm({ accounts, categories, rule, open, onOpenChange }
                 </Button>
                 <Button
                   type="button"
-                  variant={txType === 'INCOME' ? 'default' : 'outline'}
+                  variant={txType === 'INCOME' ? 'choice-active' : 'choice'}
                   size="sm"
                   onClick={() => setTxType('INCOME')}
                 >
@@ -337,10 +338,9 @@ export function RecurringForm({ accounts, categories, rule, open, onOpenChange }
 
           <div className="flex flex-col gap-1.5">
             <Label htmlFor="startDate">Data de inicio</Label>
-            <Input
+            <DatePicker
               id="startDate"
               name="startDate"
-              type="date"
               required
               defaultValue={rule ? new Date(rule.startDate).toISOString().split('T')[0] : today}
             />
@@ -351,7 +351,12 @@ export function RecurringForm({ accounts, categories, rule, open, onOpenChange }
             <Input id="notes" name="notes" defaultValue={rule?.notes ?? ''} />
           </div>
 
-          <Button type="submit" variant={isEdit ? 'save' : 'action'} disabled={loading} className="w-full">
+          <Button
+            type="submit"
+            variant={isEdit ? 'save' : 'action'}
+            disabled={loading}
+            className="w-full"
+          >
             {loading ? 'Salvando...' : isEdit ? 'Salvar' : 'Criar Regra'}
           </Button>
         </form>

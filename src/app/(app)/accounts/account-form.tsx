@@ -291,7 +291,12 @@ export function AccountForm({ account, open, onOpenChange }: AccountFormProps) {
             />
           </div>
 
-          <Button type="submit" variant={isEdit ? 'save' : 'action'} disabled={loading} className="w-full">
+          <Button
+            type="submit"
+            variant={isEdit ? 'save' : 'action'}
+            disabled={loading}
+            className="w-full"
+          >
             {loading ? 'Salvando...' : isEdit ? 'Salvar' : 'Criar Conta'}
           </Button>
         </form>

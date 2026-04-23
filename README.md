@@ -81,6 +81,7 @@ O Finance Controller centraliza tudo em uma unica aplicacao:
 - **Analytics** — resumo mensal com variacao percentual, gastos por categoria, saldo por conta, patrimonio total
 - **Snapshot e invalidacao** — estrategia central de tags por usuario/modulo/mes, invalidada em mutacoes financeiras
 - **Tema refinado** — design inspirado em Apex Holdings (Inter font, cantos arredondados, sombras suaves, gradientes sutis)
+- **Polish de formularios financeiros** — botoes segmentados de transacoes, wishlist e recorrencias usam o mesmo azul de acao (`#38BDF8`), com efeitos de hover/press; datas usam um datepicker customizado com `Popover` no visual do sistema
 - **Seed demo** — dados ficticios realistas + botao de reset em `/settings`, com fatura paga, outra em aberto, compra `1x`, compra parcelada, adiantamento de parcelas e wishlist comprada no cartao
 
 ---
@@ -597,7 +598,7 @@ npx prisma db seed   # Popular dados demo
 
 ## Roadmap
 
-Estado atual: entregas concluidas ate a **Phase 36**, com dark theme global, cadastro de cartoes separando emissor + bandeira, cards de fatura tematizados por banco emissor, wishlist com conversao em compra e agora o ecossistema completo de parcelamento do cartao com adiantamento manual de parcelas.
+Estado atual: entregas concluidas ate a **Phase 36**, com dark theme global, cadastro de cartoes separando emissor + bandeira, cards de fatura tematizados por banco emissor, wishlist com conversao em compra e agora o ecossistema completo de parcelamento do cartao com adiantamento manual de parcelas. Tambem foi aplicado um polish visual pos-Phase 36 em formularios de transacoes, wishlist e recorrencias, padronizando o azul de acao e o datepicker.
 
 ### Phases concluidas
 
@@ -646,7 +647,7 @@ Estado atual: entregas concluidas ate a **Phase 36**, com dark theme global, cad
 ### Proximo passo recomendado
 
 - [ ] Formalizar a proxima phase do backlog com **Import/export CSV**, agora considerando compras parceladas, parcelas adiantadas e lookup por compra de cartao
-- [ ] Fazer a rodada de validacao visual/manual do novo fluxo em `/transactions`, `/credit-cards`, `/credit-card-purchases/[id]` e `/wishlist`
+- [ ] Fazer a rodada de validacao visual/manual do novo fluxo em `/transactions`, `/credit-cards`, `/credit-card-purchases/[id]`, `/wishlist` e `/recurring`
 - [ ] Avaliar evolucao futura do dominio para recorrencias em cartao e importacao automatica de compras parceladas
 
 ### Backlog de produto

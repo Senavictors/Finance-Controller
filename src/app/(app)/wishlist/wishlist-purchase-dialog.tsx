@@ -10,6 +10,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
+import { DatePicker } from '@/components/ui/date-picker'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { MoneyInput } from '@/components/ui/money-input'
@@ -204,7 +205,7 @@ export function WishlistPurchaseDialog({
                 <div className="flex gap-2">
                   <Button
                     type="button"
-                    variant={paymentMode === 'SINGLE' ? 'default' : 'outline'}
+                    variant={paymentMode === 'SINGLE' ? 'choice-active' : 'choice'}
                     size="sm"
                     onClick={() => setPaymentMode('SINGLE')}
                   >
@@ -212,7 +213,7 @@ export function WishlistPurchaseDialog({
                   </Button>
                   <Button
                     type="button"
-                    variant={paymentMode === 'INSTALLMENT' ? 'default' : 'outline'}
+                    variant={paymentMode === 'INSTALLMENT' ? 'choice-active' : 'choice'}
                     size="sm"
                     onClick={() => setPaymentMode('INSTALLMENT')}
                   >
@@ -227,7 +228,7 @@ export function WishlistPurchaseDialog({
                   <div className="flex items-center gap-2">
                     <Button
                       type="button"
-                      variant="outline"
+                      variant="choice"
                       size="sm"
                       className="h-9 w-9 rounded-full p-0 text-lg"
                       onClick={() => setInstallmentCount((n) => Math.max(2, n - 1))}
@@ -240,7 +241,7 @@ export function WishlistPurchaseDialog({
                     </span>
                     <Button
                       type="button"
-                      variant="outline"
+                      variant="choice"
                       size="sm"
                       className="h-9 w-9 rounded-full p-0 text-lg"
                       onClick={() => setInstallmentCount((n) => Math.min(24, n + 1))}
@@ -297,7 +298,7 @@ export function WishlistPurchaseDialog({
 
             <div className="flex flex-col gap-1.5">
               <Label htmlFor="date">Data da compra</Label>
-              <Input id="date" name="date" type="date" required defaultValue={todayDateInput()} />
+              <DatePicker id="date" name="date" required defaultValue={todayDateInput()} />
             </div>
           </div>
 
@@ -306,7 +307,12 @@ export function WishlistPurchaseDialog({
             <Input id="notes" name="notes" placeholder="Ex: comprado em promocao" />
           </div>
 
-          <Button type="submit" disabled={loading || !selectedAccountId} className="w-full">
+          <Button
+            type="submit"
+            variant="action"
+            disabled={loading || !selectedAccountId}
+            className="w-full"
+          >
             {loading ? 'Registrando...' : 'Registrar compra'}
           </Button>
         </form>

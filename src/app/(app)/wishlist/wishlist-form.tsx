@@ -12,6 +12,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog'
+import { DatePicker } from '@/components/ui/date-picker'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { MoneyInput } from '@/components/ui/money-input'
@@ -283,10 +284,10 @@ export function WishlistForm({ categories, item, open, onOpenChange }: WishlistF
 
             <div className="flex flex-col gap-1.5">
               <Label htmlFor="desiredPurchaseDate">Data desejada</Label>
-              <Input
+              <DatePicker
                 id="desiredPurchaseDate"
                 name="desiredPurchaseDate"
-                type="date"
+                placeholder="Sem data definida"
                 defaultValue={formatDateInput(item?.desiredPurchaseDate)}
               />
             </div>
@@ -345,7 +346,12 @@ export function WishlistForm({ categories, item, open, onOpenChange }: WishlistF
             </div>
           </div>
 
-          <Button type="submit" variant={isEdit ? 'save' : 'action'} disabled={loading} className="w-full">
+          <Button
+            type="submit"
+            variant={isEdit ? 'save' : 'action'}
+            disabled={loading}
+            className="w-full"
+          >
             {loading ? 'Salvando...' : isEdit ? 'Salvar alterações' : 'Criar item'}
           </Button>
         </form>
