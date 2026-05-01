@@ -7,7 +7,28 @@ and this project adheres to [Conventional Commits](https://www.conventionalcommi
 
 ## [Unreleased]
 
+## [Phase 37] — 2026-04-30
+
 ### Added
+
+- Phase 37: novo componente `src/app/(app)/categories/categories-content.tsx` como wrapper client que gerencia busca client-side e filtragem de categorias (pai aparece se qualquer filho bate na query)
+- Phase 37: novo componente `src/app/(app)/categories/category-stats.tsx` com 4 cards de resumo (total de categorias, receitas, despesas, subcategorias)
+- Phase 37: header redesenhado em `/categories` com titulo, subtitulo descritivo, campo de busca e botao de criar categoria
+- Phase 37: cards de secao com header colorido (teal para INCOME, amber para EXPENSE) com icone circular grande, titulo e sublabel com contagem, botao "+ Adicionar" inline pré-filtrando por tipo
+- Phase 37: expand/collapse de subcategorias por chevron (colapsadas por padrão), com linha vertical de hierarquia visual
+- Phase 37: icones maiores — 32px para categorias pai, 20px para filhos — usando `BrandDot` com tamanho customizado
+- Phase 37: busca client-side filtrando nome de categorias pai e filhos, mantendo pai visível se qualquer filho bate na query
+
+### Changed
+
+- Phase 37: `src/app/(app)/categories/page.tsx` refatorado para novo layout com header informativo e delegacao para `CategoriesContent` wrapper
+- Phase 37: `src/app/(app)/categories/category-list-card.tsx` completamente redesenhado com novo header (icone circular colorido + titulo + contagem), botao "+ Adicionar" inline com `defaultType` pre-selecionado, e footer com link "Ver todas"
+- Phase 37: `src/app/(app)/categories/category-list.tsx` atualizado para expand/collapse de subcategorias por chevron, icones maiores (32px pais, 20px filhos) com `BrandDot`, linhas colapsadas por padrão mantendo ui limpa
+- Phase 37: `src/app/(app)/categories/category-form.tsx` agora aceita prop opcional `defaultType?: "INCOME" | "EXPENSE"` para pré-selecionar tipo ao criar via botao inline
+
+---
+
+### Added (Post-Phase 36 Polish)
 
 - Post-Phase 36 polish: componente reutilizavel `DatePicker` em `src/components/ui/date-picker.tsx`, usando `@base-ui/react` `Popover` com calendario customizado e suporte a estado vazio para substituir inputs nativos de data em formularios financeiros
 - Post-Phase 36 polish: variantes `choice` e `choice-active` no `Button`, alinhadas ao azul de acao `#38BDF8`

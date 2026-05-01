@@ -598,7 +598,7 @@ npx prisma db seed   # Popular dados demo
 
 ## Roadmap
 
-Estado atual: entregas concluidas ate a **Phase 36**, com dark theme global, cadastro de cartoes separando emissor + bandeira, cards de fatura tematizados por banco emissor, wishlist com conversao em compra e agora o ecossistema completo de parcelamento do cartao com adiantamento manual de parcelas. Tambem foi aplicado um polish visual pos-Phase 36 em formularios de transacoes, wishlist e recorrencias, padronizando o azul de acao e o datepicker.
+Estado atual: entregas concluidas ate a **Phase 37**, com redesign completo de `/categories`, novo layout de header + stats + cards com collapse de subcategorias, dark theme global, cadastro de cartoes separando emissor + bandeira, cards de fatura tematizados por banco emissor, wishlist com conversao em compra e ecossistema completo de parcelamento do cartao com adiantamento manual de parcelas. Tambem foi aplicado um polish visual pos-Phase 36 em formularios de transacoes, wishlist e recorrencias.
 
 ### Phases concluidas
 
@@ -639,6 +639,7 @@ Estado atual: entregas concluidas ate a **Phase 36**, com dark theme global, cad
 - [x] Phase 34: Credit Card Issuer Network And Brand Themed Statements
 - [x] Phase 35: Wishlist Module And Purchase Conversion
 - [x] Phase 36: Credit Card Installment Ecosystem And Installment Advance
+- [x] Phase 37: Categories Page Redesign
 
 ### Phases abertas
 
@@ -646,9 +647,9 @@ Estado atual: entregas concluidas ate a **Phase 36**, com dark theme global, cad
 
 ### Proximo passo recomendado
 
+- [ ] Fazer a rodada de validacao visual/manual do redesign de `/categories` (collapse/expand, busca, icones, cores, dark mode)
 - [ ] Formalizar a proxima phase do backlog com **Import/export CSV**, agora considerando compras parceladas, parcelas adiantadas e lookup por compra de cartao
-- [ ] Fazer a rodada de validacao visual/manual do novo fluxo em `/transactions`, `/credit-cards`, `/credit-card-purchases/[id]`, `/wishlist` e `/recurring`
-- [ ] Avaliar evolucao futura do dominio para recorrencias em cartao e importacao automatica de compras parceladas
+- [ ] Ou avançar para **PWA / responsivo mobile** focando em adaptacao de layouts para telas menores
 
 ### Backlog de produto
 
