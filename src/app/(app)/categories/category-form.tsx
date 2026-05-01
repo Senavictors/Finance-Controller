@@ -37,14 +37,15 @@ type CategoryFormProps = {
   categories: Category[]
   open?: boolean
   onOpenChange?: (open: boolean) => void
+  defaultType?: 'INCOME' | 'EXPENSE'
 }
 
-export function CategoryForm({ category, categories, open, onOpenChange }: CategoryFormProps) {
+export function CategoryForm({ category, categories, open, onOpenChange, defaultType }: CategoryFormProps) {
   const router = useRouter()
   const [internalOpen, setInternalOpen] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
-  const [selectedType, setSelectedType] = useState(category?.type ?? 'EXPENSE')
+  const [selectedType, setSelectedType] = useState(category?.type ?? defaultType ?? 'EXPENSE')
   const [brandKey, setBrandKey] = useState<string | null>(category?.icon ?? null)
   const [color, setColor] = useState<string>(category?.color ?? '#3b82f6')
 
