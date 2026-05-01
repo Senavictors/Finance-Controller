@@ -7,6 +7,26 @@ and this project adheres to [Conventional Commits](https://www.conventionalcommi
 
 ## [Unreleased]
 
+## [Phase 39] — 2026-05-01
+
+### Added
+
+- Phase 39: novo componente `src/app/(app)/transactions/transaction-stats.tsx` com 4 cards de resumo (Receitas, Despesas, Saldo do período, Total de transações) calculados server-side via `prisma.transaction.groupBy`
+- Phase 39: tabela HTML completa em `src/app/(app)/transactions/transaction-table.tsx` com 6 colunas (Data, Descrição, Categoria, Conta, Valor, Ações) em substituição à lista de cards anterior
+- Phase 39: botão de editar inline por linha com bloqueio em transferências e compras parceladas de cartao (API nao permite edicao)
+- Phase 39: suporte a modo de edição em `src/app/(app)/transactions/transaction-form.tsx` com prop opcional `transaction?: EditTransaction` e controle externo via `open`/`onOpenChange`
+- Phase 39: formulário agora submete PATCH em modo edição ao invés de POST
+- Phase 39: header redesenhado em `/transactions` com titulo, subtitulo descritivo e filtros polidos
+- Phase 39: responsividade mobile em `transaction-table.tsx` com reorganização em bloco layout para viewports estreitos (390px+)
+
+### Changed
+
+- Phase 39: `src/app/(app)/transactions/page.tsx` refatorado para renderizar `TransactionStats` no topo, aplicar `groupBy` para agregacoes server-side, serializar datas e adicionar subtitulo descritivo
+- Phase 39: `src/app/(app)/transactions/transaction-filters.tsx` atualizado com design cosmético melhorado (selects arredondados, search com ícone de lupa, controle via useState)
+- Phase 39: `src/components/layout/app-shell.tsx` corrigido para adicionar `bg-sidebar` no SheetContent, melhorando consistência de cor no sidebar mobile
+
+---
+
 ## [Phase 37] — 2026-04-30
 
 ### Added

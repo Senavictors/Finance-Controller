@@ -8,6 +8,7 @@ import { redirect } from 'next/navigation'
 import { TransactionTable } from './transaction-table'
 import { TransactionFilters } from './transaction-filters'
 import { TransactionForm } from './transaction-form'
+import { TransactionStats } from './transaction-stats'
 import { Pagination } from './pagination'
 import { ArrowLeftRight } from 'lucide-react'
 
@@ -38,7 +39,7 @@ export default async function TransactionsPage({ searchParams }: Props) {
     ...(q ? { description: { contains: q, mode: 'insensitive' as const } } : {}),
   }
 
-  const [transactions, total, accounts, categories] = await Promise.all([
+  const [transactions, total, accounts, categories, typeStats] = await Promise.all([
     prisma.transaction.findMany({
       where,
       include: {
@@ -74,16 +75,52 @@ export default async function TransactionsPage({ searchParams }: Props) {
       select: { id: true, name: true, type: true, color: true, icon: true },
       orderBy: { name: 'asc' },
     }),
+    prisma.transaction.groupBy({
+      by: ['type'],
+      where,
+      _sum: { amount: true },
+      _count: { _all: true },
+    }),
   ])
 
+  const incomeRow = typeStats.find((r) => r.type === 'INCOME')
+  const expenseRow = typeStats.find((r) => r.type === 'EXPENSE')
+  const totalIncome = incomeRow?._sum.amount ?? 0
+  const totalExpense = expenseRow?._sum.amount ?? 0
+  const incomeCount = incomeRow?._count._all ?? 0
+  const expenseCount = expenseRow?._count._all ?? 0
+  const balance = totalIncome - totalExpense
+
   const totalPages = Math.ceil(total / limit)
+
+  const serializedTransactions = transactions.map((tx) => ({
+    ...tx,
+    date: tx.date.toISOString(),
+    creditCardStatement: tx.creditCardStatement
+      ? { ...tx.creditCardStatement, dueDate: tx.creditCardStatement.dueDate.toISOString() }
+      : null,
+  }))
 
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-semibold tracking-tight">Transações</h1>
+        <div>
+          <h1 className="text-2xl font-semibold tracking-tight">Transações</h1>
+          <p className="text-muted-foreground mt-1 text-sm">
+            Acompanhe e gerencie todas as suas movimentações financeiras.
+          </p>
+        </div>
         <TransactionForm accounts={accounts} categories={categories} />
       </div>
+
+      <TransactionStats
+        totalIncome={totalIncome}
+        totalExpense={totalExpense}
+        balance={balance}
+        totalCount={total}
+        incomeCount={incomeCount}
+        expenseCount={expenseCount}
+      />
 
       <TransactionFilters accounts={accounts} categories={categories} />
 
@@ -101,7 +138,11 @@ export default async function TransactionsPage({ searchParams }: Props) {
         </div>
       ) : (
         <div className="border-border/50 bg-card rounded-2xl border shadow-sm">
-          <TransactionTable transactions={transactions} />
+          <TransactionTable
+            transactions={serializedTransactions}
+            accounts={accounts}
+            categories={categories}
+          />
           {totalPages > 1 && (
             <div className="border-border/50 border-t p-4">
               <Pagination currentPage={page} totalPages={totalPages} />

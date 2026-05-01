@@ -9,8 +9,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { useCallback } from 'react'
+import { useCallback, useState } from 'react'
 import { BrandDot } from '@/lib/brands'
+import { Search } from 'lucide-react'
 
 type FilterOption = {
   id: string
@@ -43,6 +44,8 @@ export function TransactionFilters({ accounts, categories }: Props) {
     [router, pathname, searchParams],
   )
 
+  const [searchValue, setSearchValue] = useState(searchParams.get('q') ?? '')
+
   const accountItems: Record<string, string> = {
     all: 'Todas as contas',
     ...Object.fromEntries(accounts.map((a) => [a.id, a.name])),
@@ -53,13 +56,13 @@ export function TransactionFilters({ accounts, categories }: Props) {
   }
 
   return (
-    <div className="bg-card flex flex-wrap items-center gap-3 rounded-lg border p-3 shadow-sm">
+    <div className="bg-card border-border/50 flex flex-wrap items-center gap-2 rounded-2xl border px-4 py-3 shadow-sm">
       <Select
         items={accountItems}
         defaultValue={searchParams.get('accountId') ?? 'all'}
         onValueChange={(v) => updateParam('accountId', v)}
       >
-        <SelectTrigger className="w-[180px]">
+        <SelectTrigger className="h-8 w-[160px] rounded-full text-sm">
           <SelectValue placeholder="Todas as contas" />
         </SelectTrigger>
         <SelectContent>
@@ -86,7 +89,7 @@ export function TransactionFilters({ accounts, categories }: Props) {
         defaultValue={searchParams.get('categoryId') ?? 'all'}
         onValueChange={(v) => updateParam('categoryId', v)}
       >
-        <SelectTrigger className="w-[180px]">
+        <SelectTrigger className="h-8 w-[170px] rounded-full text-sm">
           <SelectValue placeholder="Todas as categorias" />
         </SelectTrigger>
         <SelectContent>
@@ -108,17 +111,21 @@ export function TransactionFilters({ accounts, categories }: Props) {
         </SelectContent>
       </Select>
 
-      <Input
-        placeholder="Buscar descrição..."
-        defaultValue={searchParams.get('q') ?? ''}
-        className="w-[200px]"
-        onChange={(e) => {
-          const value = e.target.value
-          if (value.length === 0 || value.length >= 2) {
-            updateParam('q', value || null)
-          }
-        }}
-      />
+      <div className="relative flex-1 min-w-[180px]">
+        <Search className="text-muted-foreground absolute top-1/2 left-3 size-3.5 -translate-y-1/2" />
+        <Input
+          placeholder="Buscar descrição, categoria ou conta..."
+          value={searchValue}
+          className="h-8 rounded-full pl-8 text-sm"
+          onChange={(e) => {
+            const value = e.target.value
+            setSearchValue(value)
+            if (value.length === 0 || value.length >= 2) {
+              updateParam('q', value || null)
+            }
+          }}
+        />
+      </div>
     </div>
   )
 }

@@ -598,7 +598,7 @@ npx prisma db seed   # Popular dados demo
 
 ## Roadmap
 
-Estado atual: entregas concluidas ate a **Phase 37**, com redesign completo de `/categories`, novo layout de header + stats + cards com collapse de subcategorias, dark theme global, cadastro de cartoes separando emissor + bandeira, cards de fatura tematizados por banco emissor, wishlist com conversao em compra e ecossistema completo de parcelamento do cartao com adiantamento manual de parcelas. Tambem foi aplicado um polish visual pos-Phase 36 em formularios de transacoes, wishlist e recorrencias.
+Estado atual: entregas concluidas ate a **Phase 39**, com redesign completo de `/transactions` (tabela + 4 cards de stats + edição inline), redesign de `/categories` (header + stats + collapse de subcategorias), dark theme global, cadastro de cartoes separando emissor + bandeira, cards de fatura tematizados por banco emissor, wishlist com conversao em compra e ecossistema completo de parcelamento do cartao com adiantamento manual de parcelas. Tambem foi aplicado um polish visual pos-Phase 36 em formularios de transacoes, wishlist e recorrencias.
 
 ### Phases concluidas
 
@@ -640,6 +640,8 @@ Estado atual: entregas concluidas ate a **Phase 37**, com redesign completo de `
 - [x] Phase 35: Wishlist Module And Purchase Conversion
 - [x] Phase 36: Credit Card Installment Ecosystem And Installment Advance
 - [x] Phase 37: Categories Page Redesign
+- [x] Phase 38: (Reserved)
+- [x] Phase 39: Transactions Page Redesign
 
 ### Phases abertas
 
@@ -647,9 +649,9 @@ Estado atual: entregas concluidas ate a **Phase 37**, com redesign completo de `
 
 ### Proximo passo recomendado
 
-- [ ] Fazer a rodada de validacao visual/manual do redesign de `/categories` (collapse/expand, busca, icones, cores, dark mode)
 - [ ] Formalizar a proxima phase do backlog com **Import/export CSV**, agora considerando compras parceladas, parcelas adiantadas e lookup por compra de cartao
-- [ ] Ou avançar para **PWA / responsivo mobile** focando em adaptacao de layouts para telas menores
+- [ ] Ou avançar para **PWA / responsivo mobile** focando em adaptacao de layouts para telas menores e validacao visual completa do dark mode em todas as paginas
+- [ ] Rodada de validacao visual/manual geral (dark mode, acessibilidade, performance em todas as paginas)
 
 ### Backlog de produto
 
