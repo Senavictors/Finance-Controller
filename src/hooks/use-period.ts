@@ -1,7 +1,9 @@
 'use client'
 
 import { useSearchParams, useRouter, usePathname } from 'next/navigation'
-import { useCallback, useMemo } from 'react'
+import { useCallback, useEffect, useMemo } from 'react'
+
+const PERIOD_ENABLED_PATHS = ['/dashboard', '/transactions', '/goals']
 
 export function usePeriod() {
   const searchParams = useSearchParams()
@@ -9,6 +11,7 @@ export function usePeriod() {
   const pathname = usePathname()
 
   const monthParam = searchParams.get('month')
+  const isPeriodPage = PERIOD_ENABLED_PATHS.some((p) => pathname.startsWith(p))
 
   const { year, month } = useMemo(() => {
     if (monthParam && /^\d{4}-\d{2}$/.test(monthParam)) {
@@ -26,6 +29,13 @@ export function usePeriod() {
 
   const startDate = useMemo(() => new Date(year, month - 1, 1), [year, month])
   const endDate = useMemo(() => new Date(year, month, 0, 23, 59, 59, 999), [year, month])
+
+  useEffect(() => {
+    if (!isPeriodPage || monthParam) return
+    const params = new URLSearchParams(searchParams.toString())
+    params.set('month', `${year}-${String(month).padStart(2, '0')}`)
+    router.replace(`${pathname}?${params.toString()}`)
+  }, [isPeriodPage, monthParam, year, month, searchParams, router, pathname])
 
   const setMonth = useCallback(
     (y: number, m: number) => {
