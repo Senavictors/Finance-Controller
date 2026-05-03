@@ -51,7 +51,7 @@ const metricOptions = [
   { value: 'SAVING', label: 'Meta de Economia' },
   { value: 'EXPENSE_LIMIT', label: 'Limite de Gasto' },
   { value: 'INCOME_TARGET', label: 'Meta de Receita' },
-  { value: 'ACCOUNT_LIMIT', label: 'Limite de Conta/Cartao' },
+  { value: 'ACCOUNT_LIMIT', label: 'Limite de Conta/Cartão' },
 ]
 
 const metricDescriptions: Record<string, string> = {

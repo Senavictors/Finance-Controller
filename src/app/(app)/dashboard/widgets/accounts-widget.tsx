@@ -46,7 +46,7 @@ export function AccountsWidget({ data }: { data: DashboardData }) {
       <div className="relative overflow-hidden rounded-[2rem] bg-slate-950 p-5 text-white shadow-xl dark:bg-slate-900">
         <div className="absolute top-1/2 right-[20%] size-24 -translate-y-1/2 rounded-full border border-white/10" />
         <div className="relative">
-          <p className="text-xs font-medium text-white/60">Patrimonio</p>
+          <p className="text-xs font-medium text-white/60">Patrimônio</p>
           <p className="mt-2 text-xl font-medium tracking-tight text-white">
             {formatCurrency(totalBalance)}
           </p>

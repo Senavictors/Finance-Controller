@@ -47,8 +47,8 @@ type AccountFormProps = {
 const accountTypes = [
   { value: 'WALLET', label: 'Carteira' },
   { value: 'CHECKING', label: 'Conta Corrente' },
-  { value: 'SAVINGS', label: 'Poupanca' },
-  { value: 'CREDIT_CARD', label: 'Cartao de Credito' },
+  { value: 'SAVINGS', label: 'Poupança' },
+  { value: 'CREDIT_CARD', label: 'Cartão de Credito' },
   { value: 'INVESTMENT', label: 'Investimento' },
   { value: 'OTHER', label: 'Outro' },
 ]
@@ -226,8 +226,8 @@ export function AccountForm({ account, open, onOpenChange }: AccountFormProps) {
                 </div>
               </div>
               <p className="text-muted-foreground text-xs">
-                O sistema usara esses dias para criar e agrupar automaticamente as faturas do
-                cartao.
+                O sistema usará esses dias para criar e agrupar automaticamente as faturas do
+                cartão.
               </p>
             </>
           )}
@@ -237,7 +237,7 @@ export function AccountForm({ account, open, onOpenChange }: AccountFormProps) {
               <div className="flex flex-col gap-1.5">
                 <Label>Banco emissor (opcional)</Label>
                 <p className="text-muted-foreground text-xs">
-                  Define a instituicao do cartao e a identidade visual principal nas faturas.
+                  Define a instituição do cartão e a identidade visual principal nas faturas.
                 </p>
                 <BrandPicker
                   value={issuerBrandKey}
@@ -251,7 +251,7 @@ export function AccountForm({ account, open, onOpenChange }: AccountFormProps) {
               <div className="flex flex-col gap-1.5">
                 <Label>Bandeira (opcional)</Label>
                 <p className="text-muted-foreground text-xs">
-                  Escolha a rede do cartao, como Visa, Mastercard, Elo ou American Express.
+                  Escolha a rede do cartão, como Visa, Mastercard, Elo ou American Express.
                 </p>
                 <BrandPicker
                   value={networkBrandKey}

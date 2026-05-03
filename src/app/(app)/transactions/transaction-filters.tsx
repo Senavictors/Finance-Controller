@@ -89,7 +89,7 @@ export function TransactionFilters({ accounts, categories }: Props) {
         defaultValue={searchParams.get('categoryId') ?? 'all'}
         onValueChange={(v) => updateParam('categoryId', v)}
       >
-        <SelectTrigger className="h-8 w-[170px] rounded-full text-sm">
+        <SelectTrigger className="h-8 w-[180px] rounded-full text-sm">
           <SelectValue placeholder="Todas as categorias" />
         </SelectTrigger>
         <SelectContent>

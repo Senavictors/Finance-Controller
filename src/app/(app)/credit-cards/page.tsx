@@ -113,10 +113,10 @@ export default async function CreditCardsPage() {
             <CreditCard className="text-muted-foreground size-6" />
           </div>
           <p className="text-muted-foreground mt-4 text-sm font-medium">
-            Nenhum cartao de credito configurado
+            Nenhum cartão de crédito configurado
           </p>
           <p className="text-muted-foreground/60 mt-1 text-xs">
-            Crie ou edite uma conta do tipo cartao para habilitar o billing.
+            Crie ou edite uma conta do tipo cartão para habilitar o billing.
           </p>
         </div>
       ) : (
@@ -172,7 +172,7 @@ export default async function CreditCardsPage() {
 
             <Card className="ring-border/60 rounded-[1.5rem] shadow-sm">
               <CardHeader>
-                <CardTitle>Ultima fatura paga</CardTitle>
+                <CardTitle>Última fatura paga</CardTitle>
               </CardHeader>
               <CardContent>
                 {latestPaidStatement ? (
@@ -324,7 +324,7 @@ export default async function CreditCardsPage() {
 
           <Card className="ring-border/60 rounded-[1.5rem] shadow-sm">
             <CardHeader>
-              <CardTitle>Historico de Faturas</CardTitle>
+              <CardTitle>Histórico de Faturas</CardTitle>
             </CardHeader>
             <CardContent>
               {statements.length === 0 ? (
@@ -335,7 +335,7 @@ export default async function CreditCardsPage() {
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead>Cartao</TableHead>
+                      <TableHead>Cartão</TableHead>
                       <TableHead>Período</TableHead>
                       <TableHead>Vencimento</TableHead>
                       <TableHead>Status</TableHead>

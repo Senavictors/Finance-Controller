@@ -32,13 +32,13 @@ export function BalanceWidget({ data }: { data: DashboardData }) {
       <div className="relative flex h-full flex-col justify-between">
         <div>
           <h1 className="text-foreground text-2xl leading-[1.1] font-medium tracking-tight lg:text-3xl">
-            Ola, {data.userName}.
+            Olá, {data.userName}.
             <br />
             <span className="text-muted-foreground">Seu resumo financeiro.</span>
           </h1>
         </div>
         <div>
-          <p className="text-muted-foreground mb-1 text-sm">Saldo do mes</p>
+          <p className="text-muted-foreground mb-1 text-sm">Saldo do mês</p>
           <div className="flex items-baseline gap-3">
             <span className="text-foreground text-2xl font-semibold tracking-tight">
               {formatCurrency(balance)}
@@ -47,7 +47,7 @@ export function BalanceWidget({ data }: { data: DashboardData }) {
               value={Math.round((data.incomeVariation - data.expenseVariation) * 10) / 10}
             />
           </div>
-          <p className="text-muted-foreground mt-1 text-xs">vs. mes anterior</p>
+          <p className="text-muted-foreground mt-1 text-xs">vs. mês anterior</p>
         </div>
       </div>
     </div>

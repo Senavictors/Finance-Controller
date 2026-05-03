@@ -32,8 +32,8 @@ type Account = {
 const typeLabels: Record<string, string> = {
   WALLET: 'Carteira',
   CHECKING: 'Corrente',
-  SAVINGS: 'Poupanca',
-  CREDIT_CARD: 'Cartao',
+  SAVINGS: 'Poupança',
+  CREDIT_CARD: 'Cartão',
   INVESTMENT: 'Investimento',
   OTHER: 'Outro',
 }

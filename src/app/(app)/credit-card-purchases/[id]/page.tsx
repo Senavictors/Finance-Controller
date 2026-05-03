@@ -64,7 +64,7 @@ export default async function CreditCardPurchaseDetailPage({ params }: Props) {
           <div className="mt-3 flex flex-wrap gap-2">
             <BrandChip
               brandKey={purchase.account.icon}
-              fallbackLabel="Cartao"
+              fallbackLabel="Cartão"
               fallbackText={purchase.account.name}
               fallbackColor={purchase.account.color}
             />

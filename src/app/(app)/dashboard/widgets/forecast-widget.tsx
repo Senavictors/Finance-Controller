@@ -36,7 +36,7 @@ export function ForecastWidget({ data }: { data: DashboardData }) {
   return (
     <div className="fc-panel-subtle flex h-full flex-col p-5">
       <div className="mb-3 flex items-center justify-between">
-        <h3 className="text-muted-foreground text-sm font-medium">Previsao do mes</h3>
+        <h3 className="text-muted-foreground text-sm font-medium">Previsão do mês</h3>
         <span
           className={cn('rounded-full px-2 py-0.5 text-[10px] font-medium', riskClasses[riskLevel])}
         >
