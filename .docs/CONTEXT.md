@@ -4,9 +4,17 @@
 
 ## Current Phase
 
+**Phase 40 — Wishlist Redesign + Image Upload** — Concluida. Cards da wishlist redesenhados com área de imagem 4:3 no topo (placeholder com ícone quando sem foto). Upload de imagem por item: endpoint `POST /api/wishlist/upload` (multipart/form-data, valida MIME e tamanho 5 MB, salva em `public/uploads/wishlist/`). Campo `imageUrl` adicionado ao model `WishlistItem` (Prisma schema + `db push` + `generate`). Fluxo no form: preview local via `URL.createObjectURL`, upload separado antes do PATCH/POST principal, botões Trocar/Remover no hover da imagem. Restrições exibidas na UI: JPG, PNG, WebP ou AVIF · Máx. 5 MB. `next.config.ts` configurado com `localPatterns` para `/uploads/wishlist/**`.
+
+## Previous Phase
+
 **Phase 39 — Transactions Page Redesign** — Concluida. O layout de `/transactions` foi completamente reformulado com novo header com titulo e subtitulo descritivo, nova tabela HTML com 6 colunas (Data, Descrição, Categoria, Conta, Valor, Ações) substituindo a lista de cards anterior, 4 cards de sumário no topo (Receitas, Despesas, Saldo do período, Total de transações) calculados server-side via `groupBy`, botão de editar inline por linha (bloqueado para transferências e compras parceladas), formulário de transação agora com controle externo via props `transaction?`/`open`/`onOpenChange` submete PATCH para edição, filtros com design cosmético melhorado (selects arredondados, search com ícone de lupa, controlado com useState), e responsividade mobile com reorganização para bloco layout em viewports estreitos. Novo componente: `transaction-stats.tsx` (4 cards de sumário). Componentes modificados: `transaction-table.tsx` (rewrite completo), `transaction-form.tsx` (suporte a modo edição), `transaction-filters.tsx` (cosmético), `page.tsx` (stats + serialização de datas), `app-shell.tsx` (fix cor de fundo de sidebar mobile). Schema e APIs intocados.
 
 ## Next Planned Step
+
+**Import/export CSV** ou **PWA / responsivo mobile**. Para a wishlist: considerar migrar storage para Vercel Blob caso o deploy seja em ambiente stateless (Vercel). Limpeza de imagens órfãs (itens deletados não removem o arquivo físico) é um débito técnico a endereçar.
+
+## Next Planned Step (anterior)
 
 **Formalizar a proxima phase do backlog de produto** — com prioridade natural para `Import/export CSV`, ja considerando lookup por `CreditCardPurchase`, parcelas futuras e parcelas adiantadas no export/import, ou avançar para um novo modulo como `PWA / responsivo mobile` focando em adaptacao de layouts para telas menores e validacao visual completa do dark mode em todas as paginas.
 

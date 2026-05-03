@@ -265,6 +265,7 @@ const wishlistItemBaseSchema = z.object({
   categoryId: z.string().nullable().optional(),
   desiredPrice: z.number().int().positive('Preco desejado deve ser positivo'),
   productUrl: z.url('Link do produto invalido').nullable().optional(),
+  imageUrl: z.string().nullable().optional(),
   priority: wishlistPriorityEnum.default('MEDIUM'),
   status: wishlistStatusEnum.default('DESIRED'),
   desiredPurchaseDate: z.coerce.date().nullable().optional(),

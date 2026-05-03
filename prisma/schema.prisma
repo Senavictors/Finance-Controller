@@ -397,6 +397,7 @@ model WishlistItem {
   desiredPrice          Int                  @map("desired_price")
   paidPrice             Int?                 @map("paid_price")
   productUrl            String?              @map("product_url")
+  imageUrl              String?              @map("image_url")
   priority              WishlistItemPriority @default(MEDIUM)
   status                WishlistItemStatus   @default(DESIRED)
   desiredPurchaseDate   DateTime?            @map("desired_purchase_date")

@@ -70,6 +70,7 @@ function toWishlistListItem(
     desiredPrice: item.desiredPrice,
     paidPrice: item.paidPrice,
     productUrl: item.productUrl,
+    imageUrl: item.imageUrl,
     priority: item.priority,
     status: item.status,
     desiredPurchaseDate: item.desiredPurchaseDate,
@@ -205,6 +206,7 @@ export async function createWishlistItem(input: CreateWishlistItemInput, userId:
       categoryId: input.categoryId ?? null,
       desiredPrice: input.desiredPrice,
       productUrl: trimOrNull(input.productUrl),
+      imageUrl: trimOrNull(input.imageUrl),
       priority: input.priority,
       status: input.status,
       desiredPurchaseDate: input.desiredPurchaseDate ?? null,
@@ -233,6 +235,7 @@ export async function updateWishlistItem(
       ...(input.categoryId !== undefined ? { categoryId: input.categoryId } : {}),
       ...(input.desiredPrice !== undefined ? { desiredPrice: input.desiredPrice } : {}),
       ...(input.productUrl !== undefined ? { productUrl: trimOrNull(input.productUrl) } : {}),
+      ...(input.imageUrl !== undefined ? { imageUrl: trimOrNull(input.imageUrl) } : {}),
       ...(input.priority !== undefined ? { priority: input.priority } : {}),
       ...(input.status !== undefined ? { status: input.status } : {}),
       ...(input.desiredPurchaseDate !== undefined

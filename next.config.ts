@@ -1,7 +1,13 @@
 import type { NextConfig } from 'next'
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  images: {
+    localPatterns: [
+      {
+        pathname: '/uploads/wishlist/**',
+      },
+    ],
+  },
 }
 
 export default nextConfig

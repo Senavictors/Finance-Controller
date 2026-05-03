@@ -1,8 +1,9 @@
 'use client'
 
-import { useEffect, useMemo, useState } from 'react'
+import Image from 'next/image'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { Plus } from 'lucide-react'
+import { Camera, Plus, X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import {
   Dialog,
@@ -36,6 +37,7 @@ type WishlistItem = {
   categoryId: string | null
   desiredPrice: number
   productUrl: string | null
+  imageUrl: string | null
   priority: 'LOW' | 'MEDIUM' | 'HIGH'
   status: 'DESIRED' | 'MONITORING' | 'READY_TO_BUY' | 'CANCELED' | 'PURCHASED'
   desiredPurchaseDate: Date | string | null
@@ -61,6 +63,9 @@ const statusOptions = [
   { value: 'CANCELED', label: 'Cancelado' },
 ]
 
+const ACCEPTED_MIME = 'image/jpeg,image/png,image/webp,image/avif'
+const MAX_FILE_SIZE = 5 * 1024 * 1024
+
 function formatDateInput(date?: Date | string | null) {
   if (!date) return ''
   return new Date(date).toISOString().split('T')[0]
@@ -72,6 +77,8 @@ function sortCategories(categories: WishlistCategory[]) {
 
 export function WishlistForm({ categories, item, open, onOpenChange }: WishlistFormProps) {
   const router = useRouter()
+  const fileInputRef = useRef<HTMLInputElement>(null)
+
   const [internalOpen, setInternalOpen] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
@@ -85,6 +92,12 @@ export function WishlistForm({ categories, item, open, onOpenChange }: WishlistF
     item?.status && item.status !== 'PURCHASED' ? item.status : 'DESIRED',
   )
   const [newCategoryName, setNewCategoryName] = useState('')
+
+  // Image state
+  const [imageFile, setImageFile] = useState<File | null>(null)
+  const [imagePreview, setImagePreview] = useState<string | null>(item?.imageUrl ?? null)
+  const [imageRemoved, setImageRemoved] = useState(false)
+  const [uploadingImage, setUploadingImage] = useState(false)
 
   const isControlled = open !== undefined
   const isOpen = isControlled ? open : internalOpen
@@ -101,7 +114,17 @@ export function WishlistForm({ categories, item, open, onOpenChange }: WishlistF
     setPriority(item?.priority ?? 'MEDIUM')
     setStatus(item?.status && item.status !== 'PURCHASED' ? item.status : 'DESIRED')
     setNewCategoryName('')
-  }, [item?.categoryId, item?.priority, item?.status, isOpen])
+    setImageFile(null)
+    setImagePreview(item?.imageUrl ?? null)
+    setImageRemoved(false)
+  }, [item?.categoryId, item?.priority, item?.status, item?.imageUrl, isOpen])
+
+  // Revoke object URL on unmount or when file changes
+  useEffect(() => {
+    return () => {
+      if (imageFile) URL.revokeObjectURL(imagePreview ?? '')
+    }
+  }, [imageFile, imagePreview])
 
   const categoryItems = useMemo(
     () => ({
@@ -110,6 +133,44 @@ export function WishlistForm({ categories, item, open, onOpenChange }: WishlistF
     }),
     [categoriesState],
   )
+
+  function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    if (file.size > MAX_FILE_SIZE) {
+      setError('Imagem muito grande. Tamanho máximo: 5 MB.')
+      e.target.value = ''
+      return
+    }
+
+    setError(null)
+    setImageFile(file)
+    setImageRemoved(false)
+    const objectUrl = URL.createObjectURL(file)
+    setImagePreview(objectUrl)
+  }
+
+  function handleRemoveImage() {
+    setImageFile(null)
+    setImagePreview(null)
+    setImageRemoved(true)
+    if (fileInputRef.current) fileInputRef.current.value = ''
+  }
+
+  async function uploadImage(file: File): Promise<string> {
+    setUploadingImage(true)
+    try {
+      const formData = new FormData()
+      formData.append('file', file)
+      const res = await fetch('/api/wishlist/upload', { method: 'POST', body: formData })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error ?? 'Erro ao enviar imagem')
+      return data.url as string
+    } finally {
+      setUploadingImage(false)
+    }
+  }
 
   async function handleCreateCategory() {
     const name = newCategoryName.trim()
@@ -150,18 +211,32 @@ export function WishlistForm({ categories, item, open, onOpenChange }: WishlistF
     setError(null)
     setLoading(true)
 
-    const formData = new FormData(e.currentTarget)
-    const body = {
-      name: formData.get('name') as string,
-      categoryId: selectedCategoryId === 'none' ? null : selectedCategoryId,
-      desiredPrice: parseMoneyToCents(formData.get('desiredPrice') as string),
-      productUrl: ((formData.get('productUrl') as string) || '').trim() || null,
-      priority,
-      status,
-      desiredPurchaseDate: ((formData.get('desiredPurchaseDate') as string) || '').trim() || null,
-    }
+    const formElement = e.currentTarget
 
     try {
+      let resolvedImageUrl: string | null | undefined = undefined
+
+      if (imageFile) {
+        resolvedImageUrl = await uploadImage(imageFile)
+      } else if (imageRemoved) {
+        resolvedImageUrl = null
+      }
+
+      const formData = new FormData(formElement)
+      const body: Record<string, unknown> = {
+        name: formData.get('name') as string,
+        categoryId: selectedCategoryId === 'none' ? null : selectedCategoryId,
+        desiredPrice: parseMoneyToCents(formData.get('desiredPrice') as string),
+        productUrl: ((formData.get('productUrl') as string) || '').trim() || null,
+        priority,
+        status,
+        desiredPurchaseDate: ((formData.get('desiredPurchaseDate') as string) || '').trim() || null,
+      }
+
+      if (resolvedImageUrl !== undefined) {
+        body.imageUrl = resolvedImageUrl
+      }
+
       const url = isEdit ? `/api/wishlist/items/${item.id}` : '/api/wishlist/items'
       const method = isEdit ? 'PATCH' : 'POST'
 
@@ -179,8 +254,8 @@ export function WishlistForm({ categories, item, open, onOpenChange }: WishlistF
 
       setIsOpen(false)
       router.refresh()
-    } catch {
-      setError('Algo deu errado. Tente novamente.')
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Algo deu errado. Tente novamente.')
     } finally {
       setLoading(false)
     }
@@ -200,6 +275,8 @@ export function WishlistForm({ categories, item, open, onOpenChange }: WishlistF
     </DialogTrigger>
   ) : null
 
+  const isBusy = loading || uploadingImage
+
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       {trigger}
@@ -215,6 +292,63 @@ export function WishlistForm({ categories, item, open, onOpenChange }: WishlistF
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           {error && <p className="text-destructive text-sm">{error}</p>}
+
+          {/* Image upload */}
+          <div className="flex flex-col gap-1.5">
+            <Label>Imagem do produto (opcional)</Label>
+
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept={ACCEPTED_MIME}
+              className="hidden"
+              onChange={handleFileChange}
+            />
+
+            {imagePreview ? (
+              <div className="group relative aspect-[4/3] w-full overflow-hidden rounded-2xl border bg-muted">
+                <Image
+                  src={imagePreview}
+                  alt="Preview"
+                  fill
+                  className="object-cover"
+                  sizes="(max-width: 640px) 100vw, 512px"
+                  unoptimized={imagePreview.startsWith('blob:')}
+                />
+                <div className="absolute inset-0 flex items-center justify-center gap-2 bg-black/0 transition-colors group-hover:bg-black/30">
+                  <button
+                    type="button"
+                    onClick={() => fileInputRef.current?.click()}
+                    className="flex items-center gap-1.5 rounded-full bg-background/90 px-3 py-1.5 text-xs font-medium opacity-0 shadow transition-opacity group-hover:opacity-100"
+                  >
+                    <Camera className="size-3.5" />
+                    Trocar
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleRemoveImage}
+                    className="flex items-center gap-1.5 rounded-full bg-destructive/90 px-3 py-1.5 text-xs font-medium text-white opacity-0 shadow transition-opacity group-hover:opacity-100"
+                  >
+                    <X className="size-3.5" />
+                    Remover
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <button
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                className="flex aspect-[4/3] w-full flex-col items-center justify-center gap-2 rounded-2xl border border-dashed bg-muted/40 text-muted-foreground transition-colors hover:bg-muted/70"
+              >
+                <Camera className="size-8" />
+                <span className="text-sm">Clique para adicionar uma foto</span>
+              </button>
+            )}
+
+            <p className="text-muted-foreground text-xs">
+              JPG, PNG, WebP ou AVIF · Máx. 5 MB
+            </p>
+          </div>
 
           <div className="flex flex-col gap-1.5">
             <Label htmlFor="name">Nome do produto</Label>
@@ -349,10 +483,10 @@ export function WishlistForm({ categories, item, open, onOpenChange }: WishlistF
           <Button
             type="submit"
             variant={isEdit ? 'save' : 'action'}
-            disabled={loading}
+            disabled={isBusy}
             className="w-full"
           >
-            {loading ? 'Salvando...' : isEdit ? 'Salvar alterações' : 'Criar item'}
+            {uploadingImage ? 'Enviando imagem...' : loading ? 'Salvando...' : isEdit ? 'Salvar alterações' : 'Criar item'}
           </Button>
         </form>
       </DialogContent>

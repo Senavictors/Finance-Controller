@@ -1,9 +1,18 @@
 'use client'
 
+import Image from 'next/image'
 import Link from 'next/link'
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { CalendarDays, ExternalLink, Pencil, Receipt, ShoppingCart, Trash2 } from 'lucide-react'
+import {
+  CalendarDays,
+  ExternalLink,
+  Pencil,
+  Receipt,
+  ShoppingBag,
+  ShoppingCart,
+  Trash2,
+} from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -40,6 +49,7 @@ type WishlistItem = {
   desiredPrice: number
   paidPrice: number | null
   productUrl: string | null
+  imageUrl: string | null
   priority: 'LOW' | 'MEDIUM' | 'HIGH'
   status: 'DESIRED' | 'MONITORING' | 'READY_TO_BUY' | 'PURCHASED' | 'CANCELED'
   desiredPurchaseDate: Date | string | null
@@ -142,99 +152,109 @@ export function WishlistCard({ item, categories, accounts, expenseCategories }: 
     : null
 
   return (
-    <Card className="fc-panel-strong rounded-[1.75rem]">
-      <CardHeader className="pb-3">
-        <div className="flex items-start justify-between gap-3">
+    <Card
+      className={cn(
+        'fc-panel-strong overflow-hidden rounded-[1.75rem] p-0',
+        item.status === 'PURCHASED' && 'ring-2 ring-emerald-500/30',
+      )}
+    >
+      {/* Product image area */}
+      <div className="group relative aspect-video w-full overflow-hidden rounded-t-[1.75rem] bg-muted">
+        {item.imageUrl ? (
+          <Image
+            src={item.imageUrl}
+            alt={item.name}
+            fill
+            className="object-cover"
+            sizes="(max-width: 640px) 100vw, (max-width: 1280px) 50vw, 25vw"
+          />
+        ) : (
+          <div className="flex h-full w-full items-center justify-center">
+            <ShoppingBag className="size-8 text-muted-foreground/30" />
+          </div>
+        )}
+
+        {canEdit && (
+          <button
+            type="button"
+            onClick={() => setEditOpen(true)}
+            className="absolute right-2 top-2 flex size-7 items-center justify-center rounded-full bg-background/80 opacity-0 shadow transition-opacity group-hover:opacity-100"
+            aria-label="Editar item"
+          >
+            <Pencil className="size-3.5 text-foreground" />
+          </button>
+        )}
+      </div>
+
+      <CardHeader className="px-4 pb-2 pt-3">
+        <div className="flex items-start justify-between gap-2">
           <div className="min-w-0 flex-1">
-            <CardTitle className="truncate text-base">{item.name}</CardTitle>
-            <p className="text-muted-foreground mt-1 text-xs">
+            <CardTitle className="truncate text-sm font-semibold">{item.name}</CardTitle>
+            <p className="text-muted-foreground mt-0.5 text-xs">
               {item.category?.name ?? 'Sem categoria'}
             </p>
           </div>
 
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-0.5">
             {canEdit && (
-              <Button
-                variant="ghost"
-                size="icon"
-                className="size-8"
-                onClick={() => setEditOpen(true)}
-              >
-                <Pencil className="size-4" />
+              <Button variant="ghost" size="icon" className="size-7" onClick={() => setEditOpen(true)}>
+                <Pencil className="size-3.5" />
               </Button>
             )}
             <Button
               variant="ghost"
               size="icon"
-              className="text-muted-foreground hover:text-destructive size-8"
+              className="text-muted-foreground hover:text-destructive size-7"
               disabled={deleting}
               onClick={handleDelete}
             >
-              <Trash2 className="size-4" />
+              <Trash2 className="size-3.5" />
             </Button>
           </div>
         </div>
 
-        <div className="flex flex-wrap items-center gap-2 pt-2">
-          <Badge variant="outline" className={cn('border-transparent', statusClasses[item.status])}>
+        <div className="flex flex-wrap items-center gap-1.5 pt-1.5">
+          <Badge variant="outline" className={cn('border-transparent text-[11px]', statusClasses[item.status])}>
             {statusLabels[item.status]}
           </Badge>
-          <Badge
-            variant="outline"
-            className={cn('border-transparent', priorityClasses[item.priority])}
-          >
-            Prioridade {priorityLabels[item.priority]}
+          <Badge variant="outline" className={cn('border-transparent text-[11px]', priorityClasses[item.priority])}>
+            {priorityLabels[item.priority]}
           </Badge>
         </div>
       </CardHeader>
 
-      <CardContent className="space-y-4">
-        <div className="grid gap-3 sm:grid-cols-2">
-          <div className="bg-background/70 rounded-2xl border p-3">
-            <p className="text-muted-foreground text-xs">Preço desejado</p>
-            <p className="mt-1 text-lg font-semibold">{formatCurrency(item.desiredPrice)}</p>
+      <CardContent className="space-y-3 px-4 pb-4">
+        <div className="grid grid-cols-2 gap-2">
+          <div className="bg-background/70 rounded-xl border p-2">
+            <p className="text-muted-foreground text-[11px]">Desejado</p>
+            <p className="mt-0.5 text-sm font-semibold">{formatCurrency(item.desiredPrice)}</p>
           </div>
-
-          <div className="bg-background/70 rounded-2xl border p-3">
-            <p className="text-muted-foreground text-xs">Preço pago</p>
-            <p className="mt-1 text-lg font-semibold">
-              {item.paidPrice != null ? formatCurrency(item.paidPrice) : 'Ainda não comprado'}
+          <div className="bg-background/70 rounded-xl border p-2">
+            <p className="text-muted-foreground text-[11px]">Pago</p>
+            <p className="mt-0.5 text-sm font-semibold">
+              {item.paidPrice != null ? formatCurrency(item.paidPrice) : '—'}
             </p>
           </div>
         </div>
 
-        <div className="space-y-2 text-sm">
-          <div className="text-muted-foreground flex items-center gap-2">
-            <CalendarDays className="size-4" />
-            <span>
-              Data desejada:{' '}
-              <span className="text-foreground">
-                {item.desiredPurchaseDate ? formatDate(item.desiredPurchaseDate) : 'Nao definida'}
-              </span>
-            </span>
-          </div>
-
-          <div className="text-muted-foreground flex items-center gap-2">
-            <Receipt className="size-4" />
-            <span>
-              Compra efetiva:{' '}
-              <span className="text-foreground">
-                {item.purchasedAt ? formatDate(item.purchasedAt) : 'Pendente'}
-              </span>
-            </span>
-          </div>
+        <div className="text-muted-foreground flex items-center gap-1.5 text-xs">
+          <CalendarDays className="size-3.5 shrink-0" />
+          <span>
+            {item.desiredPurchaseDate ? formatDate(item.desiredPurchaseDate) : 'Sem data definida'}
+          </span>
         </div>
 
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-wrap gap-1.5">
           {item.productUrl && (
             <Button
               nativeButton={false}
               variant="choice"
               size="sm"
+              className="h-7 text-xs"
               render={<a href={item.productUrl} target="_blank" rel="noreferrer" />}
             >
-              <ExternalLink className="mr-1.5 size-4" />
-              Abrir produto
+              <ExternalLink className="mr-1 size-3.5" />
+              Abrir
             </Button>
           )}
 
@@ -243,10 +263,11 @@ export function WishlistCard({ item, categories, accounts, expenseCategories }: 
               nativeButton={false}
               variant="outline"
               size="sm"
+              className="h-7 text-xs"
               render={<Link href={transactionHref} />}
             >
-              <Receipt className="mr-1.5 size-4" />
-              Ver transação
+              <Receipt className="mr-1 size-3.5" />
+              Transação
             </Button>
           )}
 
@@ -255,16 +276,17 @@ export function WishlistCard({ item, categories, accounts, expenseCategories }: 
               nativeButton={false}
               variant="choice"
               size="sm"
+              className="h-7 text-xs"
               render={<Link href={creditCardPurchaseHref} />}
             >
-              <Receipt className="mr-1.5 size-4" />
-              Ver compra parcelada
+              <Receipt className="mr-1 size-3.5" />
+              Parcelado
             </Button>
           )}
 
           {canPurchase && (
-            <Button variant="action" size="sm" onClick={() => setPurchaseOpen(true)}>
-              <ShoppingCart className="mr-1.5 size-4" />
+            <Button variant="action" size="sm" className="h-7 text-xs" onClick={() => setPurchaseOpen(true)}>
+              <ShoppingCart className="mr-1 size-3.5" />
               Comprar
             </Button>
           )}

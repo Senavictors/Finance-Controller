@@ -16,15 +16,6 @@ type Props = {
   searchParams: Promise<Record<string, string | string[] | undefined>>
 }
 
-const statusOrder = ['READY_TO_BUY', 'MONITORING', 'DESIRED', 'PURCHASED', 'CANCELED'] as const
-
-const statusLabels: Record<(typeof statusOrder)[number], string> = {
-  READY_TO_BUY: 'Pronto para comprar',
-  MONITORING: 'Monitorando',
-  DESIRED: 'Desejado',
-  PURCHASED: 'Comprado',
-  CANCELED: 'Cancelado',
-}
 
 export default async function WishlistPage({ searchParams }: Props) {
   const session = await validateSession()
@@ -90,30 +81,16 @@ export default async function WishlistPage({ searchParams }: Props) {
           </p>
         </div>
       ) : (
-        <div className="space-y-6">
-          {statusOrder.map((status) => {
-            const sectionItems = items.filter((item) => item.status === status)
-            if (sectionItems.length === 0) return null
-
-            return (
-              <section key={status}>
-                <h2 className="text-muted-foreground mb-3 text-sm font-medium tracking-wide uppercase">
-                  {statusLabels[status]} ({sectionItems.length})
-                </h2>
-                <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-                  {sectionItems.map((item) => (
-                    <WishlistCard
-                      key={item.id}
-                      item={item}
-                      categories={wishlistCategories}
-                      accounts={accounts}
-                      expenseCategories={expenseCategories}
-                    />
-                  ))}
-                </div>
-              </section>
-            )
-          })}
+        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
+          {items.map((item) => (
+            <WishlistCard
+              key={item.id}
+              item={item}
+              categories={wishlistCategories}
+              accounts={accounts}
+              expenseCategories={expenseCategories}
+            />
+          ))}
         </div>
       )}
     </div>
