@@ -189,7 +189,7 @@ export function WishlistCard({ item, categories, accounts, expenseCategories }: 
       <CardHeader className="px-4 pb-2 pt-3">
         <div className="flex items-start justify-between gap-2">
           <div className="min-w-0 flex-1">
-            <CardTitle className="truncate text-sm font-semibold">{item.name}</CardTitle>
+            <CardTitle className="line-clamp-2 text-sm font-semibold leading-snug">{item.name}</CardTitle>
             <p className="text-muted-foreground mt-0.5 text-xs">
               {item.category?.name ?? 'Sem categoria'}
             </p>
