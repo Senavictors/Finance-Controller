@@ -72,7 +72,7 @@ export default async function TransactionsPage({ searchParams }: Props) {
     }),
     prisma.category.findMany({
       where: { userId: session.userId },
-      select: { id: true, name: true, type: true, color: true, icon: true },
+      select: { id: true, name: true, type: true, color: true, icon: true, parentId: true },
       orderBy: { name: 'asc' },
     }),
     prisma.transaction.groupBy({

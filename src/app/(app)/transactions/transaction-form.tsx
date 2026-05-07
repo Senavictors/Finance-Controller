@@ -40,6 +40,7 @@ type Category = {
   type: string
   color?: string | null
   icon?: string | null
+  parentId?: string | null
 }
 
 export type EditTransaction = {
