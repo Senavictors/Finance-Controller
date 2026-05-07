@@ -86,6 +86,10 @@ export function CategoryForm({
 
   const hasParentOptions = parentOptions.length > 0
 
+  const parentItems: Record<string, string> = Object.fromEntries(
+    parentOptions.map((p) => [p.id, p.name]),
+  )
+
   const typeItems: Record<string, string> = { INCOME: 'Receita', EXPENSE: 'Despesa' }
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
@@ -193,6 +197,7 @@ export function CategoryForm({
               ) : (
                 <Select
                   name="parentId"
+                  items={parentItems}
                   value={selectedParentId}
                   onValueChange={(v) => setSelectedParentId(v ?? '')}
                   required

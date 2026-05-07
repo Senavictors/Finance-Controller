@@ -36,7 +36,7 @@ export function CategoryDonutWidget({ data }: { data: DashboardData }) {
               </PieChart>
             </ResponsiveContainer>
           </div>
-          <div className="flex min-h-0 w-full min-w-0 flex-1 flex-col gap-2 overflow-y-auto pr-1">
+          <div className="flex min-h-0 w-full min-w-0 flex-1 flex-col gap-2 overflow-y-auto pr-1" style={{ maxHeight: 200 }}>
             {expensesByCategory.map((cat) => (
               <div key={cat.name} className="flex items-center justify-between gap-3">
                 <div className="flex min-w-0 flex-1 items-center gap-2">
