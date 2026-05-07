@@ -111,8 +111,9 @@ function TransactionRow({
     day: '2-digit',
     month: '2-digit',
     year: 'numeric',
+    timeZone: 'UTC',
   })
-  const weekdayLabel = date.toLocaleDateString('pt-BR', { weekday: 'short' })
+  const weekdayLabel = date.toLocaleDateString('pt-BR', { weekday: 'short', timeZone: 'UTC' })
 
   async function handleDelete() {
     const isInstallmentPurchase = (tx.creditCardPurchaseInstallment?.purchase.installmentCount ?? 0) > 0

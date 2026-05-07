@@ -1,5 +1,13 @@
 import { z } from 'zod'
 
+// Converts a YYYY-MM-DD string to a Date anchored at noon UTC, avoiding
+// timezone shifts when users in UTC-3 (Brazil) send date-only strings.
+const localDateSchema = (message = 'Data invalida') =>
+  z
+    .string({ message })
+    .regex(/^\d{4}-\d{2}-\d{2}$/, message)
+    .transform((s) => new Date(`${s}T12:00:00.000Z`))
+
 // ── Account ──────────────────────────────────────────────
 
 export const createAccountSchema = z
@@ -99,7 +107,7 @@ const creditCardPaymentModeEnum = z.enum(['SINGLE', 'INSTALLMENT'], {
 
 const transactionBaseSchema = z.object({
   amount: z.number().int().positive('Valor deve ser positivo'),
-  date: z.coerce.date({ message: 'Data invalida' }),
+  date: localDateSchema(),
   description: z.string().min(1, 'Descricao obrigatoria').max(255),
   categoryId: z.string().optional(),
   accountId: z.string({ error: 'Conta obrigatoria' }),
@@ -165,7 +173,7 @@ export type TransactionQuery = z.infer<typeof transactionQuerySchema>
 export const createTransferSchema = z
   .object({
     amount: z.number().int().positive('Valor deve ser positivo'),
-    date: z.coerce.date({ message: 'Data invalida' }),
+    date: localDateSchema(),
     description: z.string().min(1, 'Descricao obrigatoria').max(255),
     sourceAccountId: z.string({ error: 'Conta de origem obrigatoria' }),
     destinationAccountId: z.string({ error: 'Conta de destino obrigatoria' }),
@@ -181,7 +189,7 @@ export type CreateTransferInput = z.infer<typeof createTransferSchema>
 export const createCreditCardPaymentSchema = z.object({
   sourceAccountId: z.string({ error: 'Conta de origem obrigatoria' }),
   amount: z.number().int().positive('Valor deve ser positivo'),
-  date: z.coerce.date({ message: 'Data invalida' }),
+  date: localDateSchema(),
   description: z.string().min(1, 'Descricao obrigatoria').max(255),
   notes: z.string().max(1000).optional(),
 })

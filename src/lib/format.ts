@@ -11,5 +11,5 @@ export function parseCents(reais: string): number {
 }
 
 export function formatDate(date: Date | string): string {
-  return new Date(date).toLocaleDateString('pt-BR')
+  return new Date(date).toLocaleDateString('pt-BR', { timeZone: 'UTC' })
 }
