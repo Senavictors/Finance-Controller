@@ -72,7 +72,7 @@ export function CategoryForm({
   const isChildMode = effectiveMode === 'child'
 
   const [selectedType, setSelectedType] = useState(category?.type ?? defaultType ?? 'EXPENSE')
-  const [selectedParentId, setSelectedParentId] = useState<string>(category?.parentId ?? 'none')
+  const [selectedParentId, setSelectedParentId] = useState<string>(category?.parentId ?? '')
   const [brandKey, setBrandKey] = useState<string | null>(category?.icon ?? null)
   const [color, setColor] = useState<string>(category?.color ?? '#3b82f6')
 
@@ -102,7 +102,7 @@ export function CategoryForm({
     }
 
     if (isChildMode) {
-      if (!selectedParentId || selectedParentId === 'none') {
+      if (!selectedParentId) {
         setError('Selecione uma categoria pai')
         setLoading(false)
         return
@@ -194,7 +194,7 @@ export function CategoryForm({
                 <Select
                   name="parentId"
                   value={selectedParentId}
-                  onValueChange={(v) => setSelectedParentId(v ?? 'none')}
+                  onValueChange={(v) => setSelectedParentId(v ?? '')}
                   required
                 >
                   <SelectTrigger>
