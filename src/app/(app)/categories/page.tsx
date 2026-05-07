@@ -23,7 +23,10 @@ export default async function CategoriesPage() {
             Gerencie suas categorias de receitas e despesas de forma organizada.
           </p>
         </div>
-        <CategoryForm categories={categories} />
+        <div className="flex items-center gap-2">
+          <CategoryForm categories={categories} mode="child" />
+          <CategoryForm categories={categories} mode="parent" />
+        </div>
       </div>
 
       <CategoriesContent categories={categories} />

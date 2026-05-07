@@ -94,6 +94,11 @@ export const updateCategorySchema = z.object({
 
 export const categoryQuerySchema = z.object({
   type: z.enum(['INCOME', 'EXPENSE']).optional(),
+  rootOnly: z
+    .string()
+    .optional()
+    .transform((v) => v === 'true'),
+  parentId: z.string().optional(),
 })
 
 export type CreateCategoryInput = z.infer<typeof createCategorySchema>

@@ -5,10 +5,11 @@ import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { CategoryList } from './category-list'
 import { CategoryForm } from './category-form'
-import { Plus, MoreVertical, ArrowRight, TrendingUp, TrendingDown } from 'lucide-react'
+import { Plus, MoreVertical, ArrowRight, TrendingUp, TrendingDown, Layers } from 'lucide-react'
 import {
   DropdownMenu,
   DropdownMenuContent,
+  DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { cn } from '@/lib/utils'
@@ -59,6 +60,7 @@ export function CategoryListCard({
 }: Props) {
   const [open, setOpen] = useState(false)
   const [addOpen, setAddOpen] = useState(false)
+  const [addChildOpen, setAddChildOpen] = useState(false)
 
   const config = sectionConfig[sectionType]
   const SectionIcon = config.icon
@@ -95,22 +97,25 @@ export function CategoryListCard({
         </div>
 
         <div className="flex items-center gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            className={cn('gap-1.5', config.addButtonClass)}
-            onClick={() => setAddOpen(true)}
-          >
-            <Plus className="size-3.5" />
-            Adicionar
-          </Button>
           <DropdownMenu>
             <DropdownMenuTrigger
-              render={<Button variant="ghost" size="icon-xs" className="rounded-full" />}
+              render={
+                <Button variant="outline" size="sm" className={cn('gap-1.5', config.addButtonClass)} />
+              }
             >
-              <MoreVertical className="size-4" />
+              <Plus className="size-3.5" />
+              Adicionar
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end"></DropdownMenuContent>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem onClick={() => setAddOpen(true)}>
+                <Plus className="mr-2 size-3.5" />
+                Nova Categoria
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setAddChildOpen(true)}>
+                <Layers className="mr-2 size-3.5" />
+                Nova Subcategoria
+              </DropdownMenuItem>
+            </DropdownMenuContent>
           </DropdownMenu>
         </div>
       </div>
@@ -128,16 +133,28 @@ export function CategoryListCard({
 
       {/* Footer */}
       <div className="border-border/40 flex items-center justify-between border-t px-5 py-3">
-        <button
-          onClick={() => setAddOpen(true)}
-          className={cn(
-            'flex items-center gap-1.5 text-xs font-medium transition-colors',
-            config.footerLinkClass,
-          )}
-        >
-          <Plus className="size-3.5" />
-          {config.addLabel}
-        </button>
+        <div className="flex items-center gap-3">
+          <button
+            onClick={() => setAddOpen(true)}
+            className={cn(
+              'flex items-center gap-1.5 text-xs font-medium transition-colors',
+              config.footerLinkClass,
+            )}
+          >
+            <Plus className="size-3.5" />
+            {config.addLabel}
+          </button>
+          <button
+            onClick={() => setAddChildOpen(true)}
+            className={cn(
+              'flex items-center gap-1.5 text-xs font-medium transition-colors',
+              config.footerLinkClass,
+            )}
+          >
+            <Layers className="size-3.5" />
+            Subcategoria
+          </button>
+        </div>
 
         {showMore && (
           <button
@@ -155,6 +172,14 @@ export function CategoryListCard({
         onOpenChange={setAddOpen}
         categories={allCategories}
         defaultType={sectionType}
+        mode="parent"
+      />
+      <CategoryForm
+        open={addChildOpen}
+        onOpenChange={setAddChildOpen}
+        categories={allCategories}
+        defaultType={sectionType}
+        mode="child"
       />
 
       <Dialog open={open} onOpenChange={setOpen}>

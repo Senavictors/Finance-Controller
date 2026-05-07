@@ -642,14 +642,18 @@ Estado atual: entregas concluidas ate a **Phase 39**, com redesign completo de `
 - [x] Phase 37: Categories Page Redesign
 - [x] Phase 38: (Reserved)
 - [x] Phase 39: Transactions Page Redesign
+- [x] Phase 40: Wishlist Redesign + Image Upload per Item
 
 ### Phases abertas
 
-- [ ] Proxima phase a formalizar a partir do backlog de produto
+- [ ] **Phase 41**: Hierarquia de Categorias (Pai/Filho) — seletor em 2 etapas nos formulários, fluxo separado de cadastro pai/subcategoria, nenhuma migração de banco necessária
+- [ ] **Fix — Fuso Horário**: transações cadastradas com data X aparecem como X-1 dia na listagem (UTC vs America/Sao_Paulo); task em `.docs/tasks/phase-41b-timezone-fix.md`
 
 ### Proximo passo recomendado
 
-- [ ] Formalizar a proxima phase do backlog com **Import/export CSV**, agora considerando compras parceladas, parcelas adiantadas e lookup por compra de cartao
+- [ ] Corrigir **fuso horário em transações** (task em `.docs/tasks/phase-41b-timezone-fix.md`) — bug visível ao usuário, baixo esforço
+- [ ] Implementar **Phase 41 — Hierarquia de Categorias** (task em `.docs/tasks/phase-41-category-hierarchy-ux.md`)
+- [ ] Ou avançar para **Import/export CSV**, considerando compras parceladas, parcelas adiantadas e lookup por compra de cartão
 - [ ] Ou avançar para **PWA / responsivo mobile** focando em adaptacao de layouts para telas menores e validacao visual completa do dark mode em todas as paginas
 - [ ] Rodada de validacao visual/manual geral (dark mode, acessibilidade, performance em todas as paginas)
 

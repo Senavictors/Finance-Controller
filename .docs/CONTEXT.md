@@ -12,7 +12,7 @@
 
 ## Next Planned Step
 
-**Import/export CSV** ou **PWA / responsivo mobile**. Para a wishlist: considerar migrar storage para Vercel Blob caso o deploy seja em ambiente stateless (Vercel). Limpeza de imagens órfãs (itens deletados não removem o arquivo físico) é um débito técnico a endereçar.
+**Phase 41 — Hierarquia de Categorias (Pai/Filho)** — Task formalizada em `.docs/tasks/phase-41-category-hierarchy-ux.md`. Seletor em 2 etapas (pai → filho) nos formulários de transação, metas e recorrências. Fluxo separado de cadastro para categoria pai vs subcategoria. Nenhuma migração de banco necessária (schema já tem `parentId`). Para a wishlist: débito técnico de limpeza de imagens órfãs ao deletar itens.
 
 ## Next Planned Step (anterior)
 

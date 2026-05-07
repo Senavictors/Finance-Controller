@@ -25,6 +25,7 @@ import {
 } from '@/components/ui/select'
 import { Plus } from 'lucide-react'
 import { BrandDot } from '@/lib/brands'
+import { CategoryPicker } from '@/components/category-picker'
 
 type Account = {
   id: string
@@ -79,7 +80,6 @@ export function TransactionForm({ accounts, categories, transaction, open: exter
   const [paymentMode, setPaymentMode] = useState<'SINGLE' | 'INSTALLMENT'>('SINGLE')
   const [installmentCount, setInstallmentCount] = useState(2)
 
-  const filteredCategories = categories.filter((c) => c.type === txType)
   const selectedAccount = useMemo(
     () => accounts.find((a) => a.id === selectedAccountId) ?? null,
     [accounts, selectedAccountId],
@@ -91,11 +91,6 @@ export function TransactionForm({ accounts, categories, transaction, open: exter
     selectedAccount?.type === 'CREDIT_CARD'
 
   const accountItems: Record<string, string> = Object.fromEntries(accounts.map((a) => [a.id, a.name]))
-  const categoryItems: Record<string, string> = {
-    none: 'Nenhuma',
-    ...Object.fromEntries(filteredCategories.map((c) => [c.id, c.name])),
-  }
-
   function handleOpenChange(v: boolean) {
     if (isControlled) {
       externalOnOpenChange?.(v)
@@ -153,7 +148,7 @@ export function TransactionForm({ accounts, categories, transaction, open: exter
             description: formData.get('description'),
             accountId: selectedAccountId,
             type: txType,
-            categoryId: categoryId === 'none' ? null : categoryId,
+            categoryId: !categoryId || categoryId === 'none' ? null : categoryId,
             notes: (formData.get('notes') as string) || undefined,
           }),
         })
@@ -181,7 +176,7 @@ export function TransactionForm({ accounts, categories, transaction, open: exter
             description: formData.get('description'),
             accountId: selectedAccountId,
             type: txType,
-            categoryId: categoryId === 'none' ? undefined : categoryId,
+            categoryId: !categoryId || categoryId === 'none' ? undefined : categoryId,
             notes: (formData.get('notes') as string) || undefined,
             paymentMode: isCreditCardExpense ? paymentMode : 'SINGLE',
             installmentCount: isCreditCardExpense
@@ -380,29 +375,13 @@ export function TransactionForm({ accounts, categories, transaction, open: exter
             )}
 
             <div className="flex flex-col gap-1.5">
-              <Label htmlFor="categoryId">Categoria (opcional)</Label>
-              <Select name="categoryId" defaultValue={defaultCategoryId} items={categoryItems}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Nenhuma" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="none">Nenhuma</SelectItem>
-                  {filteredCategories.map((c) => (
-                    <SelectItem key={c.id} value={c.id}>
-                      <span className="flex items-center gap-2">
-                        <BrandDot
-                          brandKey={c.icon}
-                          fallbackText={c.name}
-                          fallbackColor={c.color}
-                          fallbackLabel={c.name}
-                          size={14}
-                        />
-                        {c.name}
-                      </span>
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <Label>Categoria (opcional)</Label>
+              <CategoryPicker
+                categories={categories}
+                type={txType}
+                name="categoryId"
+                defaultValue={defaultCategoryId === 'none' ? null : defaultCategoryId}
+              />
             </div>
           </>
         )}

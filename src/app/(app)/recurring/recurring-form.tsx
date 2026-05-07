@@ -25,6 +25,7 @@ import {
 } from '@/components/ui/select'
 import { Plus } from 'lucide-react'
 import { BrandDot } from '@/lib/brands'
+import { CategoryPicker } from '@/components/category-picker'
 
 type Account = { id: string; name: string; color?: string | null; icon?: string | null }
 type Category = {
@@ -91,15 +92,9 @@ export function RecurringForm({ accounts, categories, rule, open, onOpenChange }
   const setIsOpen = isControlled ? onOpenChange! : setInternalOpen
   const isEdit = !!rule
 
-  const filteredCategories = categories.filter((c) => c.type === txType)
-
   const accountItems: Record<string, string> = Object.fromEntries(
     accounts.map((a) => [a.id, a.name]),
   )
-  const categoryItems: Record<string, string> = {
-    none: 'Nenhuma',
-    ...Object.fromEntries(filteredCategories.map((c) => [c.id, c.name])),
-  }
   const frequencyItems: Record<string, string> = Object.fromEntries(
     frequencies.map((f) => [f.value, f.label]),
   )
@@ -125,7 +120,7 @@ export function RecurringForm({ accounts, categories, rule, open, onOpenChange }
       notes: (fd.get('notes') as string) || undefined,
       frequency: freq,
       startDate: fd.get('startDate'),
-      categoryId: categoryId === 'none' ? null : categoryId || undefined,
+      categoryId: !categoryId || categoryId === 'none' ? null : categoryId,
       dayOfMonth:
         freq === 'MONTHLY' || freq === 'YEARLY' ? parseInt(dayOfMonth) || undefined : undefined,
       dayOfWeek: freq === 'WEEKLY' ? parseInt(dayOfWeek) || undefined : undefined,
@@ -248,33 +243,13 @@ export function RecurringForm({ accounts, categories, rule, open, onOpenChange }
           </div>
 
           <div className="flex flex-col gap-1.5">
-            <Label htmlFor="categoryId">Categoria (opcional)</Label>
-            <Select
+            <Label>Categoria (opcional)</Label>
+            <CategoryPicker
+              categories={categories}
+              type={txType}
               name="categoryId"
-              items={categoryItems}
-              defaultValue={rule?.categoryId ?? 'none'}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Nenhuma" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="none">Nenhuma</SelectItem>
-                {filteredCategories.map((c) => (
-                  <SelectItem key={c.id} value={c.id}>
-                    <span className="flex items-center gap-2">
-                      <BrandDot
-                        brandKey={c.icon}
-                        fallbackText={c.name}
-                        fallbackColor={c.color}
-                        fallbackLabel={c.name}
-                        size={14}
-                      />
-                      {c.name}
-                    </span>
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+              defaultValue={rule?.categoryId ?? null}
+            />
           </div>
 
           <div className="flex gap-3">

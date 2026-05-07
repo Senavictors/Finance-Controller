@@ -13,10 +13,18 @@ export async function GET(request: NextRequest) {
 
     const query = Object.fromEntries(request.nextUrl.searchParams)
     const parsed = categoryQuerySchema.safeParse(query)
-    const typeFilter = parsed.success && parsed.data.type ? { type: parsed.data.type } : {}
+    const data = parsed.success ? parsed.data : null
+
+    const hierarchyFilter = data?.rootOnly
+      ? { parentId: null }
+      : data?.parentId
+        ? { parentId: data.parentId }
+        : {}
+
+    const typeFilter = data?.type ? { type: data.type } : {}
 
     const categories = await prisma.category.findMany({
-      where: { userId, ...typeFilter },
+      where: { userId, ...typeFilter, ...hierarchyFilter },
       include: {
         _count: { select: { children: true, transactions: true } },
       },
