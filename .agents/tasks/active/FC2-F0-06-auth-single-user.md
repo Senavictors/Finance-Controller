@@ -1,7 +1,7 @@
 ---
 id: FC2-F0-06
 title: Auth single-user com sessão longa renovável
-status: backlog
+status: active
 type: refactor
 phase: F0
 wave: 3

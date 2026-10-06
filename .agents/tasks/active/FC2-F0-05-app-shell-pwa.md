@@ -1,7 +1,7 @@
 ---
 id: FC2-F0-05
 title: App shell mobile-first + 5 destinos + PWA (iPhone 13 Pro)
-status: backlog
+status: active
 type: feature
 phase: F0
 wave: 3
