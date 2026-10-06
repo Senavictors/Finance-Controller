@@ -1,7 +1,7 @@
 ---
 id: FC2-F0-04
 title: Primitivos de UI dark glass
-status: backlog
+status: active
 type: feature
 phase: F0
 wave: 2
