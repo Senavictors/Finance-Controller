@@ -153,7 +153,7 @@ function DatePicker({
         <Popover.Positioner align="start" sideOffset={8} className="isolate z-[60]">
           <Popover.Popup
             className={cn(
-              'bg-popover text-popover-foreground ring-foreground/10 data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95 w-72 rounded-2xl p-3 shadow-xl ring-1 duration-100 outline-none',
+              'bg-popover text-popover-foreground ring-foreground/10 data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95 w-72 rounded-2xl p-3 shadow-xl ring-1 duration-(--fc-dur-fast) outline-none',
               'border-fc-iris/20 border',
             )}
           >

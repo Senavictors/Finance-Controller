@@ -1,7 +1,7 @@
 ---
 estado: planejado
 fonte: src/styles/tokens.css
-ultima-revisao: FC2-F0-04 2026-10-05
+ultima-revisao: FC2-F0-09 2026-10-05
 ---
 
 # Design system Dark Glass
@@ -19,7 +19,7 @@ Princípios:
 
 ## Regra "nenhuma cor literal"
 
-Componentes, telas e CSS de feature só referenciam `var(--fc-*)`. Proibido: `#fff`, `rgb()`, `hsl()` ou classes Tailwind de paleta (`text-red-500`) para cor, raio, sombra, blur e duração. Precisa de algo que não existe? Abre task, adiciona o token em `src/styles/tokens.css` e documenta aqui. Esta regra substitui a antiga "sem roxo / tema Apex" do 1.x (ADR-018). O guardrail de revisão (`qa-revisor`) busca literais nos diffs.
+Componentes, telas e CSS de feature só referenciam `var(--fc-*)`. Proibido: `#fff`, `rgb()`, `hsl()` ou classes Tailwind de paleta (`text-red-500`) para cor, raio, sombra, blur e duração. Precisa de algo que não existe? Abre task, adiciona o token em `src/styles/tokens.css` e documenta aqui. Esta regra substitui a antiga "sem roxo / tema Apex" do 1.x (ADR-018). O guardrail de revisão (`qa-revisor`) busca literais nos diffs e `tests/guards/no-literal-colors.test.ts` falha em cor, sombra nomeada e duração literais (detalhes e decisões em [`componentes.md`](componentes.md#regra-anti-cor-literal)).
 
 ## Tokens
 

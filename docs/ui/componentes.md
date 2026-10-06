@@ -1,7 +1,7 @@
 ---
 estado: vigente (primitivos da F0-04 implementados; TabBar, Fab, CardCarousel, InboxCard, Hero, StatusPill, Sparkline e gráficos seguem planejados)
 fonte: src/components/fc/
-ultima-revisao: FC2-F0-04 2026-10-05
+ultima-revisao: FC2-F0-09 2026-10-05
 ---
 
 # Catálogo de componentes
@@ -117,7 +117,23 @@ TabBar e Fab (F0-05), Hero (F3-04), StatusPill/Pill, CardCarousel, InboxCard com
 
 ## Regra anti-cor-literal
 
-`tests/guards/no-literal-colors.test.ts` varre `src/components/**` e `src/app/**` (ts, tsx, css) e falha em hex, `rgb(`/`hsl(`/`oklch(`, classes de paleta do Tailwind (`bg-slate-500`) e `white`/`black`/`transparent` como utilitário. Isentos: `src/lib/brands/**` (cor de marca é dado), `src/app/manifest.ts` e ícones PWA, `src/styles/tokens.css`. Exceção pontual: comentário `fc-allow-literal-color: motivo` na mesma linha (motivo obrigatório; máximo de 10 no repositório). Para "sem cor" use `border-fc-void/0`; em CSS puro `transparent` como parada de gradiente é permitido.
+`tests/guards/no-literal-colors.test.ts` (detector puro em `tests/guards/literal-colors.ts`) varre `src/components/**` e `src/app/**` (ts, tsx, css) e falha, com `arquivo:linha`, em:
+
+- hex, `rgb(`/`hsl(`/`oklch(`/`lab(`/`color(display-p3 ...)`, classes de paleta do Tailwind (`bg-slate-500`);
+- cores nomeadas do CSS (`red`, `white`, `darkslategray`...) em declaração (`color: red`, `border: 1px solid white`, `box-shadow: 0 0 4px black`, `boxShadow` inline), em valor arbitrário (`bg-[red]`, `shadow-[0_0_4px_black]`, `[color:red]`), dentro de `color-mix()` e em atributos SVG/ícone (`fill="white"`, `stroke="red"`, `color="red"`);
+- `white`/`black`/`transparent` como utilitário (`bg-white`, `border-transparent`) e `transparent` em string de estilo JS (`background: 'transparent'`);
+- alfa zero em token (`bg-fc-void/0`) fora da borda invisível;
+- durações literais: `duration-150`, `delay-75`, `duration-[250ms]`, `transition: opacity 200ms`, `animation-duration: 2s` (use `duration-(--fc-dur-fast|base|slow)` ou `var(--fc-dur-*)`; `0s` é aceito).
+
+Decisões:
+
+- **`transparent` em CSS puro é permitido** (paradas de gradiente, `border-right-color`, `-webkit-tap-highlight-color`, final de `color-mix()`): não é um valor de cor. Como utilitário Tailwind ou string JS continua proibido.
+- **Borda invisível**: para reservar 1px de layout (ex.: `focus-visible:border-ring` sem deslocar o conteúdo) use `border-fc-void/0` (ou `border-t-`/`border-l-`...). É a única forma de alfa zero aceita; qualquer outro `/0` em token é acusado. Pendência: token `--fc-clear` (ou equivalente) em `tokens.css` para substituir o idioma.
+- **Comentários e outras chaves na mesma linha não contam**: nas regras por região (cor nomeada em declaração, `color-mix()`, transição/animação) o guard ignora comentários `//` e `/* */` e avalia só o valor da própria chave: se o valor começa com aspas, o literal (e os concatenados com `+`); senão, até a próxima chave da linha. Assim `color: 'var(--fc-out)', // vermelho (red)` e `{ color: 'var(--fc-cat-1)', name: 'Coral' }` passam, e `color: 'red', // nota` continua acusado. Acesso a propriedade com nome de cor (`user.green`, `green.main`) não é cor. Hex e classes de paleta seguem acusados até em comentário (são buscados na linha inteira).
+- Um mesmo trecho é reportado uma vez só, mesmo quando duas regras o encontram.
+- **Âncoras não são hex**: `href="#abc"`, `to="#fee"`, `url(#grad)` e entidades (`&#add;`) são ignorados. `#abc` em qualquer outro lugar (`color: '#abc'`) segue sendo hex.
+- **Onde hex de cor pode existir**: o teste "hex de cor só existe onde a allowlist permite" varre `src/**` e `public/**` e só aceita hex em `src/styles/tokens.css`, `src/lib/brands/**` (cor de marca), `src/app/manifest.ts`, `src/app/icon*`, `src/app/apple-icon*`, `public/brands/**` e `public/icons/**`. Cada entrada de `ALLOWED_PATHS` carrega o motivo.
+- Exceção pontual: comentário `fc-allow-literal-color: motivo` na mesma linha (motivo obrigatório; máximo de 10 no repositório).
 
 ## Checklist para novo primitivo
 
