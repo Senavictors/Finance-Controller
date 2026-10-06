@@ -1,7 +1,7 @@
 ---
 id: FC2-F0-09
 title: Endurecer o guard de cores/estilos literais (achados da revisão da F0-04)
-status: backlog
+status: active
 type: chore
 phase: F0
 wave: 4
