@@ -1,0 +1,19 @@
+# Prettier tambem respeita o .gitignore (node_modules, .next, coverage, src/generated/prisma...).
+
+# Documentacao Markdown escrita e editada em paralelo por varios agentes: nao reformatar.
+.agents/
+docs/
+/*.md
+
+# Configuracao de ferramentas de agentes (Markdown/JSON/TOML editados por agentes)
+.claude/
+.codex/
+
+# Codigo gerado
+src/generated/
+
+# Fixtures: bytes exatos importam (OFX/CSV/JSON sinteticos); nao reformatar
+tests/fixtures/
+
+# Lockfile gerenciado pelo npm
+package-lock.json

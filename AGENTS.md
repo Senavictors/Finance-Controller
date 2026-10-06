@@ -88,17 +88,21 @@ Detalhe em `.claude/rules/global.md`.
 
 ```bash
 npm run dev            # next dev (localhost:3000)
-npm run build          # ATENÇÃO: roda "prisma migrate deploy && next build" — aplica migrations no banco do DATABASE_URL
+npm run build          # ATENÇÃO: roda "prisma migrate deploy && next build" — aplica migrations no banco do DATABASE_URL (uso: Vercel)
+npx next build         # build SEM migrate: use este para validar localmente e no CI
 npm run lint           # eslint
-npm test               # vitest run
+npm test               # vitest run (inclui os guards; TZ=America/Sao_Paulo)
+npm run test:coverage  # cobertura v8; mínimo 80% só para src/server/modules/**/domain/**
+npm run typecheck      # tsc --noEmit
+npm run guard:data     # guard de dados reais (CPF/CNPJ/conta/cartão/e-mail/telefone, nomes de fixtures)
 npm run format         # prettier --write .
-npm run format:check   # prettier --check .
+npm run format:check   # prettier --check . (espera working tree em LF; ver .gitattributes e tests/README.md)
 npx prisma migrate dev --name <nome>
 npx prisma generate    # também roda no postinstall
 npx prisma studio
 ```
 
-Ressalva: para validar build sem tocar o banco, use `npx next build` (sem migrate). O CI (`.github/workflows/ci.yml`) roda `npm ci`, `prisma generate`, `lint`, `format:check` e `build`.
+Ressalva: para validar build sem tocar o banco, use `npx next build` (sem migrate). O CI (`.github/workflows/ci.yml`) roda `npm ci`, `prisma generate`, `lint`, `format:check`, `typecheck`, `test`, `npx next build` (com `DATABASE_URL` fictício, sem migrate) e `guard:data`. O hook `.githooks/pre-commit` valida a identidade e roda o guard sobre os arquivos staged.
 
 ## Critérios de conclusão
 

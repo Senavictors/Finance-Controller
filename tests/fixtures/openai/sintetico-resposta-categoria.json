@@ -1,0 +1,17 @@
+{
+  "id": "resp-sintetico-1",
+  "object": "response",
+  "model": "modelo-exemplo",
+  "input_text": "uber 18 nubank",
+  "output": {
+    "description": "uber",
+    "amountCents": 1800,
+    "paymentMethodHint": "nubank",
+    "category": "Transporte",
+    "confidence": 0.93
+  },
+  "usage": {
+    "input_tokens": 12,
+    "output_tokens": 20
+  }
+}

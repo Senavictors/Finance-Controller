@@ -45,7 +45,6 @@ next-env.d.ts
 .vscode/
 *.swp
 *.swo
-design_system/
 
 # ---- Arquitetura de IA/Agentes (bootstrap) ----
 # Decisão de 2026-10-05: .agents/, docs/, .claude/, .codex/, AGENTS.md, CLAUDE.md e PLANS.md SÃO versionados.
@@ -56,10 +55,13 @@ design_system/
 
 # ---- Constituição: dados financeiros reais nunca entram no Git ----
 private/
+/imports/
 *.ofx
 *.qfx
+*.pdf
 extratos/
 faturas/
+# Excecao: fixtures sinteticas (prefixo sintetico-) em tests/fixtures
 !tests/fixtures/**
 
 # ---- Sempre ignorar, independente da decisão acima ----

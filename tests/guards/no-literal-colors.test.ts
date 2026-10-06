@@ -67,7 +67,7 @@ describe('no-literal-colors (RN-01, ADR-018)', () => {
 
 describe('no-literal-colors: detector contra a fixture negativa sintética', () => {
   const fixture = readFileSync(
-    join(ROOT, 'tests/fixtures/no-literal-colors/violations.tsx.txt'),
+    join(ROOT, 'tests/fixtures/no-literal-colors/sintetico-violations.tsx.txt'),
     'utf8',
   )
   const result = scanContent('src/components/fc/fixture.tsx', fixture)

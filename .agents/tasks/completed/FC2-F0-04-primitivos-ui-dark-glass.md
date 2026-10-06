@@ -123,7 +123,7 @@ A galeria não pode vazar em produção (CA-09). Nenhum dado real nas amostras: 
 ### Alterações realizadas
 - 18 primitivos em `src/components/fc/` (um arquivo por componente, `index.ts`, `fc.css` importado por `globals.css`), utilitários puros em `src/components/fc/lib/` com 13 testes.
 - Galeria `src/app/(dev)/ui/` (`page.tsx` com `notFound()` em produção + `gallery.tsx` client).
-- Guard `tests/guards/no-literal-colors.test.ts` + detector puro `tests/guards/literal-colors.ts` + fixture negativa sintética `tests/fixtures/no-literal-colors/violations.tsx.txt` (extensão `.txt` para não ser compilada/lintada).
+- Guard `tests/guards/no-literal-colors.test.ts` + detector puro `tests/guards/literal-colors.ts` + fixture negativa sintética `tests/fixtures/no-literal-colors/sintetico-violations.tsx.txt` (extensão `.txt` para não ser compilada/lintada).
 - Cores literais herdadas do shadcn removidas: `ui/button.tsx` (variantes `action`/`choice`/`choice-active`/`save` agora em tokens), `ui/date-picker.tsx`, overlays de `ui/dialog.tsx` e `ui/sheet.tsx` (`--fc-scrim`), e `transparent` em `badge`, `button`, `input`, `scroll-area`, `select`.
 - `tokens.css`: fallback `system-ui`/`ui-monospace` nas pilhas de fonte (e `src/styles/tokens.test.ts` ajustado ao novo texto).
 - Docs: `docs/ui/componentes.md` reescrito como catálogo implementado; referências `MoneyText` -> `AmountText`.

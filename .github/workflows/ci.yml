@@ -6,8 +6,11 @@ on:
   pull_request:
     branches: [main]
 
+permissions:
+  contents: read
+
 jobs:
-  build:
+  verify:
     runs-on: ubuntu-latest
 
     steps:
@@ -26,4 +29,16 @@ jobs:
 
       - run: npm run format:check
 
-      - run: npm run build
+      - run: npm run typecheck
+
+      # Inclui os guards (tests/guards) e a suite de dominio.
+      - run: npm test
+
+      # Build sem aplicar migrations: a URL e apenas um placeholder para o build nao quebrar
+      # na leitura da variavel. O CI nunca altera schema nem usa banco real (RN-04).
+      - run: npx next build
+        env:
+          DATABASE_URL: postgresql://ci:ci@localhost:5432/ci
+
+      # Barreira final contra dados reais (Constituicao).
+      - run: npm run guard:data

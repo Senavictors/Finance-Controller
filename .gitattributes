@@ -1,0 +1,24 @@
+# Finance Controller 2.0: working tree sempre em LF (Prettier e hooks bash esperam LF).
+# Vale sobre core.autocrlf do checkout Windows.
+* text=auto eol=lf
+
+# Scripts executados por bash/sh: LF obrigatorio (CRLF quebra o shebang)
+.githooks/* text eol=lf
+*.sh text eol=lf
+
+# Binarios: nunca converter
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.webp binary
+*.avif binary
+*.ico binary
+*.pdf binary
+*.woff binary
+*.woff2 binary
+*.ttf binary
+*.otf binary
+*.eot binary
+*.zip binary
+*.gz binary

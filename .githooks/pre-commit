@@ -15,3 +15,21 @@ if [ "$ACTUAL_NAME" != "$EXPECTED_NAME" ] || [ "$ACTUAL_EMAIL" != "$EXPECTED_EMA
   echo "  git config --local user.email \"$EXPECTED_EMAIL\""
   exit 1
 fi
+
+# --- Guard de dados reais (FC2-F0-07) -----------------------------------------------------------
+# Varre apenas os arquivos staged (conteudo do indice). Bloqueia CPF/CNPJ/cartao/conta/e-mail/
+# telefone e nomes fora do padrao em tests/fixtures. Corrija o dado; nao relaxe o detector.
+# Se ja houver hook do plugin bootstrap, ele continua valendo: este bloco nao o substitui.
+STAGED=$(git diff --cached --name-only --diff-filter=ACMR)
+if [ -n "$STAGED" ]; then
+  REPO_ROOT=$(git rev-parse --show-toplevel)
+  if [ ! -x "$REPO_ROOT/node_modules/.bin/tsx" ] && [ ! -f "$REPO_ROOT/node_modules/.bin/tsx.cmd" ]; then
+    echo "ERROR: guard de dados indisponivel (node_modules ausente). Rode 'npm ci' e tente de novo."
+    exit 1
+  fi
+  if ! (cd "$REPO_ROOT" && npm run --silent guard:data:staged); then
+    echo ""
+    echo "Commit bloqueado pelo guard de dados (Constituicao: dados reais fora do Git)."
+    exit 1
+  fi
+fi
