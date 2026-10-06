@@ -1,0 +1,132 @@
+/* =====================================================================
+   Finance Controller 2.0 — Design Tokens "Dark Glass"
+   Fonte única de verdade de cor, tipografia, raio, sombra, blur e motion.
+   ADR-018. Nenhum componente usa cor literal: sempre var(--fc-*).
+   Integração com Tailwind v4 (@theme) e shadcn: task FC2-F0-03.
+   ===================================================================== */
+
+:root {
+  color-scheme: dark;
+
+  /* ---------- Superfícies ---------- */
+  --fc-void: #04060b;                      /* fundo do app */
+  --fc-ink: #0a0f1a;                       /* superfície base (tela) */
+  --fc-ink-raised: #0e1424;                /* sheets, popovers sólidos */
+  --fc-glass: rgba(148, 170, 255, 0.065);  /* card de vidro */
+  --fc-glass-strong: rgba(148, 170, 255, 0.11);
+  --fc-glass-bar: rgba(14, 18, 32, 0.72);  /* tab bar / toolbars */
+  --fc-glass-sheet: rgba(16, 21, 38, 0.92);
+  --fc-rim: rgba(190, 205, 255, 0.12);     /* borda 1px do vidro */
+  --fc-divider: rgba(190, 205, 255, 0.07);
+  --fc-scrim: rgba(2, 4, 10, 0.55);
+
+  /* ---------- Texto ---------- */
+  --fc-text: #eef2ff;
+  --fc-text-2: rgba(222, 230, 255, 0.66);
+  --fc-text-3: rgba(222, 230, 255, 0.42);
+  --fc-text-on-accent: #0a0f1a;
+
+  /* ---------- Acento (ação, foco, seleção) ---------- */
+  --fc-iris: #8c9bff;
+  --fc-iris-hi: #c9d0ff;
+  --fc-iris-lo: #6f7dff;
+  --fc-iris-soft: rgba(140, 155, 255, 0.18);
+
+  /* ---------- Semântica financeira (fixa em todo o app) ---------- */
+  --fc-in: #42e6a4;        /* entrada / positivo */
+  --fc-out: #ff7a93;       /* saída relevante / negativo / juros */
+  --fc-pend: #ffcb6b;      /* pendente / atenção / atrasado */
+  --fc-info: #79c7ff;      /* informativo / transferência */
+  --fc-debt: #ff9f6e;      /* dívida / parcelas */
+
+  /* ---------- Estados da aura (Hoje) ---------- */
+  --fc-calm-1: rgba(66, 230, 164, 0.55);
+  --fc-calm-2: rgba(110, 130, 255, 0.55);
+  --fc-calm-3: rgba(60, 200, 255, 0.35);
+  --fc-tense-1: rgba(255, 203, 107, 0.55);
+  --fc-tense-2: rgba(140, 120, 255, 0.5);
+  --fc-tense-3: rgba(255, 150, 90, 0.35);
+  --fc-hot-1: rgba(255, 122, 147, 0.6);
+  --fc-hot-2: rgba(170, 90, 255, 0.45);
+  --fc-hot-3: rgba(255, 90, 90, 0.4);
+
+  /* ---------- Paleta categórica (gráficos e ícones de categoria) ---------- */
+  --fc-cat-1: #79c7ff;  /* transporte */
+  --fc-cat-2: #7ee0a1;  /* mercado */
+  --fc-cat-3: #ffcf6e;  /* restaurantes */
+  --fc-cat-4: #ff9f6e;  /* delivery */
+  --fc-cat-5: #c99bff;  /* lazer */
+  --fc-cat-6: #9fb0ff;  /* compras */
+  --fc-cat-7: #8be3e6;  /* assinaturas */
+  --fc-cat-8: #d6c08f;  /* contas/moradia */
+  --fc-cat-9: #ff8fb1;  /* saúde */
+  --fc-cat-10: #b7c0d8; /* outros */
+
+  /* ---------- Tipografia ---------- */
+  --fc-font-ui: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Geist", system-ui, sans-serif;
+  --fc-font-display: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Geist", system-ui, sans-serif;
+  --fc-font-num: "SF Pro Rounded", -apple-system, "Geist", system-ui, sans-serif;
+  --fc-font-mono: "Geist Mono", "SF Mono", ui-monospace, monospace;
+
+  --fc-text-hero: 700 54px/1 var(--fc-font-num);     /* número principal (letter-spacing -0.035em) */
+  --fc-text-title: 700 30px/1.05 var(--fc-font-display); /* título de tela (-0.025em) */
+  --fc-text-h2: 700 22px/1.15 var(--fc-font-display);
+  --fc-text-body: 400 15px/1.4 var(--fc-font-ui);
+  --fc-text-sub: 400 13px/1.35 var(--fc-font-ui);
+  --fc-text-label: 600 13px/1.2 var(--fc-font-ui);
+  --fc-text-caption: 500 11px/1.2 var(--fc-font-mono); /* uppercase, letter-spacing .06em */
+  --fc-text-amount: 600 15px/1 var(--fc-font-num);    /* sempre tabular-nums */
+
+  /* ---------- Espaço (grade de 4px) ---------- */
+  --fc-space-1: 4px;
+  --fc-space-2: 8px;
+  --fc-space-3: 12px;
+  --fc-space-4: 16px;
+  --fc-space-5: 20px;
+  --fc-space-6: 24px;
+  --fc-space-8: 32px;
+  --fc-gutter: 18px;            /* margem lateral das telas no iPhone */
+  --fc-tabbar-h: 68px;
+  --fc-touch-min: 44px;         /* alvo mínimo de toque (HIG) */
+
+  /* ---------- Raio ---------- */
+  --fc-radius-xs: 8px;
+  --fc-radius-sm: 12px;   /* ícones de categoria, inputs */
+  --fc-radius-md: 16px;   /* botões */
+  --fc-radius-lg: 24px;   /* cards de vidro */
+  --fc-radius-xl: 30px;   /* hero, tab bar */
+  --fc-radius-sheet: 34px;
+  --fc-radius-pill: 999px;
+
+  /* ---------- Vidro, sombra, brilho ---------- */
+  --fc-blur-card: blur(24px) saturate(140%);
+  --fc-blur-bar: blur(30px) saturate(160%);
+  --fc-blur-sheet: blur(40px) saturate(160%);
+  --fc-shadow-float: 0 10px 40px rgba(0, 0, 0, 0.5);
+  --fc-shadow-card: 0 20px 50px rgba(0, 0, 0, 0.45);
+  --fc-glow-iris: 0 8px 24px rgba(140, 155, 255, 0.45);
+  --fc-aura-blur: blur(38px);
+
+  /* ---------- Motion ---------- */
+  --fc-ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --fc-spring: cubic-bezier(0.2, 0.9, 0.25, 1.12);
+  --fc-dur-fast: 180ms;
+  --fc-dur-base: 380ms;
+  --fc-dur-slow: 550ms;
+  --fc-dur-count: 900ms;      /* contagem animada de números */
+
+  /* ---------- Z-index ---------- */
+  --fc-z-tabbar: 5;
+  --fc-z-scrim: 9;
+  --fc-z-sheet: 10;
+  --fc-z-toast: 20;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --fc-dur-fast: 1ms;
+    --fc-dur-base: 1ms;
+    --fc-dur-slow: 1ms;
+    --fc-dur-count: 1ms;
+  }
+}

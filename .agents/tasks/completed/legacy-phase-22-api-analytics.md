@@ -1,0 +1,82 @@
+---
+id: LEGACY-phase-22-api-analytics
+title: "Phase 22 - API Docs: Analytics"
+status: completed
+type: legacy
+phase: fc-1.x
+owner: fc-1.x
+created_at: 2026-04-17
+updated_at: 2026-10-05
+affected_modules: []
+related_use_cases: []
+related_adrs: []
+---
+
+# Task: Phase 22 - API Docs: Analytics
+
+## Status
+
+- [ ] Todo
+- [ ] In Progress
+- [x] Done
+
+## Context
+
+Executa a spec [Docs - API Analytics](../../../docs/roadmap/legado/future-features/14-docs-api-analytics.md) e cobre a superficie analitica atual do sistema.
+
+As rotas a documentar sao: `summary`, `forecast`, `forecast/recalculate`, `score`, `score/history`, `insights`, `insights/recalculate` e `insights/[id]/dismiss`.
+
+## Objective
+
+Criar `.docs/api/analytics.md` com contratos HTTP, parametros, respostas, erros e efeitos colaterais das rotas analiticas.
+
+## Scope
+
+- Summary mensal
+- Forecast e recalculate
+- Score e history
+- Insights, recalculate e dismiss
+- Parametro `month`, ownership, cache e invalidacao em alto nivel
+
+## Out of Scope
+
+- Rotas nao analiticas
+- Mudanca de comportamento de cache
+- Explicacao profunda de algoritmo
+
+## Decisions
+
+- Quando houver diferenca entre nomes internos e resposta publica, a doc deve deixar claro ambos
+- Regras de snapshot e recalculate devem ser descritas sem inventar garantias nao implementadas
+
+## Contracts
+
+- Output: `.docs/api/analytics.md`
+- Template: `.docs/api/_TEMPLATE.md`
+- Referencias minimas: `src/app/api/analytics/**/route.ts`
+
+## Migrations
+
+- Nenhuma
+
+## UI
+
+- Nenhuma
+
+## Tests
+
+- Revisao manual das rotas e DTOs
+- Validacao dos status codes e payloads expostos hoje
+
+## Checklist
+
+- [x] Documento criado em `.docs/api/analytics.md`
+- [x] Endpoints validados contra codigo real
+- [x] `.docs/CONTEXT.md` updated
+- [x] `.docs/CHANGELOG.md` updated
+- [x] ADR created/updated (not applicable; ADRs existentes referenciados)
+- [x] Manual validation done
+
+## Notes for AI (next step)
+
+Este documento tende a ser o maior da camada API. Priorize tabela-resumo inicial e depois detalhe por endpoint.

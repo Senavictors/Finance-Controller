@@ -22,11 +22,6 @@
 
 # misc
 .DS_Store
-*.pem
-*.key
-*.crt
-*.p12
-*.pfx
 *.log
 
 # debug
@@ -34,11 +29,6 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
-
-# env files
-.env
-.env.local
-.env.*.local
 
 # vercel
 .vercel
@@ -57,5 +47,30 @@ next-env.d.ts
 *.swo
 design_system/
 
-# local AI tooling
-.claude/
+# ---- Arquitetura de IA/Agentes (bootstrap) ----
+# Decisão de 2026-10-05: .agents/, docs/, .claude/, .codex/, AGENTS.md, CLAUDE.md e PLANS.md SÃO versionados.
+# Só configurações locais/pessoais das ferramentas ficam fora.
+.claude/settings.local.json
+.claude/worktrees/
+.codex/config.local.toml
+
+# ---- Constituição: dados financeiros reais nunca entram no Git ----
+private/
+*.ofx
+*.qfx
+extratos/
+faturas/
+!tests/fixtures/**
+
+# ---- Sempre ignorar, independente da decisão acima ----
+.env*
+!.env.example
+secrets/**
+credentials/**
+*.pem
+*.key
+*.crt
+*.p12
+*.pfx
+backups/**
+dumps/**
