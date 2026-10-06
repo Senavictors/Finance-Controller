@@ -1,7 +1,7 @@
 ---
 id: FC2-F0-02
 title: Schema Prisma 2.0 do zero + reset do Neon + migration inicial
-status: backlog
+status: active
 type: feature
 phase: F0
 wave: 2

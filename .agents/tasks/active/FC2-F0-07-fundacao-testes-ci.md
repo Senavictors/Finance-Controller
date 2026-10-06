@@ -1,7 +1,7 @@
 ---
 id: FC2-F0-07
 title: Fundação de testes e CI (fixtures anonimizadas)
-status: backlog
+status: active
 type: chore
 phase: F0
 wave: 2
