@@ -1,3 +1,14 @@
+// Finance Controller 2.0 — schema escrito do zero (ADR-016, task FC2-F0-02).
+//
+// Convenções:
+// - Tabelas e colunas em snake_case via @@map/@map; ids String cuid.
+// - Dinheiro sempre em centavos Int (ADR-002). Transaction.amount é assinado e nunca zero.
+// - Datas de calendário são DateTime guardando meio-dia UTC; instantes em UTC normal.
+// - Taxas e percentuais: únicas colunas Decimal do schema (monthlyRate, lateFeePct, lateInterestMonthlyPct).
+// - Cores e ícones por chave de token (ex.: "cat-3"), nunca hex.
+// - Saldos em AccountBalance são cache; a fonte de verdade é a soma de Transaction (ADR-019).
+// - CHECK constraints (SQL manual) vivem no migration.sql inicial; ver prisma/migrations.
+
 generator client {
   provider = "prisma-client"
   output   = "../src/generated/prisma"
@@ -7,55 +18,17 @@ datasource db {
   provider = "postgresql"
 }
 
-model User {
-  id        String   @id @default(cuid())
-  email     String   @unique
-  name      String?
-  password  String
-  image     String?
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
-
-  sessions             Session[]
-  accounts             Account[]
-  categories           Category[]
-  transactions         Transaction[]
-  creditCardStatements CreditCardStatement[]
-  creditCardPurchases  CreditCardPurchase[]
-  installmentAdvances  CreditCardInstallmentAdvance[]
-  dashboard            Dashboard?
-  recurringRules       RecurringRule[]
-  goals                Goal[]
-  wishlistCategories   WishlistCategory[]
-  wishlistItems        WishlistItem[]
-  forecastSnapshots    ForecastSnapshot[]
-  scoreSnapshots       FinancialScoreSnapshot[]
-  insightSnapshots     InsightSnapshot[]
-
-  @@map("users")
-}
-
-model Session {
-  id        String   @id @default(cuid())
-  token     String   @unique
-  userId    String   @map("user_id")
-  expiresAt DateTime @map("expires_at")
-  createdAt DateTime @default(now()) @map("created_at")
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@index([token])
-  @@index([userId])
-  @@map("sessions")
-}
+// ============================================================================
+// Enums
+// ============================================================================
 
 enum AccountType {
-  WALLET
   CHECKING
   SAVINGS
-  CREDIT_CARD
+  WALLET
   INVESTMENT
-  OTHER
+  CREDIT_CARD
+  BUSINESS
 
   @@map("account_type")
 }
@@ -67,171 +40,575 @@ enum CategoryType {
   @@map("category_type")
 }
 
-enum TransactionType {
-  INCOME
+enum Nature {
+  MUST
+  NEED
+  WANT
+
+  @@map("nature")
+}
+
+enum TxnKind {
   EXPENSE
+  INCOME
   TRANSFER
+  CARD_PAYMENT
+  FEE
+  INTEREST
+  ADJUSTMENT
 
-  @@map("transaction_type")
+  @@map("txn_kind")
 }
 
-model Account {
-  id                  String      @id @default(cuid())
-  userId              String      @map("user_id")
-  name                String
-  type                AccountType
-  initialBalance      Int         @default(0) @map("initial_balance")
-  creditLimit         Int?        @map("credit_limit")
-  statementClosingDay Int?        @map("statement_closing_day")
-  statementDueDay     Int?        @map("statement_due_day")
-  color               String?
-  icon                String?
-  networkBrandKey     String?     @map("network_brand_key")
-  isArchived          Boolean     @default(false) @map("is_archived")
-  createdAt           DateTime    @default(now()) @map("created_at")
-  updatedAt           DateTime    @updatedAt @map("updated_at")
+enum TxnStatus {
+  PLANNED
+  PENDING
+  CLEARED
+  RECONCILED
 
-  user                 User                           @relation(fields: [userId], references: [id], onDelete: Cascade)
-  transactions         Transaction[]
-  creditCardStatements CreditCardStatement[]
-  creditCardPurchases  CreditCardPurchase[]
-  installmentAdvances  CreditCardInstallmentAdvance[]
-  recurringRules       RecurringRule[]
-  goals                Goal[]
-
-  @@index([userId])
-  @@map("accounts")
+  @@map("txn_status")
 }
 
-model Category {
-  id        String       @id @default(cuid())
-  userId    String       @map("user_id")
-  name      String
-  type      CategoryType
-  icon      String?
-  color     String?
-  parentId  String?      @map("parent_id")
-  createdAt DateTime     @default(now()) @map("created_at")
-  updatedAt DateTime     @updatedAt @map("updated_at")
+enum ReviewState {
+  NEEDS_REVIEW
+  REVIEWED
 
-  user                User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
-  parent              Category?            @relation("CategoryHierarchy", fields: [parentId], references: [id], onDelete: SetNull)
-  children            Category[]           @relation("CategoryHierarchy")
-  transactions        Transaction[]
-  creditCardPurchases CreditCardPurchase[]
-  recurringRules      RecurringRule[]
-  goals               Goal[]
-
-  @@index([userId])
-  @@index([parentId])
-  @@map("categories")
+  @@map("review_state")
 }
 
-model Transaction {
-  id                    String          @id @default(cuid())
-  userId                String          @map("user_id")
-  accountId             String          @map("account_id")
-  categoryId            String?         @map("category_id")
-  creditCardStatementId String?         @map("credit_card_statement_id")
-  type                  TransactionType
-  amount                Int
-  description           String
-  notes                 String?
-  date                  DateTime
-  transferId            String?         @map("transfer_id")
-  createdAt             DateTime        @default(now()) @map("created_at")
-  updatedAt             DateTime        @updatedAt @map("updated_at")
+enum TxnSource {
+  MANUAL
+  QUICKADD
+  IMPORT
+  BOT
+  RECURRING
+  OPEN_FINANCE
 
-  user                          User                           @relation(fields: [userId], references: [id], onDelete: Cascade)
-  account                       Account                        @relation(fields: [accountId], references: [id], onDelete: Cascade)
-  category                      Category?                      @relation(fields: [categoryId], references: [id], onDelete: SetNull)
-  creditCardStatement           CreditCardStatement?           @relation("CreditCardStatementTransactions", fields: [creditCardStatementId], references: [id], onDelete: SetNull)
-  purchasedWishlistItem         WishlistItem?                  @relation("WishlistPurchase")
-  creditCardPurchaseInstallment CreditCardPurchaseInstallment?
-
-  @@index([userId])
-  @@index([accountId])
-  @@index([categoryId])
-  @@index([creditCardStatementId])
-  @@index([date])
-  @@index([transferId])
-  @@map("transactions")
+  @@map("txn_source")
 }
 
-enum CreditCardStatementStatus {
+enum CategorySource {
+  USER
+  RULE
+  MERCHANT
+  LLM
+  PARSER
+  IMPORT
+
+  @@map("category_source")
+}
+
+enum SeriesKind {
+  BILL
+  SUBSCRIPTION
+  INCOME
+  TRANSFER
+  LOAN_INSTALLMENT
+  TAX
+
+  @@map("series_kind")
+}
+
+enum LoanKind {
+  CONSIGNADO
+  PERSONAL
+  OVERDRAFT
+  CARD_REVOLVING
+  CARD_REFINANCE
+  PIX_CREDIT
+
+  @@map("loan_kind")
+}
+
+enum LoanSystem {
+  PRICE
+
+  @@map("loan_system")
+}
+
+enum LoanStatus {
+  ACTIVE
+  PAID_OFF
+  DEFAULTED
+
+  @@map("loan_status")
+}
+
+enum InstallmentStatus {
+  PENDING
+  PAID
+  SKIPPED
+
+  @@map("installment_status")
+}
+
+enum StatementStatus {
   OPEN
   CLOSED
   PAID
   OVERDUE
 
-  @@map("credit_card_statement_status")
+  @@map("statement_status")
 }
 
+enum BudgetBucket {
+  FIXED
+  NON_MONTHLY
+  FLEX
+
+  @@map("budget_bucket")
+}
+
+enum RuleStage {
+  PRE
+  DEFAULT
+  POST
+
+  @@map("rule_stage")
+}
+
+enum RuleOrigin {
+  USER
+  LEARNED
+
+  @@map("rule_origin")
+}
+
+enum ImportKind {
+  OFX
+  CSV
+  PDF_ITAU_EXTRATO
+  PDF_ITAU_FATURA
+  PDF_NUBANK_EXTRATO
+  PDF_NUBANK_FATURA
+
+  @@map("import_kind")
+}
+
+enum ImportStatus {
+  PENDING
+  PROCESSED
+  FAILED
+  UNDONE
+
+  @@map("import_status")
+}
+
+enum GoalKind {
+  RESERVE
+  PRIORITY
+  WISH
+  DEBT_PAYOFF
+
+  @@map("goal_kind")
+}
+
+enum GoalStatus {
+  ACTIVE
+  DONE
+  ARCHIVED
+
+  @@map("goal_status")
+}
+
+enum ReconStatus {
+  MATCHED
+  ADJUSTED
+  UNDONE
+
+  @@map("recon_status")
+}
+
+enum CycleMode {
+  CALENDAR_MONTH
+  INCOME_CYCLE
+
+  @@map("cycle_mode")
+}
+
+enum BusinessDayRule {
+  NONE
+  NEXT_BUSINESS_DAY
+  PREVIOUS_BUSINESS_DAY
+
+  @@map("business_day_rule")
+}
+
+enum AdditionalBasis {
+  PREVIOUS_MONTH
+  SAME_MONTH
+
+  @@map("additional_basis")
+}
+
+enum AgentRunStatus {
+  RUNNING
+  OK
+  FAILED
+
+  @@map("agent_run_status")
+}
+
+// ============================================================================
+// Auth e configurações
+// ============================================================================
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String?
+  password  String // hash bcrypt
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  sessions            Session[]
+  settings            UserSettings?
+  accounts            Account[]
+  accountBalances     AccountBalance[]
+  reconciliations     Reconciliation[]
+  categories          Category[]
+  merchants           Merchant[]
+  transactions        Transaction[]
+  recurringSeries     RecurringSeries[]
+  incomeRules         IncomeRule[]
+  meiProfile          MeiProfile?
+  meiLedgers          MeiLedger[]
+  loans               Loan[]
+  statements          CreditCardStatement[]
+  cardPurchases       CardPurchase[]
+  installmentAdvances CardInstallmentAdvance[]
+  budgetCycles        BudgetCycle[]
+  rules               Rule[]
+  importBatches       ImportBatch[]
+  goals               Goal[]
+  memories            Memory[]
+  agentRuns           AgentRun[]
+  aiUsages            AiUsage[]
+  telegramLink        TelegramLink?
+
+  @@map("users")
+}
+
+model Session {
+  id         String   @id @default(cuid())
+  userId     String   @map("user_id")
+  tokenHash  String   @unique @map("token_hash") // SHA-256 (hex) do token do cookie
+  expiresAt  DateTime @map("expires_at")
+  lastSeenAt DateTime @default(now()) @map("last_seen_at")
+  userAgent  String?  @map("user_agent")
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([expiresAt])
+  @@map("sessions")
+}
+
+// Tentativas de login para rate limit persistente; `key` é hash de IP + email.
+model LoginAttempt {
+  id        String   @id @default(cuid())
+  key       String
+  success   Boolean
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@index([key, createdAt])
+  @@map("login_attempts")
+}
+
+model UserSettings {
+  id                      String    @id @default(cuid())
+  userId                  String    @unique @map("user_id")
+  timezone                String    @default("America/Sao_Paulo")
+  cycleMode               CycleMode @default(INCOME_CYCLE) @map("cycle_mode")
+  cushionCents            Int       @default(0) @map("cushion_cents")
+  aiMonthlyBudgetMicroUsd Int       @default(1000000) @map("ai_monthly_budget_micro_usd")
+  aiTotalBudgetMicroUsd   Int       @default(5000000) @map("ai_total_budget_micro_usd")
+  privacyMode             Boolean   @default(false) @map("privacy_mode")
+  createdAt               DateTime  @default(now()) @map("created_at")
+  updatedAt               DateTime  @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("user_settings")
+}
+
+// ============================================================================
+// Contas e saldos
+// ============================================================================
+
+model Account {
+  id             String      @id @default(cuid())
+  userId         String      @map("user_id")
+  name           String
+  type           AccountType
+  issuerKey      String?     @map("issuer_key") // chave do registry de marcas
+  networkKey     String?     @map("network_key")
+  colorKey       String?     @map("color_key")
+  icon           String?
+  overdraftLimit Int         @default(0) @map("overdraft_limit") // cheque especial, centavos
+  creditLimit    Int?        @map("credit_limit") // só CREDIT_CARD, centavos
+  closingDay     Int?        @map("closing_day") // 1-31, só CREDIT_CARD
+  dueDay         Int?        @map("due_day") // 1-31, só CREDIT_CARD
+  isArchived     Boolean     @default(false) @map("is_archived")
+  sortOrder      Int         @default(0) @map("sort_order")
+  createdAt      DateTime    @default(now()) @map("created_at")
+  updatedAt      DateTime    @updatedAt @map("updated_at")
+
+  user                User                     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  balance             AccountBalance?
+  reconciliations     Reconciliation[]
+  transactions        Transaction[]
+  statements          CreditCardStatement[]
+  cardPurchases       CardPurchase[]
+  installmentAdvances CardInstallmentAdvance[]
+  series              RecurringSeries[]        @relation("SeriesAccount")
+  seriesAsTarget      RecurringSeries[]        @relation("SeriesToAccount")
+  incomeRules         IncomeRule[]
+  meiAsDasAccount     MeiProfile[]             @relation("MeiDasAccount")
+  meiAsBusinessAcct   MeiProfile[]             @relation("MeiBusinessAccount")
+  loans               Loan[]
+  merchantsDefault    Merchant[]
+  importBatches       ImportBatch[]
+  goals               Goal[]
+
+  @@unique([userId, name])
+  @@index([userId, isArchived])
+  @@map("accounts")
+}
+
+// Cache derivado do ledger (ADR-019). Recalculável a partir de Transaction.
+model AccountBalance {
+  accountId      String    @id @map("account_id")
+  userId         String    @map("user_id")
+  balanceCleared Int       @default(0) @map("balance_cleared")
+  balancePending Int       @default(0) @map("balance_pending")
+  balancePlanned Int       @default(0) @map("balance_planned")
+  lastEntryDate  DateTime? @map("last_entry_date")
+  version        Int       @default(0)
+  updatedAt      DateTime  @updatedAt @map("updated_at")
+
+  account Account @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("account_balances")
+}
+
+model Reconciliation {
+  id                      String      @id @default(cuid())
+  userId                  String      @map("user_id")
+  accountId               String      @map("account_id")
+  asOfDate                DateTime    @map("as_of_date")
+  bankBalance             Int         @map("bank_balance")
+  ledgerBalance           Int         @map("ledger_balance")
+  difference              Int
+  status                  ReconStatus
+  reconciledCount         Int         @default(0) @map("reconciled_count")
+  reconciledIds           Json?       @map("reconciled_ids") // ids travados, para desfazer
+  adjustmentTransactionId String?     @unique @map("adjustment_transaction_id")
+  note                    String?
+  createdAt               DateTime    @default(now()) @map("created_at")
+
+  user                  User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  account               Account      @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  adjustmentTransaction Transaction? @relation("ReconciliationAdjustment", fields: [adjustmentTransactionId], references: [id], onDelete: SetNull)
+
+  @@index([userId, asOfDate(sort: Desc)])
+  @@index([accountId, asOfDate(sort: Desc)])
+  @@map("reconciliations")
+}
+
+// ============================================================================
+// Catálogos: categorias e merchants
+// ============================================================================
+
+model Category {
+  id         String       @id @default(cuid())
+  userId     String       @map("user_id")
+  key        String // slug estável
+  name       String
+  type       CategoryType
+  nature     Nature?
+  icon       String?
+  colorKey   String?      @map("color_key")
+  parentId   String?      @map("parent_id")
+  sortOrder  Int          @default(0) @map("sort_order")
+  isSystem   Boolean      @default(false) @map("is_system")
+  isArchived Boolean      @default(false) @map("is_archived")
+  createdAt  DateTime     @default(now()) @map("created_at")
+  updatedAt  DateTime     @updatedAt @map("updated_at")
+
+  user             User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  parent           Category?         @relation("CategoryTree", fields: [parentId], references: [id], onDelete: SetNull)
+  children         Category[]        @relation("CategoryTree")
+  transactions     Transaction[]
+  merchantsDefault Merchant[]
+  series           RecurringSeries[]
+  cardPurchases    CardPurchase[]
+  budgetLines      BudgetLine[]
+  loans            Loan[]
+  goals            Goal[]
+
+  @@unique([userId, key])
+  @@index([userId, parentId])
+  @@map("categories")
+}
+
+model Merchant {
+  id                String   @id @default(cuid())
+  userId            String   @map("user_id")
+  name              String
+  normalizedKey     String   @map("normalized_key")
+  aliases           String[]
+  defaultCategoryId String?  @map("default_category_id")
+  recentCategoryIds String[] @map("recent_category_ids") // últimas 3
+  nature            Nature?
+  defaultAccountId  String?  @map("default_account_id")
+  brandKey          String?  @map("brand_key")
+  createdAt         DateTime @default(now()) @map("created_at")
+  updatedAt         DateTime @updatedAt @map("updated_at")
+
+  user            User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  defaultCategory Category?         @relation(fields: [defaultCategoryId], references: [id], onDelete: SetNull)
+  defaultAccount  Account?          @relation(fields: [defaultAccountId], references: [id], onDelete: SetNull)
+  transactions    Transaction[]
+  series          RecurringSeries[]
+  cardPurchases   CardPurchase[]
+
+  @@unique([userId, normalizedKey])
+  @@index([aliases], type: Gin)
+  @@map("merchants")
+}
+
+// ============================================================================
+// Ledger
+// ============================================================================
+
+model Transaction {
+  id                String          @id @default(cuid())
+  userId            String          @map("user_id")
+  accountId         String          @map("account_id")
+  categoryId        String?         @map("category_id")
+  merchantId        String?         @map("merchant_id")
+  kind              TxnKind
+  status            TxnStatus       @default(CLEARED)
+  review            ReviewState     @default(REVIEWED)
+  source            TxnSource       @default(MANUAL)
+  amount            Int // centavos, assinado: positivo entra, negativo sai; nunca zero (CHECK)
+  date              DateTime // meio-dia UTC
+  postedDate        DateTime?       @map("posted_date")
+  description       String
+  rawDescription    String?         @map("raw_description")
+  notes             String?
+  tags              String[]
+  transferId        String?         @map("transfer_id") // UUID do par (transferência / pagamento de fatura)
+  refundOfId        String?         @map("refund_of_id")
+  seriesId          String?         @map("series_id")
+  occurrenceKey     String?         @map("occurrence_key") // idempotência de previstos: "<seriesId>:<AAAA-MM-DD>"
+  statementId       String?         @map("statement_id")
+  statementKey      String?         @map("statement_key") // AAAA-MM do vencimento da fatura
+  importBatchId     String?         @map("import_batch_id")
+  importHash        String?         @map("import_hash")
+  categorySource    CategorySource? @map("category_source")
+  aiConfidence      Int?            @map("ai_confidence") // 0-100
+  userLocked        Json            @default("{}") @map("user_locked")
+  excludeFromBudget Boolean         @default(false) @map("exclude_from_budget")
+  originalCurrency  String?         @map("original_currency") @db.VarChar(3)
+  originalAmount    Int?            @map("original_amount")
+  createdAt         DateTime        @default(now()) @map("created_at")
+  updatedAt         DateTime        @updatedAt @map("updated_at")
+
+  user                 User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+  account              Account              @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  category             Category?            @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  merchant             Merchant?            @relation(fields: [merchantId], references: [id], onDelete: SetNull)
+  refundOf             Transaction?         @relation("TransactionRefund", fields: [refundOfId], references: [id], onDelete: SetNull)
+  refunds              Transaction[]        @relation("TransactionRefund")
+  series               RecurringSeries?     @relation(fields: [seriesId], references: [id], onDelete: SetNull)
+  statement            CreditCardStatement? @relation(fields: [statementId], references: [id], onDelete: SetNull)
+  importBatch          ImportBatch?         @relation(fields: [importBatchId], references: [id], onDelete: SetNull)
+  cardInstallment      CardInstallment?
+  loanInstallment      LoanInstallment?
+  reconciliationAdjust Reconciliation?      @relation("ReconciliationAdjustment")
+
+  @@unique([userId, importHash])
+  @@unique([userId, occurrenceKey])
+  @@unique([transferId, accountId])
+  @@index([userId, date(sort: Desc)])
+  @@index([accountId, date(sort: Desc)])
+  @@index([accountId, status])
+  @@index([userId, status, date])
+  @@index([userId, review])
+  @@index([categoryId, date])
+  @@index([merchantId])
+  @@index([statementId])
+  @@index([seriesId, date])
+  @@index([transferId])
+  @@index([importBatchId])
+  @@index([tags], type: Gin)
+  @@map("transactions")
+}
+
+// ============================================================================
+// Cartões de crédito
+// ============================================================================
+
 model CreditCardStatement {
-  id          String                    @id @default(cuid())
-  userId      String                    @map("user_id")
-  accountId   String                    @map("account_id")
-  periodStart DateTime                  @map("period_start")
-  periodEnd   DateTime                  @map("period_end")
-  closingDate DateTime                  @map("closing_date")
-  dueDate     DateTime                  @map("due_date")
-  totalAmount Int                       @default(0) @map("total_amount")
-  paidAmount  Int                       @default(0) @map("paid_amount")
-  status      CreditCardStatementStatus @default(OPEN)
-  createdAt   DateTime                  @default(now()) @map("created_at")
-  updatedAt   DateTime                  @updatedAt @map("updated_at")
+  id           String          @id @default(cuid())
+  userId       String          @map("user_id")
+  accountId    String          @map("account_id")
+  periodStart  DateTime        @map("period_start")
+  periodEnd    DateTime        @map("period_end")
+  closingDate  DateTime        @map("closing_date")
+  dueDate      DateTime        @map("due_date")
+  statementKey String          @map("statement_key") // AAAA-MM do vencimento
+  totalAmount  Int             @default(0) @map("total_amount")
+  paidAmount   Int             @default(0) @map("paid_amount")
+  status       StatementStatus @default(OPEN)
+  createdAt    DateTime        @default(now()) @map("created_at")
+  updatedAt    DateTime        @updatedAt @map("updated_at")
 
   user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
   account      Account       @relation(fields: [accountId], references: [id], onDelete: Cascade)
-  transactions Transaction[] @relation("CreditCardStatementTransactions")
+  transactions Transaction[]
 
   @@unique([accountId, periodStart])
-  @@index([userId])
-  @@index([accountId])
-  @@index([dueDate])
+  @@unique([accountId, statementKey])
+  @@index([userId, dueDate])
   @@map("credit_card_statements")
 }
 
-enum CreditCardPurchaseSource {
-  MANUAL
-  WISHLIST
-
-  @@map("credit_card_purchase_source")
-}
-
-model CreditCardPurchase {
-  id               String                   @id @default(cuid())
-  userId           String                   @map("user_id")
-  accountId        String                   @map("account_id")
-  categoryId       String?                  @map("category_id")
-  wishlistItemId   String?                  @unique @map("wishlist_item_id")
+model CardPurchase {
+  id               String   @id @default(cuid())
+  userId           String   @map("user_id")
+  accountId        String   @map("account_id")
+  categoryId       String?  @map("category_id")
+  merchantId       String?  @map("merchant_id")
   description      String
   notes            String?
-  purchaseDate     DateTime                 @map("purchase_date")
-  totalAmount      Int                      @map("total_amount")
-  installmentCount Int                      @map("installment_count")
-  source           CreditCardPurchaseSource @default(MANUAL)
-  createdAt        DateTime                 @default(now()) @map("created_at")
-  updatedAt        DateTime                 @updatedAt @map("updated_at")
+  purchaseDate     DateTime @map("purchase_date")
+  totalAmount      Int      @map("total_amount")
+  installmentCount Int      @map("installment_count")
+  createdAt        DateTime @default(now()) @map("created_at")
+  updatedAt        DateTime @updatedAt @map("updated_at")
 
-  user         User                            @relation(fields: [userId], references: [id], onDelete: Cascade)
-  account      Account                         @relation(fields: [accountId], references: [id], onDelete: Cascade)
-  category     Category?                       @relation(fields: [categoryId], references: [id], onDelete: SetNull)
-  wishlistItem WishlistItem?                   @relation("WishlistCreditCardPurchase", fields: [wishlistItemId], references: [id], onDelete: SetNull)
-  installments CreditCardPurchaseInstallment[]
-  advances     CreditCardInstallmentAdvance[]
+  user         User                     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  account      Account                  @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  category     Category?                @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  merchant     Merchant?                @relation(fields: [merchantId], references: [id], onDelete: SetNull)
+  installments CardInstallment[]
+  advances     CardInstallmentAdvance[]
 
-  @@index([userId])
+  @@index([userId, purchaseDate(sort: Desc)])
   @@index([accountId])
-  @@index([categoryId])
-  @@index([purchaseDate])
-  @@map("credit_card_purchases")
+  @@map("card_purchases")
 }
 
-model CreditCardInstallmentAdvance {
+model CardInstallmentAdvance {
   id                  String   @id @default(cuid())
-  purchaseId          String   @map("purchase_id")
   userId              String   @map("user_id")
+  purchaseId          String   @map("purchase_id")
   accountId           String   @map("account_id")
   advancedAt          DateTime @map("advanced_at")
   totalOriginalAmount Int      @map("total_original_amount")
@@ -241,19 +618,17 @@ model CreditCardInstallmentAdvance {
   createdAt           DateTime @default(now()) @map("created_at")
   updatedAt           DateTime @updatedAt @map("updated_at")
 
-  purchase     CreditCardPurchase              @relation(fields: [purchaseId], references: [id], onDelete: Cascade)
-  user         User                            @relation(fields: [userId], references: [id], onDelete: Cascade)
-  account      Account                         @relation(fields: [accountId], references: [id], onDelete: Cascade)
-  installments CreditCardPurchaseInstallment[]
+  user         User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  purchase     CardPurchase      @relation(fields: [purchaseId], references: [id], onDelete: Cascade)
+  account      Account           @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  installments CardInstallment[]
 
+  @@index([userId, advancedAt(sort: Desc)])
   @@index([purchaseId])
-  @@index([userId])
-  @@index([accountId])
-  @@index([advancedAt])
-  @@map("credit_card_installment_advances")
+  @@map("card_installment_advances")
 }
 
-model CreditCardPurchaseInstallment {
+model CardInstallment {
   id                  String   @id @default(cuid())
   purchaseId          String   @map("purchase_id")
   advanceId           String?  @map("advance_id")
@@ -264,328 +639,367 @@ model CreditCardPurchaseInstallment {
   createdAt           DateTime @default(now()) @map("created_at")
   updatedAt           DateTime @updatedAt @map("updated_at")
 
-  purchase          CreditCardPurchase            @relation(fields: [purchaseId], references: [id], onDelete: Cascade)
-  advance           CreditCardInstallmentAdvance? @relation(fields: [advanceId], references: [id], onDelete: SetNull)
-  ledgerTransaction Transaction                   @relation(fields: [ledgerTransactionId], references: [id], onDelete: Cascade)
+  purchase          CardPurchase            @relation(fields: [purchaseId], references: [id], onDelete: Cascade)
+  advance           CardInstallmentAdvance? @relation(fields: [advanceId], references: [id], onDelete: SetNull)
+  ledgerTransaction Transaction             @relation(fields: [ledgerTransactionId], references: [id], onDelete: Cascade)
 
   @@unique([purchaseId, installmentNumber])
-  @@index([purchaseId])
   @@index([advanceId])
-  @@index([originalDate])
-  @@map("credit_card_purchase_installments")
+  @@map("card_installments")
 }
 
-model Dashboard {
-  id        String   @id @default(cuid())
-  userId    String   @unique @map("user_id")
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
+// ============================================================================
+// Séries recorrentes, renda e MEI
+// ============================================================================
 
-  user    User              @relation(fields: [userId], references: [id], onDelete: Cascade)
-  widgets DashboardWidget[]
+model RecurringSeries {
+  id                 String     @id @default(cuid())
+  userId             String     @map("user_id")
+  kind               SeriesKind
+  name               String
+  accountId          String     @map("account_id")
+  toAccountId        String?    @map("to_account_id")
+  categoryId         String?    @map("category_id")
+  merchantId         String?    @map("merchant_id")
+  amount             Int // centavos, assinado, valor esperado
+  amountTolerancePct Int        @default(10) @map("amount_tolerance_pct")
+  dayTolerance       Int        @default(3) @map("day_tolerance")
+  rrule              String // RFC 5545
+  dtstart            DateTime
+  until              DateTime?
+  autoConfirm        Boolean    @default(false) @map("auto_confirm")
+  isActive           Boolean    @default(true) @map("is_active")
+  materializedUntil  DateTime?  @map("materialized_until")
+  incomeRuleId       String?    @map("income_rule_id")
+  loanId             String?    @map("loan_id")
+  createdAt          DateTime   @default(now()) @map("created_at")
+  updatedAt          DateTime   @updatedAt @map("updated_at")
 
-  @@map("dashboards")
+  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  account      Account       @relation("SeriesAccount", fields: [accountId], references: [id], onDelete: Cascade)
+  toAccount    Account?      @relation("SeriesToAccount", fields: [toAccountId], references: [id], onDelete: SetNull)
+  category     Category?     @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  merchant     Merchant?     @relation(fields: [merchantId], references: [id], onDelete: SetNull)
+  incomeRule   IncomeRule?   @relation(fields: [incomeRuleId], references: [id], onDelete: SetNull)
+  loan         Loan?         @relation(fields: [loanId], references: [id], onDelete: SetNull)
+  transactions Transaction[]
+
+  @@index([userId, isActive])
+  @@map("recurring_series")
 }
 
-model DashboardWidget {
-  id          String   @id @default(cuid())
-  dashboardId String   @map("dashboard_id")
-  type        String
-  config      Json     @default("{}")
-  x           Int      @default(0)
-  y           Int      @default(0)
-  w           Int      @default(6)
-  h           Int      @default(4)
-  createdAt   DateTime @default(now()) @map("created_at")
+model IncomeRule {
+  id                   String          @id @default(cuid())
+  userId               String          @map("user_id")
+  name                 String
+  baseCents            Int             @map("base_cents")
+  perDayCents          Int             @map("per_day_cents")
+  weekdays             Int[] // 0 = domingo ... 6 = sábado
+  payDay               Int             @map("pay_day") // 1-31 (CHECK)
+  paymentAdjust        BusinessDayRule @default(NEXT_BUSINESS_DAY) @map("payment_adjust")
+  additionalBasis      AdditionalBasis @default(PREVIOUS_MONTH) @map("additional_basis")
+  destinationAccountId String          @map("destination_account_id")
+  extraDaysOff         String[]        @map("extra_days_off") // ISO AAAA-MM-DD
+  attendanceOverrides  Json            @default("{}") @map("attendance_overrides") // data -> boolean
+  startDate            DateTime        @map("start_date")
+  endDate              DateTime?       @map("end_date")
+  isActive             Boolean         @default(true) @map("is_active")
+  createdAt            DateTime        @default(now()) @map("created_at")
+  updatedAt            DateTime        @updatedAt @map("updated_at")
 
-  dashboard Dashboard @relation(fields: [dashboardId], references: [id], onDelete: Cascade)
+  user               User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  destinationAccount Account           @relation(fields: [destinationAccountId], references: [id], onDelete: Cascade)
+  series             RecurringSeries[]
 
-  @@index([dashboardId])
-  @@map("dashboard_widgets")
+  @@index([userId, isActive])
+  @@map("income_rules")
 }
 
-enum RecurringFrequency {
-  DAILY
-  WEEKLY
-  MONTHLY
-  YEARLY
+// Parâmetros do MEI do dono. Sem CNPJ (dado sensível não é persistido).
+model MeiProfile {
+  id                 String    @id @default(cuid())
+  userId             String    @unique @map("user_id")
+  openedAt           DateTime? @map("opened_at")
+  annualCeilingCents Int       @default(8100000) @map("annual_ceiling_cents")
+  dasAmountCents     Int       @map("das_amount_cents")
+  dasDueDay          Int       @default(20) @map("das_due_day")
+  dasAccountId       String?   @map("das_account_id")
+  businessAccountId  String?   @map("business_account_id")
+  createdAt          DateTime  @default(now()) @map("created_at")
+  updatedAt          DateTime  @updatedAt @map("updated_at")
 
-  @@map("recurring_frequency")
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  dasAccount      Account? @relation("MeiDasAccount", fields: [dasAccountId], references: [id], onDelete: SetNull)
+  businessAccount Account? @relation("MeiBusinessAccount", fields: [businessAccountId], references: [id], onDelete: SetNull)
+
+  @@map("mei_profiles")
 }
 
-model RecurringRule {
-  id          String             @id @default(cuid())
-  userId      String             @map("user_id")
-  accountId   String             @map("account_id")
-  categoryId  String?            @map("category_id")
-  type        TransactionType
-  amount      Int
-  description String
-  notes       String?
-  frequency   RecurringFrequency
-  dayOfMonth  Int?               @map("day_of_month")
-  dayOfWeek   Int?               @map("day_of_week")
-  startDate   DateTime           @map("start_date")
-  endDate     DateTime?          @map("end_date")
-  isActive    Boolean            @default(true) @map("is_active")
-  lastApplied DateTime?          @map("last_applied")
-  createdAt   DateTime           @default(now()) @map("created_at")
-  updatedAt   DateTime           @updatedAt @map("updated_at")
+model MeiLedger {
+  id                       String   @id @default(cuid())
+  userId                   String   @map("user_id")
+  year                     Int
+  accumulatedCents         Int      @map("accumulated_cents")
+  proportionalCeilingCents Int      @map("proportional_ceiling_cents")
+  byMonth                  Json     @map("by_month") // 12 inteiros (centavos por mês)
+  lastRecomputedAt         DateTime @map("last_recomputed_at")
+  createdAt                DateTime @default(now()) @map("created_at")
+  updatedAt                DateTime @updatedAt @map("updated_at")
 
-  user     User           @relation(fields: [userId], references: [id], onDelete: Cascade)
-  account  Account        @relation(fields: [accountId], references: [id], onDelete: Cascade)
-  category Category?      @relation(fields: [categoryId], references: [id], onDelete: SetNull)
-  logs     RecurringLog[]
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@index([userId])
-  @@map("recurring_rules")
+  @@unique([userId, year])
+  @@map("mei_ledgers")
 }
 
-model RecurringLog {
-  id              String   @id @default(cuid())
-  recurringRuleId String   @map("recurring_rule_id")
-  transactionId   String?  @map("transaction_id")
-  appliedDate     DateTime @map("applied_date")
-  status          String
-  error           String?
-  createdAt       DateTime @default(now()) @map("created_at")
+// ============================================================================
+// Dívidas
+// ============================================================================
 
-  rule RecurringRule @relation(fields: [recurringRuleId], references: [id], onDelete: Cascade)
+model Loan {
+  id                     String     @id @default(cuid())
+  userId                 String     @map("user_id")
+  kind                   LoanKind
+  name                   String
+  lenderName             String?    @map("lender_name")
+  accountId              String?    @map("account_id") // conta onde debita / conta do cheque especial
+  principalCents         Int        @map("principal_cents")
+  monthlyRate            Decimal    @map("monthly_rate") @db.Decimal(9, 6) // fração mensal: 1,99% a.m. = 0.019900
+  installmentCount       Int?       @map("installment_count")
+  installmentAmountCents Int?       @map("installment_amount_cents")
+  firstDueDate           DateTime?  @map("first_due_date")
+  contractedAt           DateTime?  @map("contracted_at")
+  system                 LoanSystem @default(PRICE)
+  outstandingCents       Int        @map("outstanding_cents") // cache do saldo devedor
+  lateFeePct             Decimal    @default(2) @map("late_fee_pct") @db.Decimal(5, 2)
+  lateInterestMonthlyPct Decimal    @default(1) @map("late_interest_monthly_pct") @db.Decimal(5, 2)
+  status                 LoanStatus @default(ACTIVE)
+  categoryId             String?    @map("category_id")
+  notes                  String?
+  createdAt              DateTime   @default(now()) @map("created_at")
+  updatedAt              DateTime   @updatedAt @map("updated_at")
 
-  @@index([recurringRuleId])
-  @@map("recurring_logs")
-}
+  user         User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  account      Account?          @relation(fields: [accountId], references: [id], onDelete: SetNull)
+  category     Category?         @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  installments LoanInstallment[]
+  series       RecurringSeries[]
+  goals        Goal[]
 
-enum WishlistItemPriority {
-  LOW
-  MEDIUM
-  HIGH
-
-  @@map("wishlist_item_priority")
-}
-
-enum WishlistItemStatus {
-  DESIRED
-  MONITORING
-  READY_TO_BUY
-  PURCHASED
-  CANCELED
-
-  @@map("wishlist_item_status")
-}
-
-model WishlistCategory {
-  id        String   @id @default(cuid())
-  userId    String   @map("user_id")
-  name      String
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
-
-  user  User           @relation(fields: [userId], references: [id], onDelete: Cascade)
-  items WishlistItem[]
-
-  @@unique([userId, name])
-  @@index([userId])
-  @@map("wishlist_categories")
-}
-
-model WishlistItem {
-  id                    String               @id @default(cuid())
-  userId                String               @map("user_id")
-  categoryId            String?              @map("category_id")
-  name                  String
-  desiredPrice          Int                  @map("desired_price")
-  paidPrice             Int?                 @map("paid_price")
-  productUrl            String?              @map("product_url")
-  imageUrl              String?              @map("image_url")
-  priority              WishlistItemPriority @default(MEDIUM)
-  status                WishlistItemStatus   @default(DESIRED)
-  desiredPurchaseDate   DateTime?            @map("desired_purchase_date")
-  purchasedAt           DateTime?            @map("purchased_at")
-  purchaseTransactionId String?              @unique @map("purchase_transaction_id")
-  createdAt             DateTime             @default(now()) @map("created_at")
-  updatedAt             DateTime             @updatedAt @map("updated_at")
-
-  user                User                @relation(fields: [userId], references: [id], onDelete: Cascade)
-  category            WishlistCategory?   @relation(fields: [categoryId], references: [id], onDelete: SetNull)
-  purchaseTransaction Transaction?        @relation("WishlistPurchase", fields: [purchaseTransactionId], references: [id], onDelete: SetNull)
-  creditCardPurchase  CreditCardPurchase? @relation("WishlistCreditCardPurchase")
-
-  @@index([userId])
   @@index([userId, status])
-  @@index([categoryId])
-  @@map("wishlist_items")
+  @@map("loans")
 }
 
-enum GoalMetric {
-  SAVING
-  EXPENSE_LIMIT
-  INCOME_TARGET
-  ACCOUNT_LIMIT
+model LoanInstallment {
+  id               String            @id @default(cuid())
+  loanId           String            @map("loan_id")
+  number           Int
+  dueDate          DateTime          @map("due_date")
+  principalCents   Int               @map("principal_cents")
+  interestCents    Int               @map("interest_cents")
+  amountCents      Int               @map("amount_cents")
+  status           InstallmentStatus @default(PENDING)
+  paidAt           DateTime?         @map("paid_at")
+  paidAmountCents  Int?              @map("paid_amount_cents")
+  lateChargesCents Int               @default(0) @map("late_charges_cents")
+  transactionId    String?           @unique @map("transaction_id")
+  createdAt        DateTime          @default(now()) @map("created_at")
+  updatedAt        DateTime          @updatedAt @map("updated_at")
 
-  @@map("goal_metric")
+  loan        Loan         @relation(fields: [loanId], references: [id], onDelete: Cascade)
+  transaction Transaction? @relation(fields: [transactionId], references: [id], onDelete: SetNull)
+
+  @@unique([loanId, number])
+  @@index([dueDate])
+  @@map("loan_installments")
 }
 
-enum GoalScopeType {
-  GLOBAL
-  CATEGORY
-  ACCOUNT
+// ============================================================================
+// Orçamento
+// ============================================================================
 
-  @@map("goal_scope_type")
+model BudgetCycle {
+  id             String   @id @default(cuid())
+  userId         String   @map("user_id")
+  startDate      DateTime @map("start_date")
+  endDate        DateTime @map("end_date")
+  flexAmount     Int      @map("flex_amount")
+  cushion        Int
+  expectedIncome Int?     @map("expected_income")
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+
+  user  User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  lines BudgetLine[]
+
+  @@unique([userId, startDate])
+  @@map("budget_cycles")
 }
 
-enum GoalPeriod {
-  MONTHLY
-  YEARLY
+model BudgetLine {
+  id           String       @id @default(cuid())
+  cycleId      String       @map("cycle_id")
+  bucket       BudgetBucket
+  categoryId   String?      @map("category_id")
+  label        String
+  plannedCents Int          @map("planned_cents")
+  createdAt    DateTime     @default(now()) @map("created_at")
+  updatedAt    DateTime     @updatedAt @map("updated_at")
 
-  @@map("goal_period")
+  cycle    BudgetCycle @relation(fields: [cycleId], references: [id], onDelete: Cascade)
+  category Category?   @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+
+  @@index([cycleId])
+  @@map("budget_lines")
 }
 
-enum GoalStatus {
-  ON_TRACK
-  WARNING
-  AT_RISK
-  ACHIEVED
-  EXCEEDED
+// ============================================================================
+// Regras e importação
+// ============================================================================
 
-  @@map("goal_status")
+model Rule {
+  id         String     @id @default(cuid())
+  userId     String     @map("user_id")
+  name       String
+  stage      RuleStage  @default(DEFAULT)
+  priority   Int        @default(100)
+  conditions Json
+  actions    Json
+  origin     RuleOrigin @default(USER)
+  hits       Int        @default(0)
+  lastHitAt  DateTime?  @map("last_hit_at")
+  isActive   Boolean    @default(true) @map("is_active")
+  createdAt  DateTime   @default(now()) @map("created_at")
+  updatedAt  DateTime   @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, stage, priority])
+  @@map("rules")
 }
+
+model ImportBatch {
+  id             String       @id @default(cuid())
+  userId         String       @map("user_id")
+  kind           ImportKind
+  accountId      String?      @map("account_id")
+  fileSha256     String       @map("file_sha256")
+  fileLabel      String?      @map("file_label") // rótulo genérico, nunca o nome real do arquivo
+  periodStart    DateTime?    @map("period_start")
+  periodEnd      DateTime?    @map("period_end")
+  totalRows      Int          @default(0) @map("total_rows")
+  newCount       Int          @default(0) @map("new_count")
+  duplicateCount Int          @default(0) @map("duplicate_count")
+  matchedCount   Int          @default(0) @map("matched_count")
+  errorCount     Int          @default(0) @map("error_count")
+  status         ImportStatus @default(PENDING)
+  errorLog       Json?        @map("error_log")
+  createdAt      DateTime     @default(now()) @map("created_at")
+  updatedAt      DateTime     @updatedAt @map("updated_at")
+
+  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  account      Account?      @relation(fields: [accountId], references: [id], onDelete: SetNull)
+  transactions Transaction[]
+
+  @@unique([userId, fileSha256])
+  @@map("import_batches")
+}
+
+// ============================================================================
+// Metas
+// ============================================================================
 
 model Goal {
-  id             String        @id @default(cuid())
-  userId         String        @map("user_id")
-  name           String
-  description    String?
-  metric         GoalMetric
-  scopeType      GoalScopeType @default(GLOBAL) @map("scope_type")
-  categoryId     String?       @map("category_id")
-  accountId      String?       @map("account_id")
-  targetAmount   Int           @map("target_amount")
-  period         GoalPeriod    @default(MONTHLY)
-  warningPercent Int           @default(80) @map("warning_percent")
-  dangerPercent  Int           @default(95) @map("danger_percent")
-  isActive       Boolean       @default(true) @map("is_active")
-  createdAt      DateTime      @default(now()) @map("created_at")
-  updatedAt      DateTime      @updatedAt @map("updated_at")
+  id           String     @id @default(cuid())
+  userId       String     @map("user_id")
+  kind         GoalKind
+  name         String
+  targetCents  Int        @map("target_cents")
+  currentCents Int        @default(0) @map("current_cents")
+  targetDate   DateTime?  @map("target_date")
+  priority     Int        @default(0)
+  accountId    String?    @map("account_id")
+  loanId       String?    @map("loan_id")
+  categoryId   String?    @map("category_id")
+  status       GoalStatus @default(ACTIVE)
+  notes        String?
+  createdAt    DateTime   @default(now()) @map("created_at")
+  updatedAt    DateTime   @updatedAt @map("updated_at")
 
-  user      User           @relation(fields: [userId], references: [id], onDelete: Cascade)
-  category  Category?      @relation(fields: [categoryId], references: [id], onDelete: SetNull)
-  account   Account?       @relation(fields: [accountId], references: [id], onDelete: SetNull)
-  snapshots GoalSnapshot[]
+  user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  account  Account?  @relation(fields: [accountId], references: [id], onDelete: SetNull)
+  loan     Loan?     @relation(fields: [loanId], references: [id], onDelete: SetNull)
+  category Category? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
 
-  @@index([userId])
+  @@index([userId, status])
   @@map("goals")
 }
 
-model GoalSnapshot {
-  id              String     @id @default(cuid())
-  goalId          String     @map("goal_id")
-  periodStart     DateTime   @map("period_start")
-  periodEnd       DateTime   @map("period_end")
-  actualAmount    Int        @map("actual_amount")
-  projectedAmount Int        @map("projected_amount")
-  progressPercent Int        @map("progress_percent")
-  status          GoalStatus
-  calculatedAt    DateTime   @default(now()) @map("calculated_at")
+// ============================================================================
+// IA, agentes e Telegram
+// ============================================================================
 
-  goal Goal @relation(fields: [goalId], references: [id], onDelete: Cascade)
-
-  @@unique([goalId, periodStart])
-  @@index([goalId])
-  @@map("goal_snapshots")
-}
-
-enum ForecastRiskLevel {
-  LOW
-  MEDIUM
-  HIGH
-
-  @@map("forecast_risk_level")
-}
-
-model ForecastSnapshot {
-  id                         String            @id @default(cuid())
-  userId                     String            @map("user_id")
-  periodStart                DateTime          @map("period_start")
-  periodEnd                  DateTime          @map("period_end")
-  referenceDate              DateTime          @map("reference_date")
-  actualIncome               Int               @map("actual_income")
-  actualExpenses             Int               @map("actual_expenses")
-  projectedRecurringIncome   Int               @map("projected_recurring_income")
-  projectedRecurringExpenses Int               @map("projected_recurring_expenses")
-  projectedVariableIncome    Int               @map("projected_variable_income")
-  projectedVariableExpenses  Int               @map("projected_variable_expenses")
-  predictedBalance           Int               @map("predicted_balance")
-  riskLevel                  ForecastRiskLevel @map("risk_level")
-  assumptions                Json
-  calculatedAt               DateTime          @default(now()) @map("calculated_at")
-  staleAt                    DateTime?         @map("stale_at")
+model Memory {
+  id        String   @id @default(cuid())
+  userId    String   @map("user_id")
+  key       String
+  value     Json
+  scope     String   @default("global")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@unique([userId, periodStart])
-  @@index([userId])
-  @@map("forecast_snapshots")
+  @@unique([userId, key])
+  @@map("memories")
 }
 
-enum FinancialScoreStatus {
-  CRITICAL
-  ATTENTION
-  GOOD
-  EXCELLENT
+model AgentRun {
+  id           String         @id @default(cuid())
+  userId       String         @map("user_id")
+  agent        String
+  status       AgentRunStatus @default(RUNNING)
+  startedAt    DateTime       @default(now()) @map("started_at")
+  finishedAt   DateTime?      @map("finished_at")
+  summary      String?
+  input        Json?
+  output       Json?
+  costMicroUsd Int            @default(0) @map("cost_micro_usd")
 
-  @@map("financial_score_status")
+  user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  aiUsages AiUsage[]
+
+  @@index([userId, agent, startedAt(sort: Desc)])
+  @@map("agent_runs")
 }
 
-model FinancialScoreSnapshot {
-  id           String               @id @default(cuid())
-  userId       String               @map("user_id")
-  periodStart  DateTime             @map("period_start")
-  periodEnd    DateTime             @map("period_end")
-  score        Int
-  status       FinancialScoreStatus
-  factors      Json
-  insights     Json
-  calculatedAt DateTime             @default(now()) @map("calculated_at")
-  staleAt      DateTime?            @map("stale_at")
+model AiUsage {
+  id           String   @id @default(cuid())
+  userId       String   @map("user_id")
+  model        String
+  purpose      String
+  inputTokens  Int      @map("input_tokens")
+  outputTokens Int      @map("output_tokens")
+  costMicroUsd Int      @map("cost_micro_usd")
+  agentRunId   String?  @map("agent_run_id")
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  agentRun AgentRun? @relation(fields: [agentRunId], references: [id], onDelete: SetNull)
+
+  @@index([userId, createdAt])
+  @@map("ai_usages")
+}
+
+model TelegramLink {
+  id       String   @id @default(cuid())
+  userId   String   @unique @map("user_id")
+  chatId   String   @unique @map("chat_id")
+  username String?
+  isActive Boolean  @default(true) @map("is_active")
+  linkedAt DateTime @default(now()) @map("linked_at")
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@unique([userId, periodStart])
-  @@index([userId])
-  @@map("financial_score_snapshots")
-}
-
-enum InsightSeverity {
-  INFO
-  WARNING
-  CRITICAL
-
-  @@map("insight_severity")
-}
-
-model InsightSnapshot {
-  id          String          @id @default(cuid())
-  userId      String          @map("user_id")
-  key         String
-  title       String
-  body        String
-  severity    InsightSeverity
-  scopeType   String          @map("scope_type")
-  scopeId     String?         @map("scope_id")
-  cta         Json?
-  payload     Json
-  periodStart DateTime        @map("period_start")
-  periodEnd   DateTime        @map("period_end")
-  fingerprint String
-  isDismissed Boolean         @default(false) @map("is_dismissed")
-  priority    Int             @default(0)
-  createdAt   DateTime        @default(now()) @map("created_at")
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@unique([userId, periodStart, fingerprint])
-  @@index([userId])
-  @@index([userId, periodStart])
-  @@map("insight_snapshots")
+  @@map("telegram_links")
 }

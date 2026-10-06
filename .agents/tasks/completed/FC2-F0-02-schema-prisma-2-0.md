@@ -1,7 +1,7 @@
 ---
 id: FC2-F0-02
 title: Schema Prisma 2.0 do zero + reset do Neon + migration inicial
-status: active
+status: completed
 type: feature
 phase: F0
 wave: 2
@@ -106,14 +106,14 @@ ALTER TABLE "income_rules" ADD CONSTRAINT "income_rules_pay_day_range" CHECK ("p
 - RN-07: O reset do banco exige confirmação humana explícita e validação do ambiente pelo `dados-prisma` (ver plano).
 
 ## Critérios de aceitação
-- [ ] CA-01: `npx prisma validate` e `npx prisma generate` passam; `src/generated/prisma` contém todos os modelos listados em "Modelos" (inclui `Transaction`, `AccountBalance`, `Loan`, `IncomeRule`, `MeiLedger`, `TelegramLink`).
-- [ ] CA-02: `prisma/migrations/` contém exatamente `migration_lock.toml` e **uma** pasta de migration (`AAAAMMDDHHMMSS_init_fc2`); as 12 migrations 1.x não existem mais.
-- [ ] CA-03: O `migration.sql` inicial contém as 5 `CHECK` constraints acima (verificável por `grep -c "CHECK" prisma/migrations/*_init_fc2/migration.sql` >= 5).
-- [ ] CA-04: Teste de contrato `prisma/schema.contract.test.ts` (Vitest, lê o texto do schema) falha se: faltar `@@unique([userId, importHash])`; faltar `@@unique([transferId, accountId])`; existir qualquer campo de dinheiro (`*Cents`, `amount`, `*Limit`, `*Amount`, `balance*`) com tipo diferente de `Int`; existir `@db.Date`; existir `Float`.
-- [ ] CA-05: Após o reset autorizado, `npx prisma migrate status` informa "Database schema is up to date" e `\dt` (ou `mcp Neon get_database_tables`) lista as tabelas novas sem nenhuma tabela 1.x (`wishlist_items`, `dashboards`, `forecast_snapshots`, `recurring_rules`...).
-- [ ] CA-06: `npx next build` passa (o código mantido após a F0-01 não referencia modelos removidos; ajustar `src/server/auth/*` para `Session.tokenHash` mantendo comportamento até a F0-06 — ver plano etapa 6).
-- [ ] CA-07: Nenhum arquivo de seed existe e `package.json`/`prisma.config.ts` não definem `seed`.
-- [ ] CA-08: O "Registro de execução" traz: host do banco (sem credenciais), nome do database, a pergunta de confirmação feita ao humano e a resposta literal, o horário e o resultado do reset.
+- [x] CA-01: `npx prisma validate` e `npx prisma generate` passam; `src/generated/prisma` contém todos os modelos listados em "Modelos" (inclui `Transaction`, `AccountBalance`, `Loan`, `IncomeRule`, `MeiLedger`, `TelegramLink`).
+- [x] CA-02: `prisma/migrations/` contém exatamente `migration_lock.toml` e **uma** pasta de migration (`AAAAMMDDHHMMSS_init_fc2`); as 12 migrations 1.x não existem mais.
+- [x] CA-03: O `migration.sql` inicial contém as 5 `CHECK` constraints acima (verificável por `grep -c "CHECK" prisma/migrations/*_init_fc2/migration.sql` >= 5).
+- [x] CA-04: Teste de contrato `prisma/schema.contract.test.ts` (Vitest, lê o texto do schema) falha se: faltar `@@unique([userId, importHash])`; faltar `@@unique([transferId, accountId])`; existir qualquer campo de dinheiro (`*Cents`, `amount`, `*Limit`, `*Amount`, `balance*`) com tipo diferente de `Int`; existir `@db.Date`; existir `Float`.
+- [ ] CA-05 (TRANSFERIDO para FC2-F0-08 pelo orquestrador em 2026-10-05): Após o reset autorizado, `npx prisma migrate status` informa "Database schema is up to date" e `\dt` (ou `mcp Neon get_database_tables`) lista as tabelas novas sem nenhuma tabela 1.x (`wishlist_items`, `dashboards`, `forecast_snapshots`, `recurring_rules`...).
+- [x] CA-06: `npx next build` passa (o código mantido após a F0-01 não referencia modelos removidos; ajustar `src/server/auth/*` para `Session.tokenHash` mantendo comportamento até a F0-06 — ver plano etapa 6).
+- [x] CA-07: Nenhum arquivo de seed existe e `package.json`/`prisma.config.ts` não definem `seed`.
+- [ ] CA-08 (TRANSFERIDO para FC2-F0-08 pelo orquestrador em 2026-10-05): O "Registro de execução" traz: host do banco (sem credenciais), nome do database, a pergunta de confirmação feita ao humano e a resposta literal, o horário e o resultado do reset.
 
 ## Impacto técnico
 ### Backend
@@ -128,24 +128,24 @@ Neon. Antes do reset, criar um branch/snapshot de segurança do Neon (MCP `creat
 Token de sessão não fica em claro no banco (hash). CHECK constraints impedem estados inválidos mesmo com bug de aplicação. Nenhum segredo no repositório.
 
 ## Plano de implementação
-- [ ] Etapa 1 — Ler `docs/product/especificacao-fc2.md` §6, ADR-016/019/020/028/029 em `.agents/decisions/` e o schema 1.x. Criar branch `feat/f0-02-schema`.
-- [ ] Etapa 2 — Reescrever `prisma/schema.prisma` do zero (`generator`/`datasource` iguais ao 1.x: `provider = "prisma-client"`, `output = "../src/generated/prisma"`). Organizar por seções com comentários curtos (Auth, Contas, Ledger, Cartões, Séries/Renda, Dívidas, Orçamento, Regras/Importação, IA/Telegram).
-- [ ] Etapa 3 — `npx prisma validate && npx prisma format && npx prisma generate`.
-- [ ] Etapa 4 — Teste de contrato `prisma/schema.contract.test.ts` (CA-04). Rodar `npm test`.
-- [ ] Etapa 5 — Apagar `prisma/migrations/*` (`git rm -r prisma/migrations`). Gerar a migration **sem aplicar**: `npx prisma migrate dev --create-only --name init_fc2` contra um banco descartável (Neon branch `dev-schema` ou Postgres local); editar o `migration.sql` anexando o bloco SQL manual; conferir que o `migration_lock.toml` está presente.
-- [ ] Etapa 6 — Ajustar `src/server/auth/session.ts` (hash do token, `lastSeenAt`) e `src/server/auth/schemas.ts` se algo referenciar campos removidos; rodar `npx next build`.
-- [ ] Etapa 7 — **Portão de confirmação (veto do `dados-prisma`)**:
+- [x] Etapa 1 — Ler `docs/product/especificacao-fc2.md` §6, ADR-016/019/020/028/029 em `.agents/decisions/` e o schema 1.x. Criar branch `feat/f0-02-schema`.
+- [x] Etapa 2 — Reescrever `prisma/schema.prisma` do zero (`generator`/`datasource` iguais ao 1.x: `provider = "prisma-client"`, `output = "../src/generated/prisma"`). Organizar por seções com comentários curtos (Auth, Contas, Ledger, Cartões, Séries/Renda, Dívidas, Orçamento, Regras/Importação, IA/Telegram).
+- [x] Etapa 3 — `npx prisma validate && npx prisma format && npx prisma generate`.
+- [x] Etapa 4 — Teste de contrato `prisma/schema.contract.test.ts` (CA-04). Rodar `npm test`.
+- [x] Etapa 5 (gerada sem banco via `prisma migrate diff --from-empty --to-schema ... --script`; ver Divergências) — Apagar `prisma/migrations/*` (`git rm -r prisma/migrations`). Gerar a migration **sem aplicar**: `npx prisma migrate dev --create-only --name init_fc2` contra um banco descartável (Neon branch `dev-schema` ou Postgres local); editar o `migration.sql` anexando o bloco SQL manual; conferir que o `migration_lock.toml` está presente.
+- [x] Etapa 6 — Ajustar `src/server/auth/session.ts` (hash do token, `lastSeenAt`) e `src/server/auth/schemas.ts` se algo referenciar campos removidos; rodar `npx next build`.
+- [ ] Etapa 7 (PENDENTE: portão do orquestrador) — **Portão de confirmação (veto do `dados-prisma`)**:
   1. Mostrar ao humano, em texto: host do `DATABASE_URL` (sem usuário/senha), nome do database, e a lista de tabelas atuais com contagem de linhas (`mcp Neon get_database_tables` / `run_sql`).
   2. Perguntar literalmente: "Confirma apagar TODOS os dados deste banco (host X, database Y) e recriar o schema 2.0?" e **aguardar resposta afirmativa no chat**. O consentimento anterior do dono (registrado na especificação) não substitui esta pergunta.
   3. Recusar se o host/database não for o esperado ou se a resposta for ambígua.
   4. Criar branch/snapshot de segurança no Neon e registrar o id.
-- [ ] Etapa 8 — Após confirmação: `PRISMA_USER_CONSENT_FOR_DANGEROUS_AI_ACTION="TEXTO-LITERAL-DA-CONFIRMACAO-DO-HUMANO" npx prisma migrate reset --force --skip-seed`. (O Prisma bloqueia `migrate reset` chamado por agente de IA sem esse consentimento; a variável só pode conter a resposta real do humano.) Se o reset pelo CLI não for possível, aplicar `npx prisma migrate deploy` após `DROP SCHEMA public CASCADE; CREATE SCHEMA public;` executado via `run_sql` — também apenas após a confirmação.
-- [ ] Etapa 9 — `npx prisma migrate status`; listar tabelas (CA-05); registrar tudo no "Registro de execução".
-- [ ] Etapa 10 — Remover referências a seed (CA-07), atualizar `docs/data/` (dicionário de dados: resumo de cada modelo), `.agents/context/CONTEXT.md`, `PLANS.md`; commit `feat(f0-02): schema prisma 2.0 e migration inicial`.
+- [ ] Etapa 8 (PENDENTE: portão do orquestrador) — Após confirmação: `PRISMA_USER_CONSENT_FOR_DANGEROUS_AI_ACTION="TEXTO-LITERAL-DA-CONFIRMACAO-DO-HUMANO" npx prisma migrate reset --force --skip-seed`. (O Prisma bloqueia `migrate reset` chamado por agente de IA sem esse consentimento; a variável só pode conter a resposta real do humano.) Se o reset pelo CLI não for possível, aplicar `npx prisma migrate deploy` após `DROP SCHEMA public CASCADE; CREATE SCHEMA public;` executado via `run_sql` — também apenas após a confirmação.
+- [ ] Etapa 9 (PENDENTE: portão do orquestrador) — `npx prisma migrate status`; listar tabelas (CA-05); registrar tudo no "Registro de execução".
+- [x] Etapa 10 (parcial: `docs/data/` e commit feitos; `CONTEXT.md` e `PLANS.md` ficam com o orquestrador na integração) — Remover referências a seed (CA-07), atualizar `docs/data/` (dicionário de dados: resumo de cada modelo), `.agents/context/CONTEXT.md`, `PLANS.md`; commit `feat(f0-02): schema prisma 2.0 e migration inicial`.
 
 ## Estratégia de testes
-- [ ] Unitários: `schema.contract.test.ts` com os casos da CA-04 mais: `Transaction` tem os 3 uniques; todo modelo com `userId` tem índice iniciando por `userId` ou é filho com FK escopada (lista de exceções explícita no teste); enums obrigatórios existem com os valores exatos (ex.: `TxnStatus` = PLANNED, PENDING, CLEARED, RECONCILED).
-- [ ] Integração (manual, banco descartável): inserir via SQL duas pernas de transferência com mesmo `transfer_id` e mesma `account_id` → viola unique; inserir `amount = 0` → viola CHECK; inserir `kind = 'TRANSFER'` sem `transfer_id` → viola CHECK; inserir duas transações com mesmo `(user_id, import_hash)` → viola unique; duas com `import_hash` nulo → permitido.
+- [x] Unitários: `schema.contract.test.ts` com os casos da CA-04 mais: `Transaction` tem os 3 uniques; todo modelo com `userId` tem índice iniciando por `userId` ou é filho com FK escopada (lista de exceções explícita no teste); enums obrigatórios existem com os valores exatos (ex.: `TxnStatus` = PLANNED, PENDING, CLEARED, RECONCILED).
+- [x] Integração (manual, banco descartável; executada na revisão QA em Postgres 16 local): inserir via SQL duas pernas de transferência com mesmo `transfer_id` e mesma `account_id` → viola unique; inserir `amount = 0` → viola CHECK; inserir `kind = 'TRANSFER'` sem `transfer_id` → viola CHECK; inserir duas transações com mesmo `(user_id, import_hash)` → viola unique; duas com `import_hash` nulo → permitido.
 - [ ] E2E: não aplicável.
 - [ ] Manual: `npx prisma studio` abre sem erro e mostra todas as tabelas vazias.
 
@@ -158,13 +158,64 @@ Token de sessão não fica em claro no banco (hash). CHECK constraints impedem e
 
 ## Registro de execução
 ### Alterações realizadas
+Rodada 1 (etapas 1-6 e 10, sem banco; o reset do Neon, etapas 7-9, ficou para o portão do orquestrador):
+- `prisma/schema.prisma` reescrito do zero: 29 modelos e 26 enums, `generator`/`datasource` iguais aos do 1.x.
+- `prisma/schema.contract.test.ts` (43 casos): 3 uniques de `Transaction`, dinheiro `Int`, sem `Float`/`@db.Date`, só 3 `Decimal`, índice por `userId` com lista explícita de exceções, valores exatos dos 26 enums.
+- Migrations 1.x removidas (`git rm -r`); migration inicial `20261005220000_init_fc2` gerada sem banco, com as 5 CHECK anexadas; `migration_lock.toml` recriado.
+- `src/server/auth/session.ts`: grava e consulta `Session.tokenHash` (SHA-256 hex), atualiza `lastSeenAt` na validação; cookie segue com o token bruto.
+- `docs/data/modelo-fc2.md` reescrito como dicionário do schema real (`estado: real`); `docs/data/README.md` ajustado.
+
 ### Arquivos principais
+`prisma/schema.prisma`, `prisma/schema.contract.test.ts`, `prisma/migrations/20261005220000_init_fc2/migration.sql`, `prisma/migrations/migration_lock.toml`, `src/server/auth/session.ts`, `docs/data/modelo-fc2.md`, `docs/data/README.md`.
+
 ### Decisões
+Justificativa das extensões em relação à §6 da especificação:
+- `LoanKind.CARD_REVOLVING`: o ADR-028 trata o rotativo do cartão como `Loan` próprio; `CARD_REFINANCE` cobre o parcelamento da fatura, que é outro produto com outra taxa.
+- `Transaction.refundOfId` (auto-relação, `SetNull`): estorno precisa apontar para a compra original para não contar duas vezes no Flex e para o matching de reembolsos.
+- `Transaction.occurrenceKey` com `@@unique([userId, occurrenceKey])`: o ADR-020 pede idempotência de previstos por `(seriesId, occurrenceDate)`; uma chave textual `<seriesId>:<AAAA-MM-DD>` é única por usuário, permite `INSERT ... ON CONFLICT DO NOTHING` na materialização e continua nula para lançamentos avulsos (Postgres aceita vários NULL).
+- `UserSettings`: fuso, modo de ciclo, colchão e tetos de IA ficam em tabela tipada, não em `Memory` (Json), porque o orçamento de IA (ADR-026) e a engine Disponível (ADR-021) dependem deles.
+- `MeiProfile`: parâmetros do MEI (DAS, teto, contas) separados do `MeiLedger` (calculado, recomputável). Sem CNPJ, para não persistir dado sensível.
+- `LoginAttempt`: base para rate limit persistente (o `rate-limit.ts` atual é em memória e se perde a cada cold start na Vercel); a F0-06 passa a usá-la.
+- `Session.tokenHash`: o banco não guarda o token em claro; vazamento do banco não entrega sessões válidas. `lastSeenAt` prepara a renovação deslizante da F0-06.
+
+Outras escolhas:
+- Filhos sem `userId` (`LoanInstallment`, `CardInstallment`, `BudgetLine`), como a task lista: escopados pela FK do pai; ficam na lista de exceções do teste de contrato (com `User` e `LoginAttempt`).
+- Índices por `userId` acrescentados onde a task só listava índice por conta ou nenhum: `Reconciliation [userId, asOfDate desc]`, `CardPurchase [userId, purchaseDate desc]` e `[accountId]`, `CardInstallmentAdvance [userId, advancedAt desc]` e `[purchaseId]`, `Goal [userId, status]`, `CardInstallment [advanceId]`. Todo modelo com `userId` tem índice ou unique começando por ele (verificado pelo teste).
+- Taxas e percentuais: `Loan.lateFeePct` e `Loan.lateInterestMonthlyPct` `Decimal(5,2)` com defaults 2 e 1, conforme a task.
+- `prisma.config.ts` não mudou: o 1.x já usava só `DATABASE_URL`; a decisão sobre `DIRECT_URL` ficou como pendência do portão.
+
 ### Divergências
+- Etapa 5: a task manda `prisma migrate dev --create-only` contra banco descartável; não havia banco aqui e a rodada proibia comandos contra banco. A migration foi gerada com `prisma migrate diff --from-empty --to-schema prisma/schema.prisma --script` (saída equivalente ao DDL do `migrate dev`), removida a linha `CREATE SCHEMA IF NOT EXISTS "public"` do topo (o schema `public` já existe no Neon e a instrução exigiria privilégio de CREATE no database) e anexado o bloco de CHECK manual. A migration não foi aplicada nem testada contra um Postgres; os testes de integração manuais da Estratégia de testes (inserções que violam unique/CHECK) e o `prisma studio` seguem pendentes.
+- Nome da pasta usa timestamp fixo `20261005220000` (ordem lexicográfica, anterior a qualquer migration futura).
+- `vitest.config.mts` não precisou de mudança: o `include` padrão já pega `prisma/**/*.test.ts`.
+
 ### Pendências
+- Portão do reset (etapas 7-9, CA-05 e CA-08): confirmação humana na hora, snapshot/branch Neon de segurança, `prisma migrate reset` ou `migrate deploy` após recriar o schema `public`, `migrate status` e listagem de tabelas.
+- Aplicar a migration em um Postgres descartável (branch Neon de dev) antes do reset de produção e rodar os testes de integração manuais.
+- `docs/data/ownership.md` (planejado para a F0-02) não foi criado nesta rodada.
+- `.agents/context/CONTEXT.md` e `PLANS.md`: atualização na integração do orquestrador.
+- `package.json` não foi tocado (FC2-F0-07 é dona nesta onda): o script `build` ainda roda `prisma migrate deploy`; o `postinstall` roda `prisma generate`.
 
 ## Validação
-Comandos e resultados.
+Executado em worktree isolado, sem banco e sem `.env`:
+- `npx prisma validate`: schema válido. `npx prisma format` e `npx prisma generate`: ok (Prisma Client 7.7.0 em `src/generated/prisma`).
+- `npm test`: 7 arquivos, 80 testes passando (inclui os 43 de `prisma/schema.contract.test.ts`).
+- `npm run lint`: sem erros.
+- `DATABASE_URL=postgresql://ci:ci@localhost:5432/ci npx next build`: passa (rotas `/api/auth/*`, `/hoje`, `/login`); o build não conecta ao banco.
+- `grep -c "CHECK" prisma/migrations/*_init_fc2/migration.sql`: 7 linhas (as 5 constraints, o comentário de cabeçalho e `CHECKING` do enum `account_type`).
+- `ls prisma/migrations`: `20261005220000_init_fc2` e `migration_lock.toml`.
+- `npx prettier --check --end-of-line auto` nos arquivos tocados: ok.
+- A migration cria 29 tabelas e 26 tipos enum.
+
+### Parecer QA (revisão de código, 2026-10-05) — APROVADO (CA-05/CA-08 fora desta revisão)
+Executado no worktree da task, sem `.env`, sem tocar o Neon. Postgres 16 descartável em Docker (`fc2-qa-pg`, porta 55432, database `fc2_qa_test`), removido ao final.
+- `npx prisma validate`: válido. `npx prisma generate`: ok (7.7.0). `npm run lint`: sem erros. `npm test`: 7 arquivos, 80 testes ok (antes da revisão); com a revisão 8 arquivos, 104 testes ok. `DATABASE_URL=postgresql://ci:ci@localhost:5432/ci npx next build`: passa.
+- `npm run format:check` falha em 268 arquivos por fim de linha CRLF do checkout Windows (autocrlf), não por conteúdo; `prettier --check --end-of-line auto` passa nos arquivos tocados. Ambiental, sem relação com a task.
+- Migration aplicada com `prisma migrate deploy` (apenas na URL local): sucesso; `migrate status`: "Database schema is up to date!"; `prisma migrate diff --from-config-datasource --to-schema` : "No difference detected" (zero drift entre SQL e schema); 29 tabelas + `_prisma_migrations`, 26 tipos enum.
+- Integração via SQL (todos como esperado): par `transfer_id`+`account_id` repetido viola `transactions_transfer_id_account_id_key`, mesma `transfer_id` em outra conta passa; `amount = 0` viola `transactions_amount_nonzero`; `TRANSFER` e `CARD_PAYMENT` sem `transfer_id` violam `transactions_pair_requires_transfer_id`; `(user_id, import_hash)` repetido viola unique, mesmo hash em outro usuário passa, dois `import_hash` nulos passam; `occurrence_key` repetido por usuário viola; `overdraft_limit = -1` viola `accounts_overdraft_nonneg`; `closing_day` 0 e 32 e `due_day` 32 violam `accounts_days_range`, 31/1 passam; `pay_day` 0 e 32 violam `income_rules_pay_day_range`, 31 passa; `DELETE` de conta cascateia as transações; defaults de `Transaction` (CLEARED, REVIEWED, MANUAL, `{}`, false) corretos.
+- Prova negativa do contrato (mutação temporária no schema/migration, revertida): `amount` Float, `overdraftLimit` Decimal, `balanceCleared` BigInt, `@db.Date` e remoção de cada `@@unique` fazem `schema.contract.test.ts` falhar.
+- Lacunas encontradas e cobertas em `prisma/migration.contract.test.ts` (novo, 24 casos): as 5 CHECKs por nome e predicado no `migration.sql` (CA-03), uniques de `Transaction` no SQL, ausência de `DOUBLE PRECISION`/`DATE`, só 3 `DECIMAL`, ausência de `CREATE SCHEMA`/`DROP`, uma tabela por modelo, ausência de seed (CA-07), `@@map`/`@map` snake_case em tudo, `onDelete` explícito e valores da task, campos monetários fora do regex padrão (`expectedIncome`, `difference`, `cushion`, `flexAmount`) como `Int`. Mutações (CHECK removida, `CREATE SCHEMA` incluído, `@map` removido, `onDelete` trocado, `expectedIncome` Decimal) fazem o teste falhar.
+- Pendências fora desta revisão: CA-05 e CA-08 (portão do reset do Neon); `prisma studio` (manual, não executado).
 
 ## Handoff
 Link para o handoff ativo, quando aplicável.

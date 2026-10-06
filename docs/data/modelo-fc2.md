@@ -1,12 +1,23 @@
 ---
-estado: planejado
-fonte: docs/product/especificacao-fc2.md (§6); implementação em prisma/schema.prisma (task FC2-F0-02)
-ultima-revisao: bootstrap-init 2026-10-05
+estado: real
+fonte: prisma/schema.prisma e prisma/migrations/20261005220000_init_fc2 (task FC2-F0-02); intenção original em docs/product/especificacao-fc2.md (§6)
+ultima-revisao: FC2-F0-02 2026-10-05
 ---
 
-# Modelo de dados do 2.0
+# Modelo de dados do 2.0 (dicionário)
 
-Schema escrito do zero (ADR-016). Este documento é a intenção; o código (`prisma/schema.prisma`) manda quando divergir, e a task FC2-F0-02 deve atualizar este doc. Convenções: ids `String` (cuid), valores em centavos `Int`, datas de calendário ao meio-dia UTC, `createdAt`/`updatedAt` em todas as tabelas, `userId` em toda tabela financeira.
+Schema escrito do zero (ADR-016), 29 modelos e 26 enums. O código (`prisma/schema.prisma`) manda quando divergir deste documento; o teste `prisma/schema.contract.test.ts` protege as decisões-chave (uniques de `Transaction`, dinheiro `Int`, índices por `userId`, valores dos enums).
+
+## Convenções
+
+- Tabelas `snake_case` plural (`@@map`), colunas `snake_case` (`@map`), ids `String` cuid, `createdAt`/`updatedAt` nos modelos mutáveis.
+- Dinheiro em centavos `Int` (ADR-002). `Transaction.amount` é **assinado** (positivo entra na conta, negativo sai) e nunca zero.
+- Únicas colunas `Decimal`: `Loan.monthlyRate` (fração mensal, `0.019900` = 1,99% a.m.), `Loan.lateFeePct` e `Loan.lateInterestMonthlyPct`. A camada de domínio converte com `.toNumber()` na borda do repositório.
+- Datas de calendário: `DateTime` ao meio-dia UTC (sem `@db.Date`); instantes (`createdAt`, `startedAt`) em UTC.
+- Cores e ícones por chave de token (`colorKey` como `cat-3`), nunca hex.
+- Todo modelo financeiro tem `userId` (FK `Cascade`) e índice começando por `userId`. Exceções: `User` (raiz), `LoginAttempt` (anterior à identificação) e os filhos `LoanInstallment`, `CardInstallment` e `BudgetLine`, escopados pela FK do pai.
+- Saldo da conta = soma de `Transaction.amount` (ADR-019); `AccountBalance` é cache recalculável.
+- Sem seed no schema: usuário dono e categorias padrão nascem em F0-06 e F1-07.
 
 ## Diagrama ER
 
@@ -27,146 +38,152 @@ erDiagram
   ImportBatch ||--o{ Transaction : importa
   CreditCardStatement ||--o{ Transaction : agrupa
   CardPurchase ||--o{ CardInstallment : parcelas
-  CardInstallment }o--|| CreditCardStatement : cai_em
-  CardInstallment |o--o| Transaction : lancamento
+  CardInstallment |o--|| Transaction : lancamento
   Account ||--o{ CardPurchase : cartao
   Loan ||--o{ LoanInstallment : parcelas
   LoanInstallment |o--o| Transaction : paga_com
   BudgetCycle ||--o{ BudgetLine : linhas
   Category ||--o{ BudgetLine : categoria
-  Rule }o--|| User : de
   Goal }o--o| Loan : quitacao
   User ||--o{ AiUsage : custo
   User ||--o{ AgentRun : execucoes
   User ||--o| TelegramLink : chat
   User ||--o{ MeiLedger : ano
+  User ||--o| MeiProfile : mei
+  User ||--o| UserSettings : config
 ```
 
 ## Enums
 
-| Enum | Valores |
-|---|---|
-| `AccountType` | CHECKING, SAVINGS, WALLET, INVESTMENT, CREDIT_CARD, BUSINESS |
-| `TransactionKind` | EXPENSE, INCOME, TRANSFER, CARD_PAYMENT, FEE, INTEREST, ADJUSTMENT |
-| `TransactionStatus` | PLANNED, PENDING, CLEARED, RECONCILED |
-| `ReviewStatus` | NEEDS_REVIEW, REVIEWED |
-| `TransactionSource` | MANUAL, QUICKADD, IMPORT, BOT, RECURRING, OPEN_FINANCE |
-| `CategorySource` | USER, RULE, MERCHANT, LLM, DEFAULT |
-| `Nature` | MUST, NEED, WANT |
-| `RecurringKind` | BILL, SUBSCRIPTION, INCOME, TRANSFER, LOAN_INSTALLMENT, TAX |
-| `LoanKind` | CONSIGNADO, PERSONAL, OVERDRAFT, CARD_REFINANCE, PIX_CREDIT |
-| `AmortizationSystem` | PRICE |
-| `StatementStatus` | OPEN, CLOSED, PAID (mantém a lógica do 1.x) |
-| `BudgetBucket` | FIXED, NON_MONTHLY, FLEX |
-| `RuleOrigin` | USER, LEARNED |
-| `ImportKind` | OFX, CSV, PDF_ITAU_EXTRATO, PDF_ITAU_FATURA, PDF_NUBANK_EXTRATO, PDF_NUBANK_FATURA |
-| `ImportStatus` | PENDING, PARSED, REVIEWING, COMPLETED, FAILED |
-| `GoalKind` | RESERVE, PRIORITY, WISH, DEBT_PAYOFF |
+| Enum                | Valores                                                                            |
+| ------------------- | ---------------------------------------------------------------------------------- |
+| `AccountType`       | CHECKING, SAVINGS, WALLET, INVESTMENT, CREDIT_CARD, BUSINESS                       |
+| `CategoryType`      | INCOME, EXPENSE                                                                    |
+| `Nature`            | MUST, NEED, WANT                                                                   |
+| `TxnKind`           | EXPENSE, INCOME, TRANSFER, CARD_PAYMENT, FEE, INTEREST, ADJUSTMENT                 |
+| `TxnStatus`         | PLANNED, PENDING, CLEARED, RECONCILED                                              |
+| `ReviewState`       | NEEDS_REVIEW, REVIEWED                                                             |
+| `TxnSource`         | MANUAL, QUICKADD, IMPORT, BOT, RECURRING, OPEN_FINANCE                             |
+| `CategorySource`    | USER, RULE, MERCHANT, LLM, PARSER, IMPORT                                          |
+| `SeriesKind`        | BILL, SUBSCRIPTION, INCOME, TRANSFER, LOAN_INSTALLMENT, TAX                        |
+| `LoanKind`          | CONSIGNADO, PERSONAL, OVERDRAFT, CARD_REVOLVING, CARD_REFINANCE, PIX_CREDIT        |
+| `LoanSystem`        | PRICE                                                                              |
+| `LoanStatus`        | ACTIVE, PAID_OFF, DEFAULTED                                                        |
+| `InstallmentStatus` | PENDING, PAID, SKIPPED                                                             |
+| `StatementStatus`   | OPEN, CLOSED, PAID, OVERDUE                                                        |
+| `BudgetBucket`      | FIXED, NON_MONTHLY, FLEX                                                           |
+| `RuleStage`         | PRE, DEFAULT, POST                                                                 |
+| `RuleOrigin`        | USER, LEARNED                                                                      |
+| `ImportKind`        | OFX, CSV, PDF_ITAU_EXTRATO, PDF_ITAU_FATURA, PDF_NUBANK_EXTRATO, PDF_NUBANK_FATURA |
+| `ImportStatus`      | PENDING, PROCESSED, FAILED, UNDONE                                                 |
+| `GoalKind`          | RESERVE, PRIORITY, WISH, DEBT_PAYOFF                                               |
+| `GoalStatus`        | ACTIVE, DONE, ARCHIVED                                                             |
+| `ReconStatus`       | MATCHED, ADJUSTED, UNDONE                                                          |
+| `CycleMode`         | CALENDAR_MONTH, INCOME_CYCLE                                                       |
+| `BusinessDayRule`   | NONE, NEXT_BUSINESS_DAY, PREVIOUS_BUSINESS_DAY                                     |
+| `AdditionalBasis`   | PREVIOUS_MONTH, SAME_MONTH                                                         |
+| `AgentRunStatus`    | RUNNING, OK, FAILED                                                                |
 
-`CategorySource` e `ImportStatus` são propostas deste documento (a spec cita `categorySource` e contagens/status sem enumerar valores); confirmar na F0-02.
+## Modelos
 
-## Entidades
+### Auth e configurações
 
-### User e Session
-Mantidos do 1.x (`User`, `Session`; auth em `src/server/auth`). Single-user, mas toda tabela referencia `userId`.
+| Modelo (tabela)                   | Resumo                                                                                                                                                                           | Únicos e índices                             |
+| --------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------- |
+| `User` (`users`)                  | Dono do sistema: `email`, `name?`, `password` (hash bcrypt). Sem `image`.                                                                                                        | `email` único                                |
+| `Session` (`sessions`)            | Sessão do cookie: `tokenHash` (SHA-256 hex do token bruto do cookie), `expiresAt`, `lastSeenAt`, `userAgent?`.                                                                   | `tokenHash` único; `[userId]`, `[expiresAt]` |
+| `LoginAttempt` (`login_attempts`) | Tentativas de login para rate limit persistente: `key` (hash de IP + email), `success`. Sem `userId`.                                                                            | `[key, createdAt]`                           |
+| `UserSettings` (`user_settings`)  | 1:1 com o usuário: `timezone` (`America/Sao_Paulo`), `cycleMode` (`INCOME_CYCLE`), `cushionCents`, tetos de IA em micro-USD (mensal 1.000.000 e total 5.000.000), `privacyMode`. | `userId` único                               |
 
-### Account
-| Campo | Tipo | Notas |
-|---|---|---|
-| id, userId | | |
-| name | String | |
-| type | AccountType | |
-| issuerKey, networkKey | String? | chaves do registry de marcas (`src/lib/brands`) |
-| overdraftLimit | Int | cheque especial, centavos, default 0 |
-| creditLimit | Int? | só CREDIT_CARD |
-| closingDay, dueDay | Int? | 1 a 31, só CREDIT_CARD |
-| openingBalance | Int | saldo inicial do ledger |
-| isArchived | Boolean | |
+### Contas e saldos
 
-Índice: `(userId, isArchived)`. Único: `(userId, name)`. Invariante: `closingDay`, `dueDay` e `creditLimit` só existem para CREDIT_CARD; saldo negativo em conta corrente é cenário normal até `overdraftLimit`.
+| Modelo (tabela)                       | Resumo                                                                                                                                                                                                                                              | Únicos e índices                                                                         |
+| ------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------- |
+| `Account` (`accounts`)                | Conta ou cartão: `type`, `issuerKey?`/`networkKey?` (registry de marcas), `colorKey?`, `icon?`, `overdraftLimit` (>= 0), `creditLimit?`, `closingDay?`/`dueDay?` (1-31), `isArchived`, `sortOrder`. Conta com lançamentos é arquivada, não apagada. | `[userId, name]` único; `[userId, isArchived]`                                           |
+| `AccountBalance` (`account_balances`) | Cache 1:1 (PK = `accountId`): `balanceCleared`, `balancePending`, `balancePlanned`, `lastEntryDate?`, `version`. Recalculável do ledger (ADR-019).                                                                                                  | `[userId]`                                                                               |
+| `Reconciliation` (`reconciliations`)  | Conciliação com o banco: `asOfDate`, `bankBalance`, `ledgerBalance`, `difference`, `status`, `reconciledCount`, `reconciledIds` (Json, para desfazer), `adjustmentTransactionId?` (lançamento ADJUSTMENT), `note?`.                                 | `adjustmentTransactionId` único; `[userId, asOfDate desc]`, `[accountId, asOfDate desc]` |
 
-### AccountBalance (cache derivado)
-`accountId` (único), `cleared`, `pending`, `planned` (centavos), `computedAt`. Pode ser apagado e recomputado do ledger sem perda (ADR-019). Nenhuma regra de negócio lê `AccountBalance` como verdade quando houver divergência na reconciliação.
+### Catálogos
 
-### Reconciliation
-`accountId`, `statementDate`, `bankBalance`, `ledgerBalance`, `difference`, `status`. Índice: `(accountId, statementDate)`. Invariante: marca como RECONCILED os lançamentos CLEARED até a data quando `difference = 0`.
+| Modelo (tabela)           | Resumo                                                                                                                                                           | Únicos e índices                                  |
+| ------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------- |
+| `Category` (`categories`) | `key` (slug estável), `name`, `type`, `nature?` (MUST/NEED/WANT), `icon?`, `colorKey?`, `parentId?` (auto-relação, `SetNull`), `isSystem`, `isArchived`.         | `[userId, key]` único; `[userId, parentId]`       |
+| `Merchant` (`merchants`)  | Estabelecimento normalizado: `normalizedKey`, `aliases[]`, `defaultCategoryId?`, `recentCategoryIds[]` (últimas 3), `nature?`, `defaultAccountId?`, `brandKey?`. | `[userId, normalizedKey]` único; GIN em `aliases` |
 
-### Category
-Do 1.x, com `nature` (Nature, opcional) e `parentId` opcional. Único: `(userId, name)`.
+### Ledger
 
-### Merchant
-`userId`, `name`, `aliases` (String[]), `defaultCategoryId`, `lastCategoryIds` (até 3), `nature`. Único: `(userId, name)`. Índice GIN opcional em `aliases` quando houver busca por alias.
+| Modelo (tabela)                | Resumo                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 | Únicos e índices                                                                                                                                                                                                                                                                                                                                   |
+| ------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `Transaction` (`transactions`) | Lançamento. `kind`, `status` (padrão CLEARED), `review` (padrão REVIEWED), `source` (padrão MANUAL), `amount` (assinado, `<> 0`), `date` (meio-dia UTC), `postedDate?`, `description`, `rawDescription?`, `tags[]`, `transferId?` (par), `refundOfId?` (estorno, auto-relação), `seriesId?` + `occurrenceKey?` (previstos), `statementId?` + `statementKey?` (AAAA-MM), `importBatchId?` + `importHash?`, `categorySource?`, `aiConfidence?` (0-100), `userLocked` (Json), `excludeFromBudget`, `originalCurrency?`/`originalAmount?`. | Únicos `[userId, importHash]`, `[userId, occurrenceKey]`, `[transferId, accountId]`; índices por `[userId, date desc]`, `[accountId, date desc]`, `[accountId, status]`, `[userId, status, date]`, `[userId, review]`, `[categoryId, date]`, `[merchantId]`, `[statementId]`, `[seriesId, date]`, `[transferId]`, `[importBatchId]`, GIN em `tags` |
 
-### Transaction
-| Campo | Tipo | Notas |
-|---|---|---|
-| id, userId, accountId | | |
-| kind | TransactionKind | |
-| status | TransactionStatus | |
-| review | ReviewStatus | default NEEDS_REVIEW para IMPORT/BOT sem certeza |
-| source | TransactionSource | |
-| amount | Int | centavos, sempre positivo; sinal vem de `kind` e direção |
-| date | DateTime | meio-dia UTC |
-| description, rawDescription | String | `rawDescription` preserva o texto original do banco |
-| categoryId | String? | |
-| categorySource | CategorySource? | |
-| aiConfidence | Float? | 0 a 1 |
-| merchantId | String? | |
-| importHash | String? | único por usuário |
-| importBatchId | String? | |
-| seriesId | String? | série RRULE de origem |
-| statementKey | String? | mês de vencimento da fatura (ADR-008) |
-| transferGroupId | String? | liga o par de transferência (ADR-004) |
-| userLocked | Json | campos editados pelo usuário, que regras/IA não sobrescrevem |
-| excludeFromBudget | Boolean | |
-| tags | String[] | `#tag` do quick-add |
+### Cartões
 
-Únicos: `(userId, importHash)` parcial onde `importHash` não é nulo; `(seriesId, date)` parcial para idempotência do cron. Índices: `(userId, date)`, `(accountId, date)`, `(userId, status, date)`, `(userId, review)`, `(userId, statementKey)`.
+| Modelo (tabela)                                        | Resumo                                                                                                                                                                              | Únicos e índices                                                                    |
+| ------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------- |
+| `CreditCardStatement` (`credit_card_statements`)       | Fatura: `periodStart`, `periodEnd`, `closingDate`, `dueDate`, `statementKey` (AAAA-MM do vencimento), `totalAmount`, `paidAmount`, `status`.                                        | `[accountId, periodStart]`, `[accountId, statementKey]` únicos; `[userId, dueDate]` |
+| `CardPurchase` (`card_purchases`)                      | Compra no cartão: `description`, `purchaseDate`, `totalAmount`, `installmentCount`, categoria/merchant opcionais.                                                                   | `[userId, purchaseDate desc]`, `[accountId]`                                        |
+| `CardInstallment` (`card_installments`)                | Parcela, ligada 1:1 ao lançamento (`ledgerTransactionId` único, `Cascade`): `installmentNumber`, `originalAmount`, `originalDate`, `advanceId?`. Sem `userId` (escopo pela compra). | `[purchaseId, installmentNumber]`, `ledgerTransactionId` únicos; `[advanceId]`      |
+| `CardInstallmentAdvance` (`card_installment_advances`) | Antecipação de parcelas: `advancedAt`, `totalOriginalAmount`, `totalPaidAmount`, `totalDiscountAmount`. Sem vínculo com wishlist.                                                   | `[userId, advancedAt desc]`, `[purchaseId]`                                         |
 
-Invariantes: transferência são dois lançamentos com o mesmo `transferGroupId` e valores iguais, criados e removidos atomicamente; PLANNED nunca entra no saldo CLEARED; `RECONCILED` é imutável sem desfazer a reconciliação; `userLocked` vence regra e IA.
+### Séries, renda e MEI
 
-### RecurringSeries
-`userId`, `kind` (RecurringKind), `name`, `amount`, `accountId`, `categoryId?`, `rrule` (RFC 5545), `startDate`, `endDate?`, `toleranceDays`, `toleranceAmountPct`, `autoConfirm`, `materializedUntil`, `isActive`. Índice: `(userId, isActive)`. Invariante: ocorrências PLANNED existem até hoje + 90 dias; regenerar não duplica (único `(seriesId, date)`); dia 29/30/31 cai no último dia do mês (corrige bug do 1.x).
+| Modelo (tabela)                        | Resumo                                                                                                                                                                                                                                                                      | Únicos e índices       |
+| -------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------- |
+| `RecurringSeries` (`recurring_series`) | Série RRULE (RFC 5545): `kind`, `name`, `accountId`, `toAccountId?`, `amount` (assinado, esperado), `amountTolerancePct` (10), `dayTolerance` (3), `rrule`, `dtstart`, `until?`, `autoConfirm`, `isActive`, `materializedUntil?`, `incomeRuleId?`, `loanId?`.               | `[userId, isActive]`   |
+| `IncomeRule` (`income_rules`)          | Regra de renda base + por dia presencial: `baseCents`, `perDayCents`, `weekdays[]` (0=domingo), `payDay` (1-31), `paymentAdjust`, `additionalBasis`, `destinationAccountId`, `extraDaysOff[]` (ISO), `attendanceOverrides` (Json data -> boolean), `startDate`, `endDate?`. | `[userId, isActive]`   |
+| `MeiProfile` (`mei_profiles`)          | 1:1: `openedAt?`, `annualCeilingCents` (8.100.000), `dasAmountCents`, `dasDueDay` (20), `dasAccountId?`, `businessAccountId?`. Sem CNPJ.                                                                                                                                    | `userId` único         |
+| `MeiLedger` (`mei_ledgers`)            | Receita acumulada no ano: `accumulatedCents`, `proportionalCeilingCents`, `byMonth` (Json, 12 inteiros), `lastRecomputedAt`.                                                                                                                                                | `[userId, year]` único |
 
-### IncomeRule
-`userId`, `name`, `base`, `perDayExtra`, `weekdays` (Int[] 0 a 6), `paymentDay`, `destinationAccountId`, `isActive`. Invariante: `rendaPrevista = base + perDayExtra x diasPresenciais` (ADR-029).
+### Dívidas
 
-### MeiLedger
-`userId`, `year`, `accumulatedRevenue`, `annualCap`, `dasPaidMonths` (Int[]). Único: `(userId, year)`. Acumulado vs teto proporcional ao mês de abertura.
+| Modelo (tabela)                         | Resumo                                                                                                                                                                                                                                              | Únicos e índices                      |
+| --------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------- |
+| `Loan` (`loans`)                        | Dívida: `kind`, `name`, `lenderName?`, `accountId?`, `principalCents`, `monthlyRate` (Decimal 9,6), `installmentCount?`, `installmentAmountCents?`, `system` (PRICE), `outstandingCents` (cache), `lateFeePct`, `lateInterestMonthlyPct`, `status`. | `[userId, status]`                    |
+| `LoanInstallment` (`loan_installments`) | Parcela: `number`, `dueDate`, `principalCents`, `interestCents`, `amountCents`, `status`, `paidAt?`, `paidAmountCents?`, `lateChargesCents`, `transactionId?` (único). Sem `userId` (escopo pelo `Loan`).                                           | `[loanId, number]` único; `[dueDate]` |
 
-### Loan e LoanInstallment
-`Loan`: `userId`, `kind`, `name`, `principal`, `monthlyRate` (Decimal), `installments`, `remainingBalance`, `system` (PRICE), `accountId` (débito), `startDate`, `status`. `LoanInstallment`: `loanId`, `number`, `dueDate`, `amount`, `interest`, `amortization`, `status` (PENDING, PAID, OVERDUE), `transactionId?`. Único: `(loanId, number)`. Invariante: `Σ amortization = principal`; parcela em atraso entra no caixa como pendente (§5.1).
+### Orçamento, regras, importação e metas
 
-### CreditCardStatement, CardPurchase, CardInstallment
-Do 1.x, adaptados: fatura identificada por `(accountId, statementKey)` (único), com `closingDate`, `dueDate`, `status`, `paidTransactionId?`. `CardPurchase` guarda total e nº de parcelas; `CardInstallment` guarda número, valor e fatura de destino. Invariante: soma das parcelas = total da compra (resto na última parcela).
+| Modelo (tabela)                  | Resumo                                                                                                                                                                                                                                                            | Únicos e índices             |
+| -------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------- |
+| `BudgetCycle` (`budget_cycles`)  | Ciclo: `startDate`, `endDate`, `flexAmount`, `cushion`, `expectedIncome?`.                                                                                                                                                                                        | `[userId, startDate]` único  |
+| `BudgetLine` (`budget_lines`)    | Linha do ciclo: `bucket` (FIXED/NON_MONTHLY/FLEX), `categoryId?`, `label`, `plannedCents`. Sem `userId` (escopo pelo ciclo).                                                                                                                                      | `[cycleId]`                  |
+| `Rule` (`rules`)                 | Regra de categorização: `stage`, `priority`, `conditions`/`actions` (Json), `origin`, `hits`, `lastHitAt?`, `isActive`.                                                                                                                                           | `[userId, stage, priority]`  |
+| `ImportBatch` (`import_batches`) | Lote de importação: `kind`, `accountId?`, `fileSha256`, `fileLabel?` (rótulo genérico, nunca o nome real), período, contagens (`totalRows`, `newCount`, `duplicateCount`, `matchedCount`, `errorCount`), `status`, `errorLog?`. O arquivo bruto não é armazenado. | `[userId, fileSha256]` único |
+| `Goal` (`goals`)                 | Meta: `kind`, `name`, `targetCents`, `currentCents`, `targetDate?`, `priority`, `accountId?`, `loanId?`, `categoryId?`, `status`. Substitui `Goal` e `WishlistItem` do 1.x.                                                                                       | `[userId, status]`           |
 
-### BudgetCycle e BudgetLine
-`BudgetCycle`: `userId`, `startDate`, `endDate`, `kind` (CALENDAR | INCOME_CYCLE), `flexAmount`, `cushion`. Único: `(userId, startDate)`. `BudgetLine`: `cycleId`, `bucket`, `categoryId?`, `plannedAmount`. Invariante: gasto Flex = transações de cartão ou débito do ciclo com `excludeFromBudget = false` e fora das séries fixas.
+### IA, agentes e Telegram
 
-### Rule
-`userId`, `name`, `conditions Json`, `actions Json`, `stage`, `priority`, `origin` (RuleOrigin), `hits`, `isActive`. Índice: `(userId, stage, priority)`. Regras USER vencem LEARNED.
+| Modelo (tabela)                   | Resumo                                                                                                                                      | Únicos e índices                  |
+| --------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------- |
+| `Memory` (`memories`)             | Preferências e fatos do próprio usuário: `key`, `value` (Json), `scope`.                                                                    | `[userId, key]` único             |
+| `AgentRun` (`agent_runs`)         | Execução de agente: `agent`, `status`, `startedAt`, `finishedAt?`, `summary?`, `input?`/`output?` (Json), `costMicroUsd`.                   | `[userId, agent, startedAt desc]` |
+| `AiUsage` (`ai_usages`)           | Custo por chamada de IA: `model`, `purpose`, `inputTokens`, `outputTokens`, `costMicroUsd`, `agentRunId?`. Base do teto de US$ 5 (ADR-026). | `[userId, createdAt]`             |
+| `TelegramLink` (`telegram_links`) | Chat permitido (ADR-027): `chatId`, `username?`, `isActive`, `linkedAt`.                                                                    | `userId` único; `chatId` único    |
 
-### ImportBatch
-`userId`, `kind`, `accountId?`, `fileLabel` (rótulo genérico, nunca o nome do arquivo real), `status`, `totalRows`, `createdCount`, `duplicateCount`, `reviewCount`, `createdAt`. Índice: `(userId, createdAt)`. O arquivo bruto não é armazenado no banco nem no Git.
+## CHECK constraints (SQL manual na migration)
 
-### Goal
-`userId`, `kind` (GoalKind), `name`, `targetAmount`, `currentAmount`, `targetDate?`, `loanId?` (DEBT_PAYOFF), `priority`. Substitui `Goal` e `WishlistItem` do 1.x.
-
-### Memory, AgentRun, AiUsage, TelegramLink
-- `Memory`: `userId`, `key`, `value`, `updatedAt`; único `(userId, key)`; só preferências e fatos do próprio usuário, nunca dados de terceiros.
-- `AgentRun`: `userId`, `agent` (Vigia, Resumo, Fechamento), `startedAt`, `finishedAt`, `status`, `summary`. Único `(userId, agent, runDate)` para idempotência.
-- `AiUsage`: `userId`, `model`, `purpose`, `inputTokens`, `outputTokens`, `costUsdMicros` (Int), `createdAt`. Índice: `(userId, createdAt)`. Base do teto `OPENAI_MONTHLY_BUDGET_USD` (ADR-026).
-- `TelegramLink`: `userId`, `chatId` (único), `linkedAt`. Só o `chatId` cadastrado é aceito (ADR-027).
+| Constraint                               | Regra                                               |
+| ---------------------------------------- | --------------------------------------------------- |
+| `transactions_amount_nonzero`            | `amount <> 0`                                       |
+| `transactions_pair_requires_transfer_id` | `kind` TRANSFER ou CARD_PAYMENT exige `transfer_id` |
+| `accounts_overdraft_nonneg`              | `overdraft_limit >= 0`                              |
+| `accounts_days_range`                    | `closing_day` e `due_day` nulos ou entre 1 e 31     |
+| `income_rules_pay_day_range`             | `pay_day` entre 1 e 31                              |
 
 ## Invariantes globais
 
-1. Saldo da conta = `openingBalance` + Σ lançamentos CLEARED e RECONCILED (pendentes e planejados somados à parte).
+1. Saldo da conta = soma de `Transaction.amount`: `cleared` (CLEARED + RECONCILED), `pending` e `planned` somados à parte; `AccountBalance` é cache atualizado na mesma transação de banco (ADR-019).
 2. Nenhum valor monetário em ponto flutuante.
 3. Toda leitura e escrita filtra por `userId`.
-4. Reimportar o mesmo arquivo não cria lançamentos novos (`importHash`).
-5. Jobs reexecutados no mesmo dia não duplicam registros.
-6. Exclusão de conta com lançamentos é arquivamento (`isArchived`), não delete.
+4. Transferência e pagamento de fatura são pares com o mesmo `transferId`, uma perna por conta (`@@unique([transferId, accountId])`).
+5. Reimportar o mesmo arquivo não cria lançamentos novos (`importHash` único por usuário); previstos de série não duplicam (`occurrenceKey` único por usuário).
+6. Dia 29/30/31 em série cai no último dia do mês (regra de domínio, não de schema).
+7. `RECONCILED` é imutável sem desfazer a reconciliação (regra de domínio; `Reconciliation.reconciledIds` guarda os ids travados).
 
-## Estado atual (1.x)
+## Extensões em relação à especificação (§6)
 
-`prisma/schema.prisma` do 1.x tem: `User`, `Session`, `Account` (AccountType), `Category`, `Transaction` (TransactionType), `CreditCardStatement`, `CreditCardPurchase`, `CreditCardInstallmentAdvance`, `CreditCardPurchaseInstallment`, `Dashboard`, `DashboardWidget`, `RecurringRule`, `RecurringLog`, `WishlistCategory`, `WishlistItem`, `Goal`, `GoalSnapshot`, `ForecastSnapshot`, `FinancialScoreSnapshot` e `InsightSnapshot`. Ausentes no 1.x: status/review/source em `Transaction`, `Merchant`, `Rule`, `ImportBatch`, `Loan`, `IncomeRule`, `AccountBalance`, `Reconciliation`, tabelas de IA e Telegram. Dicionário do 1.x: [`data-dictionary.md`](data-dictionary.md).
+`LoanKind.CARD_REVOLVING`, `Transaction.refundOfId`, `Transaction.occurrenceKey`, `UserSettings`, `MeiProfile`, `LoginAttempt` e `Session.tokenHash`. Justificativas na task FC2-F0-02.
+
+## Legado
+
+O schema 1.x (21 models) foi removido; o dicionário antigo segue em [`data-dictionary.md`](data-dictionary.md) apenas como referência histórica. O 1.x está no histórico do Git (commit `5cfb2c9`, tag `fc-1.x-final`).

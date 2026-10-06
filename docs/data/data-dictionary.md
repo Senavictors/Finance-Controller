@@ -1,5 +1,5 @@
 ---
-estado: real
+estado: obsoleto
 fonte: FC 1.x (commit 5cfb2c9) — prisma/schema.prisma
 ultima-revisao: migrado de .docs/ em bootstrap-init 2026-10-05
 ---

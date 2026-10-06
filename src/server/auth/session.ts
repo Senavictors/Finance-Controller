@@ -9,12 +9,17 @@ function generateToken(): string {
   return crypto.randomBytes(32).toString('hex')
 }
 
+// O banco guarda apenas o SHA-256 (hex) do token; o cookie leva o token bruto.
+function hashToken(token: string): string {
+  return crypto.createHash('sha256').update(token).digest('hex')
+}
+
 export async function createSession(userId: string): Promise<string> {
   const token = generateToken()
   const expiresAt = new Date(Date.now() + SESSION_DURATION_MS)
 
   await prisma.session.create({
-    data: { token, userId, expiresAt },
+    data: { tokenHash: hashToken(token), userId, expiresAt },
   })
 
   const cookieStore = await cookies()
@@ -35,7 +40,7 @@ export async function validateSession(): Promise<{ userId: string; sessionId: st
   if (!token) return null
 
   const session = await prisma.session.findUnique({
-    where: { token },
+    where: { tokenHash: hashToken(token) },
     select: { id: true, userId: true, expiresAt: true },
   })
 
@@ -45,6 +50,11 @@ export async function validateSession(): Promise<{ userId: string; sessionId: st
     }
     return null
   }
+
+  await prisma.session.update({
+    where: { id: session.id },
+    data: { lastSeenAt: new Date() },
+  })
 
   return { userId: session.userId, sessionId: session.id }
 }
@@ -63,7 +73,7 @@ export async function destroySession(): Promise<void> {
   const token = cookieStore.get(SESSION_COOKIE_NAME)?.value
 
   if (token) {
-    await prisma.session.deleteMany({ where: { token } })
+    await prisma.session.deleteMany({ where: { tokenHash: hashToken(token) } })
   }
 
   cookieStore.delete(SESSION_COOKIE_NAME)

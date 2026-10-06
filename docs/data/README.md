@@ -4,7 +4,7 @@ Schema, entidades, propriedade e classificação de dados do 2.0. O schema real 
 
 ## Documentos
 
-- [`modelo-fc2.md`](modelo-fc2.md) — modelo de dados planejado do 2.0: entidades, enums, relações, índices e invariantes, com diagrama ER
+- [`modelo-fc2.md`](modelo-fc2.md) — dicionário do schema 2.0 (29 modelos, 26 enums): entidades, enums, únicos, índices, CHECKs e invariantes, com diagrama ER
 
 ## Regras
 
