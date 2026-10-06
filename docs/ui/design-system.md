@@ -1,7 +1,7 @@
 ---
 estado: planejado
 fonte: src/styles/tokens.css
-ultima-revisao: bootstrap-init 2026-10-05
+ultima-revisao: FC2-F0-03 2026-10-05
 ---
 
 # Design system Dark Glass
@@ -23,7 +23,7 @@ Componentes, telas e CSS de feature só referenciam `var(--fc-*)`. Proibido: `#f
 
 ## Tokens
 
-Fonte única: `src/styles/tokens.css`. A integração com Tailwind v4 (`@theme`) e shadcn é a task FC2-F0-03.
+Fonte única: `src/styles/tokens.css`. A integração com Tailwind v4 (`@theme inline`) e shadcn está em `src/app/globals.css` (task FC2-F0-03); ver "Integração com Tailwind v4 e shadcn" abaixo.
 
 ### Superfícies
 
@@ -69,6 +69,56 @@ Ver seção própria abaixo.
 ### Espaço, raio, vidro, motion e z-index
 
 Detalhados nas seções seguintes. Escala de z-index: tabbar 5, scrim 9, sheet 10, toast 20 (`--fc-z-*`).
+
+## Integração com Tailwind v4 e shadcn
+
+`src/app/globals.css` importa `tailwindcss`, `tw-animate-css`, `shadcn/tailwind.css` e `../styles/tokens.css`, nesta ordem, e só referencia `var(--fc-*)` (nenhuma cor literal; há teste em `src/styles/tokens.test.ts`). O app é somente dark: `<html>` sempre tem `class="dark"` e `color-scheme: dark`; não existe tema claro, toggle nem preferência salva.
+
+### Utilitários gerados pelo `@theme inline`
+
+| Utilitário | Origem | Exemplo |
+|---|---|---|
+| cores `fc-*` | `--color-fc-<nome>` -> `--fc-<nome>` (superfícies, texto, acento, semântica, `cat-1..10`) | `bg-fc-glass`, `border-fc-rim`, `text-fc-text-2`, `text-fc-in`, `bg-fc-cat-3` |
+| raios `fc-*` | `--radius-fc-xs..sheet/pill` | `rounded-fc-lg`, `rounded-fc-pill` |
+| sombras | `--shadow-fc-float/card/glow` | `shadow-fc-card` |
+| espaço | `--spacing-fc-gutter/tabbar/touch` | `p-fc-gutter`, `h-fc-tabbar`, `min-h-fc-touch` |
+| fontes | `--font-sans/heading/mono/num` | `font-sans`, `font-heading`, `font-num` |
+| easing | `--ease-fc`, `--ease-fc-spring` | `ease-fc`, `ease-fc-spring` |
+| blur de vidro (`@utility`) | `--fc-blur-card/bar/sheet` com prefixo `-webkit-` | `fc-blur-card`, `fc-blur-bar`, `fc-blur-sheet` |
+| tipografia (`@utility`) | `font: var(--fc-text-*)` | `fc-text-hero`, `fc-text-title`, `fc-text-h2`, `fc-text-body`, `fc-text-sub`, `fc-text-label`, `fc-text-caption`, `fc-text-amount`, `fc-tabular` |
+
+`fc-text-hero` e `fc-text-title` aplicam o tracking indicado; `fc-text-caption` aplica maiúsculas e tracking 0.06em; `fc-text-hero`, `fc-text-amount` e `fc-tabular` aplicam `tabular-nums`. Durações (`--fc-dur-*`) e `--animate-*` ficam para os primitivos (F0-04).
+
+### Variáveis shadcn -> tokens (bloco único `:root`)
+
+| shadcn | token |
+|---|---|
+| `--background` | `--fc-void` |
+| `--foreground`, `--card-foreground`, `--popover-foreground`, `--secondary-foreground` | `--fc-text` |
+| `--card`, `--popover` | `--fc-ink-raised` |
+| `--primary`, `--ring`, `--sidebar-primary`, `--sidebar-ring` | `--fc-iris` |
+| `--primary-foreground`, `--success-foreground`, `--warning-foreground`, `--sidebar-primary-foreground` | `--fc-text-on-accent` |
+| `--secondary`, `--sidebar-accent` | `--fc-glass-strong` |
+| `--muted` | `--fc-glass` |
+| `--muted-foreground` | `--fc-text-2` |
+| `--accent` | `--fc-iris-soft` |
+| `--accent-foreground` | `--fc-iris-hi` |
+| `--destructive` | `--fc-out` |
+| `--success` | `--fc-in` |
+| `--warning` | `--fc-pend` |
+| `--border`, `--input`, `--sidebar-border` | `--fc-rim` |
+| `--chart-1..5` | `--fc-cat-1..5` |
+| `--sidebar` | `--fc-ink` |
+| `--sidebar-foreground`, `--sidebar-accent-foreground` | `--fc-text` |
+| `--radius` | `--fc-radius-md` |
+
+Contraste medido (WCAG, texto sobre superfície, composição alfa sobre `--fc-void`/`--fc-ink-raised`): `--fc-text` sobre void 18,1:1; `--fc-text-2` sobre void 7,2:1, sobre card 6,9:1; `--fc-text-on-accent` sobre iris 7,5:1; `--fc-out` sobre void 8,2:1. `--fc-text-3` sobre void dá 3,4:1: usar só para texto grande, placeholder e metadado não essencial.
+
+### Base e fontes
+
+`@layer base` fixa fundo e cor do `html`/`body` em `--fc-void`/`--fc-text`, `font: var(--fc-text-body)`, `overscroll-behavior-y: none`, `touch-action: manipulation` em `button` e `a`, e `font-size: max(16px, 1em)` em `input`/`select`/`textarea` (evita o zoom automático do iOS ao focar).
+
+`src/app/layout.tsx` carrega `Geist` e `Geist_Mono` por `next/font/google` (`--font-geist-sans`, `--font-geist-mono`, `display: swap`, `preload: false`), aplicadas no `<html>`. As pilhas `--fc-font-*` em `tokens.css` referenciam essas variáveis; no iPhone vale a fonte do sistema (`-apple-system`, `ui-rounded`) e o Geist só é baixado se for usado.
 
 ## Tipografia e escala
 

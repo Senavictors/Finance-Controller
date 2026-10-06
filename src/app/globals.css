@@ -1,48 +1,94 @@
 @import 'tailwindcss';
 @import 'tw-animate-css';
 @import 'shadcn/tailwind.css';
+@import '../styles/tokens.css';
 
+/* Mantido por compatibilidade com o shadcn. O app é somente dark:
+   <html> sempre carrega class="dark". */
 @custom-variant dark (&:is(.dark *));
 
+/* ============================================
+   Finance Controller 2.0 — Dark Glass (ADR-018)
+   tokens.css é a única fonte de cor, raio, sombra,
+   blur, tipografia e motion. Aqui só se referencia
+   var(--fc-*); nenhum valor literal de cor.
+   ============================================ */
+
 @theme inline {
+  /* ---------- Cores shadcn ---------- */
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-inter);
-  --font-mono: var(--font-jetbrains-mono);
-  --font-heading: var(--font-inter);
-  --color-sidebar-ring: var(--sidebar-ring);
-  --color-sidebar-border: var(--sidebar-border);
-  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
-  --color-sidebar-accent: var(--sidebar-accent);
-  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
-  --color-sidebar-primary: var(--sidebar-primary);
-  --color-sidebar-foreground: var(--sidebar-foreground);
-  --color-sidebar: var(--sidebar);
-  --color-chart-5: var(--chart-5);
-  --color-chart-4: var(--chart-4);
-  --color-chart-3: var(--chart-3);
-  --color-chart-2: var(--chart-2);
-  --color-chart-1: var(--chart-1);
-  --color-ring: var(--ring);
-  --color-input: var(--input);
-  --color-border: var(--border);
-  --color-destructive: var(--destructive);
-  --color-accent-foreground: var(--accent-foreground);
-  --color-accent: var(--accent);
-  --color-muted-foreground: var(--muted-foreground);
-  --color-muted: var(--muted);
-  --color-secondary-foreground: var(--secondary-foreground);
-  --color-secondary: var(--secondary);
-  --color-primary-foreground: var(--primary-foreground);
-  --color-primary: var(--primary);
-  --color-popover-foreground: var(--popover-foreground);
-  --color-popover: var(--popover);
-  --color-card-foreground: var(--card-foreground);
   --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
   --color-success: var(--success);
   --color-success-foreground: var(--success-foreground);
   --color-warning: var(--warning);
   --color-warning-foreground: var(--warning-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+
+  /* ---------- Cores FC (bg-fc-glass, text-fc-text-2, border-fc-rim...) ---------- */
+  --color-fc-void: var(--fc-void);
+  --color-fc-ink: var(--fc-ink);
+  --color-fc-ink-raised: var(--fc-ink-raised);
+  --color-fc-glass: var(--fc-glass);
+  --color-fc-glass-strong: var(--fc-glass-strong);
+  --color-fc-glass-bar: var(--fc-glass-bar);
+  --color-fc-glass-sheet: var(--fc-glass-sheet);
+  --color-fc-rim: var(--fc-rim);
+  --color-fc-divider: var(--fc-divider);
+  --color-fc-scrim: var(--fc-scrim);
+  --color-fc-text: var(--fc-text);
+  --color-fc-text-2: var(--fc-text-2);
+  --color-fc-text-3: var(--fc-text-3);
+  --color-fc-text-on-accent: var(--fc-text-on-accent);
+  --color-fc-iris: var(--fc-iris);
+  --color-fc-iris-hi: var(--fc-iris-hi);
+  --color-fc-iris-lo: var(--fc-iris-lo);
+  --color-fc-iris-soft: var(--fc-iris-soft);
+  --color-fc-in: var(--fc-in);
+  --color-fc-out: var(--fc-out);
+  --color-fc-pend: var(--fc-pend);
+  --color-fc-info: var(--fc-info);
+  --color-fc-debt: var(--fc-debt);
+  --color-fc-cat-1: var(--fc-cat-1);
+  --color-fc-cat-2: var(--fc-cat-2);
+  --color-fc-cat-3: var(--fc-cat-3);
+  --color-fc-cat-4: var(--fc-cat-4);
+  --color-fc-cat-5: var(--fc-cat-5);
+  --color-fc-cat-6: var(--fc-cat-6);
+  --color-fc-cat-7: var(--fc-cat-7);
+  --color-fc-cat-8: var(--fc-cat-8);
+  --color-fc-cat-9: var(--fc-cat-9);
+  --color-fc-cat-10: var(--fc-cat-10);
+
+  /* ---------- Raios ---------- */
+  /* shadcn (derivados de --radius) */
   --radius-sm: calc(var(--radius) * 0.6);
   --radius-md: calc(var(--radius) * 0.8);
   --radius-lg: var(--radius);
@@ -50,163 +96,167 @@
   --radius-2xl: calc(var(--radius) * 1.8);
   --radius-3xl: calc(var(--radius) * 2.2);
   --radius-4xl: calc(var(--radius) * 2.6);
+  /* FC (rounded-fc-lg...) */
+  --radius-fc-xs: var(--fc-radius-xs);
+  --radius-fc-sm: var(--fc-radius-sm);
+  --radius-fc-md: var(--fc-radius-md);
+  --radius-fc-lg: var(--fc-radius-lg);
+  --radius-fc-xl: var(--fc-radius-xl);
+  --radius-fc-sheet: var(--fc-radius-sheet);
+  --radius-fc-pill: var(--fc-radius-pill);
+
+  /* ---------- Fontes ---------- */
+  --font-sans: var(--fc-font-ui);
+  --font-heading: var(--fc-font-display);
+  --font-mono: var(--fc-font-mono);
+  --font-num: var(--fc-font-num);
+
+  /* ---------- Sombras ---------- */
+  --shadow-fc-float: var(--fc-shadow-float);
+  --shadow-fc-card: var(--fc-shadow-card);
+  --shadow-fc-glow: var(--fc-glow-iris);
+
+  /* ---------- Espaço (p-fc-gutter, h-fc-tabbar, min-h-fc-touch) ---------- */
+  --spacing-fc-gutter: var(--fc-gutter);
+  --spacing-fc-tabbar: var(--fc-tabbar-h);
+  --spacing-fc-touch: var(--fc-touch-min);
+
+  /* ---------- Motion ---------- */
+  --ease-fc: var(--fc-ease);
+  --ease-fc-spring: var(--fc-spring);
 }
 
-/* ============================================
-   Finance Controller Theme — Refined Blue/Teal
-   Inspired by Apex Holdings dashboard reference
-   ============================================ */
-
+/* ---------- Variáveis shadcn -> tokens FC (bloco único; app somente dark) ---------- */
 :root {
-  /* Surfaces — warm gray undertone */
-  --background: oklch(0.97 0.003 250);
-  --foreground: oklch(0.145 0.015 250);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0.015 250);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0.015 250);
+  --background: var(--fc-void);
+  --foreground: var(--fc-text);
+  --card: var(--fc-ink-raised);
+  --card-foreground: var(--fc-text);
+  --popover: var(--fc-ink-raised);
+  --popover-foreground: var(--fc-text);
+  --primary: var(--fc-iris);
+  --primary-foreground: var(--fc-text-on-accent);
+  --secondary: var(--fc-glass-strong);
+  --secondary-foreground: var(--fc-text);
+  --muted: var(--fc-glass);
+  --muted-foreground: var(--fc-text-2);
+  --accent: var(--fc-iris-soft);
+  --accent-foreground: var(--fc-iris-hi);
+  --destructive: var(--fc-out);
+  --success: var(--fc-in);
+  --success-foreground: var(--fc-text-on-accent);
+  --warning: var(--fc-pend);
+  --warning-foreground: var(--fc-text-on-accent);
+  --border: var(--fc-rim);
+  --input: var(--fc-rim);
+  --ring: var(--fc-iris);
 
-  /* Primary — Blue */
-  --primary: oklch(0.546 0.197 262);
-  --primary-foreground: oklch(0.985 0.002 247);
+  --chart-1: var(--fc-cat-1);
+  --chart-2: var(--fc-cat-2);
+  --chart-3: var(--fc-cat-3);
+  --chart-4: var(--fc-cat-4);
+  --chart-5: var(--fc-cat-5);
 
-  /* Secondary — Warm gray */
-  --secondary: oklch(0.955 0.004 250);
-  --secondary-foreground: oklch(0.25 0.015 250);
+  --sidebar: var(--fc-ink);
+  --sidebar-foreground: var(--fc-text);
+  --sidebar-primary: var(--fc-iris);
+  --sidebar-primary-foreground: var(--fc-text-on-accent);
+  --sidebar-accent: var(--fc-glass-strong);
+  --sidebar-accent-foreground: var(--fc-text);
+  --sidebar-border: var(--fc-rim);
+  --sidebar-ring: var(--fc-iris);
 
-  /* Muted */
-  --muted: oklch(0.955 0.004 250);
-  --muted-foreground: oklch(0.5 0.01 250);
-
-  /* Accent — Teal */
-  --accent: oklch(0.88 0.05 175);
-  --accent-foreground: oklch(0.18 0.04 180);
-
-  /* Destructive — Red */
-  --destructive: oklch(0.577 0.245 27.325);
-
-  /* Success — Green */
-  --success: oklch(0.627 0.194 149);
-  --success-foreground: oklch(0.985 0.005 150);
-
-  /* Warning — Amber */
-  --warning: oklch(0.769 0.188 70.08);
-  --warning-foreground: oklch(0.205 0.04 60);
-
-  /* Borders & inputs — softer */
-  --border: oklch(0.935 0.004 250);
-  --input: oklch(0.935 0.004 250);
-  --ring: oklch(0.546 0.197 262);
-
-  /* Chart palette */
-  --chart-1: oklch(0.546 0.197 262);
-  --chart-2: oklch(0.6 0.15 220);
-  --chart-3: oklch(0.65 0.17 190);
-  --chart-4: oklch(0.7 0.15 170);
-  --chart-5: oklch(0.627 0.194 149);
-
-  /* Bigger radius for modern look */
-  --radius: 1rem;
-
-  /* Sidebar — clean white */
-  --sidebar: oklch(1 0 0);
-  --sidebar-foreground: oklch(0.4 0.01 250);
-  --sidebar-primary: #38bdf8;
-  --sidebar-primary-foreground: oklch(0.985 0.002 247);
-  --sidebar-accent: oklch(0.955 0.004 250);
-  --sidebar-accent-foreground: oklch(0.145 0.015 250);
-  --sidebar-border: oklch(0.94 0.004 250);
-  --sidebar-ring: #38bdf8;
-}
-
-.dark {
-  --background: oklch(0.12 0.015 250);
-  --foreground: oklch(0.985 0.002 247);
-  --card: oklch(0.17 0.015 250);
-  --card-foreground: oklch(0.985 0.002 247);
-  --popover: oklch(0.17 0.015 250);
-  --popover-foreground: oklch(0.985 0.002 247);
-
-  --primary: oklch(0.7 0.18 255);
-  --primary-foreground: oklch(0.145 0.015 250);
-
-  --secondary: oklch(0.22 0.015 250);
-  --secondary-foreground: oklch(0.985 0.002 247);
-
-  --muted: oklch(0.22 0.015 250);
-  --muted-foreground: oklch(0.65 0.01 250);
-
-  --accent: oklch(0.25 0.04 180);
-  --accent-foreground: oklch(0.88 0.05 175);
-
-  --destructive: oklch(0.704 0.191 22.216);
-
-  --success: oklch(0.627 0.194 149);
-  --success-foreground: oklch(0.145 0.02 150);
-
-  --warning: oklch(0.769 0.188 70.08);
-  --warning-foreground: oklch(0.145 0.03 60);
-
-  --border: oklch(1 0 0 / 8%);
-  --input: oklch(1 0 0 / 12%);
-  --ring: oklch(0.7 0.18 255);
-
-  --chart-1: oklch(0.7 0.18 255);
-  --chart-2: oklch(0.65 0.14 220);
-  --chart-3: oklch(0.7 0.16 190);
-  --chart-4: oklch(0.75 0.14 170);
-  --chart-5: oklch(0.7 0.18 149);
-
-  --sidebar: oklch(0.15 0.015 250);
-  --sidebar-foreground: oklch(0.985 0.002 247);
-  --sidebar-primary: #38bdf8;
-  --sidebar-primary-foreground: oklch(0.985 0.002 247);
-  --sidebar-accent: oklch(0.22 0.015 250);
-  --sidebar-accent-foreground: oklch(0.985 0.002 247);
-  --sidebar-border: oklch(1 0 0 / 8%);
-  --sidebar-ring: #38bdf8;
+  --radius: var(--fc-radius-md);
 }
 
 @layer base {
   * {
     @apply border-border outline-ring/50;
   }
-  body {
-    @apply bg-background text-foreground;
-  }
+
   html {
-    @apply font-sans;
+    background: var(--fc-void);
+    color-scheme: dark;
+  }
+
+  body {
+    background: var(--fc-void);
+    color: var(--fc-text);
+    font: var(--fc-text-body);
+    -webkit-font-smoothing: antialiased;
+    overscroll-behavior-y: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  button,
+  a {
+    touch-action: manipulation;
+  }
+
+  /* >= 16px evita o zoom automático do iOS ao focar o campo */
+  input,
+  select,
+  textarea {
+    font-size: max(16px, 1em);
   }
 }
 
-@layer components {
-  .fc-panel {
-    @apply border-border/60 from-card via-card to-muted/35 rounded-[2rem] border bg-gradient-to-br shadow-sm;
-  }
-
-  .fc-panel-subtle {
-    @apply border-border/60 bg-muted/60 rounded-[2rem] border shadow-sm;
-  }
-
-  .fc-panel-strong {
-    @apply border-border/70 bg-card rounded-[2rem] border shadow-sm;
-  }
-
-  .fc-panel-danger {
-    @apply via-card to-card dark:via-card dark:to-card rounded-[2rem] border border-red-200/60 bg-gradient-to-br from-red-50/70 shadow-sm dark:border-red-900/70 dark:from-red-950/40;
-  }
+/* ---------- Vidro: backdrop-filter (com prefixo WebKit do Safari) ---------- */
+@utility fc-blur-card {
+  -webkit-backdrop-filter: var(--fc-blur-card);
+  backdrop-filter: var(--fc-blur-card);
 }
 
-/* react-grid-layout — drop placeholder tuned to the blue/teal theme */
-.react-grid-layout .react-grid-item.react-grid-placeholder,
-.react-grid-item.react-grid-placeholder {
-  background: var(--primary) !important;
-  border-radius: calc(var(--radius) * 1.4) !important;
-  opacity: 0.15 !important;
+@utility fc-blur-bar {
+  -webkit-backdrop-filter: var(--fc-blur-bar);
+  backdrop-filter: var(--fc-blur-bar);
 }
 
-.dark .react-grid-layout .react-grid-item.react-grid-placeholder,
-.dark .react-grid-item.react-grid-placeholder {
-  background: var(--primary) !important;
-  opacity: 0.22 !important;
+@utility fc-blur-sheet {
+  -webkit-backdrop-filter: var(--fc-blur-sheet);
+  backdrop-filter: var(--fc-blur-sheet);
+}
+
+/* ---------- Tipografia (o shorthand `font` não mapeia em @theme) ---------- */
+/* font-variant-numeric vem depois do shorthand, que o redefine. */
+@utility fc-tabular {
+  font-variant-numeric: tabular-nums;
+}
+
+@utility fc-text-hero {
+  font: var(--fc-text-hero);
+  letter-spacing: -0.035em;
+  font-variant-numeric: tabular-nums;
+}
+
+@utility fc-text-title {
+  font: var(--fc-text-title);
+  letter-spacing: -0.025em;
+}
+
+@utility fc-text-h2 {
+  font: var(--fc-text-h2);
+}
+
+@utility fc-text-body {
+  font: var(--fc-text-body);
+}
+
+@utility fc-text-sub {
+  font: var(--fc-text-sub);
+}
+
+@utility fc-text-label {
+  font: var(--fc-text-label);
+}
+
+@utility fc-text-caption {
+  font: var(--fc-text-caption);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+@utility fc-text-amount {
+  font: var(--fc-text-amount);
+  font-variant-numeric: tabular-nums;
 }

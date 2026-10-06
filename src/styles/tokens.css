@@ -63,10 +63,10 @@
   --fc-cat-10: #b7c0d8; /* outros */
 
   /* ---------- Tipografia ---------- */
-  --fc-font-ui: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Geist", system-ui, sans-serif;
-  --fc-font-display: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Geist", system-ui, sans-serif;
-  --fc-font-num: "SF Pro Rounded", -apple-system, "Geist", system-ui, sans-serif;
-  --fc-font-mono: "Geist Mono", "SF Mono", ui-monospace, monospace;
+  --fc-font-ui: -apple-system, BlinkMacSystemFont, "SF Pro Text", var(--font-geist-sans), system-ui, sans-serif;
+  --fc-font-display: -apple-system, BlinkMacSystemFont, "SF Pro Display", var(--font-geist-sans), system-ui, sans-serif;
+  --fc-font-num: ui-rounded, "SF Pro Rounded", -apple-system, var(--font-geist-sans), system-ui, sans-serif;
+  --fc-font-mono: var(--font-geist-mono), "SF Mono", ui-monospace, monospace;
 
   --fc-text-hero: 700 54px/1 var(--fc-font-num);     /* número principal (letter-spacing -0.035em) */
   --fc-text-title: 700 30px/1.05 var(--fc-font-display); /* título de tela (-0.025em) */
