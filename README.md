@@ -1,35 +1,35 @@
 # Finance Controller 2.0
 
-Sistema de finanças pessoais de uso pessoal, em **reescrita completa** para a versão 2.0: uma PWA mobile-first com visual *dark glass* que responde em 2 segundos "quanto posso gastar", deixa lançar um gasto em 5 segundos por texto livre, importa extratos com uma Inbox de revisão, mostra dívidas e juros, acompanha a renda MEI e conversa pelo Telegram.
+Sistema de finanças pessoais de uso pessoal, em **reescrita completa** para a versão 2.0: uma PWA mobile-first com visual _dark glass_ que responde em 2 segundos "quanto posso gastar", deixa lançar um gasto em 5 segundos por texto livre, importa extratos com uma Inbox de revisão, mostra dívidas e juros, acompanha a renda MEI e conversa pelo Telegram.
 
 > A versão 1.x (fases 8 a 41) está preservada no histórico do Git (commit `5cfb2c9`) e documentada em [`docs/roadmap/legado/`](docs/roadmap/legado/).
 
 ## Stack
 
-| Camada | Tecnologia |
-|---|---|
-| App | Next.js 16 (App Router), React 19, TypeScript |
-| UI | Tailwind CSS v4, shadcn/Base UI, tokens Dark Glass (`src/styles/tokens.css`) |
-| Dados | PostgreSQL (Neon) + Prisma 7 |
-| Validação | Zod 4 |
-| Testes | Vitest 4 |
-| Deploy | Vercel (+ Vercel Cron) |
-| Integrações | OpenAI (orçamento fixo), Telegram Bot API, MCP |
+| Camada      | Tecnologia                                                                   |
+| ----------- | ---------------------------------------------------------------------------- |
+| App         | Next.js 16 (App Router), React 19, TypeScript                                |
+| UI          | Tailwind CSS v4, shadcn/Base UI, tokens Dark Glass (`src/styles/tokens.css`) |
+| Dados       | PostgreSQL (Neon) + Prisma 7                                                 |
+| Validação   | Zod 4                                                                        |
+| Testes      | Vitest 4                                                                     |
+| Deploy      | Vercel (+ Vercel Cron)                                                       |
+| Integrações | OpenAI (orçamento fixo), Telegram Bot API, MCP                               |
 
 ## Roadmap
 
-| Fase | Objetivo | Status |
-|---|---|---|
-| F0 | Fundação: limpeza do legado, schema novo, tokens, shell PWA | planejada |
-| F1 | Confiança: ledger, contas, cartões, dívidas, renda MEI, reconciliação | planejada |
-| F2 | Captura: parser de texto, memória de merchant, sheet global | planejada |
-| F3 | Hoje & Planejar: recorrências, engine Disponível, modo Aperto | planejada |
-| F4 | Importação & Inbox: PDF/OFX/CSV, regras, matching | planejada |
-| F5 | IA, Telegram & MCP | planejada |
-| F6 | Polimento & hábito: motion, acessibilidade, relatórios | planejada |
-| F7 | Futuro: Open Finance, modo casal | backlog |
+| Fase | Objetivo                                                              | Status                                                          |
+| ---- | --------------------------------------------------------------------- | --------------------------------------------------------------- |
+| F0   | Fundação: limpeza do legado, schema novo, tokens, shell PWA           | em andamento (FC2-F0-01 limpeza do legado: concluída no branch) |
+| F1   | Confiança: ledger, contas, cartões, dívidas, renda MEI, reconciliação | planejada                                                       |
+| F2   | Captura: parser de texto, memória de merchant, sheet global           | planejada                                                       |
+| F3   | Hoje & Planejar: recorrências, engine Disponível, modo Aperto         | planejada                                                       |
+| F4   | Importação & Inbox: PDF/OFX/CSV, regras, matching                     | planejada                                                       |
+| F5   | IA, Telegram & MCP                                                    | planejada                                                       |
+| F6   | Polimento & hábito: motion, acessibilidade, relatórios                | planejada                                                       |
+| F7   | Futuro: Open Finance, modo casal                                      | backlog                                                         |
 
-**Próximo passo:** executar a F0 (`executar fase F0`). Detalhe de cada task em [`PLANS.md`](PLANS.md).
+**Próximo passo:** seguir a F0 (`executar fase F0`). Detalhe de cada task em [`PLANS.md`](PLANS.md).
 
 ## Como o projeto é desenvolvido
 

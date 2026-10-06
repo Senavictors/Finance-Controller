@@ -2,22 +2,16 @@ import { NextRequest, NextResponse } from 'next/server'
 
 const SESSION_COOKIE_NAME = 'fc_session'
 
-const AUTH_ROUTES = ['/login', '/register']
-const PROTECTED_ROUTES = [
-  '/dashboard',
-  '/transactions',
-  '/accounts',
-  '/categories',
-  '/recurring',
-  '/settings',
-]
+// Provisório: reescrito na FC2-F0-06 (renovação deslizante da sessão).
+const AUTH_ROUTES = ['/login']
+const PROTECTED_ROUTES = ['/hoje', '/lancamentos', '/planejar', '/cartoes', '/mais']
 
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
   const hasSession = request.cookies.has(SESSION_COOKIE_NAME)
 
   if (hasSession && AUTH_ROUTES.some((route) => pathname.startsWith(route))) {
-    return NextResponse.redirect(new URL('/dashboard', request.url))
+    return NextResponse.redirect(new URL('/hoje', request.url))
   }
 
   if (!hasSession && PROTECTED_ROUTES.some((route) => pathname.startsWith(route))) {

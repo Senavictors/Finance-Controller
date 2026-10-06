@@ -2,7 +2,6 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
@@ -42,7 +41,7 @@ export function LoginForm() {
       }
 
       const params = new URLSearchParams(window.location.search)
-      router.push(params.get('callbackUrl') ?? '/dashboard')
+      router.push(params.get('callbackUrl') ?? '/hoje')
       router.refresh()
     } catch {
       setError('Algo deu errado. Tente novamente.')
@@ -86,13 +85,6 @@ export function LoginForm() {
           <Button type="submit" disabled={loading} size="lg" className="w-full">
             {loading ? 'Entrando...' : 'Entrar'}
           </Button>
-
-          <p className="text-muted-foreground text-center text-sm">
-            Nao tem uma conta?{' '}
-            <Link href="/register" className="text-primary hover:underline">
-              Cadastre-se
-            </Link>
-          </p>
         </form>
       </CardContent>
     </Card>
