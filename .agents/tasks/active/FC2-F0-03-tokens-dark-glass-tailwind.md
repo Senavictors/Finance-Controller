@@ -1,7 +1,7 @@
 ---
 id: FC2-F0-03
 title: Tokens dark glass no Tailwind v4/shadcn + fontes
-status: backlog
+status: active
 type: refactor
 phase: F0
 wave: 1

@@ -1,7 +1,7 @@
 ---
 id: FC2-F0-01
 title: Limpeza do legado (CRA, backend/, database/, Postman, demo, landing)
-status: backlog
+status: active
 type: chore
 phase: F0
 wave: 1
