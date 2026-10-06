@@ -13,6 +13,6 @@ Regras que valem para todo o código de UI:
 1. Nenhuma cor, raio, sombra ou duração literal em componentes: somente `var(--fc-*)`.
 2. Primitivos novos nascem em `src/components/fc/` e entram no catálogo antes de serem usados em telas.
 3. Mobile-first: projete em 390×844 e expanda para desktop depois.
-4. Valores monetários passam sempre por `MoneyText`.
+4. Valores monetários passam sempre por `AmountText`.
 
 Relacionados: [`../product/fluxos-ux.md`](../product/fluxos-ux.md) (jornadas), tasks FC2-F0-03, FC2-F0-04, FC2-F0-05 e FC2-F6-01 em `PLANS.md`.

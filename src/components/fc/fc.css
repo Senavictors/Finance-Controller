@@ -1,0 +1,207 @@
+/* =====================================================================
+   Primitivos FC — keyframes e regras que o Tailwind não expressa bem.
+   Só var(--fc-*): nenhuma cor, raio, sombra ou duração literal (ADR-018).
+   Durações longas derivam dos tokens (calc sobre --fc-dur-*); regras de
+   prefers-reduced-motion abaixo desligam o que for decorativo.
+   ===================================================================== */
+
+/* ---------- Vidro: fallback sem backdrop-filter ---------- */
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .fc-glass-surface {
+    background: var(--fc-ink-raised);
+  }
+}
+
+/* ---------- Aura ---------- */
+.fc-aura {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  contain: strict;
+}
+
+.fc-aura-blob {
+  position: absolute;
+  border-radius: var(--fc-radius-pill);
+  filter: var(--fc-aura-blur);
+  will-change: transform;
+  animation: fc-aura-drift calc(var(--fc-dur-slow) * 16) var(--fc-ease) infinite alternate;
+}
+
+.fc-aura-blob[data-blob='1'] {
+  width: 70%;
+  height: 70%;
+  top: -20%;
+  left: -15%;
+}
+
+.fc-aura-blob[data-blob='2'] {
+  width: 65%;
+  height: 65%;
+  top: -5%;
+  right: -20%;
+  animation-delay: calc(var(--fc-dur-slow) * -5);
+  animation-duration: calc(var(--fc-dur-slow) * 20);
+}
+
+.fc-aura-blob[data-blob='3'] {
+  width: 55%;
+  height: 55%;
+  bottom: -25%;
+  left: 20%;
+  animation-delay: calc(var(--fc-dur-slow) * -9);
+  animation-duration: calc(var(--fc-dur-slow) * 24);
+}
+
+.fc-aura[data-state='calm'] [data-blob='1'] {
+  background: radial-gradient(circle, var(--fc-calm-1), transparent 68%);
+}
+.fc-aura[data-state='calm'] [data-blob='2'] {
+  background: radial-gradient(circle, var(--fc-calm-2), transparent 68%);
+}
+.fc-aura[data-state='calm'] [data-blob='3'] {
+  background: radial-gradient(circle, var(--fc-calm-3), transparent 68%);
+}
+
+.fc-aura[data-state='tense'] [data-blob='1'] {
+  background: radial-gradient(circle, var(--fc-tense-1), transparent 68%);
+}
+.fc-aura[data-state='tense'] [data-blob='2'] {
+  background: radial-gradient(circle, var(--fc-tense-2), transparent 68%);
+}
+.fc-aura[data-state='tense'] [data-blob='3'] {
+  background: radial-gradient(circle, var(--fc-tense-3), transparent 68%);
+}
+
+.fc-aura[data-state='hot'] [data-blob='1'] {
+  background: radial-gradient(circle, var(--fc-hot-1), transparent 68%);
+}
+.fc-aura[data-state='hot'] [data-blob='2'] {
+  background: radial-gradient(circle, var(--fc-hot-2), transparent 68%);
+}
+.fc-aura[data-state='hot'] [data-blob='3'] {
+  background: radial-gradient(circle, var(--fc-hot-3), transparent 68%);
+}
+
+@keyframes fc-aura-drift {
+  from {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  50% {
+    transform: translate3d(6%, 8%, 0) scale(1.08);
+  }
+  to {
+    transform: translate3d(-5%, 3%, 0) scale(0.95);
+  }
+}
+
+/* ---------- Skeleton ---------- */
+.fc-skeleton {
+  position: relative;
+  overflow: hidden;
+  background: var(--fc-glass);
+}
+
+.fc-skeleton::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent, var(--fc-glass-strong), transparent);
+  transform: translateX(-100%);
+  animation: fc-shimmer calc(var(--fc-dur-count) * 1.6) var(--fc-ease) infinite;
+}
+
+@keyframes fc-shimmer {
+  to {
+    transform: translateX(100%);
+  }
+}
+
+/* ---------- Spinner (Button loading) ---------- */
+.fc-spinner {
+  display: inline-block;
+  width: 1em;
+  height: 1em;
+  flex-shrink: 0;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  border-radius: var(--fc-radius-pill);
+  animation: fc-spin calc(var(--fc-dur-slow) * 1.4) linear infinite;
+}
+
+@keyframes fc-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ---------- Segmented: indicador deslizante ---------- */
+.fc-seg-indicator {
+  position: absolute;
+  top: var(--fc-space-1);
+  bottom: var(--fc-space-1);
+  left: var(--fc-space-1);
+  width: calc((100% - 2 * var(--fc-space-1)) / var(--fc-seg-n, 2));
+  transform: translateX(calc(var(--fc-seg-i, 0) * 100%));
+  transition: transform var(--fc-dur-base) var(--fc-spring);
+}
+
+/* ---------- Toast ---------- */
+.fc-toast {
+  animation: fc-toast-in var(--fc-dur-base) var(--fc-spring) both;
+}
+
+@keyframes fc-toast-in {
+  from {
+    opacity: 0;
+    transform: translateY(-120%);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ---------- Sheet ---------- */
+.fc-sheet-backdrop {
+  opacity: 1;
+  transition: opacity var(--fc-dur-base) var(--fc-ease);
+}
+
+.fc-sheet-backdrop[data-starting-style],
+.fc-sheet-backdrop[data-ending-style] {
+  opacity: 0;
+}
+
+.fc-sheet-popup {
+  transform: translateY(var(--fc-sheet-dy, 0px));
+  transition: transform var(--fc-dur-base) var(--fc-spring);
+}
+
+.fc-sheet-popup[data-starting-style],
+.fc-sheet-popup[data-ending-style] {
+  transform: translateY(100%);
+}
+
+.fc-sheet-popup[data-dragging='true'] {
+  transition: none;
+}
+
+/* ---------- Reduced motion: nada decorativo roda ---------- */
+@media (prefers-reduced-motion: reduce) {
+  .fc-aura-blob,
+  .fc-skeleton::after,
+  .fc-spinner {
+    animation: none;
+  }
+
+  .fc-spinner {
+    border-right-color: currentColor;
+    opacity: 0.6;
+  }
+
+  .fc-skeleton::after {
+    display: none;
+  }
+}

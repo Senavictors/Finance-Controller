@@ -89,5 +89,5 @@ Acessada pelo ícone no cabeçalho das telas principais (a TabBar tem quatro des
 | Vazio | ícone, uma frase, uma ação |
 | Erro | mensagem clara, ação "Tentar de novo", dado em cache se houver |
 | Offline | selo discreto; captura continua em fila local |
-| Privacidade | valores mascarados por `MoneyText` |
+| Privacidade | valores mascarados por `AmountText` |
 | Desktop | mesmo conteúdo em duas colunas a partir de 1024px; TabBar vira barra lateral; `/` e ⌘K abrem a captura |

@@ -1,168 +1,129 @@
 ---
-estado: planejado
+estado: vigente (primitivos da F0-04 implementados; TabBar, Fab, CardCarousel, InboxCard, Hero, StatusPill, Sparkline e gráficos seguem planejados)
 fonte: src/components/fc/
-ultima-revisao: bootstrap-init 2026-10-05
+ultima-revisao: FC2-F0-04 2026-10-05
 ---
 
 # Catálogo de componentes
 
-Primitivos dark glass em `src/components/fc/` (task FC2-F0-04). As props abaixo são o contrato planejado; ao implementar, o código manda e este doc é atualizado. Todos usam só tokens `--fc-*` ([`design-system.md`](design-system.md)). Convenção: um arquivo por componente (`glass-card.tsx`, `money-text.tsx`, ...) com `*.test.tsx` ao lado quando houver lógica.
+Primitivos dark glass em `src/components/fc/`, exportados por `src/components/fc/index.ts` (`import { Button, GlassCard } from '@/components/fc'`). O código manda; este doc descreve o contrato implementado. Todos usam só tokens `--fc-*` ([`design-system.md`](design-system.md)); o teste `tests/guards/no-literal-colors.test.ts` falha em cor literal em `src/components/**` e `src/app/**`.
 
-Estados comuns a todo componente interativo: padrão, pressed (`--fc-glass-strong`, escala 0.98 em `--fc-dur-fast`), foco visível, desabilitado (opacidade reduzida, sem sombra), carregando (skeleton com `--fc-glass`).
+Convenções: um arquivo por componente (`glass-card.tsx`, `amount-text.tsx`, ...); utilitários puros testáveis em `src/components/fc/lib/`; `@keyframes` e regras que o Tailwind não expressa em `src/components/fc/fc.css` (importado por `globals.css`). Componentes são de servidor por padrão; têm `'use client'`: `AmountText`, `Segmented`, `Sheet`, `Toast`/`Toaster`, `Field`/`MoneyField`. Primitivos recebem props: nenhum faz fetch, Prisma ou Server Action.
+
+Galeria de desenvolvimento: `/ui` (`src/app/(dev)/ui/`), todos os estados com valores fictícios; responde 404 em produção.
+
+Estados comuns a todo componente interativo: padrão, pressed (escala 0.97 com `--fc-spring`), foco visível (`outline` `--fc-iris`), desabilitado (opacidade 50%, sem sombra), carregando. Alvo de toque mínimo `--fc-touch-min` (44px).
 
 ## GlassCard
 
 Contêiner de vidro. Base de quase tudo.
 
-- Props: `tone` (`default` | `strong`), `padding` (`none` | `sm` | `md`), `interactive` (boolean), `as`, `className`.
-- Anatomia: fundo `--fc-glass`, borda 1px `--fc-rim`, raio `--fc-radius-lg`, blur `--fc-blur-card`, sombra `--fc-shadow-card`.
-- Do: usar para agrupar conteúdo relacionado; um blur por contêiner. Don't: aninhar GlassCard dentro de GlassCard com blur; usar para itens individuais de lista longa (use `ListRow` dentro de um único card).
+- Props: `variant` (`card` | `strong` | `bar` | `sheet`, padrão `card`), `padding` (`none` | `sm` | `md` | `lg`, padrão `md`), `as` (`div` | `section` | `article` | `aside` | `header` | `footer` | `li`), `className` + props de `div`.
+- Anatomia: fundo `--fc-glass`/`--fc-glass-strong`/`--fc-glass-bar`/`--fc-glass-sheet`, borda 1px `--fc-rim`, raio `--fc-radius-lg` (`--fc-radius-xl` na `bar`), blur `--fc-blur-card`/`bar`/`sheet`, sombra `--fc-shadow-card`. Sem `backdrop-filter` (`@supports not`), cai em fundo sólido `--fc-ink-raised`.
+- Do: um blur por contêiner. Don't: aninhar GlassCard; usar em itens de lista longa (use `ListRow` dentro de um único card).
 
-## Hero / Aura
+## Aura
 
-Bloco de destaque de Hoje com a aura atrás.
+Decoração da tela Hoje.
 
-- Props: `state` (`calm` | `tense` | `hot`), `label`, `value` (centavos), `sublabel`, `children` (ações).
-- Estados: os três da aura; transição em `--fc-dur-slow`; estático em reduced motion.
-- Anatomia: camada de aura (blobs com `--fc-aura-blur`, `--fc-calm-*`/`--fc-tense-*`/`--fc-hot-*`), cartão `--fc-radius-xl`, rótulo em caption, número em `--fc-text-hero`, sublinha em `--fc-text-sub`.
-- Do: dizer o estado também em texto. Don't: usar a aura fora de Hoje; deixar o número menor que o hero.
+- Props: `state` (`calm` | `tense` | `hot`, padrão `calm`), `className`.
+- Anatomia: contêiner `absolute inset-0` com 3 blobs de gradiente radial `--fc-{state}-1/2/3`, `--fc-aura-blur`, deriva lenta por `transform` (keyframes em `fc.css`). `aria-hidden`. Posicione dentro de um contêiner `relative overflow-hidden`.
+- Reduced motion: estática. Do: dizer o estado também em texto. Don't: usar fora de Hoje.
 
-## MoneyText
+## AmountText
 
 Único jeito de renderizar dinheiro.
 
-- Props: `cents` (inteiro), `tone` (`auto` | `in` | `out` | `pend` | `info` | `debt` | `neutral`), `size` (`hero` | `amount` | `sub`), `showSign`, `hideCents`, `currency` (padrão BRL), `masked` (privacidade).
-- Comportamento: formata pt-BR com `src/lib/money.ts`; `tone="auto"` usa `--fc-in` para positivo e `--fc-out` para negativo em saldos (não em despesas comuns); `tabular-nums`; sinal explícito com `−` tipográfico.
-- Acessibilidade: `aria-label` falado ("mil reais, negativo").
-- Do: receber sempre centavos. Don't: formatar com `toFixed`, `Intl` solto ou dividir por 100 no componente de tela.
+- Props: `cents` (Int), `tone` (`auto` | `in` | `out` | `pend` | `debt` | `neutral`, padrão `auto`), `size` (`amount` | `hero`), `showSign`, `hidden` (privacidade), `animate`, `className`.
+- Formato fixado: `-R$ 1.234,56` (sinal antes do símbolo, espaço não separável), via `formatCurrency` (`src/lib/format.ts`). `tabular-nums`, `--fc-font-num`.
+- `tone="auto"`: positivo `--fc-in`, negativo `--fc-out`, zero `--fc-text-2`. `neutral` usa `--fc-text`.
+- `hidden`: mostra `R$ ••••`; nenhum dígito no DOM. `animate`: conta até o valor em `--fc-dur-count` (rAF, só texto); instantâneo com reduced motion.
+- Acessibilidade: texto visual `aria-hidden`, mais `sr-only` com "menos 1.234 reais e 56 centavos".
+- Utilitários puros (`lib/amount.ts`): `toneForCents`, `formatAmountParts`, `formatAmountText`, `describeAmount`, `clampProgress`.
 
-## NumberTicker
+## Button e IconButton
 
-Contagem animada para valores grandes.
-
-- Props: `value` (centavos), `duration` (padrão `--fc-dur-count`), `animateOnMount`, `format` (via MoneyText).
-- Estados: anima só na primeira montagem e em mudança causada pelo usuário; atualização em segundo plano troca sem animar; reduced motion mostra o valor final.
-- Do: usar apenas para o número principal. Don't: usar em listas ou durante digitação.
-
-## Pill / StatusPill
-
-Rótulo compacto, não interativo.
-
-- Props `Pill`: `tone`, `icon`, `children`. Props `StatusPill`: `status` (`planned` | `pending` | `cleared` | `reconciled` | `late` | `needs-review`).
-- Anatomia: raio `--fc-radius-pill`, fundo da cor semântica em baixa opacidade, texto na cor semântica, caption.
-- Mapeamento: planned e pending usam `--fc-pend`; cleared `--fc-in`; reconciled `--fc-info`; late `--fc-out`; needs-review `--fc-iris`.
-- Don't: usar StatusPill como botão; criar status sem texto.
+- `Button` props: `variant` (`primary` | `glass` | `ghost` | `danger`, padrão `primary`), `size` (`md` | `lg` | `icon`), `loading` (desabilita, mostra spinner, `aria-busy`), `asChild` (aplica o estilo ao único filho, ex.: `<a>`), props de `button`.
+- `primary`: fundo `--fc-iris`, texto `--fc-text-on-accent`, sombra `--fc-glow-iris`.
+- `IconButton` props: `label` (obrigatório, vira `aria-label`; omitir é erro de tipo), `icon`, `variant` (padrão `glass`). 44x44px.
+- Don't: dois `primary` na mesma tela.
 
 ## Chip
 
 Atributo editável do rascunho de captura (categoria, valor, conta, data, tipo, parcelas).
 
-- Props: `label`, `value`, `icon`, `selected`, `onPress`, `onRemove`, `tone`.
-- Estados: padrão, selecionado (`--fc-iris-soft` e borda `--fc-iris`), com erro (`--fc-out`), em edição.
-- Alvo de toque: 44px de altura efetiva. Do: mostrar o valor interpretado, não o rótulo vazio. Don't: truncar valor monetário.
+- Props: `selected`, `onPress` (sem ele o chip é informativo), `onRemove` (mostra `x`), `removeLabel`, `tone` (`neutral` | `in` | `out` | `pend` | `info` | `debt`), `leading`, props de `button`.
+- Selecionado: `--fc-iris-soft` com borda `--fc-iris`. Visual de 36px; botões internos de 44px (vazam 4px acima e abaixo da pílula).
+- Do: mostrar o valor interpretado. Don't: truncar valor monetário.
 
-## SegmentedControl
+## Segmented
 
-Alternância entre 2 a 4 opções (ex.: Todos | Inbox, Normal | Aperto, 7d | 30d | Ciclo).
+2 a 4 opções (Todos | Inbox, 7d | 30d | Ciclo).
 
-- Props: `options` (`{ value, label, badge? }[]`), `value`, `onChange`, `size`.
-- Anatomia: trilho `--fc-glass`, indicador deslizante com `--fc-spring`, raio `--fc-radius-pill`.
-- Acessibilidade: `role="tablist"`/`radiogroup`, setas do teclado. Don't: mais de 4 opções (use menu).
-
-## TabBar
-
-Navegação fixa inferior com 4 destinos mais ação de captura central (ADR-017).
-
-- Props: `items` (Hoje, Lançamentos, Planejar, Cartões), `active`, `onCapture`, `badges` (Inbox).
-- Anatomia: vidro `--fc-glass-bar`, `--fc-blur-bar`, raio `--fc-radius-xl`, altura `--fc-tabbar-h` mais safe area inferior, `--fc-z-tabbar`. "Mais" abre pelo avatar ou ícone no cabeçalho das telas.
-- Estados: ativo em `--fc-iris` com rótulo; inativo `--fc-text-3`; badge numérico em `--fc-pend`.
-- Do: alvos de 44px. Don't: esconder ao rolar a ponto de perder a captura.
-
-## Fab
-
-Botão de captura global, centralizado sobre a TabBar.
-
-- Props: `onPress`, `label` (acessibilidade, padrão "Novo lançamento"), `pulse` (boolean, só se inbox vazia e ritual pendente).
-- Anatomia: círculo com gradiente `--fc-iris-hi` a `--fc-iris-lo`, ícone em `--fc-text-on-accent`, sombra `--fc-glow-iris`.
-- Estados: pressed com mola `--fc-spring`. Don't: criar segundo FAB na mesma tela.
-
-## Sheet
-
-Painel modal inferior (captura, edição, filtros).
-
-- Props: `open`, `onOpenChange`, `title`, `detents` (`auto` | `medium` | `large`), `children`, `footer`.
-- Anatomia: scrim `--fc-scrim` (`--fc-z-scrim`), corpo `--fc-glass-sheet` com `--fc-blur-sheet`, cantos `--fc-radius-sheet`, alça, safe area, `--fc-z-sheet`.
-- Comportamento: entra em `--fc-spring`/`--fc-dur-base`; arraste para baixo fecha; sobe junto do teclado; prende foco; Esc fecha na web.
-- Don't: empilhar sheets; colocar formulários longos (divida em passos ou chips).
-
-## Toast com Desfazer
-
-Confirmação não bloqueante de ações reversíveis.
-
-- Props: `message`, `action` (`{ label: 'Desfazer', onPress }`), `duration` (padrão 5 s), `tone` (`success` | `info` | `error`).
-- Anatomia: pílula de vidro acima da TabBar, `--fc-z-toast`, `role="status"`.
-- Comportamento: fila (um por vez); Desfazer reverte o use-case e some o toast; pausa o timer enquanto tocado; erro não some sozinho.
-- Do: todo salvar, apagar, adiar e importar em lote oferece Desfazer. Don't: esconder erro financeiro em toast que some.
+- Props: `options` (`{ value, label }[]`), `value`, `onChange`, `label` (aria), `className`.
+- `role="tablist"`, abas com `aria-selected`, tabindex móvel; setas esquerda/direita (e Home/End) movem a seleção. Indicador desliza por `transform` com `--fc-spring`.
+- Don't: mais de 4 opções.
 
 ## ListRow
 
-Linha padrão de listas (lançamentos, contas, vencimentos).
+Linha padrão de listas.
 
-- Props: `leading` (CategoryIcon ou logo), `title`, `subtitle`, `trailing` (MoneyText), `meta` (StatusPill/data), `onPress`, `swipeActions`.
-- Anatomia: altura mínima 56px, divisor `--fc-divider`, título `--fc-text-body`, subtítulo `--fc-text-sub` em `--fc-text-2`, valor `--fc-text-amount` alinhado à direita.
-- Estados: planejado (título em `--fc-text-2`, StatusPill), atrasado (valor em `--fc-pend` ou `--fc-out`), selecionado.
-- Don't: duas ações concorrentes no mesmo toque; valor sem MoneyText.
+- Props: `leading`, `title`, `subtitle`, `trailing`, `onPress` (linha inteira vira botão), `divider` (padrão true; some na última linha), `className`.
+- Altura mínima 56px, divisor `--fc-divider`, sem vidro (coloque várias linhas dentro de um único `GlassCard`).
+- Don't: duas ações concorrentes no mesmo toque; valor sem `AmountText`.
 
 ## CategoryIcon
 
-Ícone de categoria em quadrado arredondado.
+- Props: `icon` (nome kebab-case do conjunto curado `CATEGORY_ICONS`; desconhecido cai em `tag`), `colorKey` (`cat-1`..`cat-10`; inválido cai em `cat-10`, via `resolveCategoryColorKey`), `size` (`sm` 32 | `md` 40 | `lg` 48).
+- Raio `--fc-radius-sm`, fundo `color-mix` da cor a 18%, glifo na cor cheia. Logos de bancos vêm de `src/lib/brands/`.
+- Don't: usar a cor da categoria para sinalizar bom ou ruim.
 
-- Props: `categoryKey`, `size` (`sm` 32 | `md` 40), `fallback`.
-- Anatomia: raio `--fc-radius-sm`, fundo da cor `--fc-cat-N` em baixa opacidade, glifo na cor cheia. Logos de bancos e serviços vêm de `src/lib/brands/` e `public/brands/`.
-- Do: cor determinada pela categoria, estável. Don't: usar a cor da categoria para sinalizar bom ou ruim.
+## ProgressRing e ProgressBar
 
-## ProgressTrack com marcador do dia
+- `ProgressRing` props: `value` (0..1), `size` (px), `strokeWidth`, `tone` (`iris` | `in` | `out` | `pend` | `info` | `debt`), `label`, `children` (centro). SVG; `role="progressbar"` com `aria-valuenow`.
+- `ProgressBar` props: `value`, `markerAt` (0..1, "dia ideal"), `tone`, `label`. Preenchimento por `transform: scaleX`; marcador vertical em `--fc-text`.
+- `value` fora de 0..1 é limitado (`clampProgress`). A escolha do tom (ex.: passar do marcador) é da tela; o primitivo não decide significado.
 
-Barra de progresso para Flex, metas, limite de cartão e teto do MEI.
+## Sheet
 
-- Props: `value`, `max` (centavos), `marker` (fração do ciclo decorrida, 0 a 1), `tone` (`auto` | semântico), `label`, `showValues`.
-- Anatomia: trilho `--fc-glass-strong`, preenchimento `--fc-radius-xs`, marcador vertical do dia em `--fc-text`.
-- Comportamento com `tone="auto"`: preenchimento à esquerda do marcador usa `--fc-in`; ultrapassou o marcador usa `--fc-pend`; acima de 100% usa `--fc-out`. Preenche com `--fc-ease` em `--fc-dur-base`.
-- Acessibilidade: `role="progressbar"` com texto "gasto X de Y; dia N de M".
+Painel modal inferior (captura, edição, filtros), sobre Base UI Dialog.
 
-## CardCarousel
+- Props: `open`, `onOpenChange`, `title`, `children`, `snap` (`auto` | `tall`), `className`.
+- Scrim `--fc-scrim` (`--fc-z-scrim`), corpo `--fc-glass-sheet` com `--fc-blur-sheet`, cantos `--fc-radius-sheet`, alça, `--fc-z-sheet`, `padding-bottom: calc(var(--fc-space-4) + env(safe-area-inset-bottom))`.
+- Fecha com Esc, toque no scrim ou arrasto > 80px (só pela alça/cabeçalho; não conflita com a rolagem do conteúdo). Prende o foco e o devolve ao elemento de origem.
+- Requer `viewport-fit=cover` no `<meta viewport>` para o `env(safe-area-inset-*)` valer no iPhone (F0-05).
+- Don't: empilhar sheets; formulários longos.
 
-Carrossel horizontal com snap (cartões de crédito em Cartões, "Vence em breve" em Hoje).
+## Toast, useToast e Toaster
 
-- Props: `items`, `renderItem`, `index`, `onIndexChange`, `peek` (px visíveis do próximo), `indicators`.
-- Comportamento: `scroll-snap-type: x mandatory`, respeita o gutter de 18px (primeiro item alinhado ao gutter), indicadores de página, navegação por teclado na web.
-- Don't: auto-avançar sozinho; esconder o item atrasado fora da primeira posição (atrasados vêm primeiro).
+- `toast({ message, tone, action, duration })` (também `useToast().toast`); `tone`: `neutral` | `success` | `info` | `warning` | `error`; `action`: `{ label, onPress }` (tipicamente "Desfazer"); `duration` padrão 5000 ms, `null` mantém; `error` não some sozinho (tem botão Fechar). `dismissToast(id)`.
+- `<Toaster />` montado uma vez no shell: pílula de vidro abaixo do notch (`env(safe-area-inset-top)`), `role="status"` (`alert` em erro), no máximo 2 empilhados, pausa o timer com ponteiro/foco. Store de módulo: sem Provider.
+- Do: todo salvar, apagar, adiar e importar em lote oferece Desfazer.
 
-## InboxCard com swipe
+## Skeleton, EmptyState e Banner
 
-Cartão de revisão da Inbox.
+- `Skeleton`: `className` (dimensione por ela); shimmer por `transform`, estático em reduced motion.
+- `EmptyState`: `icon`, `title`, `description`, `action`; bloco central em `GlassCard`.
+- `Banner`: `tone` (`info` | `pend` | `out` | `in`), `title`, `children`, `icon`; `role="note"` (`alert` em `out`). A cor não é o único sinal: o título é texto.
 
-- Props: `transaction` (descrição bruta, valor, conta, data), `suggestions` (top-2 com `reason`), `match` (recorrência ou transferência), `onConfirm`, `onSnooze`, `onEdit`, `onCreateRule`.
-- Gestos: direita confirma (indica `--fc-in`), esquerda adia (indica `--fc-pend`); limiar de 35% da largura; abaixo do limiar volta em mola. Teclado na web: setas, X confirma, R cria regra.
-- Anatomia: GlassCard, descrição bruta em mono, sugestões como Chips com a razão em texto ("visto 5 vezes"), pilha com próximos cartões visíveis atrás.
-- Acessibilidade: botões Confirmar e Adiar sempre presentes (equivalente ao swipe); VoiceOver anuncia a ação resultante.
-- Don't: confirmar sem Desfazer.
+## Field e MoneyField
 
-## Sparkline / Charts
+- `Field`: `label`, `error`, `hint`, `children` (nó, ou função que recebe `{ id, 'aria-describedby', 'aria-invalid' }`), `htmlFor`. Erro tem `role="alert"`.
+- `MoneyField`: `label`, `error`, `hint`, `valueCents`, `onChangeCents`, `name`, `placeholder`, `disabled`, `required`, `autoFocus`. Envolve `ui/money-input` (`inputMode="decimal"`), fonte >= 16px, prefixo "R$", altura >= 44px. Estado local em texto (não sobrescreve a digitação); não aceita negativo (o tipo do lançamento define o sinal); usa `parseMoneyToCents`.
 
-Gráficos leves em SVG, sem biblioteca pesada quando possível.
+## Planejados (fora da F0-04)
 
-- `Sparkline`: props `points`, `tone`, `height`, `fill`; sem eixos; `aria-hidden` com texto alternativo no contêiner.
-- Gráfico de saldo projetado (Hoje, modo Aperto): linha do saldo dia a dia, faixa do cheque especial em `--fc-out` suave, marcação de eventos (vencimentos e renda).
-- Gráficos de categoria e fluxo: cores `--fc-cat-1` a `--fc-cat-10`; no máximo 10 séries, o restante agrupa em "outros" (`--fc-cat-10`).
-- Regras: eixos e grade em `--fc-divider` e `--fc-text-3`; tooltip em `--fc-glass-sheet`; sempre tabela ou resumo textual alternativo; animação de desenho só na primeira montagem e desligada em reduced motion.
-- Don't: usar a paleta categórica para significar positivo ou negativo; gráficos 3D; mais de uma escala por gráfico.
+TabBar e Fab (F0-05), Hero (F3-04), StatusPill/Pill, CardCarousel, InboxCard com swipe (F6-01), Sparkline e gráficos (F3-04/F6). Contratos de intenção: `docs/ui/padroes-de-tela.md` e as tasks correspondentes.
+
+## Regra anti-cor-literal
+
+`tests/guards/no-literal-colors.test.ts` varre `src/components/**` e `src/app/**` (ts, tsx, css) e falha em hex, `rgb(`/`hsl(`/`oklch(`, classes de paleta do Tailwind (`bg-slate-500`) e `white`/`black`/`transparent` como utilitário. Isentos: `src/lib/brands/**` (cor de marca é dado), `src/app/manifest.ts` e ícones PWA, `src/styles/tokens.css`. Exceção pontual: comentário `fc-allow-literal-color: motivo` na mesma linha (motivo obrigatório; máximo de 10 no repositório). Para "sem cor" use `border-fc-void/0`; em CSS puro `transparent` como parada de gradiente é permitido.
 
 ## Checklist para novo primitivo
 
 1. Existe equivalente no catálogo? Reutilize ou estenda.
-2. Só tokens `--fc-*`; sem valores literais.
+2. Só tokens `--fc-*`; sem valores literais (o guard roda no `npm test`).
 3. Estados: padrão, pressed, foco, desabilitado, carregando, vazio, erro.
 4. Alvo de toque de 44px e rótulo acessível.
-5. Respeita reduced motion.
-6. Documentado aqui e coberto por teste quando houver lógica.
+5. Respeita reduced motion (`@keyframes` precisam de regra própria em `fc.css`).
+6. Entra na galeria `/ui`, neste catálogo e em `index.ts`; teste quando houver lógica pura.

@@ -147,14 +147,14 @@ function DatePicker({
             {formatDateLabel(value, placeholder)}
           </span>
         </span>
-        <ChevronDown className="size-4 shrink-0 text-sky-700/80 dark:text-sky-100/80" />
+        <ChevronDown className="text-fc-text-2 size-4 shrink-0" />
       </Popover.Trigger>
       <Popover.Portal>
         <Popover.Positioner align="start" sideOffset={8} className="isolate z-[60]">
           <Popover.Popup
             className={cn(
               'bg-popover text-popover-foreground ring-foreground/10 data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95 w-72 rounded-2xl p-3 shadow-xl ring-1 duration-100 outline-none',
-              'via-popover to-popover border border-[#38BDF8]/20 bg-gradient-to-br from-[#38BDF8]/10',
+              'border-fc-iris/20 border',
             )}
           >
             <div className="space-y-3">
@@ -205,11 +205,10 @@ function DatePicker({
                       }}
                       className={cn(
                         'mx-auto flex size-8 items-center justify-center rounded-xl text-sm font-medium transition-all outline-none',
-                        'hover:bg-[#38BDF8]/15 hover:text-sky-800 focus-visible:ring-3 focus-visible:ring-[#38BDF8]/40',
-                        'dark:hover:bg-[#38BDF8]/20 dark:hover:text-white',
-                        today && 'ring-1 ring-[#38BDF8]/45',
+                        'hover:bg-fc-iris-soft hover:text-fc-text focus-visible:ring-fc-iris/40 focus-visible:ring-3',
+                        today && 'ring-fc-iris/45 ring-1',
                         selected &&
-                          'bg-[#38BDF8] text-white shadow-md shadow-[#38BDF8]/30 hover:bg-[#29ABE2] hover:text-white',
+                          'bg-fc-iris text-fc-text-on-accent shadow-fc-glow hover:bg-fc-iris-hi hover:text-fc-text-on-accent',
                         outsideMonth && 'text-muted-foreground/30',
                       )}
                     >

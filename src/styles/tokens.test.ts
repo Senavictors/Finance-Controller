@@ -82,8 +82,8 @@ describe('globals.css <-> tokens.css (ADR-018)', () => {
 
 describe('tokens.css', () => {
   it('pilhas de fonte casam com as variáveis geradas pelo next/font', () => {
-    expect(tokens).toContain('var(--font-geist-sans)')
-    expect(tokens).toContain('var(--font-geist-mono)')
+    expect(tokens).toContain('var(--font-geist-sans, system-ui)')
+    expect(tokens).toContain('var(--font-geist-mono, ui-monospace)')
     expect(tokens).not.toMatch(/"Geist"/)
   })
 })

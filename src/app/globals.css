@@ -2,6 +2,7 @@
 @import 'tw-animate-css';
 @import 'shadcn/tailwind.css';
 @import '../styles/tokens.css';
+@import '../components/fc/fc.css';
 
 /* Mantido por compatibilidade com o shadcn. O app é somente dark:
    <html> sempre carrega class="dark". */

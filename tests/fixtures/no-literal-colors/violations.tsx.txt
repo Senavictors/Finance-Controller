@@ -1,0 +1,32 @@
+// Fixture SINTÉTICA do guard no-literal-colors. Não é compilada (extensão .txt).
+// Cada linha abaixo deve ser reportada como violação, exceto as isentas com motivo.
+
+export function Bad() {
+  return (
+    <div className="bg-white text-black border-transparent">
+      <p className="text-slate-500 bg-red-200 ring-sky-400/40">paleta</p>
+      <p style={{ color: '#fff' }}>hex curto</p>
+      <p style={{ background: 'rgba(0, 0, 0, 0.5)' }}>funcao</p>
+      <p style={{ color: 'white' }}>keyword</p>
+      <p className="fill-[#38bdf8]">hex arbitrario</p>
+      <p style={{ color: 'hsl(10 20% 30%)' }}>hsl</p>
+    </div>
+  )
+}
+
+export function Allowed() {
+  return (
+    <div>
+      <p style={{ color: '#123456' }}>{/* fc-allow-literal-color: cor de marca de teste */}</p>
+      <p style={{ color: '#654321' }}>{/* fc-allow-literal-color: */}</p>
+    </div>
+  )
+}
+
+export function Good() {
+  return (
+    <div className="bg-fc-glass text-fc-text border-fc-rim" style={{ color: 'var(--fc-in)' }}>
+      <a href="#conteudo">ancora</a>
+    </div>
+  )
+}

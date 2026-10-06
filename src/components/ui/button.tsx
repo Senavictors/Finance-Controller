@@ -4,7 +4,7 @@ import { cva, type VariantProps } from 'class-variance-authority'
 import { cn } from '@/lib/utils'
 
 const buttonVariants = cva(
-  "group/button inline-flex shrink-0 items-center justify-center rounded-lg border border-transparent bg-clip-padding text-sm font-medium whitespace-nowrap transition-all outline-none select-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 active:not-aria-[haspopup]:translate-y-px disabled:pointer-events-none disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20 dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
+  "group/button inline-flex shrink-0 items-center justify-center rounded-lg border border-fc-void/0 bg-clip-padding text-sm font-medium whitespace-nowrap transition-all outline-none select-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 active:not-aria-[haspopup]:translate-y-px disabled:pointer-events-none disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20 dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
   {
     variants: {
       variant: {
@@ -19,12 +19,12 @@ const buttonVariants = cva(
           'bg-destructive/10 text-destructive hover:bg-destructive/20 focus-visible:border-destructive/40 focus-visible:ring-destructive/20 dark:bg-destructive/20 dark:hover:bg-destructive/30 dark:focus-visible:ring-destructive/40',
         link: 'text-primary underline-offset-4 hover:underline',
         action:
-          'bg-[#38BDF8] text-white shadow-sm hover:bg-[#29ABE2] hover:shadow-md hover:shadow-[#38BDF8]/30 hover:scale-[1.03] active:scale-[0.97]',
+          'bg-fc-iris text-fc-text-on-accent shadow-fc-glow hover:bg-fc-iris-hi active:scale-[0.97]',
         choice:
-          'border-[#38BDF8]/45 bg-[#38BDF8]/10 text-sky-700 shadow-sm hover:border-[#38BDF8] hover:bg-[#38BDF8]/15 hover:text-sky-800 hover:shadow-md hover:shadow-[#38BDF8]/20 hover:scale-[1.03] active:scale-[0.97] dark:text-sky-200 dark:hover:bg-[#38BDF8]/20 dark:hover:text-white',
+          'border-fc-iris/45 bg-fc-iris-soft text-fc-text hover:border-fc-iris hover:bg-fc-iris-soft active:scale-[0.97]',
         'choice-active':
-          'border-[#38BDF8] bg-[#38BDF8] text-white shadow-sm hover:bg-[#29ABE2] hover:shadow-md hover:shadow-[#38BDF8]/30 hover:scale-[1.03] active:scale-[0.97]',
-        save: 'bg-[#10B981] text-white shadow-sm hover:bg-[#0EA572] hover:shadow-md hover:shadow-[#10B981]/30 hover:scale-[1.03] active:scale-[0.97]',
+          'border-fc-iris bg-fc-iris text-fc-text-on-accent shadow-fc-glow hover:bg-fc-iris-hi active:scale-[0.97]',
+        save: 'bg-fc-iris text-fc-text-on-accent shadow-fc-glow hover:bg-fc-iris-hi active:scale-[0.97]',
       },
       size: {
         default:

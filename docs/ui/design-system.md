@@ -1,7 +1,7 @@
 ---
 estado: planejado
 fonte: src/styles/tokens.css
-ultima-revisao: FC2-F0-03 2026-10-05
+ultima-revisao: FC2-F0-04 2026-10-05
 ---
 
 # Design system Dark Glass
@@ -217,7 +217,7 @@ Regras: anime só `transform` e `opacity` (mantém 120 Hz no ProMotion); duraç�
 - **Contraste:** `--fc-text` sobre `--fc-ink` supera 7:1; `--fc-text-2` e `--fc-text-3` devem manter ao menos 4.5:1 para texto de corpo e 3:1 para texto grande e ícones; validar na auditoria da F6. Texto sobre vidro é validado sobre o pior caso do fundo (aura ativa).
 - **Alvos de toque:** 44px mínimo (`--fc-touch-min`), com espaçamento de 8px entre alvos adjacentes; áreas de hit podem exceder o visual.
 - **Reduced motion:** `prefers-reduced-motion: reduce` já zera as durações nos tokens; além disso aura estática, contagem substituída por valor final, swipe com botões equivalentes.
-- **VoiceOver:** cada primitivo tem `role` e rótulo; `MoneyText` lê "mil reais, negativo" em vez de símbolos; gráficos têm resumo textual e tabela alternativa; Toast usa `role="status"` com `aria-live="polite"`; Sheet prende o foco e restaura ao fechar; ações de swipe têm equivalente por botão.
+- **VoiceOver:** cada primitivo tem `role` e rótulo; `AmountText` lê "menos 1.234 reais e 56 centavos" em vez de símbolos; gráficos têm resumo textual e tabela alternativa; Toast usa `role="status"` com `aria-live="polite"`; Sheet prende o foco e restaura ao fechar; ações de swipe têm equivalente por botão.
 - **Foco:** anel visível com `--fc-iris` e halo `--fc-iris-soft` para navegação por teclado.
 - **Cor:** nunca é o único sinal (ver cor semântica).
 - **Modo privacidade:** oculta valores com máscara, também para leitores de tela.
