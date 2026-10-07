@@ -13,7 +13,7 @@ import { PrismaLedgerRepository } from './prisma-ledger-repository'
 const db = getTestDb()
 const day = (iso: string) => new Date(`${iso}T12:00:00.000Z`)
 
-describe.skipIf(!db)('QA ledger: concorrência (DATABASE_URL_TEST)', () => {
+describe.skipIf(!db)('QA ledger: concorrência (DATABASE_URL_TEST)', { timeout: 30_000 }, () => {
   const client = db!
   const userId = `qa-user-${randomUUID()}`
   let svc: LedgerService

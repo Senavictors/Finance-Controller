@@ -1,3 +1,4 @@
+import type { TxnLinksInput } from '../domain/links'
 import { diffDeltas, mergeDeltas } from '../domain/rules'
 import { buildTransferLegs } from '../domain/transfer'
 import {
@@ -15,6 +16,7 @@ import {
   applyDeltas,
   assertAccountWritable,
   assertKnownStatus,
+  assertLinkRefs,
   collectWarnings,
   loadAccount,
   normalizeDescription,
@@ -40,6 +42,14 @@ export interface CreateTransferInput {
   tags?: string[]
   source?: TxnSource
   review?: ReviewState
+  /** Vínculos só da perna da origem (`-amount`). */
+  outgoing?: TxnLinksInput
+  /**
+   * Vínculos só da perna do destino (`+amount`). Pagamento de fatura:
+   * `{ kind: 'CARD_PAYMENT', destinationAccountId: <cartão>, incoming: { statementId, statementKey } }`
+   * grava o vínculo só na perna do cartão.
+   */
+  incoming?: TxnLinksInput
 }
 
 export interface CreateTransferResult {
@@ -79,6 +89,8 @@ export async function createTransfer(
     tags: normalizeTags(input.tags),
     source: input.source,
     review: input.review,
+    outgoing: input.outgoing,
+    incoming: input.incoming,
   })
 
   const result = await deps.repo.withTransaction(async (tx) => {
@@ -93,6 +105,9 @@ export async function createTransfer(
         { accountId: source.id },
       )
     }
+
+    await assertLinkRefs(tx, ctx.userId, legs.outgoing)
+    await assertLinkRefs(tx, ctx.userId, legs.incoming)
 
     const [outgoing, incoming] = await tx.insertTxns([legs.outgoing, legs.incoming])
     await applyDeltas(

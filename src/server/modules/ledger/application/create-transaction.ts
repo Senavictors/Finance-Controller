@@ -1,3 +1,4 @@
+import { normalizeLinks, type TxnLinksInput } from '../domain/links'
 import { assertCalendarDate, diffDeltas, signedAmountFor } from '../domain/rules'
 import {
   LedgerError,
@@ -16,6 +17,7 @@ import {
   applyDeltas,
   assertAccountWritable,
   assertKnownStatus,
+  assertLinkRefs,
   assertRefs,
   loadAccount,
   normalizeDescription,
@@ -24,7 +26,12 @@ import {
   positionsFor,
 } from './shared'
 
-export interface CreateTransactionInput {
+/**
+ * Além dos campos abaixo aceita os vínculos opcionais (`TxnLinksInput`): `statementId`,
+ * `statementKey`, `refundOfId`, `seriesId`, `occurrenceKey`, `importBatchId`, `importHash`,
+ * `categorySource`, `aiConfidence`. O ledger só valida formato/existência/dono e grava.
+ */
+export interface CreateTransactionInput extends TxnLinksInput {
   accountId: string
   /** `TRANSFER` e `CARD_PAYMENT` usam `createTransfer`. */
   kind: TxnKind
@@ -91,12 +98,14 @@ export async function createTransaction(
     transferId: null,
     excludeFromBudget: input.excludeFromBudget ?? false,
     userLocked: {},
+    ...normalizeLinks(input),
   }
 
   const result = await deps.repo.withTransaction(async (tx) => {
     const account = await loadAccount(tx, ctx.userId, input.accountId)
     assertAccountWritable(account, input.kind)
     await assertRefs(tx, ctx.userId, row)
+    await assertLinkRefs(tx, ctx.userId, row)
 
     const [transaction] = await tx.insertTxns([row])
     await applyDeltas(

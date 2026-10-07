@@ -5,6 +5,7 @@ import type {
   LedgerReader,
   LedgerRepository,
   LedgerTx,
+  TransactionHandle,
   TxnListFilter,
   TxnPage,
   TxnPatch,
@@ -14,11 +15,29 @@ import {
   type Buckets,
   type LedgerTxn,
   type NewLedgerTxn,
+  type TxnStatus,
   type UserLocked,
 } from '../domain/types'
-import { isMissingRowError, isRetryableConcurrencyError } from './concurrency'
+import { duplicateKeyField, isMissingRowError, isRetryableConcurrencyError } from './concurrency'
+import { PrismaTransactionHandle } from './transaction-handle'
+import { runInLedgerTransactionScope } from './transaction-scope'
 
 type Db = PrismaClient | Prisma.TransactionClient
+
+/**
+ * Violação de unicidade de `occurrence_key`/`import_hash` vira `LEDGER_DUPLICATE_KEY` (409) no
+ * ponto da operação, como no repositório em memória. Outros erros passam como estão.
+ * Atenção: no Postgres a transação já está abortada (25P02) depois do erro; deixe-o propagar.
+ */
+function translateDuplicate(error: unknown): unknown {
+  const duplicate = duplicateKeyField(error)
+  if (!duplicate) return error
+  return new LedgerError(
+    'LEDGER_DUPLICATE_KEY',
+    `Já existe um lançamento com esta chave (${duplicate}).`,
+    { field: duplicate },
+  )
+}
 
 /** Tentativas por transação em caso de deadlock/serialização (1 retry). */
 const MAX_ATTEMPTS = 2
@@ -52,6 +71,15 @@ function toLedgerTxn(row: Transaction): LedgerTxn {
     tags: row.tags,
     transferId: row.transferId,
     excludeFromBudget: row.excludeFromBudget,
+    refundOfId: row.refundOfId,
+    seriesId: row.seriesId,
+    occurrenceKey: row.occurrenceKey,
+    statementId: row.statementId,
+    statementKey: row.statementKey,
+    importBatchId: row.importBatchId,
+    importHash: row.importHash,
+    categorySource: row.categorySource,
+    aiConfidence: row.aiConfidence,
     userLocked: toUserLocked(row.userLocked),
     createdAt: row.createdAt,
     updatedAt: row.updatedAt,
@@ -74,6 +102,15 @@ function toBalanceRow(row: {
     balancePlanned: row.balancePlanned,
     version: row.version,
   }
+}
+
+/**
+ * O `startsWith` do Prisma vira `LIKE 'valor%'` sem escapar curingas: `%`, `_` e a barra do prefixo
+ * seriam interpretados pelo Postgres. Escapa com a barra invertida (escape padrão do LIKE) para
+ * casar texto literal.
+ */
+function escapeLike(value: string): string {
+  return value.replace(/[\\%_]/g, (char) => `\\${char}`)
 }
 
 /** Leituras sobre o cliente (ou o cliente transacional). Sempre filtram por `userId` (RN-08). */
@@ -150,13 +187,50 @@ class PrismaLedgerReader implements LedgerReader {
     return { category: category > 0, merchant: merchant > 0 }
   }
 
+  async findTxnByOccurrenceKey(userId: string, occurrenceKey: string): Promise<LedgerTxn | null> {
+    const row = await this.db.transaction.findFirst({ where: { userId, occurrenceKey } })
+    return row ? toLedgerTxn(row) : null
+  }
+
+  async linkRefsExist(
+    userId: string,
+    refs: { statementId: string | null; seriesId: string | null; importBatchId: string | null },
+  ): Promise<{ statement: boolean; series: boolean; importBatch: boolean }> {
+    const [statement, series, importBatch] = await Promise.all([
+      refs.statementId
+        ? this.db.creditCardStatement.count({ where: { id: refs.statementId, userId } })
+        : Promise.resolve(1),
+      refs.seriesId
+        ? this.db.recurringSeries.count({ where: { id: refs.seriesId, userId } })
+        : Promise.resolve(1),
+      refs.importBatchId
+        ? this.db.importBatch.count({ where: { id: refs.importBatchId, userId } })
+        : Promise.resolve(1),
+    ])
+    return { statement: statement > 0, series: series > 0, importBatch: importBatch > 0 }
+  }
+
   async listTransactions(userId: string, filter: TxnListFilter): Promise<TxnPage> {
     const q = filter.q?.trim()
     const rows = await this.db.transaction.findMany({
       where: {
         userId,
         ...(filter.accountId ? { accountId: filter.accountId } : {}),
-        ...(filter.status ? { status: filter.status } : {}),
+        ...(filter.status !== undefined
+          ? {
+              status: Array.isArray(filter.status)
+                ? { in: [...(filter.status as readonly TxnStatus[])] }
+                : (filter.status as TxnStatus),
+            }
+          : {}),
+        ...(filter.categoryId ? { categoryId: filter.categoryId } : {}),
+        ...(filter.occurrenceKeyPrefix
+          ? { occurrenceKey: { startsWith: escapeLike(filter.occurrenceKeyPrefix) } }
+          : {}),
+        ...(filter.kind ? { kind: filter.kind } : {}),
+        ...(filter.statementId ? { statementId: filter.statementId } : {}),
+        ...(filter.seriesId ? { seriesId: filter.seriesId } : {}),
+        ...(filter.refundOfId ? { refundOfId: filter.refundOfId } : {}),
         ...(filter.from || filter.to
           ? {
               date: {
@@ -179,6 +253,32 @@ class PrismaLedgerReader implements LedgerReader {
 
 /** Escritas, só dentro de `$transaction`. Único lugar que escreve em `transactions`/`account_balances`. */
 class PrismaLedgerTx extends PrismaLedgerReader implements LedgerTx {
+  readonly handle: TransactionHandle
+
+  constructor(db: Prisma.TransactionClient) {
+    super(db)
+    this.handle = new PrismaTransactionHandle(db)
+  }
+
+  async lockOccurrenceKeys(userId: string, occurrenceKeys: string[]): Promise<void> {
+    // Ordem crescente e única por transação: dois chamadores com chaves em comum nunca
+    // esperam um pelo outro em ordem inversa. O lock vale até o fim da transação.
+    for (const key of [...new Set(occurrenceKeys)].sort()) {
+      const lockKey = `ledger:occ:${userId}:${key}`
+      await this.db.$executeRaw`SELECT pg_advisory_xact_lock(hashtextextended(${lockKey}, 0))`
+    }
+  }
+
+  async ensureBalance(userId: string, accountId: string): Promise<BalanceRow> {
+    // INSERT ... ON CONFLICT DO NOTHING: idempotente e sem corrida entre chamadas simultâneas.
+    await this.db.accountBalance.createMany({
+      data: [{ accountId, userId, version: 0 }],
+      skipDuplicates: true,
+    })
+    const row = await this.db.accountBalance.findFirstOrThrow({ where: { accountId, userId } })
+    return toBalanceRow(row)
+  }
+
   async lockTxns(userId: string, ids: string[]): Promise<LedgerTxn[]> {
     const unique = [...new Set(ids)]
     if (unique.length === 0) return []
@@ -202,24 +302,32 @@ class PrismaLedgerTx extends PrismaLedgerReader implements LedgerTx {
     const inserted: LedgerTxn[] = []
     // Sequencial: preserva a ordem (origem/destino) e a atomicidade é da transação.
     for (const row of rows) {
-      const created = await this.db.transaction.create({
-        data: { ...row, userLocked: row.userLocked as Prisma.InputJsonObject },
-      })
-      inserted.push(toLedgerTxn(created))
+      try {
+        const created = await this.db.transaction.create({
+          data: { ...row, userLocked: row.userLocked as Prisma.InputJsonObject },
+        })
+        inserted.push(toLedgerTxn(created))
+      } catch (error) {
+        throw translateDuplicate(error)
+      }
     }
     return inserted
   }
 
   async updateTxn(userId: string, id: string, patch: TxnPatch): Promise<LedgerTxn> {
     const { userLocked, ...rest } = patch
-    const updated = await this.db.transaction.update({
-      where: { id, userId },
-      data: {
-        ...rest,
-        ...(userLocked !== undefined ? { userLocked: userLocked as Prisma.InputJsonObject } : {}),
-      },
-    })
-    return toLedgerTxn(updated)
+    try {
+      const updated = await this.db.transaction.update({
+        where: { id, userId },
+        data: {
+          ...rest,
+          ...(userLocked !== undefined ? { userLocked: userLocked as Prisma.InputJsonObject } : {}),
+        },
+      })
+      return toLedgerTxn(updated)
+    } catch (error) {
+      throw translateDuplicate(error)
+    }
   }
 
   async deleteTxns(userId: string, ids: string[]): Promise<number> {
@@ -294,9 +402,17 @@ export class PrismaLedgerRepository extends PrismaLedgerReader implements Ledger
   /**
    * Transação interativa. Deadlock/serialização (40P01/40001/P2034) refaz a transação inteira
    * uma vez (já foi desfeita); persistindo, e em mutação concorrente sobre linha que sumiu
-   * (P2025), vira `LEDGER_CONCURRENT_UPDATE` (409) em vez de 500.
+   * (P2025), vira `LEDGER_CONCURRENT_UPDATE` (409) em vez de 500. Violação de unicidade de
+   * `occurrenceKey`/`importHash` vira `LEDGER_DUPLICATE_KEY` (409).
+   *
+   * ATENÇÃO: o retry refaz `fn` inteira; `fn` deve ser idempotente e sem efeitos externos.
    */
-  async withTransaction<T>(fn: (tx: LedgerTx) => Promise<T>): Promise<T> {
+  withTransaction<T>(fn: (tx: LedgerTx) => Promise<T>): Promise<T> {
+    // Aninhar outra transação do ledger dentro de `fn` lança `LEDGER_NESTED_TRANSACTION`.
+    return runInLedgerTransactionScope(() => this.runWithRetry(fn))
+  }
+
+  private async runWithRetry<T>(fn: (tx: LedgerTx) => Promise<T>): Promise<T> {
     for (let attempt = 1; ; attempt++) {
       try {
         return await this.client.$transaction((tx) => fn(new PrismaLedgerTx(tx)), {
@@ -304,6 +420,8 @@ export class PrismaLedgerRepository extends PrismaLedgerReader implements Ledger
           timeout: 15_000,
         })
       } catch (error) {
+        const translated = translateDuplicate(error)
+        if (translated !== error) throw translated
         const retryable = isRetryableConcurrencyError(error)
         if (retryable && attempt < MAX_ATTEMPTS) continue
         if (retryable || isMissingRowError(error)) {

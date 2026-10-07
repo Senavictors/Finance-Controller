@@ -1,3 +1,4 @@
+import { normalizeLinks, type TxnLinksInput } from './links'
 import { assertAmountInRange, assertCalendarDate } from './rules'
 import {
   LedgerError,
@@ -28,6 +29,10 @@ export interface BuildTransferLegsInput {
   tags?: string[]
   source?: TxnSource
   review?: ReviewState
+  /** Vínculos só da perna da origem (`-amount`). */
+  outgoing?: TxnLinksInput
+  /** Vínculos só da perna do destino (`+amount`); ex.: `statementId` na perna do cartão. */
+  incoming?: TxnLinksInput
 }
 
 export interface TransferLegs {
@@ -102,12 +107,14 @@ export function buildTransferLegs(input: BuildTransferLegsInput): TransferLegs {
     transferId,
     outgoing: {
       ...common,
+      ...normalizeLinks(input.outgoing),
       accountId: input.sourceAccountId,
       amount: 0 - input.amount,
       tags: [...common.tags],
     },
     incoming: {
       ...common,
+      ...normalizeLinks(input.incoming),
       accountId: input.destinationAccountId,
       amount: input.amount,
       tags: [...common.tags],

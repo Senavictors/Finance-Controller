@@ -1,4 +1,5 @@
 import { positionOf } from '../domain/balance'
+import { linkRefsOf } from '../domain/links'
 import { isZeroBuckets } from '../domain/rules'
 import { assertTransferPair, isTransferLeg } from '../domain/transfer'
 import {
@@ -8,6 +9,7 @@ import {
   type LedgerTxn,
   type LedgerWarning,
   type TxnKind,
+  type TxnLinks,
   type TxnStatus,
 } from '../domain/types'
 import type {
@@ -81,6 +83,36 @@ export async function assertRefs(
   }
   if (refs.merchantId && !found.merchant) {
     throw new LedgerError('LEDGER_MERCHANT_NOT_FOUND', 'Estabelecimento não encontrado.')
+  }
+}
+
+/**
+ * Confere que os vínculos para outras tabelas (fatura, série, lote, lançamento original de
+ * estorno) existem e são do usuário. `LEDGER_LINK_NOT_FOUND` (404) com `details.field`.
+ */
+export async function assertLinkRefs(
+  reader: LedgerReader,
+  userId: string,
+  links: Partial<TxnLinks>,
+  self?: { id: string },
+): Promise<void> {
+  const refs = linkRefsOf(links)
+  const notFound = (field: string) =>
+    new LedgerError('LEDGER_LINK_NOT_FOUND', `Vínculo não encontrado: ${field}.`, { field })
+  if (refs.statementId || refs.seriesId || refs.importBatchId) {
+    const found = await reader.linkRefsExist(userId, refs)
+    if (refs.statementId && !found.statement) throw notFound('statementId')
+    if (refs.seriesId && !found.series) throw notFound('seriesId')
+    if (refs.importBatchId && !found.importBatch) throw notFound('importBatchId')
+  }
+  if (refs.refundOfId) {
+    if (self && refs.refundOfId === self.id) {
+      throw new LedgerError('LEDGER_INVALID_LINK', 'Um lançamento não pode estornar a si mesmo.', {
+        field: 'refundOfId',
+      })
+    }
+    const original = await reader.findTxn(userId, refs.refundOfId)
+    if (!original) throw notFound('refundOfId')
   }
 }
 

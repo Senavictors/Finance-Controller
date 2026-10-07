@@ -38,3 +38,16 @@ export function isRetryableConcurrencyError(error: unknown): boolean {
 export function isMissingRowError(error: unknown): boolean {
   return prismaCode(error) === 'P2025'
 }
+
+/**
+ * Violação de unicidade (P2002/23505) em `occurrence_key` ou `import_hash`: devolve o campo
+ * (`occurrenceKey`/`importHash`) ou `null` se for outro erro/outra constraint.
+ */
+export function duplicateKeyField(error: unknown): 'occurrenceKey' | 'importHash' | null {
+  const isUnique = prismaCode(error) === 'P2002' || /23505|unique constraint/i.test(describe(error))
+  if (!isUnique) return null
+  const text = describe(error)
+  if (/occurrence_key|occurrenceKey/i.test(text)) return 'occurrenceKey'
+  if (/import_hash|importHash/i.test(text)) return 'importHash'
+  return null
+}

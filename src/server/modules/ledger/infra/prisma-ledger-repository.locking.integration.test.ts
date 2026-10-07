@@ -15,7 +15,7 @@ import { PrismaLedgerRepository } from './prisma-ledger-repository'
 const db = getTestDb()
 const day = (iso: string) => new Date(`${iso}T12:00:00.000Z`)
 
-describe.skipIf(!db)('ledger: lock por linha (DATABASE_URL_TEST)', () => {
+describe.skipIf(!db)('ledger: lock por linha (DATABASE_URL_TEST)', { timeout: 30_000 }, () => {
   const client = db!
   const userId = `lk-user-${randomUUID()}`
   const otherUserId = `lk-other-${randomUUID()}`

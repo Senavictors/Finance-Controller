@@ -1,14 +1,24 @@
 import { bucketOf, zeroBuckets } from '../domain/rules'
-import { LedgerError, type Buckets, type LedgerTxn, type NewLedgerTxn } from '../domain/types'
+import { normalizeLinks } from '../domain/links'
+import {
+  LedgerError,
+  type Buckets,
+  type LedgerTxn,
+  type NewLedgerTxn,
+  type TxnStatus,
+} from '../domain/types'
 import type {
   BalanceRow,
   LedgerAccount,
   LedgerRepository,
   LedgerTx,
+  TransactionHandle,
   TxnListFilter,
   TxnPage,
   TxnPatch,
 } from '../application/ports'
+import { InMemoryTransactionHandle } from './transaction-handle'
+import { runInLedgerTransactionScope } from './transaction-scope'
 
 export type InMemoryOp =
   | 'insertTxn'
@@ -16,6 +26,14 @@ export type InMemoryOp =
   | 'deleteTxns'
   | 'incrementBalance'
   | 'setBalance'
+  | 'ensureBalance'
+
+function matchesStatus(status: TxnStatus, filter: TxnListFilter['status']): boolean {
+  if (filter === undefined) return true
+  return Array.isArray(filter)
+    ? (filter as readonly TxnStatus[]).includes(status)
+    : status === filter
+}
 
 function clone<T>(value: T): T {
   return structuredClone(value)
@@ -140,16 +158,19 @@ export class InMemoryLedgerRepository implements LedgerRepository {
     return `txn-${String(this.seq).padStart(5, '0')}`
   }
 
-  async withTransaction<T>(fn: (tx: LedgerTx) => Promise<T>): Promise<T> {
-    const tx = new InMemoryTx(this)
-    try {
-      return await fn(tx)
-    } catch (error) {
-      tx.rollback()
-      throw error
-    } finally {
-      this.locks.releaseAll(tx)
-    }
+  withTransaction<T>(fn: (tx: LedgerTx) => Promise<T>): Promise<T> {
+    // Aninhar outra transação do ledger dentro de `fn` lança `LEDGER_NESTED_TRANSACTION`.
+    return runInLedgerTransactionScope(async () => {
+      const tx = new InMemoryTx(this)
+      try {
+        return await fn(tx)
+      } catch (error) {
+        tx.rollback()
+        throw error
+      } finally {
+        this.locks.releaseAll(tx)
+      }
+    })
   }
 
   // ---- leituras -------------------------------------------------------------------------
@@ -204,12 +225,64 @@ export class InMemoryLedgerRepository implements LedgerRepository {
   /** Ids de categoria/merchant que `refsExist` deve tratar como inexistentes (ou de outro usuário). */
   readonly missingRefs = new Set<string>()
 
+  async findTxnByOccurrenceKey(userId: string, occurrenceKey: string): Promise<LedgerTxn | null> {
+    const found = [...this.txns.values()].find(
+      (t) => t.userId === userId && t.occurrenceKey === occurrenceKey,
+    )
+    return found ? clone(found) : null
+  }
+
+  async linkRefsExist(
+    _userId: string,
+    refs: { statementId: string | null; seriesId: string | null; importBatchId: string | null },
+  ): Promise<{ statement: boolean; series: boolean; importBatch: boolean }> {
+    // Não modela faturas/séries/lotes: tudo existe, salvo ids em `missingLinks`.
+    return {
+      statement: !refs.statementId || !this.missingLinks.has(refs.statementId),
+      series: !refs.seriesId || !this.missingLinks.has(refs.seriesId),
+      importBatch: !refs.importBatchId || !this.missingLinks.has(refs.importBatchId),
+    }
+  }
+
+  /** Ids de fatura/série/lote que `linkRefsExist` deve tratar como inexistentes (ou de outro usuário). */
+  readonly missingLinks = new Set<string>()
+
+  /** @internal Confere unicidade `(userId, occurrenceKey)` e `(userId, importHash)`. */
+  assertUniqueKeys(row: Partial<LedgerTxn> & { userId: string }, selfId?: string): void {
+    for (const field of ['occurrenceKey', 'importHash'] as const) {
+      const value = row[field]
+      if (!value) continue
+      const clash = [...this.txns.values()].some(
+        (t) => t.userId === row.userId && t.id !== selfId && t[field] === value,
+      )
+      if (clash) {
+        throw new LedgerError(
+          'LEDGER_DUPLICATE_KEY',
+          `Já existe um lançamento com esta chave (${field}).`,
+          {
+            field,
+          },
+        )
+      }
+    }
+  }
+
   async listTransactions(userId: string, filter: TxnListFilter): Promise<TxnPage> {
     const q = filter.q?.trim().toLowerCase()
     const sorted = [...this.txns.values()]
       .filter((t) => t.userId === userId)
       .filter((t) => !filter.accountId || t.accountId === filter.accountId)
-      .filter((t) => !filter.status || t.status === filter.status)
+      .filter((t) => matchesStatus(t.status, filter.status))
+      .filter((t) => !filter.categoryId || t.categoryId === filter.categoryId)
+      .filter(
+        (t) =>
+          !filter.occurrenceKeyPrefix ||
+          (t.occurrenceKey !== null && t.occurrenceKey.startsWith(filter.occurrenceKeyPrefix)),
+      )
+      .filter((t) => !filter.kind || t.kind === filter.kind)
+      .filter((t) => !filter.statementId || t.statementId === filter.statementId)
+      .filter((t) => !filter.seriesId || t.seriesId === filter.seriesId)
+      .filter((t) => !filter.refundOfId || t.refundOfId === filter.refundOfId)
       .filter((t) => !filter.from || t.date.getTime() >= filter.from.getTime())
       .filter((t) => !filter.to || t.date.getTime() <= filter.to.getTime())
       .filter((t) => !q || t.description.toLowerCase().includes(q))
@@ -240,8 +313,13 @@ export class InMemoryLedgerRepository implements LedgerRepository {
 class InMemoryTx implements LedgerTx {
   private readonly undo: Array<() => void> = []
   private readonly touched = new Set<string>()
+  readonly handle: TransactionHandle
 
-  constructor(private readonly repo: InMemoryLedgerRepository) {}
+  constructor(private readonly repo: InMemoryLedgerRepository) {
+    this.handle = new InMemoryTransactionHandle((undo) => {
+      this.undo.push(undo)
+    })
+  }
 
   rollback(): void {
     for (const restore of this.undo.reverse()) restore()
@@ -299,6 +377,15 @@ class InMemoryTx implements LedgerTx {
   listTransactions(userId: string, filter: TxnListFilter): Promise<TxnPage> {
     return this.repo.listTransactions(userId, filter)
   }
+  findTxnByOccurrenceKey(userId: string, occurrenceKey: string) {
+    return this.repo.findTxnByOccurrenceKey(userId, occurrenceKey)
+  }
+  linkRefsExist(
+    userId: string,
+    refs: { statementId: string | null; seriesId: string | null; importBatchId: string | null },
+  ) {
+    return this.repo.linkRefsExist(userId, refs)
+  }
 
   // ---- locks ----------------------------------------------------------------------------
 
@@ -313,6 +400,12 @@ class InMemoryTx implements LedgerTx {
       if (current && current.userId === userId) locked.push(clone(current))
     }
     return locked
+  }
+
+  async lockOccurrenceKeys(userId: string, occurrenceKeys: string[]): Promise<void> {
+    for (const key of [...new Set(occurrenceKeys)].sort()) {
+      await this.repo.locks.acquire(`o:${userId}:${key}`, this)
+    }
   }
 
   // ---- escritas -------------------------------------------------------------------------
@@ -332,7 +425,14 @@ class InMemoryTx implements LedgerTx {
       }
       const id = this.repo.nextId()
       const at = this.repo.now()
-      const txn: LedgerTxn = { ...clone(row), id, createdAt: at, updatedAt: at }
+      this.repo.assertUniqueKeys(row)
+      const txn: LedgerTxn = {
+        ...clone(row),
+        ...normalizeLinks(row),
+        id,
+        createdAt: at,
+        updatedAt: at,
+      }
       this.rememberTxn(id)
       await this.repo.locks.acquire(`t:${id}`, this)
       this.repo.txns.set(id, txn)
@@ -350,6 +450,7 @@ class InMemoryTx implements LedgerTx {
       throw new LedgerError('LEDGER_CONCURRENT_UPDATE', 'Lançamento removido por outra requisição.')
     }
     const next: LedgerTxn = { ...current, ...clone(patch), updatedAt: this.repo.now() }
+    this.repo.assertUniqueKeys(next, id)
     if (next.amount === 0) throw new Error('CHECK transactions_amount_nonzero violado')
     this.rememberTxn(id)
     this.repo.txns.set(id, next)
@@ -392,6 +493,27 @@ class InMemoryTx implements LedgerTx {
     this.rememberBalance(accountId)
     this.repo.balances.set(accountId, next)
     return clone(next)
+  }
+
+  async ensureBalance(userId: string, accountId: string): Promise<BalanceRow> {
+    this.repo.tick('ensureBalance')
+    const existing = this.repo.balances.get(accountId)
+    if (existing) return clone(existing)
+    await this.repo.locks.acquire(`b:${accountId}`, this)
+    // Releitura após esperar o lock: outra transação pode ter criado a linha (ON CONFLICT).
+    const again = this.repo.balances.get(accountId)
+    if (again) return clone(again)
+    const row: BalanceRow = {
+      accountId,
+      userId,
+      balanceCleared: 0,
+      balancePending: 0,
+      balancePlanned: 0,
+      version: 0,
+    }
+    this.rememberBalance(accountId)
+    this.repo.balances.set(accountId, row)
+    return clone(row)
   }
 
   async setBalance(userId: string, accountId: string, buckets: Buckets): Promise<BalanceRow> {
