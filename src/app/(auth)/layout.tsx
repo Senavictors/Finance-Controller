@@ -1,15 +1,14 @@
 import { TrendingUp } from 'lucide-react'
-import Link from 'next/link'
 
 export default function AuthLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="bg-background relative flex min-h-screen flex-col items-center justify-center px-4">
-      <Link href="/" className="mb-8 flex items-center gap-3">
-        <div className="bg-primary shadow-primary/25 flex size-10 items-center justify-center rounded-xl shadow-lg">
-          <TrendingUp className="text-primary-foreground size-5" />
+    <div className="bg-fc-ink text-fc-text relative flex min-h-dvh flex-col items-center justify-center px-4 py-8">
+      <div className="mb-8 flex items-center gap-3">
+        <div className="bg-fc-iris text-fc-text-on-accent shadow-fc-glow rounded-fc-md flex size-11 items-center justify-center">
+          <TrendingUp className="size-5" aria-hidden="true" />
         </div>
-        <span className="text-xl font-semibold tracking-tight">Finance Controller</span>
-      </Link>
+        <span className="fc-text-h2 text-fc-text">Finance Controller</span>
+      </div>
       <div className="w-full max-w-sm">{children}</div>
     </div>
   )

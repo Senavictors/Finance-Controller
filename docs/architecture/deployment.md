@@ -1,7 +1,7 @@
 ---
 estado: planejado
 fonte: AGENTS.md (comandos reais); .env.example do 1.x; ADR-030
-ultima-revisao: bootstrap-init 2026-10-05
+ultima-revisao: FC2-F0-06 2026-10-05
 ---
 
 # Implantação
@@ -20,17 +20,18 @@ Valores vivem em `.env.local` (gitignored) e nas Environment Variables da Vercel
 | Variável | Uso | Fase |
 |---|---|---|
 | `DATABASE_URL` | Conexão Neon (pooled em produção) | F0 |
-| `SESSION_SECRET` | Assinatura da sessão | F0 |
+| `SESSION_SECRET` | Reservado (a sessão usa token aleatório com hash no banco; hoje não é lido) | F0 |
+| `OWNER_EMAIL`, `OWNER_NAME` | Opcionais; só para `npm run owner:create` (a senha é pedida no terminal, nunca em variável) | F0 |
 | `NEXT_PUBLIC_APP_URL` | URL pública do app | F0 |
-| `CRON_SECRET` | Autenticação dos jobs Cron | F3 |
+| `CRON_SECRET` | Autenticação dos jobs Cron (`Authorization: Bearer`); o proxy já exige (F0-06), ausente = negado | F0 (guard) / F3 (jobs) |
 | `OPENAI_API_KEY` | Cliente OpenAI | F5 |
 | `OPENAI_MONTHLY_BUDGET_USD` | Teto mensal de gasto com IA | F5 |
 | `OPENAI_MODEL_SMALL` | Modelo pequeno (parser fallback, categorização, chat) | F5 |
 | `OPENAI_MODEL_TRANSCRIBE` | Modelo de transcrição de áudio | F5 |
 | `TELEGRAM_BOT_TOKEN` | Token do bot | F5 |
-| `TELEGRAM_WEBHOOK_SECRET` | Secret token validado no webhook | F5 |
+| `TELEGRAM_WEBHOOK_SECRET` | Secret token validado no webhook; o proxy já exige (F0-06), ausente = negado | F0 (guard) / F5 |
 | `TELEGRAM_ALLOWED_CHAT_ID` | Único `chatId` aceito | F5 |
-| `MCP_TOKEN` | Token do servidor MCP | F5 |
+| `MCP_TOKEN` | Token do servidor MCP (`Authorization: Bearer`); o proxy já exige (F0-06), ausente = negado | F0 (guard) / F5 |
 
 ## Build e migrations
 
@@ -49,5 +50,5 @@ Valores vivem em `.env.local` (gitignored) e nas Environment Variables da Vercel
 ## Estado atual (1.x)
 
 - `package.json` já define `"build": "prisma migrate deploy && next build"`.
-- `.env.example` declara apenas `DATABASE_URL`, `NEXT_PUBLIC_APP_URL` e `SESSION_SECRET`.
+- `.env.example` declara `DATABASE_URL`, `NEXT_PUBLIC_APP_URL`, `SESSION_SECRET` (reservado) e, comentados, `CRON_SECRET`, `TELEGRAM_WEBHOOK_SECRET`, `MCP_TOKEN`, `OWNER_EMAIL` e `OWNER_NAME`.
 - Não há `vercel.json` nem Cron; recorrências dependem de `POST /api/recurring-rules/apply` acionado à mão.

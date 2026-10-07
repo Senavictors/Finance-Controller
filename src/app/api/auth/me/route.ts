@@ -1,25 +1,22 @@
 import { NextResponse } from 'next/server'
-import { prisma } from '@/server/db'
 import { requireAuth, AuthError } from '@/server/auth'
+import { getCurrentUser } from '@/server/auth/current-user'
+import { prismaUserRepository } from '@/server/auth/prisma-repositories'
 
 export async function GET() {
   try {
     const { userId } = await requireAuth()
 
-    const user = await prisma.user.findUnique({
-      where: { id: userId },
-      select: { id: true, name: true, email: true, createdAt: true },
-    })
-
+    const user = await getCurrentUser(prismaUserRepository, userId)
     if (!user) {
-      return NextResponse.json({ error: 'User not found' }, { status: 404 })
+      return NextResponse.json({ error: 'Usuário não encontrado' }, { status: 404 })
     }
 
     return NextResponse.json({ user })
   } catch (error) {
     if (error instanceof AuthError) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+      return NextResponse.json({ error: 'Não autorizado' }, { status: 401 })
     }
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+    return NextResponse.json({ error: 'Erro interno do servidor' }, { status: 500 })
   }
 }

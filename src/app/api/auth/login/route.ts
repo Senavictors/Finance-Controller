@@ -1,48 +1,48 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { prisma } from '@/server/db'
-import { verifyPassword, createSession, checkRateLimit } from '@/server/auth'
+import { loginWithCookie } from '@/server/auth'
 import { loginSchema } from '@/server/auth/schemas'
 
-export async function POST(request: NextRequest) {
-  try {
-    const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ?? 'unknown'
-    const rateCheck = checkRateLimit(`login:${ip}`)
+function clientIp(request: NextRequest): string {
+  const forwarded = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim()
+  return forwarded || request.headers.get('x-real-ip') || 'unknown'
+}
 
-    if (!rateCheck.allowed) {
+export async function POST(request: NextRequest) {
+  let body: unknown
+  try {
+    body = await request.json()
+  } catch {
+    return NextResponse.json({ error: 'Corpo da requisição inválido' }, { status: 400 })
+  }
+
+  const parsed = loginSchema.safeParse(body)
+  if (!parsed.success) {
+    return NextResponse.json(
+      { error: 'Dados inválidos', details: parsed.error.flatten().fieldErrors },
+      { status: 400 },
+    )
+  }
+
+  try {
+    const result = await loginWithCookie({
+      ...parsed.data,
+      ip: clientIp(request),
+      userAgent: request.headers.get('user-agent'),
+    })
+
+    if (result.ok) {
+      return NextResponse.json({ user: result.user })
+    }
+
+    if (result.reason === 'rate-limited') {
       return NextResponse.json(
         { error: 'Muitas tentativas de login. Tente novamente mais tarde.' },
-        {
-          status: 429,
-          headers: { 'Retry-After': String(Math.ceil(rateCheck.retryAfterMs / 1000)) },
-        },
+        { status: 429, headers: { 'Retry-After': String(result.retryAfterSeconds) } },
       )
     }
 
-    const body = await request.json()
-    const parsed = loginSchema.safeParse(body)
-
-    if (!parsed.success) {
-      return NextResponse.json(
-        { error: 'Validation failed', details: parsed.error.flatten().fieldErrors },
-        { status: 400 },
-      )
-    }
-
-    const { email, password } = parsed.data
-
-    const user = await prisma.user.findUnique({ where: { email } })
-    const isValid = user ? await verifyPassword(password, user.password) : false
-
-    if (!user || !isValid) {
-      return NextResponse.json({ error: 'Email ou senha invalidos' }, { status: 401 })
-    }
-
-    await createSession(user.id)
-
-    return NextResponse.json({
-      user: { id: user.id, name: user.name, email: user.email },
-    })
+    return NextResponse.json({ error: 'E-mail ou senha inválidos' }, { status: 401 })
   } catch {
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+    return NextResponse.json({ error: 'Erro interno do servidor' }, { status: 500 })
   }
 }

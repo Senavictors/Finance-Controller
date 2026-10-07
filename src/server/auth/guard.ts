@@ -1,17 +1,11 @@
+import { AuthError } from './errors'
 import { validateSession } from './session'
+import type { SessionContext } from './session-service'
 
-export type AuthContext = {
-  userId: string
-  sessionId: string
-}
+export { AuthError }
+export type AuthContext = SessionContext
 
-export class AuthError extends Error {
-  constructor(message: string = 'Unauthorized') {
-    super(message)
-    this.name = 'AuthError'
-  }
-}
-
+/** Valida a sessão no banco; lança `AuthError` (rotas respondem 401). Nunca confie só no proxy. */
 export async function requireAuth(): Promise<AuthContext> {
   const session = await validateSession()
   if (!session) {

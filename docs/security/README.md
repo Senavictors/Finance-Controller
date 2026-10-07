@@ -1,12 +1,12 @@
 ---
 estado: planejado
 fonte: docs/product/especificacao-fc2.md
-ultima-revisao: bootstrap-init 2026-10-05
+ultima-revisao: FC2-F0-06 2026-10-05
 ---
 
 # Segurança e privacidade
 
-Threat model leve para um sistema pessoal, de um único usuário, hospedado na Vercel com banco no Neon. Foco: proteger dados financeiros reais e impedir que superfícies expostas (webhook, MCP, cron) virem porta de entrada. Relacionados: ADR-016, ADR-025, ADR-026, ADR-027, ADR-030 e [`../ai/README.md`](../ai/README.md).
+Threat model leve para um sistema pessoal, de um único usuário, hospedado na Vercel com banco no Neon. Foco: proteger dados financeiros reais e impedir que superfícies expostas (webhook, MCP, cron) virem porta de entrada. Fluxo de autenticação em [`autenticacao.md`](autenticacao.md). Relacionados: ADR-016, ADR-025, ADR-026, ADR-027, ADR-030 e [`../ai/README.md`](../ai/README.md).
 
 ## Ativos
 
@@ -20,7 +20,7 @@ Adversários realistas: bot ou varredura na internet, vazamento acidental via Gi
 
 | Superfície | Risco | Controle |
 |---|---|---|
-| Sessão (PWA) | roubo de cookie, força bruta | cookie `HttpOnly`, `Secure`, `SameSite=Lax`, sessão no servidor com expiração longa renovável, hash bcrypt, limite de tentativas de login com atraso crescente, logout revoga a sessão |
+| Sessão (PWA) | roubo de cookie, força bruta | cookie `HttpOnly`, `Secure`, `SameSite=Lax`, sessão no servidor de 90 dias renovável (token guardado como SHA-256), senha com bcrypt, proxy protege todas as rotas por padrão, limite de 5 falhas em 15 minutos persistido no banco, logout revoga a sessão (ver `autenticacao.md`) |
 | Telegram webhook | requisições forjadas, outro usuário falando com o bot | verificar o cabeçalho de secret token em tempo constante, aceitar somente o `chatId` cadastrado em `TelegramLink`, ignorar silenciosamente os demais, validar o payload com Zod, ações de escrita pedem confirmação |
 | MCP | acesso indevido a dados | token longo e aleatório em cabeçalho, comparação em tempo constante, somente leitura por padrão, escrita opt-in por tool, mesmas regras de `userId` das tools, rotação possível e registro de uso |
 | Cron (Vercel) | disparo externo de jobs | `CRON_SECRET` validado em `Authorization: Bearer`, jobs idempotentes (ADR-030) para que repetição não duplique dados |

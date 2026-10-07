@@ -2,46 +2,47 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 
-export function LoginForm() {
+import { Banner, Button, Field, GlassCard } from '@/components/fc'
+
+const INPUT_CLASS =
+  'fc-text-body min-h-fc-touch w-full rounded-fc-sm border border-fc-rim bg-fc-glass px-4 text-fc-text outline-none placeholder:text-fc-text-3 focus-visible:border-fc-iris aria-invalid:border-fc-out'
+
+type FieldErrors = Partial<Record<'email' | 'password', string[]>>
+
+export function LoginForm({ callbackUrl }: { callbackUrl: string }) {
   const router = useRouter()
   const [error, setError] = useState<string | null>(null)
-  const [fieldErrors, setFieldErrors] = useState<Record<string, string[]>>({})
+  const [fieldErrors, setFieldErrors] = useState<FieldErrors>({})
   const [loading, setLoading] = useState(false)
 
-  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault()
+  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault()
     setError(null)
     setFieldErrors({})
     setLoading(true)
 
-    const formData = new FormData(e.currentTarget)
+    const formData = new FormData(event.currentTarget)
     const body = {
-      email: formData.get('email') as string,
-      password: formData.get('password') as string,
+      email: String(formData.get('email') ?? ''),
+      password: String(formData.get('password') ?? ''),
     }
 
     try {
-      const res = await fetch('/api/auth/login', {
+      const response = await fetch('/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(body),
       })
+      const data = await response.json().catch(() => ({}))
 
-      const data = await res.json()
-
-      if (!res.ok) {
+      if (!response.ok) {
         if (data.details) setFieldErrors(data.details)
-        else setError(data.error ?? 'Falha no login')
+        else setError(data.error ?? 'Não foi possível entrar')
         return
       }
 
-      const params = new URLSearchParams(window.location.search)
-      router.push(params.get('callbackUrl') ?? '/hoje')
+      router.replace(callbackUrl)
       router.refresh()
     } catch {
       setError('Algo deu errado. Tente novamente.')
@@ -51,42 +52,52 @@ export function LoginForm() {
   }
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Login</CardTitle>
-        <CardDescription>Entre com suas credenciais para acessar sua conta</CardDescription>
-      </CardHeader>
-      <CardContent>
-        <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-          {error && <p className="text-destructive text-sm">{error}</p>}
+    <GlassCard variant="strong" padding="lg" as="section" aria-labelledby="login-title">
+      <h1 id="login-title" className="fc-text-title text-fc-text">
+        Entrar
+      </h1>
+      <p className="fc-text-sub text-fc-text-2 mt-1">Use o e-mail e a senha do dono da conta.</p>
 
-          <div className="flex flex-col gap-1.5">
-            <Label htmlFor="email">Email</Label>
-            <Input id="email" name="email" type="email" required autoComplete="email" />
-            {fieldErrors.email && (
-              <p className="text-destructive text-xs">{fieldErrors.email[0]}</p>
-            )}
-          </div>
+      <form onSubmit={handleSubmit} noValidate className="mt-6 flex flex-col gap-4">
+        {error ? (
+          <Banner tone="out" title="Não foi possível entrar">
+            {error}
+          </Banner>
+        ) : null}
 
-          <div className="flex flex-col gap-1.5">
-            <Label htmlFor="password">Senha</Label>
-            <Input
-              id="password"
+        <Field label="E-mail" error={fieldErrors.email?.[0]}>
+          {(control) => (
+            <input
+              {...control}
+              name="email"
+              type="email"
+              inputMode="email"
+              autoComplete="username"
+              autoCapitalize="none"
+              spellCheck={false}
+              required
+              className={INPUT_CLASS}
+            />
+          )}
+        </Field>
+
+        <Field label="Senha" error={fieldErrors.password?.[0]}>
+          {(control) => (
+            <input
+              {...control}
               name="password"
               type="password"
-              required
               autoComplete="current-password"
+              required
+              className={INPUT_CLASS}
             />
-            {fieldErrors.password && (
-              <p className="text-destructive text-xs">{fieldErrors.password[0]}</p>
-            )}
-          </div>
+          )}
+        </Field>
 
-          <Button type="submit" disabled={loading} size="lg" className="w-full">
-            {loading ? 'Entrando...' : 'Entrar'}
-          </Button>
-        </form>
-      </CardContent>
-    </Card>
+        <Button type="submit" size="lg" loading={loading} className="w-full">
+          {loading ? 'Entrando...' : 'Entrar'}
+        </Button>
+      </form>
+    </GlassCard>
   )
 }
