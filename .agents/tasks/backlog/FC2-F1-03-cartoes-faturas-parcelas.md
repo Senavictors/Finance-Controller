@@ -6,9 +6,9 @@ type: feature
 phase: F1
 wave: 2
 owner: dominio-financeiro
-depends_on: [FC2-F1-01]
+depends_on: [FC2-F1-01, FC2-F1-09]
 created_at: 2026-10-05
-updated_at: 2026-10-05
+updated_at: 2026-10-06
 affected_modules: [cards, ledger]
 related_use_cases: [createCardPurchase, payStatement, moveTransactionToStatement, refundCardTransaction, advanceInstallments, syncCardStatuses, getStatementDetail, listStatements]
 related_adrs: [ADR-008, ADR-019, ADR-004, ADR-002, ADR-025]

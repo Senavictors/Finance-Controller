@@ -6,9 +6,9 @@ type: feature
 phase: F1
 wave: 2
 owner: dominio-financeiro
-depends_on: [FC2-F1-01]
+depends_on: [FC2-F1-01, FC2-F1-09]
 created_at: 2026-10-05
-updated_at: 2026-10-05
+updated_at: 2026-10-06
 affected_modules: [income, ledger]
 related_use_cases: [createIncomeRule, updateIncomeRule, projectIncome, materializeIncome, confirmIncomeReceipt, setAttendanceOverride, upsertMeiProfile, materializeDas, recomputeMeiLedger, getMeiStatus]
 related_adrs: [ADR-029, ADR-019, ADR-020, ADR-021, ADR-002]
