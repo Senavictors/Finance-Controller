@@ -35,6 +35,7 @@ Mantido automaticamente por `bootstrap-audit` a cada execução — não edite e
 | ADR-029 | Renda MEI com regra base + dia presencial, DAS e teto anual | accepted | 2026-10-05 | [ADR-029-renda-mei-regra-base-dia-presencial-das-teto.md](ADR-029-renda-mei-regra-base-dia-presencial-das-teto.md) |
 | ADR-030 | Jobs agendados via Vercel Cron idempotentes | accepted | 2026-10-05 | [ADR-030-jobs-vercel-cron-idempotentes.md](ADR-030-jobs-vercel-cron-idempotentes.md) |
 | ADR-031 | Orquestração do desenvolvimento — Opus orquestrador e subagentes Sonnet em ondas | accepted | 2026-10-05 | [ADR-031-orquestracao-opus-sonnet-ondas.md](ADR-031-orquestracao-opus-sonnet-ondas.md) |
+| ADR-032 | Errata do ADR-029 — níveis de alerta do teto MEI e feriados considerados | proposed | 2026-10-07 | [ADR-032-errata-adr-029-alertas-teto-e-feriados.md](ADR-032-errata-adr-029-alertas-teto-e-feriados.md) |
 <!-- bootstrap-audit preenche uma linha por arquivo em .agents/decisions/*.md, lendo o frontmatter (id, title, status, date). Não remova este comentário — é o marcador de onde a regeneração insere as linhas. -->
 
 ## Status possíveis
