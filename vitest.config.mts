@@ -13,6 +13,8 @@ export default defineConfig({
     globals: true,
     clearMocks: true,
     restoreMocks: true,
+    // Guards varrem o repositório inteiro (tests/guards); sob carga (suíte paralela, --coverage) passam de 5 s.
+    testTimeout: 30_000,
     include: [
       'src/**/*.test.ts',
       'tests/**/*.test.ts',
