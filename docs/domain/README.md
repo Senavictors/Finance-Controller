@@ -22,6 +22,7 @@ Documentos do 1.x movidos para cá; descrevem o comportamento antigo e serão re
 ## Implementados do 2.0
 
 - [`categories.md`](categories.md) — categorias padrão BR, natureza Must/Need/Want e chaves de sistema (F1-07)
+- [`dividas.md`](dividas.md) — Price, juros de atraso, cheque especial, rotativo, ordem por taxa e pagamento de parcela (F1-05)
 
 ## Planejados do 2.0 (nascem sob demanda, por módulo)
 
@@ -30,7 +31,6 @@ Cada um é criado pela task que implementa o módulo correspondente:
 - `glossary.md` — linguagem compartilhada (ciclo de renda, caixa x flex, Aperto, outstanding)
 - [`ledger.md`](ledger.md) — status, kinds, saldo, cheque especial, transferências (F1-01, feito; reconciliação: F1-04)
 - `cartoes.md` — ciclo de fatura, parcelas, estorno (F1-03)
-- `dividas.md` — Price, juros, ordem por taxa (F1-05)
 - `renda-mei.md` — base + dia presencial, DAS, teto anual (F1-06)
 - `captura.md` — sintaxe do parser e Draft (F2-01)
 - `recorrencias.md` — RRULE, PLANNED, matching (F3-01)

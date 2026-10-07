@@ -1,7 +1,7 @@
 ---
 id: FC2-F1-05
 title: "Dívidas: consignado (Price), cheque especial, rotativo, Pix no crédito"
-status: active
+status: completed
 type: feature
 phase: F1
 wave: 2
@@ -95,23 +95,23 @@ Convenção: taxa mensal como **fração** (`0.02` = 2% a.m.); dinheiro em centa
 - RN-11: Nenhum valor real em testes/exemplos; usar valores redondos fictícios.
 
 ## Critérios de aceitação
-- [ ] CA-01: `priceInstallment({ principal: 1000000, monthlyRate: 0.02, installments: 12 })` = 94560; com `monthlyRate: 0` e 12 parcelas de 1.000.000 => 83333.
-- [ ] CA-02: `buildAmortizationSchedule(1000000, 0.02, 12)`: parcela 1 tem juros 20000 e amortização 74560; Σ amortizações = 1000000 exatamente; saldo final = 0; só a última parcela difere das demais (ajuste de resíduo, diferença <= 12 centavos).
-- [ ] CA-03: `impliedMonthlyRate({ principal: 1000000, installmentAmount: 94560, installments: 12 })` está em `[0.019999, 0.020001]`; para `installmentAmount * installments <= principal` retorna 0.
-- [ ] CA-04: `lateCharges({ amount: 94560, dueDate: 2026-10-01, payDate: 2026-10-11 })` => `{ fee: 1891, interest: 315, total: 2206, days: 10 }`; pagamento no dia do vencimento ou antes => tudo zero.
-- [ ] CA-05: `overdraftMonthlyCost({ used: 50000, monthlyRate: 0.08 })` = 4000; `used = 0` = 0; `estimateOverdraftCostFromSeries` com saldo -50000 por 30 dias a 8% a.m. ≈ 4000 (±1 centavo por arredondamento) e com saldo positivo = 0; a parte do saldo negativo que excede `overdraftLimit` **não** entra na estimativa (é reportada à parte como excedente, vinda do ledger).
-- [ ] CA-06: `revolvingMonthlyCost({ unpaid: 100000, monthlyRate: 0.12 })` = 12000; com `originalPrincipal: 100000`, `interestAlreadyCharged: 95000`, `capMultiple: 1` => 5000 (limitado pelo teto).
-- [ ] CA-07: `monthsToPayoff({ balance: 100000, monthlyRate: 0.02, monthlyPayment: 10000 })` = 12; com pagamento 2000 => `Infinity`; com taxa 0 e pagamento 30000 => 4.
-- [ ] CA-08: `annualEquivalent(0.02)` ≈ 0.2682 (4 casas); `annualEquivalent(0)` = 0.
-- [ ] CA-09: `rankDebtsByRate` com rotativo 12%, cheque especial 8%, Pix no crédito 7% e consignado 1,9% devolve nessa ordem; duas dívidas com a mesma taxa são desempatadas por custo mensal e depois por saldo; a função não muta a entrada.
-- [ ] CA-10: `createLoan` de consignado (principal 1.000.000, parcela informada 94560, 12 parcelas, 1ª parcela em 2026-11-05) grava 12 `LoanInstallment` com datas mensais (2026-11-05 ... 2027-10-05), Σ `principalCents` = 1000000, `outstandingCents` = 1000000 e `monthlyRate` inferida ≈ 0.02; com `alreadyPaidInstallments = 3`, as 3 primeiras ficam `PAID`, `outstandingCents` = saldo após 3 parcelas.
-- [ ] CA-11: Parcela com vencimento dia 31 em contrato começando em 2026-01-31 gera vencimentos 2026-02-28, 2026-03-31, 2026-04-30 (clamp sem acúmulo).
-- [ ] CA-12: `registerInstallmentPayment` de uma parcela atrasada em 10 dias cria 3 lançamentos no ledger (parcela `EXPENSE` -94560 na categoria `parcelas-emprestimos`, `FEE` -1891 e `INTEREST` -315), marca a parcela `PAID` com `lateChargesCents = 2206`, `paidAmountCents = 96766`, e a conta de débito reduz exatamente 96766; pagar de novo retorna `INSTALLMENT_ALREADY_PAID`; pagar a última marca `Loan.status = PAID_OFF`.
-- [ ] CA-13: `listDebts` com 4 dívidas (consignado, cheque especial em uso 50000 a 8%, rotativo, Pix no crédito) devolve a ordem por taxa, `monthlyInterestCost` em R$ (centavos) de cada uma e totais coerentes; cheque especial sem uso não aparece (ou aparece com custo 0, decisão registrada).
-- [ ] CA-14: `listPendingDebtObligations` inclui parcelas atrasadas com `amountDueNow` = principal + encargos até `now` e exclui as pagas.
-- [ ] CA-15: `simulatePayoff` com `extraMonthlyPayment` reduz meses e juros totais em relação à linha de base (valores calculados no teste).
-- [ ] CA-16: Todos os testes de domínio passam com `TZ=America/Sao_Paulo` e `TZ=UTC`; `rg prisma src/server/modules/debts/domain` vazio; `rg "new Date\(\)" src/server/modules/debts/domain` vazio.
-- [ ] CA-17: `npm run lint`, `npm test`, `npx next build`, `npm run format:check` passam.
+- [x] CA-01: `priceInstallment({ principal: 1000000, monthlyRate: 0.02, installments: 12 })` = 94560; com `monthlyRate: 0` e 12 parcelas de 1.000.000 => 83333.
+- [x] CA-02: `buildAmortizationSchedule(1000000, 0.02, 12)`: parcela 1 tem juros 20000 e amortização 74560; Σ amortizações = 1000000 exatamente; saldo final = 0; só a última parcela difere das demais (ajuste de resíduo, diferença <= 12 centavos).
+- [x] CA-03: `impliedMonthlyRate({ principal: 1000000, installmentAmount: 94560, installments: 12 })` está em `[0.019999, 0.020001]`; para `installmentAmount * installments <= principal` retorna 0.
+- [x] CA-04: `lateCharges({ amount: 94560, dueDate: 2026-10-01, payDate: 2026-10-11 })` => `{ fee: 1891, interest: 315, total: 2206, days: 10 }`; pagamento no dia do vencimento ou antes => tudo zero.
+- [x] CA-05: `overdraftMonthlyCost({ used: 50000, monthlyRate: 0.08 })` = 4000; `used = 0` = 0; `estimateOverdraftCostFromSeries` com saldo -50000 por 30 dias a 8% a.m. ≈ 4000 (±1 centavo por arredondamento) e com saldo positivo = 0; a parte do saldo negativo que excede `overdraftLimit` **não** entra na estimativa (é reportada à parte como excedente, vinda do ledger).
+- [x] CA-06: `revolvingMonthlyCost({ unpaid: 100000, monthlyRate: 0.12 })` = 12000; com `originalPrincipal: 100000`, `interestAlreadyCharged: 95000`, `capMultiple: 1` => 5000 (limitado pelo teto).
+- [x] CA-07: `monthsToPayoff({ balance: 100000, monthlyRate: 0.02, monthlyPayment: 10000 })` = 12; com pagamento 2000 => `Infinity`; com taxa 0 e pagamento 30000 => 4.
+- [x] CA-08: `annualEquivalent(0.02)` ≈ 0.2682 (4 casas); `annualEquivalent(0)` = 0.
+- [x] CA-09: `rankDebtsByRate` com rotativo 12%, cheque especial 8%, Pix no crédito 7% e consignado 1,9% devolve nessa ordem; duas dívidas com a mesma taxa são desempatadas por custo mensal e depois por saldo; a função não muta a entrada.
+- [x] CA-10: `createLoan` de consignado (principal 1.000.000, parcela informada 94560, 12 parcelas, 1ª parcela em 2026-11-05) grava 12 `LoanInstallment` com datas mensais (2026-11-05 ... 2027-10-05), Σ `principalCents` = 1000000, `outstandingCents` = 1000000 e `monthlyRate` inferida ≈ 0.02; com `alreadyPaidInstallments = 3`, as 3 primeiras ficam `PAID`, `outstandingCents` = saldo após 3 parcelas.
+- [x] CA-11: Parcela com vencimento dia 31 em contrato começando em 2026-01-31 gera vencimentos 2026-02-28, 2026-03-31, 2026-04-30 (clamp sem acúmulo).
+- [x] CA-12: `registerInstallmentPayment` de uma parcela atrasada em 10 dias cria 3 lançamentos no ledger (parcela `EXPENSE` -94560 na categoria `parcelas-emprestimos`, `FEE` -1891 e `INTEREST` -315), marca a parcela `PAID` com `lateChargesCents = 2206`, `paidAmountCents = 96766`, e a conta de débito reduz exatamente 96766; pagar de novo retorna `INSTALLMENT_ALREADY_PAID`; pagar a última marca `Loan.status = PAID_OFF`.
+- [x] CA-13: `listDebts` com 4 dívidas (consignado, cheque especial em uso 50000 a 8%, rotativo, Pix no crédito) devolve a ordem por taxa, `monthlyInterestCost` em R$ (centavos) de cada uma e totais coerentes; cheque especial sem uso não aparece (ou aparece com custo 0, decisão registrada).
+- [x] CA-14: `listPendingDebtObligations` inclui parcelas atrasadas com `amountDueNow` = principal + encargos até `now` e exclui as pagas.
+- [x] CA-15: `simulatePayoff` com `extraMonthlyPayment` reduz meses e juros totais em relação à linha de base (valores calculados no teste).
+- [x] CA-16: Todos os testes de domínio passam com `TZ=America/Sao_Paulo` e `TZ=UTC`; `rg prisma src/server/modules/debts/domain` vazio; `rg "new Date\(\)" src/server/modules/debts/domain` vazio.
+- [x] CA-17: `npm run lint`, `npm test`, `npx next build`, `npm run format:check` passam.
 
 ## Impacto técnico
 ### Backend
@@ -126,24 +126,24 @@ Leitura do ledger (uso do cheque especial e fatura em aberto) e escrita via use-
 `userId` em tudo; validação Zod; nenhum contrato real nos testes; nome do credor é texto livre (`lenderName`) e não deve conter documentos — a validação rejeita sequências de dígitos longas (>= 11) no nome para evitar CPF/CNPJ/conta digitados por engano.
 
 ## Plano de implementação
-- [ ] Etapa 1 — Ler ADR-028, §4.4/§5/§6 da especificação, F1-01 (ledger), F1-03 (clamp de datas) e o schema 2.0 (`Loan`, `LoanInstallment`).
-- [ ] Etapa 2 — Promover `addMonthsClamped` para `src/lib/dates.ts` (se ainda estiver em `cards/domain`), com testes.
-- [ ] Etapa 3 — Domínio: `price.ts`, `rate.ts`, `payoff.ts`, `late-charges.ts`, `overdraft.ts`, `revolving.ts`, `summary.ts` com testes por tabela (todos os números dos critérios).
-- [ ] Etapa 4 — Repositório (porta + em memória) e use-cases `createLoan`, `listDebts`, `getDebtDetail`, `simulatePayoff`.
-- [ ] Etapa 5 — `registerInstallmentPayment` integrando o ledger; `listPendingDebtObligations`; `estimateOverdraftCost`.
-- [ ] Etapa 6 — Zod e rotas finas; teste de integração em banco de teste (atomicidade do pagamento com 3 lançamentos).
-- [ ] Etapa 7 — Docs `docs/domain/dividas.md` (fórmulas, convenções e limites de estimativa), `.agents/context/CONTEXT.md`, `PLANS.md`; commit `feat(f1-dividas): juros price, cheque especial, rotativo e ranking por taxa`.
+- [x] Etapa 1 — Ler ADR-028, §4.4/§5/§6 da especificação, F1-01 (ledger), F1-03 (clamp de datas) e o schema 2.0 (`Loan`, `LoanInstallment`).
+- [x] Etapa 2 — Promover `addMonthsClamped` para `src/lib/dates.ts` (se ainda estiver em `cards/domain`), com testes.
+- [x] Etapa 3 — Domínio: `price.ts`, `rate.ts`, `payoff.ts`, `late-charges.ts`, `overdraft.ts`, `revolving.ts`, `summary.ts` com testes por tabela (todos os números dos critérios).
+- [x] Etapa 4 — Repositório (porta + em memória) e use-cases `createLoan`, `listDebts`, `getDebtDetail`, `simulatePayoff`.
+- [x] Etapa 5 — `registerInstallmentPayment` integrando o ledger; `listPendingDebtObligations`; `estimateOverdraftCost`.
+- [x] Etapa 6 — Zod e rotas finas; teste de integração em banco de teste (atomicidade do pagamento com 3 lançamentos).
+- [x] Etapa 7 — Docs `docs/domain/dividas.md` (fórmulas, convenções e limites de estimativa), `.agents/context/CONTEXT.md`, `PLANS.md`; commit `feat(f1-dividas): juros price, cheque especial, rotativo e ranking por taxa`.
 
 ## Estratégia de testes
-- [ ] Unitários (Price): 12 parcelas a 2% (945,60), 1 parcela (PMT = P·(1+i)), taxa 0, 120 parcelas, principal pequeno (R$ 1,00 em 3x), valores grandes (R$ 1.000.000,00); soma de amortizações sempre igual ao principal.
-- [ ] Unitários (taxa implícita): idas e voltas `rate -> PMT -> rate` para taxas 0,5%, 1,9%, 2%, 7%, 12%; casos degenerados (parcela × n <= principal; principal 0).
-- [ ] Unitários (atraso): 0, 1, 10, 30, 365 dias; multa só uma vez; mês de 28/31 dias não altera (pro rata sobre 30); `lateFeePct` e mora personalizados.
-- [ ] Unitários (cheque especial/rotativo): uso 0; uso igual ao limite; excedente além do limite; série diária com alternância positivo/negativo; teto de 100% atingido.
-- [ ] Unitários (prazo): taxa 0; pagamento igual aos juros (infinito); pagamento maior que o saldo (1 mês); arredondamentos de `ceil`.
-- [ ] Unitários (ranking): 4 dívidas típicas; empate de taxa; lista vazia; 1 item; imutabilidade.
-- [ ] Integração (repositório em memória): criar contrato em andamento; pagar parcelas em ordem e fora de ordem; pagar atrasada; quitar; apagar contrato com parcela paga (erro).
-- [ ] Integração (banco de teste): atomicidade do pagamento (falha no 3º lançamento desfaz tudo).
-- [ ] E2E: não aplicável.
+- [x] Unitários (Price): 12 parcelas a 2% (945,60), 1 parcela (PMT = P·(1+i)), taxa 0, 120 parcelas, principal pequeno (R$ 1,00 em 3x), valores grandes (R$ 1.000.000,00); soma de amortizações sempre igual ao principal.
+- [x] Unitários (taxa implícita): idas e voltas `rate -> PMT -> rate` para taxas 0,5%, 1,9%, 2%, 7%, 12%; casos degenerados (parcela × n <= principal; principal 0).
+- [x] Unitários (atraso): 0, 1, 10, 30, 365 dias; multa só uma vez; mês de 28/31 dias não altera (pro rata sobre 30); `lateFeePct` e mora personalizados.
+- [x] Unitários (cheque especial/rotativo): uso 0; uso igual ao limite; excedente além do limite; série diária com alternância positivo/negativo; teto de 100% atingido.
+- [x] Unitários (prazo): taxa 0; pagamento igual aos juros (infinito); pagamento maior que o saldo (1 mês); arredondamentos de `ceil`.
+- [x] Unitários (ranking): 4 dívidas típicas; empate de taxa; lista vazia; 1 item; imutabilidade.
+- [x] Integração (repositório em memória): criar contrato em andamento; pagar parcelas em ordem e fora de ordem; pagar atrasada; quitar; apagar contrato com parcela paga (erro).
+- [x] Integração (banco de teste): atomicidade do pagamento (falha no 3º lançamento desfaz tudo).
+- [x] E2E: não aplicável.
 - [ ] Manual: cadastrar um consignado fictício e um cheque especial via `curl`, listar `/api/debts` e conferir ordem e custos.
 
 ## Riscos e rollback
@@ -154,13 +154,49 @@ Leitura do ledger (uso do cheque especial e fatura em aberto) e escrita via use-
 
 ## Registro de execução
 ### Alterações realizadas
+- Engine pura em `src/server/modules/debts/domain/` (Price, cronograma com resíduo na última parcela, taxa implícita por bissecção, encargos de atraso, cheque especial mensal e por série diária, rotativo com teto, prazo de quitação, taxa anual equivalente, ranking por taxa, `summarizeDebt`, planejamento de contrato novo e série de saldo).
+- Use-cases em `application/`: `createLoan`, `registerInstallmentPayment` (3 lançamentos no ledger via unit of work), `listDebts`/`getDebtSummary`/`getDebtDetail`, `simulatePayoff`, `estimateOverdraftCost`, `listPendingDebtObligations`, `updateLoan`/`archiveLoan`/`deleteLoan`.
+- Infra: `PrismaLoanRepository` (conversão Decimal e percentual só na borda), leitores Prisma de rotativo e categorias, repositório em memória que participa do rollback do unit of work, `getDebtsDeps()`.
+- HTTP: schemas Zod estritos e rotas finas `GET/POST /api/debts`, `GET/PATCH/DELETE /api/debts/[id]`, `POST .../installments/[number]/pay`, `GET .../simulate`, `GET /api/debts/summary`, `GET /api/debts/overdraft-cost`.
+- Retomada (após queda de sessão): `addMonthsClamped` e os demais helpers de calendário saíram de `src/lib/dates.ts` e foram para `domain/calendar.ts` (com testes); `src/lib/dates.ts` e `dates.test.ts` voltaram ao estado da base. Exemplos de CPF/CNPJ dos testes de validação foram trocados por sequências longas fora do formato de documento (guard:data). Teste de integração com Postgres criado e `docs/domain/dividas.md` escrito.
+
 ### Arquivos principais
+`src/server/modules/debts/**`, `src/app/api/debts/**`, `docs/domain/dividas.md`, `docs/domain/README.md`.
+
 ### Decisões
+- Taxas como fração em todo o código; percentuais `Decimal(5,2)` do banco convertidos só no repositório Prisma.
+- Cheque especial e rotativo sem uso ficam fora de `listDebts` (`includeIdle: true` os inclui com custo 0) (CA-13).
+- Excedente além do limite do cheque especial fica fora da estimativa e é devolvido à parte (CA-05).
+- `amountPaid` informado pelo usuário prevalece sobre os encargos calculados (multa até o valor calculado, resto como juros); pagamento menor que a parcela é recusado.
+- Pagamento duplicado concorrente: `FOR UPDATE` no contrato mais `UPDATE ... WHERE status = PENDING`; o perdedor recebe `INSTALLMENT_ALREADY_PAID` e desfaz seus lançamentos.
+- Helpers de datas ficam no módulo (`domain/calendar.ts`), não em `src/lib/dates.ts` (arquivo compartilhado entre tasks em paralelo).
+
 ### Divergências
+- O plano pedia promover `addMonthsClamped` para `src/lib/dates.ts` e reutilizar em `cards`; não foi feito para não alterar um arquivo compartilhado em paralelo (ver Pendências).
+- CA-16: a suíte fixa `TZ=America/Sao_Paulo` em `vitest.config.ts` e `tests/helpers/setup.ts`, então rodar com `TZ=UTC` não muda o fuso do processo. A independência de fuso do domínio foi conferida por inspeção: só há `getUTC*`, `Date.UTC` e `Intl` com fuso explícito, sem `getDate`/`getHours`/`new Date()` no domínio.
+- Teste manual com `curl` não executado (rotas cobertas por testes de rota e `next build`).
+
 ### Pendências
+- Promover os helpers de `domain/calendar.ts` para `src/lib/dates.ts` e reutilizar em `cards`, quando nenhuma outra task estiver alterando esse arquivo.
+- Se as categorias de sistema (`parcelas-emprestimos`, `juros-encargos`, `multas-atrasos`) não existirem para o usuário, os lançamentos são criados sem categoria (não falha).
+- Teste manual com `curl` (checklist de Estratégia de testes).
 
 ## Validação
-Comandos e resultados.
+- `npm run lint`: ok.
+- `npm run typecheck`: ok.
+- `npm test` (sem banco): 65 arquivos passam, 8 pulados (integração sem `DATABASE_URL_TEST`).
+- Integração (Postgres 16 descartável, `DATABASE_URL_TEST`, migrations aplicadas): 73 arquivos, 1109 testes passam; `prisma-loan-repository.integration.test.ts` cobre CA-12 no banco real, atomicidade (falha no 3º lançamento desfaz tudo), corrida de pagamento duplicado, `PAID_OFF`, isolamento por usuário e exclusão de contrato com parcela paga.
+- `npm run guard:data`: ok.
+- `npx prettier --check --end-of-line auto .`: ok.
+- `npm run test:coverage`: domínio de dívidas 100% linhas, 98,99% branches (mínimo 80%).
+- `DATABASE_URL=postgresql://ci:ci@localhost:5432/ci npx next build`: ok, rotas `/api/debts/**` listadas.
+
+### Parecer do QA (qa-revisor, 2026-10-07): APROVADO
+- Reexecutado do zero: lint, typecheck, `guard:data`, prettier, `test:coverage` (domínio de dívidas 100% linhas / 98,99% branches) e `next build` passam. `npm test` sem banco: 1 falha apenas por timeout de 5 s do `tests/guards/no-real-data.test.ts` sob carga (base `2f3ead8` ainda não tem o timeout de 30 s do commit `a16fb77`); isolado passa em ~2 s. Integração em Postgres 16 descartável (`fc2_qaf105_test`, migrations aplicadas, `DATABASE_URL_TEST` sem `DATABASE_URL`): 73 arquivos, 1109 testes passam, incluindo `prisma-loan-repository.integration.test.ts` (CA-12 no banco real, atomicidade, corrida, `PAID_OFF`, isolamento).
+- `vi.mock('@/server/db')` no teste de integração é aceitável: aponta para `getTestDb()`, que recusa nome de database sem `test`/`branch` e URL igual à principal; sem `DATABASE_URL_TEST` a suíte é pulada.
+- Conferência independente (script fora do repo, fórmulas com `Math.pow` e laço mês a mês; 0 divergências; saída idêntica em `TZ=UTC`, `America/Sao_Paulo`, `Pacific/Kiritimati`, `America/Los_Angeles`): PMT 1.000.000/2%/12 = 94560; 2.500.000/1,99%/48 = 81339; 350.000/3,49%/24 = 21773; 100.000/7%/6 = 20980; 12.345.678/1,59%/120 = 231106; Σ amortizações = principal e saldo final 0 em todos; juros = `round(saldo·i)` em todas as linhas; resíduo da última parcela 5 centavos (12x), 18 (48x), 156 (120x, inerente ao arredondamento do PMT); taxa implícita recupera a original com erro < 1e-5 (limitado pelo PMT em centavos), 0 para parcela·n <= principal, parcela absurda devolve 64 (limite do bracket) e o cadastro recusa com `DebtError` (faixa 0–30% a.m.); atraso 94560/10 dias = fee 1891, mora 315, total 2206 (valor a pagar 96766); fuso SP: 11/out 02:00Z = 9 dias (mora 284), 04:00Z = 10 dias (315); cheque especial 50000 a 8% = 4000, série 30 dias = 4000, excedente fora do limite reportado à parte (cobra só sobre o limite: 8000 e excedente 1.500.000 centavos·dia), IOF 0,5% = 4250; rotativo 12000 e teto 5000/0/0; `monthsToPayoff` = laço mês a mês em 4 casos; `(1,02)^12−1 = 0,26824`; ranking `b,a,v,o,p,c`; dia 31/30/29 com clamp sem acúmulo (inclui virada de ano e fev bissexto).
+- Testes de QA adicionados: `src/server/modules/debts/domain/qa-review.test.ts` (22 testes: tabela de PMT independente, fuzz determinístico de 400 cronogramas, taxa implícita, fronteira de fuso, mora base 30, prazo x laço).
+- Achados (nenhum bloqueante, nenhum importante), todos menores: (1) `domain/calendar.ts` duplica o helper de `cards/domain/calendar.ts` (F1-03, outro worktree) com a mesma semântica mas outra convenção de mês (1-12 aqui, 0-11 lá): ao promover para `src/lib/dates.ts`, unificar a base do mês; (2) `registerInstallmentPayment` não checa `loan.status`: contrato encerrado (`PAID_OFF` via `archiveLoan`) ainda aceita pagar parcela `PENDING`; (3) `lateFeePct`/`lateInterestMonthlyPct` são `Decimal(5,2)`: frações com mais de 2 casas em percentual (ex.: mora 1,275%) são truncadas na gravação; (4) `deleteLoan` só bloqueia parcelas pagas com lançamento (parcelas marcadas na criação como "já pagas" não bloqueiam), mais permissivo que o texto da task; (5) `findLoanByAccount` + `insertLoan` de `OVERDRAFT`/`CARD_REVOLVING` não são atômicos (corrida pode criar duas dívidas na mesma conta); (6) o saldo do cheque especial em `listDebts` exclui o excedente do limite (reportado em `limitExcess`).
 
 ## Handoff
-Link para o handoff ativo, quando aplicável.
+Sem handoff ativo.
