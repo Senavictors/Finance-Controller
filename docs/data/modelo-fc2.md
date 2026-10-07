@@ -180,6 +180,14 @@ erDiagram
 6. Dia 29/30/31 em série cai no último dia do mês (regra de domínio, não de schema).
 7. `RECONCILED` é imutável sem desfazer a reconciliação (regra de domínio; `Reconciliation.reconciledIds` guarda os ids travados).
 
+## Como o ledger usa estas tabelas (FC2-F1-01)
+
+Detalhe em [`../domain/ledger.md`](../domain/ledger.md).
+
+- Só o repositório `src/server/modules/ledger/infra/prisma-ledger-repository.ts` escreve em `transactions` e `account_balances` (guard: `tests/guards/ledger-boundaries.test.ts`).
+- `account_balances` muda por `UPDATE ... SET x = x + $delta` (Prisma `upsert` com `increment`) na mesma `$transaction` interativa do lançamento; `version` sobe a cada alteração de saldo.
+- Pendências para `dados-prisma` (não bloqueiam): (1) os baldes de `account_balances` são `INT4` (limite de ~R$ 21 milhões por balde; estourar falha a transação, sem corromper); (2) não há CHECK de sinal por `kind` (a regra vive só no domínio); (3) `last_entry_date` ainda não é mantido pelo ledger; (4) a linha de `account_balances` deve ser criada junto com a conta (F1-02) para evitar a corrida de primeira criação.
+
 ## Extensões em relação à especificação (§6)
 
 `LoanKind.CARD_REVOLVING`, `Transaction.refundOfId`, `Transaction.occurrenceKey`, `UserSettings`, `MeiProfile`, `LoginAttempt` e `Session.tokenHash`. Justificativas na task FC2-F0-02.

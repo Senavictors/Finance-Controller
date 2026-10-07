@@ -15,11 +15,18 @@ describe('lib/dates localDateSchema', () => {
     }
   })
 
-  it('não é estrito: 2026-02-30 é aceito e normalizado pelo JS para 2 de março (pendência F1-01)', () => {
-    const result = localDateSchema().safeParse('2026-02-30')
-    expect(result.success).toBe(true)
-    if (result.success) {
-      expect(result.data.toISOString()).toBe('2026-03-02T12:00:00.000Z')
+  it('é estrito: data inexistente (2026-02-30) é rejeitada, não normalizada', () => {
+    const result = localDateSchema('Data inválida').safeParse('2026-02-30')
+    expect(result.success).toBe(false)
+    if (!result.success) {
+      expect(result.error.issues[0].message).toBe('Data inválida')
     }
+  })
+
+  it('aceita 29/02 só em ano bissexto e rejeita mês 13 e dia 00', () => {
+    expect(localDateSchema().safeParse('2028-02-29').success).toBe(true)
+    expect(localDateSchema().safeParse('2027-02-29').success).toBe(false)
+    expect(localDateSchema().safeParse('2026-13-01').success).toBe(false)
+    expect(localDateSchema().safeParse('2026-10-00').success).toBe(false)
   })
 })
