@@ -31,7 +31,9 @@ Cada um é criado pela task que implementa o módulo correspondente:
 
 - `glossary.md` — linguagem compartilhada (ciclo de renda, caixa x flex, Aperto, outstanding)
 - [`ledger.md`](ledger.md) — status, kinds, saldo, cheque especial, transferências (F1-01, feito; reconciliação: F1-04)
-- `renda-mei.md` — base + dia presencial, DAS, teto anual (F1-06)
+- `cartoes.md` — ciclo de fatura, parcelas, estorno (F1-03)
+- `dividas.md` — Price, juros, ordem por taxa (F1-05)
+- [`renda-mei.md`](renda-mei.md) — base + dia presencial, DAS, teto anual (F1-06, feito)
 - `captura.md` — sintaxe do parser e Draft (F2-01)
 - `recorrencias.md` — RRULE, PLANNED, matching (F3-01)
 - `orcamento-flex.md` — 3 baldes, ritmo (F3-03)
