@@ -1,14 +1,14 @@
 ---
 id: FC2-F1-03
 title: "Cartões: ciclo de fatura, compras/parcelas, pagamento, mover, estorno"
-status: active
+status: completed
 type: feature
 phase: F1
 wave: 2
 owner: dominio-financeiro
 depends_on: [FC2-F1-01, FC2-F1-09]
 created_at: 2026-10-05
-updated_at: 2026-10-06
+updated_at: 2026-10-07
 affected_modules: [cards, ledger]
 related_use_cases: [createCardPurchase, payStatement, moveTransactionToStatement, refundCardTransaction, advanceInstallments, syncCardStatuses, getStatementDetail, listStatements]
 related_adrs: [ADR-008, ADR-019, ADR-004, ADR-002, ADR-025]
@@ -90,20 +90,20 @@ Módulo `src/server/modules/cards/` completo sobre o ledger 2.0:
 - RN-12: Funções de domínio recebem `now`; nenhum `new Date()` implícito no domínio.
 
 ## Critérios de aceitação
-- [ ] CA-01: Os 3 testes originais de `statement-cycle.test.ts` continuam passando; novos testes cobrem fechamento dia 31 em fevereiro (29 em bissexto, 28 em comum), `dueDay <= closingDay`, compra exatamente no dia do fechamento, virada de ano (compra em 20/12 com fechamento 10 vence em janeiro) e `statementKey` correto em cada caso.
-- [ ] CA-02: `buildInstallmentSchedule(R$ 300,00 -> 30000, 3, 2026-01-31)` gera datas 2026-01-31, 2026-02-28, 2026-03-31 (e para 4 parcelas, 2026-04-30); em ano bissexto (2028-01-31) a segunda parcela é 2028-02-29; `splitAmountIntoInstallments(10000, 3)` = `[3334, 3333, 3333]` e a soma é sempre o total.
-- [ ] CA-03: Compra de R$ 600,00 em 3x no cartão com fechamento dia 10 e vencimento dia 17, comprada em 2026-10-05, gera 3 lançamentos `EXPENSE` de -20000 (datas 2026-10-05, 2026-11-05, 2026-12-05), três `CardInstallment` 1:1 e faturas `2026-10`, `2026-11`, `2026-12`; o saldo do cartão no ledger fica -60000 e o uso do limite 60000; a primeira parcela é `PENDING` e as demais `PLANNED`.
-- [ ] CA-04: **Estorno abate a fatura**: fatura com cobranças de R$ 500,00; estorno de R$ 120,00 (`refundCardTransaction`) -> `net = 38000`, `open = 38000`; estorno parcial seguido de outro que excede o `refundableAmount` retorna `REFUND_EXCEEDS_ORIGINAL`; estorno de R$ 600,00 sobre fatura de R$ 500,00 -> `open = 0`, `creditBalance = 10000`.
-- [ ] CA-05: `payStatement` de R$ 200,00 numa fatura de R$ 380,00 -> `paid = 20000`, `open = 18000`, status segue `CLOSED`; pagar R$ 180,00 depois -> `PAID`; pagar R$ 1,00 numa fatura `PAID` -> `STATEMENT_ALREADY_PAID`; pagar mais que o aberto -> `STATEMENT_OVERPAYMENT`; origem = cartão -> erro; origem outro cartão -> erro.
-- [ ] CA-06: Pagamento a partir de conta corrente com saldo R$ 100,00, limite de cheque especial R$ 500,00 e pagamento de R$ 300,00 grava os dois lançamentos e devolve `overdraftWarning = { willUseOverdraft: true, usedAfter: 20000, excessAfter: 0 }`.
-- [ ] CA-07: `suggestPaymentAccount` entre 3 contas escolhe a de maior `available`; ignora arquivadas e cartões; devolve `null` sem candidatas.
-- [ ] CA-08: `moveTransactionToStatement` leva uma compra da fatura `2026-10` para `2026-11`; totais das duas faturas recalculados; `date` e saldo da conta inalterados; mover para fatura `PAID` ou de outro cartão retorna erro; após `syncCardStatuses`, o lançamento **permanece** na fatura escolhida (`userLocked.statement`).
-- [ ] CA-09: `syncCardStatuses` com `now` fixo promove `PLANNED -> PENDING` (data <= hoje) e `PENDING -> CLEARED` (fatura fechou), é idempotente (segunda chamada sem mudanças) e atualiza `AccountBalance` coerentemente (`rebuildAccountBalance` não altera nada).
-- [ ] CA-10: `advanceInstallments` de 2 parcelas de R$ 200,00 (totalOriginal 40000) pagas por R$ 380,00 registra `totalDiscountAmount = 2000`, move as parcelas para a fatura corrente e o desconto aparece como crédito na fatura (porta do comportamento 1.x, coberta por teste equivalente ao `records an advance...` do 1.x).
-- [ ] CA-11: `deleteCardPurchase` com uma parcela em fatura `PAID` retorna `PURCHASE_HAS_PAID_INSTALLMENTS` e não altera nada; sem parcelas pagas, remove compra, parcelas e lançamentos e reverte o saldo.
-- [ ] CA-12: Compra que ultrapassa o `creditLimit` é gravada e retorna `limitWarning: 'LIMIT_EXCEEDED'`.
-- [ ] CA-13: Todos os testes de domínio passam com `TZ=America/Sao_Paulo` e `TZ=UTC`; `rg "new Date\(\)" src/server/modules/cards/domain` não encontra uso implícito de relógio; `rg prisma src/server/modules/cards/domain` vazio.
-- [ ] CA-14: `npm run lint`, `npm test`, `npx next build`, `npm run format:check` passam.
+- [x] CA-01: Os 3 testes originais de `statement-cycle.test.ts` continuam passando; novos testes cobrem fechamento dia 31 em fevereiro (29 em bissexto, 28 em comum), `dueDay <= closingDay`, compra exatamente no dia do fechamento, virada de ano (compra em 20/12 com fechamento 10 vence em janeiro) e `statementKey` correto em cada caso.
+- [x] CA-02: `buildInstallmentSchedule(R$ 300,00 -> 30000, 3, 2026-01-31)` gera datas 2026-01-31, 2026-02-28, 2026-03-31 (e para 4 parcelas, 2026-04-30); em ano bissexto (2028-01-31) a segunda parcela é 2028-02-29; `splitAmountIntoInstallments(10000, 3)` = `[3334, 3333, 3333]` e a soma é sempre o total.
+- [x] CA-03: Compra de R$ 600,00 em 3x no cartão com fechamento dia 10 e vencimento dia 17, comprada em 2026-10-05, gera 3 lançamentos `EXPENSE` de -20000 (datas 2026-10-05, 2026-11-05, 2026-12-05), três `CardInstallment` 1:1 e faturas `2026-10`, `2026-11`, `2026-12`; o saldo do cartão no ledger fica -60000 e o uso do limite 60000; a primeira parcela é `PENDING` e as demais `PLANNED`.
+- [x] CA-04: **Estorno abate a fatura**: fatura com cobranças de R$ 500,00; estorno de R$ 120,00 (`refundCardTransaction`) -> `net = 38000`, `open = 38000`; estorno parcial seguido de outro que excede o `refundableAmount` retorna `REFUND_EXCEEDS_ORIGINAL`; estorno de R$ 600,00 sobre fatura de R$ 500,00 -> `open = 0`, `creditBalance = 10000`.
+- [x] CA-05: `payStatement` de R$ 200,00 numa fatura de R$ 380,00 -> `paid = 20000`, `open = 18000`, status segue `CLOSED`; pagar R$ 180,00 depois -> `PAID`; pagar R$ 1,00 numa fatura `PAID` -> `STATEMENT_ALREADY_PAID`; pagar mais que o aberto -> `STATEMENT_OVERPAYMENT`; origem = cartão -> erro; origem outro cartão -> erro.
+- [x] CA-06: Pagamento a partir de conta corrente com saldo R$ 100,00, limite de cheque especial R$ 500,00 e pagamento de R$ 300,00 grava os dois lançamentos e devolve `overdraftWarning = { willUseOverdraft: true, usedAfter: 20000, excessAfter: 0 }`.
+- [x] CA-07: `suggestPaymentAccount` entre 3 contas escolhe a de maior `available`; ignora arquivadas e cartões; devolve `null` sem candidatas.
+- [x] CA-08: `moveTransactionToStatement` leva uma compra da fatura `2026-10` para `2026-11`; totais das duas faturas recalculados; `date` e saldo da conta inalterados; mover para fatura `PAID` ou de outro cartão retorna erro; após `syncCardStatuses`, o lançamento **permanece** na fatura escolhida (`userLocked.statement`).
+- [x] CA-09: `syncCardStatuses` com `now` fixo promove `PLANNED -> PENDING` (data <= hoje) e `PENDING -> CLEARED` (fatura fechou), é idempotente (segunda chamada sem mudanças) e atualiza `AccountBalance` coerentemente (`rebuildAccountBalance` não altera nada).
+- [x] CA-10: `advanceInstallments` de 2 parcelas de R$ 200,00 (totalOriginal 40000) pagas por R$ 380,00 registra `totalDiscountAmount = 2000`, move as parcelas para a fatura corrente e o desconto aparece como crédito na fatura (porta do comportamento 1.x, coberta por teste equivalente ao `records an advance...` do 1.x).
+- [x] CA-11: `deleteCardPurchase` com uma parcela em fatura `PAID` retorna `PURCHASE_HAS_PAID_INSTALLMENTS` e não altera nada; sem parcelas pagas, remove compra, parcelas e lançamentos e reverte o saldo.
+- [x] CA-12: Compra que ultrapassa o `creditLimit` é gravada e retorna `limitWarning: 'LIMIT_EXCEEDED'`.
+- [x] CA-13: Todos os testes de domínio passam com `TZ=America/Sao_Paulo` e `TZ=UTC`; `rg "new Date\(\)" src/server/modules/cards/domain` não encontra uso implícito de relógio; `rg prisma src/server/modules/cards/domain` vazio.
+- [x] CA-14: `npm run lint`, `npm test`, `npx next build`, `npm run format:check` passam.
 
 ## Impacto técnico
 ### Backend
@@ -118,26 +118,26 @@ Nenhuma. A chave `statementKey` é o contrato com a importação de faturas (F4-
 `userId` em todas as consultas; validação Zod; ids de outro usuário => 404; valores/exemplos fictícios.
 
 ## Plano de implementação
-- [ ] Etapa 1 — Ler ADR-008, ADR-019, F1-01 e o código 1.x via `git show fc-1.x-final:...` (`billing.ts`, `statement-cycle.ts`, `credit-card-purchases/use-cases.ts` e seus testes).
-- [ ] Etapa 2 — Domínio: refinar `statement-cycle.ts` (UTC, `statementKey`, `closingInclusive`) mantendo os 3 testes; criar `statement-status.ts`, corrigir `installments.ts`, criar `statement-totals.ts`, `refund.ts`, `payment.ts`; testes por tabela.
-- [ ] Etapa 3 — Repositório de cartões e porta; repositório em memória para testes.
-- [ ] Etapa 4 — `createCardPurchase`, `deleteCardPurchase`, `listStatements`, `getStatementDetail`, `getCardSummary`.
-- [ ] Etapa 5 — `payStatement`, `suggestPaymentAccount`, aviso de cheque especial.
-- [ ] Etapa 6 — `refundCardTransaction`, `moveTransactionToStatement`, `advanceInstallments`.
-- [ ] Etapa 7 — `syncCardStatuses` e chamada preguiçosa; testes de idempotência.
-- [ ] Etapa 8 — Schemas Zod e rotas finas; testes de schema.
-- [ ] Etapa 9 — Testes de integração em banco de teste (atomicidade, corrida entre dois pagamentos).
-- [ ] Etapa 10 — Docs `docs/domain/cartoes.md` (ciclo, estorno, pagamento, status), ADR-008 (nota de atualização: UTC e `statementKey`), `.agents/context/CONTEXT.md`, `PLANS.md`; commit `feat(f1-cartoes): faturas, parcelas, pagamento, mover e estorno`.
+- [x] Etapa 1 — Ler ADR-008, ADR-019, F1-01 e o código 1.x via `git show fc-1.x-final:...` (`billing.ts`, `statement-cycle.ts`, `credit-card-purchases/use-cases.ts` e seus testes).
+- [x] Etapa 2 — Domínio: refinar `statement-cycle.ts` (UTC, `statementKey`, `closingInclusive`) mantendo os 3 testes; criar `statement-status.ts`, corrigir `installments.ts`, criar `statement-totals.ts`, `refund.ts`, `payment.ts`; testes por tabela.
+- [x] Etapa 3 — Repositório de cartões e porta; repositório em memória para testes.
+- [x] Etapa 4 — `createCardPurchase`, `deleteCardPurchase`, `listStatements`, `getStatementDetail`, `getCardSummary`.
+- [x] Etapa 5 — `payStatement`, `suggestPaymentAccount`, aviso de cheque especial.
+- [x] Etapa 6 — `refundCardTransaction`, `moveTransactionToStatement`, `advanceInstallments`.
+- [x] Etapa 7 — `syncCardStatuses` e chamada preguiçosa; testes de idempotência.
+- [x] Etapa 8 — Schemas Zod e rotas finas; testes de schema.
+- [x] Etapa 9 — Testes de integração em banco de teste (atomicidade, corrida entre dois pagamentos).
+- [x] Etapa 10 — Docs `docs/domain/cartoes.md` (ciclo, estorno, pagamento, status), ADR-008 (nota de atualização: UTC e `statementKey`); `.agents/context/CONTEXT.md` e `PLANS.md` ficam com o orquestrador; commit `feat(f1-cartoes): faturas, parcelas, pagamento, mover e estorno`.
 
 ## Estratégia de testes
-- [ ] Unitários (ciclo): tabela com fechamento 5/10/15/28/31 x vencimento 1/10/17/31 x compras no dia anterior, no dia e no dia seguinte ao fechamento; mês de fevereiro; virada de ano; `statementKey` esperado em cada linha.
-- [ ] Unitários (status): `OPEN` antes de fechar; `CLOSED` entre fechar e vencer; `OVERDUE` após vencer com aberto; `PAID` com aberto 0; total negativo (crédito).
-- [ ] Unitários (parcelas): 1x, 2x, 12x, 24x, valor não divisível (R$ 100,00 em 3x), valor menor que o número de parcelas (R$ 0,02 em 3x -> `[1,1,0]` é inválido: rejeitar `amount < installmentCount` com `INSTALLMENT_TOO_SMALL`), dia 31, 30, 29/02 bissexto.
-- [ ] Unitários (totais): cobranças + tarifas + juros + estorno parcial + pagamento parcial; estorno maior que a fatura; fatura vazia.
-- [ ] Unitários (pagamento): `suggestPaymentAccount` (empate, arquivadas, só cartões), `overdraftWarning` (sem uso, com uso, acima do limite).
-- [ ] Integração (repositório em memória): compra parcelada ponta a ponta (CA-03), pagamento parcial e total, mover + sync, estorno, antecipação, apagar compra.
-- [ ] Integração (banco de teste): atomicidade da compra (falha na parcela 2 desfaz tudo); dois pagamentos concorrentes da mesma fatura não ultrapassam o aberto (um falha).
-- [ ] E2E: não aplicável.
+- [x] Unitários (ciclo): tabela com fechamento 5/10/15/28/31 x vencimento 1/10/17/31 x compras no dia anterior, no dia e no dia seguinte ao fechamento; mês de fevereiro; virada de ano; `statementKey` esperado em cada linha.
+- [x] Unitários (status): `OPEN` antes de fechar; `CLOSED` entre fechar e vencer; `OVERDUE` após vencer com aberto; `PAID` com aberto 0; total negativo (crédito).
+- [x] Unitários (parcelas): 1x, 2x, 12x, 24x, valor não divisível (R$ 100,00 em 3x), valor menor que o número de parcelas (R$ 0,02 em 3x -> `[1,1,0]` é inválido: rejeitar `amount < installmentCount` com `INSTALLMENT_TOO_SMALL`), dia 31, 30, 29/02 bissexto.
+- [x] Unitários (totais): cobranças + tarifas + juros + estorno parcial + pagamento parcial; estorno maior que a fatura; fatura vazia.
+- [x] Unitários (pagamento): `suggestPaymentAccount` (empate, arquivadas, só cartões), `overdraftWarning` (sem uso, com uso, acima do limite).
+- [x] Integração (repositório em memória): compra parcelada ponta a ponta (CA-03), pagamento parcial e total, mover + sync, estorno, antecipação, apagar compra.
+- [x] Integração (banco de teste): atomicidade da compra (falha na parcela 2 desfaz tudo); dois pagamentos concorrentes da mesma fatura não ultrapassam o aberto (um falha).
+- [x] E2E: não aplicável.
 - [ ] Manual: via `curl`: criar cartão (F1-02), comprar 3x, pagar parcial, estornar, mover, ver detalhes.
 
 ## Riscos e rollback
@@ -149,13 +149,48 @@ Nenhuma. A chave `statementKey` é o contrato com a importação de faturas (F4-
 
 ## Registro de execução
 ### Alterações realizadas
+- Domínio puro (`cards/domain/`): `calendar.ts` (dias de calendário em meio-dia UTC, `calendarDayInZone`), `statement-cycle.ts` (UTC, `statementKey`, `closingInclusive`, `getStatementCycleByKey`; os 3 testes originais seguem passando), `statement-status.ts` (relógio injetado), `installments.ts` (`addMonthsClamped`, âncora na data da compra, `MAX_INSTALLMENTS`, `INSTALLMENT_TOO_SMALL`), `statement-totals.ts` (estorno abate; `breakdown`), `refund.ts`, `payment.ts`, `move.ts`, `card-status.ts`, `errors.ts` (`CardsError` com códigos estáveis).
+- Aplicação (`cards/application/`): `createCardPurchase`, `payStatement`, `moveTransactionToStatement`, `refundCardTransaction`, `advanceInstallments`, `deleteCardPurchase`, `syncCardStatuses`, `listStatements`, `getStatementDetail`, `getCardSummary`, fachada `createCardsService`; portas em `ports.ts`; tudo dentro de `ledger.runInTransaction` com a fatura travada antes do ledger.
+- Infra: `PrismaCardsRepository` (usa `prismaClientOf(uow.tx)`; `INSERT ... ON CONFLICT DO NOTHING` para faturas; `SELECT ... FOR UPDATE` ordenado por id), `InMemoryCardsRepository` (testes), `getCardsService`.
+- HTTP: schemas Zod, DTOs, mapeamento de erros e 8 rotas finas (+ `GET /api/cards/[accountId]/summary`).
+- Testes de integração em Postgres real (`infra/prisma-cards-repository.integration.test.ts`, 18 casos): CA-03, atomicidade (falha na parcela 2), compras concorrentes criando as mesmas faturas, pagamentos concorrentes (3 x 20000 sobre 38000; 2 totais; 2 parciais que somam o aberto), compra + pagamento concorrentes, estornos concorrentes do mesmo original, mover com `userLocked.statement` + sync, mover A->B e B->A sem deadlock, sync por data idempotente, antecipação, apagar compra, isolamento por usuário.
+- Docs: `docs/domain/cartoes.md` (novo), `docs/domain/README.md`, nota de atualização no ADR-008.
 ### Arquivos principais
+`src/server/modules/cards/**`, `src/app/api/cards/**`, `src/app/api/statements/**`, `src/app/api/purchases/**`, `src/app/api/transactions/[id]/{move-statement,refund}/route.ts`, `docs/domain/cartoes.md`, `.agents/decisions/ADR-008-credit-card-billing-cycle.md`.
 ### Decisões
+- Crédito de estorno maior que a fatura **não** é rolado como lançamento: fica como `creditBalance` informativo (como previsto na task); reavaliar na F3-06.
+- Desconto da antecipação é um `INCOME` explícito (crédito) na fatura corrente, ligado à primeira parcela por `refundOfId` e com `occurrenceKey = advance:<id>`; `CardInstallment.originalAmount` não muda.
+- Critério de bloqueio "fatura PAID" (mover, estornar, antecipar, apagar) é "quitada por pagamentos" (`paid > 0` e `open = 0`); fatura fechada e vazia tem rótulo `PAID`, mas ainda aceita lançamentos movidos pelo usuário.
+- Mover para fatura inexistente só é permitido dentro de 1 mês antes / 2 depois do ciclo natural da data (`STATEMENT_TARGET_OUT_OF_RANGE`).
+- `syncCardStatuses` só vincula `EXPENSE|FEE|INTEREST|INCOME` sem fatura (`ADJUSTMENT`, ex.: saldo inicial do cartão, só entra por ação explícita) e nunca reatribui lançamento que já tem fatura (faturas passadas ficam intactas se o dia de fechamento mudar).
+- Apagar compra com estorno registrado é bloqueado (`PURCHASE_HAS_REFUNDS`) para não deixar crédito órfão.
+- `closingInclusive` existe como parâmetro do domínio (padrão `true`, regra do 1.x); ainda não há coluna por cartão.
 ### Divergências
+- Rota extra `GET /api/cards/[accountId]/summary` (`getCardSummary`), não listada nas rotas da task.
+- Teste de integração obtém o ledger por `@/server/modules/ledger/service` (API pública, guard `ledger-boundaries`) com `DATABASE_URL` apontado temporariamente para o banco de teste durante o import; por isso o relógio do ledger é o real (o dos cartões é injetado).
+- Sem migration: os índices existentes (`[accountId, statementKey]`, `[statementId]`) bastaram.
 ### Pendências
+- Teste manual por `curl` (plano de testes) não executado nesta sessão; cobrir na F3-06/QA.
+- `closingInclusive` por cartão (coluna) e rolagem automática de crédito de estorno: evoluções futuras.
+- `.agents/context/CONTEXT.md` e `PLANS.md` com o orquestrador.
+- Flake observado: `tests/guards/no-literal-colors.test.ts` estoura 5 s quando a suíte inteira roda sob carga (com integração em paralelo); passa isolado e em `npm test`. Fora desta task.
 
 ## Validação
-Comandos e resultados.
+- `npm run lint`: sem erros.
+- `npm run typecheck`: sem erros.
+- `npm test` (sem banco): 69 arquivos passam, 8 pulados (integração); 1057 testes passam.
+- Integração (Postgres 16 descartável `fc2_f103_test`, `DATABASE_URL_TEST` sem `DATABASE_URL`), 2 rodadas do módulo de cartões: 18/18 passam em ambas; suíte completa com banco: tudo passa (exceto o flake de timeout do guard de cores acima, que passa isolado).
+- `npm run guard:data`: 4 arquivos, 195 testes passam (inclui `ledger-boundaries`).
+- `npx prettier --check --end-of-line auto .`: ok.
+- `npm run test:coverage`: domínio de cartões 100% linhas, 97,4% branches; limite de 80% atendido.
+- `DATABASE_URL=postgresql://ci:ci@localhost:5432/ci npx next build`: ok (rotas de cartões listadas).
+- CA-13: `rg "new Date\(\)" src/server/modules/cards/domain` (fora de testes) vazio; `rg prisma cards/domain` vazio; testes de domínio passam com `TZ=UTC` e `TZ=America/Sao_Paulo`.
+
+### Revisão QA (qa-revisor, 2026-10-07) — APROVADO
+- Reexecutado: `npm run lint`, `npm run typecheck`, `npx prettier --check --end-of-line auto .`, `npm run guard:data` (4 arquivos, 195 testes), `npm run test:coverage` (domínio de cartões 100% linhas, 97,4% branches), `DATABASE_URL=postgresql://ci:ci@localhost:5432/ci npx next build` (ok), `TZ=UTC` e `TZ=America/Sao_Paulo` no domínio (100 testes cada); `rg "new Date\(\)"` e `rg -i prisma` em `cards/domain` (fora de testes) vazios.
+- Integração em Postgres 16 descartável (`fc2_qaf103_test`, `DATABASE_URL_TEST` sem `DATABASE_URL`): módulo de cartões 198/198 em 2 rodadas; suíte completa com banco 1157 passam / 2 pulados em 2 rodadas, sem o flake do guard de cores. Sem `DATABASE_URL_TEST` o arquivo de integração é pulado (18 skipped); com nome de database sem `test`/`branch` o `getTestDb()` recusa antes de qualquer import.
+- Testes adicionados pela QA: `cards/domain/qa-review.test.ts` (ciclos 5/12, 28/5, 31 em fev/meses de 30, virada de ano, varredura de 2027-2028 com fechamentos 1..31 e vencimentos típicos garantindo contiguidade e chave única; parcelas 12x com resíduo e dia 29/30/31; status com `now` em São Paulo; totais; cheque especial; `suggestPaymentAccount`) e `cards/application/qa-review.test.ts` (12x com centavos a partir de 31/01 ponta a ponta; pagar a fatura não duplica a despesa).
+- Achados menores (não bloqueiam): ADR-008 aceito recebeu nota aditiva (já replicada em `docs/domain/cartoes.md`; há precedente de nota de revisão no mesmo ADR); isolamento do `DATABASE_URL` no import dinâmico só falharia com `--no-isolate` (e, mesmo então, sem escrita possível: usuário/conta de teste não existem no outro banco, FK recusa); fechamento 30 + vencimento 31 em fevereiro dá vencimento no próprio dia do fechamento; pagamento com data futura já conta como `paid` (fatura vira `PAID` antes da data); `listStatements` escreve (sync) numa leitura e relê o histórico do cartão a cada chamada (revisar na F3-06/F3-01); teste manual por `curl` segue pendente.
 
 ## Handoff
-Link para o handoff ativo, quando aplicável.
+Sem handoff ativo; resumo no retorno do subagente ao orquestrador.

@@ -1,13 +1,13 @@
 import { describe, expect, it } from 'vitest'
-import { withFakeTime } from '../../../../../tests/helpers/clock'
-import { getCreditCardStatementCycle, getCreditCardStatementStatus } from './statement-cycle'
+import { getCreditCardStatementCycle } from './statement-cycle'
 
-// Casos de borda (virada de ano, dias 29/30/31, vencimento antes do fechamento) e status.
-// Roda com TZ=America/Sao_Paulo (setup da suíte); o domínio 1.x ainda usa Date local.
+// Casos de borda do ciclo LEGADO do 1.x (fuso local do processo). O ciclo novo (meio-dia UTC,
+// `statementKey`) é testado em `statement-cycle.utc.test.ts` e o status em `statement-status.test.ts`.
+// Roda com TZ=America/Sao_Paulo (setup da suíte).
 const end = (y: number, m: number, d: number) => new Date(y, m, d, 23, 59, 59, 999)
 const start = (y: number, m: number, d: number) => new Date(y, m, d, 0, 0, 0, 0)
 
-describe('credit-card/statement-cycle: bordas', () => {
+describe('credit-card/statement-cycle (legado): bordas', () => {
   it('virada de ano: compra de dezembro após o fechamento cai na fatura de janeiro', () => {
     const cycle = getCreditCardStatementCycle({
       transactionDate: new Date('2026-12-20T12:00:00.000Z'),
@@ -71,63 +71,5 @@ describe('credit-card/statement-cycle: bordas', () => {
       dueDay: 5,
     })
     expect(dec.dueDate).toEqual(end(2027, 0, 5))
-  })
-})
-
-describe('credit-card/statement-status', () => {
-  const closingDate = end(2026, 9, 10)
-  const dueDate = end(2026, 9, 17)
-
-  it('PAID quando há total e nada em aberto (inclusive pagamento acima do total)', async () => {
-    await withFakeTime(() => {
-      expect(
-        getCreditCardStatementStatus({
-          closingDate,
-          dueDate,
-          totalAmount: 10000,
-          paidAmount: 10000,
-        }),
-      ).toBe('PAID')
-      expect(
-        getCreditCardStatementStatus({
-          closingDate,
-          dueDate,
-          totalAmount: 10000,
-          paidAmount: 12000,
-        }),
-      ).toBe('PAID')
-    }, '2026-10-20T12:00:00.000Z')
-  })
-
-  it('OVERDUE quando passou do vencimento com valor em aberto', async () => {
-    await withFakeTime(() => {
-      expect(
-        getCreditCardStatementStatus({
-          closingDate,
-          dueDate,
-          totalAmount: 10000,
-          paidAmount: 4000,
-        }),
-      ).toBe('OVERDUE')
-    }, '2026-10-20T12:00:00.000Z')
-  })
-
-  it('CLOSED depois do fechamento e antes do vencimento', async () => {
-    await withFakeTime(() => {
-      expect(
-        getCreditCardStatementStatus({ closingDate, dueDate, totalAmount: 10000, paidAmount: 0 }),
-      ).toBe('CLOSED')
-    }, '2026-10-12T12:00:00.000Z')
-  })
-
-  it('OPEN antes do fechamento; fatura zerada nunca é PAID', async () => {
-    await withFakeTime(() => {
-      expect(
-        getCreditCardStatementStatus({ closingDate, dueDate, totalAmount: 10000, paidAmount: 0 }),
-      ).toBe('OPEN')
-      expect(
-        getCreditCardStatementStatus({ closingDate, dueDate, totalAmount: 0, paidAmount: 0 }),
-      ).toBe('OPEN')
-    }, '2026-10-05T12:00:00.000Z')
   })
 })

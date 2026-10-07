@@ -1,0 +1,90 @@
+/**
+ * Erros de regra do módulo de cartões (FC2-F1-03) com código estável: a camada HTTP traduz
+ * para 400/404/409 e UI/bot/MCP dependem dos códigos. Domínio puro: sem banco nem relógio.
+ */
+
+export const CARDS_ERROR_CODES = [
+  // validação (400)
+  'INVALID_AMOUNT',
+  'INVALID_DATE',
+  'INVALID_BILLING_DAY',
+  'INVALID_STATEMENT_KEY',
+  'INVALID_INSTALLMENT_COUNT',
+  'INSTALLMENT_TOO_SMALL',
+  'CARD_NOT_CONFIGURED',
+  'INVALID_PAYMENT_SOURCE',
+  'NOT_REFUNDABLE',
+  'REFUND_EXCEEDS_ORIGINAL',
+  'NOT_A_CARD_TRANSACTION',
+  'STATEMENT_ACCOUNT_MISMATCH',
+  'STATEMENT_TARGET_OUT_OF_RANGE',
+  'INVALID_DISCOUNT',
+  'INSTALLMENT_NOT_FUTURE',
+  // não encontrado (404)
+  'CARD_NOT_FOUND',
+  'ACCOUNT_NOT_FOUND',
+  'STATEMENT_NOT_FOUND',
+  'PURCHASE_NOT_FOUND',
+  'TRANSACTION_NOT_FOUND',
+  'INSTALLMENT_NOT_FOUND',
+  // conflito (409)
+  'STATEMENT_ALREADY_PAID',
+  'STATEMENT_OVERPAYMENT',
+  'STATEMENT_PAID',
+  'PURCHASE_HAS_PAID_INSTALLMENTS',
+  'PURCHASE_HAS_REFUNDS',
+  'INSTALLMENT_ALREADY_ADVANCED',
+  'CONCURRENT_UPDATE',
+] as const
+export type CardsErrorCode = (typeof CARDS_ERROR_CODES)[number]
+
+export type CardsErrorCategory = 'INVALID' | 'NOT_FOUND' | 'CONFLICT'
+
+const CATEGORY_BY_CODE: Record<CardsErrorCode, CardsErrorCategory> = {
+  INVALID_AMOUNT: 'INVALID',
+  INVALID_DATE: 'INVALID',
+  INVALID_BILLING_DAY: 'INVALID',
+  INVALID_STATEMENT_KEY: 'INVALID',
+  INVALID_INSTALLMENT_COUNT: 'INVALID',
+  INSTALLMENT_TOO_SMALL: 'INVALID',
+  CARD_NOT_CONFIGURED: 'INVALID',
+  INVALID_PAYMENT_SOURCE: 'INVALID',
+  NOT_REFUNDABLE: 'INVALID',
+  REFUND_EXCEEDS_ORIGINAL: 'INVALID',
+  NOT_A_CARD_TRANSACTION: 'INVALID',
+  STATEMENT_ACCOUNT_MISMATCH: 'INVALID',
+  STATEMENT_TARGET_OUT_OF_RANGE: 'INVALID',
+  INVALID_DISCOUNT: 'INVALID',
+  INSTALLMENT_NOT_FUTURE: 'INVALID',
+  CARD_NOT_FOUND: 'NOT_FOUND',
+  ACCOUNT_NOT_FOUND: 'NOT_FOUND',
+  STATEMENT_NOT_FOUND: 'NOT_FOUND',
+  PURCHASE_NOT_FOUND: 'NOT_FOUND',
+  TRANSACTION_NOT_FOUND: 'NOT_FOUND',
+  INSTALLMENT_NOT_FOUND: 'NOT_FOUND',
+  STATEMENT_ALREADY_PAID: 'CONFLICT',
+  STATEMENT_OVERPAYMENT: 'CONFLICT',
+  STATEMENT_PAID: 'CONFLICT',
+  PURCHASE_HAS_PAID_INSTALLMENTS: 'CONFLICT',
+  PURCHASE_HAS_REFUNDS: 'CONFLICT',
+  INSTALLMENT_ALREADY_ADVANCED: 'CONFLICT',
+  CONCURRENT_UPDATE: 'CONFLICT',
+}
+
+export class CardsError extends Error {
+  readonly code: CardsErrorCode
+  readonly category: CardsErrorCategory
+  readonly details?: Record<string, unknown>
+
+  constructor(code: CardsErrorCode, message: string, details?: Record<string, unknown>) {
+    super(message)
+    this.name = 'CardsError'
+    this.code = code
+    this.category = CATEGORY_BY_CODE[code]
+    this.details = details
+  }
+}
+
+export function isCardsError(error: unknown): error is CardsError {
+  return error instanceof CardsError
+}
