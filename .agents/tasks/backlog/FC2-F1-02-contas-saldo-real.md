@@ -6,7 +6,7 @@ type: feature
 phase: F1
 wave: 2
 owner: api-servidor
-depends_on: [FC2-F1-01]
+depends_on: [FC2-F1-01, FC2-F1-09]
 created_at: 2026-10-05
 updated_at: 2026-10-05
 affected_modules: [accounts, ledger, app-mais]
