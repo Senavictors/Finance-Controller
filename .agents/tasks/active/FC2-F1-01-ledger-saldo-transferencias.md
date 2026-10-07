@@ -1,7 +1,7 @@
 ---
 id: FC2-F1-01
 title: Ledger + AccountBalance + transferências + cheque especial
-status: backlog
+status: active
 type: feature
 phase: F1
 wave: 1
