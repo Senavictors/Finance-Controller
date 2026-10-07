@@ -22,7 +22,13 @@ export type { SegmentedProps, SegmentedOption } from './segmented'
 export { ListRow } from './list-row'
 export type { ListRowProps } from './list-row'
 
-export { CategoryIcon, CATEGORY_ICONS } from './category-icon'
+export {
+  CategoryIcon,
+  CATEGORY_ICONS,
+  CATEGORY_ICON_ALIASES,
+  resolveCategoryIcon,
+  resolveCategoryIconName,
+} from './category-icon'
 export type { CategoryIconProps, CategoryIconName } from './category-icon'
 
 export { ProgressRing } from './progress-ring'

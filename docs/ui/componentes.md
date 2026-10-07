@@ -1,7 +1,7 @@
 ---
 estado: vigente (primitivos da F0-04 implementados; TabBar, Fab, CardCarousel, InboxCard, Hero, StatusPill, Sparkline e gráficos seguem planejados)
 fonte: src/components/fc/
-ultima-revisao: FC2-F0-09 2026-10-05
+ultima-revisao: FC2-F1-08 2026-10-06
 ---
 
 # Catálogo de componentes
@@ -74,7 +74,10 @@ Linha padrão de listas.
 
 ## CategoryIcon
 
-- Props: `icon` (nome kebab-case do conjunto curado `CATEGORY_ICONS`; desconhecido cai em `tag`), `colorKey` (`cat-1`..`cat-10`; inválido cai em `cat-10`, via `resolveCategoryColorKey`), `size` (`sm` 32 | `md` 40 | `lg` 48).
+- Props: `icon` (nome lucide em kebab-case do conjunto curado `CATEGORY_ICONS`, ou alias legado; desconhecido cai em `tag`), `colorKey` (`cat-1`..`cat-10`; inválido cai em `cat-10`, via `resolveCategoryColorKey`), `size` (`sm` 32 | `md` 40 | `lg` 48).
+- Conjunto curado: cobre todos os `icon` de `DEFAULT_CATEGORIES` (árvore padrão da F1-07) mais alguns extras de uso comum (`banknote`, `dumbbell`, `film`, `phone`, `piggy-bank`, `pizza`). A chave é sempre o nome lucide canônico (ex.: `house`, `gamepad-2`, `circle-question-mark`). Import nomeado por ícone em `category-icon.tsx`; nunca `import * as` do `lucide-react`. Lista completa visível na galeria `/ui` (seção "CategoryIcon: todos os ícones").
+- Aliases legados (`CATEGORY_ICON_ALIASES`): `home` -> `house`, `gamepad` -> `gamepad-2`. Resolvidos por `resolveCategoryIcon(name)`; dados novos devem gravar o nome canônico.
+- Para adicionar um ícone: importar o componente nomeado de `lucide-react`, incluir em `CATEGORY_ICONS` (ordem alfabética). O teste `category-icon.test.ts` falha se a árvore padrão usar um nome sem mapeamento.
 - Raio `--fc-radius-sm`, fundo `color-mix` da cor a 18%, glifo na cor cheia. Logos de bancos vêm de `src/lib/brands/`.
 - Don't: usar a cor da categoria para sinalizar bom ou ruim.
 

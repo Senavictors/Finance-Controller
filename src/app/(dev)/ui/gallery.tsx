@@ -8,6 +8,7 @@ import {
   Aura,
   Banner,
   Button,
+  CATEGORY_ICONS,
   CategoryIcon,
   Chip,
   EmptyState,
@@ -45,6 +46,8 @@ const CATEGORY_SAMPLES = [
   { icon: 'heart-pulse', colorKey: 'cat-9', name: 'Saúde' },
   { icon: 'tag', colorKey: 'cat-10', name: 'Outros' },
 ] as const
+
+const CATEGORY_ICON_NAMES = Object.keys(CATEGORY_ICONS)
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
@@ -243,6 +246,17 @@ export function Gallery() {
           <CategoryIcon icon="car" colorKey="cat-1" size="sm" />
           <CategoryIcon icon="car" colorKey="cat-1" size="lg" />
         </div>
+      </Section>
+
+      <Section title="CategoryIcon: todos os ícones">
+        <ul className="grid grid-cols-4 gap-3" aria-label="Ícones de categoria disponíveis">
+          {CATEGORY_ICON_NAMES.map((name, index) => (
+            <li key={name} className="flex flex-col items-center gap-1 text-center">
+              <CategoryIcon icon={name} colorKey={`cat-${(index % 10) + 1}`} />
+              <span className="fc-text-caption text-fc-text-3 break-all">{name}</span>
+            </li>
+          ))}
+        </ul>
       </Section>
 
       <Section title="ProgressRing / ProgressBar">
