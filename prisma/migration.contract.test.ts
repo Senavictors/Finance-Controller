@@ -84,7 +84,13 @@ describe('migration inicial', () => {
 
 describe('sem seed (CA-07)', () => {
   it('package.json e prisma.config.ts não definem seed e não há arquivo de seed', () => {
-    expect(readFileSync(join(root, 'package.json'), 'utf8')).not.toMatch(/seed/i)
+    // Único script com "seed" permitido: `seed:categories` (FC2-F1-07), um script tsx comum
+    // fora do mecanismo `prisma db seed`; qualquer outra ocorrência de "seed" continua falhando.
+    const packageJson = readFileSync(join(root, 'package.json'), 'utf8').replace(
+      /^\s*"seed:categories": "tsx scripts\/seed-categories\.ts",?\n/m,
+      '',
+    )
+    expect(packageJson).not.toMatch(/seed/i)
     expect(readFileSync(join(root, 'prisma.config.ts'), 'utf8')).not.toMatch(/seed/i)
     expect(readdirSync(__dirname).filter((n) => /^seed/i.test(n))).toEqual([])
   })

@@ -54,9 +54,16 @@ export interface OwnerRepository {
 export type OwnerDeps = {
   repo: OwnerRepository
   hashPassword: (plaintext: string) => Promise<string>
+  /**
+   * Gancho opcional após criar o dono (FC2-F1-07): o script injeta `ensureDefaultCategories`.
+   * Mantém `auth` sem depender do módulo de categorias.
+   */
+  onOwnerCreated?: (userId: string) => Promise<{ created: number; existing: number }>
 }
 
-export type OwnerResult = { ok: true; email: string } | { ok: false; errors: string[] }
+export type OwnerResult =
+  | { ok: true; email: string; categories?: { created: number; existing: number } }
+  | { ok: false; errors: string[] }
 
 export async function createOwner(
   deps: OwnerDeps,
@@ -79,8 +86,24 @@ export async function createOwner(
 
   const email = input.email.trim().toLowerCase()
   const passwordHash = await deps.hashPassword(input.password)
-  await deps.repo.createUserWithSettings({ email, name: input.name.trim(), passwordHash })
-  return { ok: true, email }
+  const owner = await deps.repo.createUserWithSettings({
+    email,
+    name: input.name.trim(),
+    passwordHash,
+  })
+  if (!deps.onOwnerCreated) return { ok: true, email }
+
+  try {
+    const categories = await deps.onOwnerCreated(owner.id)
+    return { ok: true, email, categories }
+  } catch (error) {
+    // O usuário já existe: não esconda o fato, e indique o reparo idempotente.
+    const reason = error instanceof Error ? error.message : 'erro desconhecido'
+    throw new Error(
+      `Dono criado (${email}), mas as categorias padrão falharam: ${reason}. ` +
+        'Rode "npm run seed:categories" para concluir.',
+    )
+  }
 }
 
 export async function resetOwnerPassword(

@@ -19,6 +19,10 @@ Documentos do 1.x movidos para cá; descrevem o comportamento antigo e serão re
 - [`financial-score.md`](financial-score.md) — score financeiro do 1.x
 - [`insights.md`](insights.md) — insights do 1.x
 
+## Implementados do 2.0
+
+- [`categories.md`](categories.md) — categorias padrão BR, natureza Must/Need/Want e chaves de sistema (F1-07)
+
 ## Planejados do 2.0 (nascem sob demanda, por módulo)
 
 Cada um é criado pela task que implementa o módulo correspondente:

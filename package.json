@@ -17,6 +17,7 @@
     "format:check": "prettier --check .",
     "owner:create": "tsx scripts/create-owner.ts",
     "owner:set-password": "tsx scripts/create-owner.ts --reset-password",
+    "seed:categories": "tsx scripts/seed-categories.ts",
     "postinstall": "prisma generate"
   },
   "dependencies": {

@@ -12,6 +12,9 @@ import { config as loadEnv } from 'dotenv'
 import readline from 'node:readline/promises'
 
 import { hashPassword } from '../src/server/auth/password'
+import { ensureDefaultCategories } from '../src/server/modules/categories/application/ensure-default-categories'
+import { formatSeedSummary } from '../src/server/modules/categories/application/seed-categories'
+import { createPrismaCategoryRepository } from '../src/server/modules/categories/infra/prisma-category-repository'
 import {
   createOwner,
   parseOwnerCommand,
@@ -67,11 +70,11 @@ function askHidden(question: string): Promise<string> {
   })
 }
 
-async function createRepository(): Promise<OwnerRepository> {
+async function createRepository() {
   // Importado sob demanda: `@/server/db` abre o adaptador com `DATABASE_URL` ao ser carregado.
   const { prisma } = await import('../src/server/db')
 
-  return {
+  const repo: OwnerRepository = {
     countUsers: () => prisma.user.count(),
     async createUserWithSettings({ email, name, passwordHash }) {
       const user = await prisma.user.create({
@@ -91,6 +94,7 @@ async function createRepository(): Promise<OwnerRepository> {
       ])
     },
   }
+  return { repo, categories: createPrismaCategoryRepository(prisma) }
 }
 
 async function main() {
@@ -104,8 +108,13 @@ async function main() {
   }
 
   const command = parseOwnerCommand(process.argv.slice(2))
-  const repo = await createRepository()
-  const deps = { repo, hashPassword }
+  const { repo, categories } = await createRepository()
+  const deps = {
+    repo,
+    hashPassword,
+    // Categorias padrão logo após criar o dono (FC2-F1-07, CA-08).
+    onOwnerCreated: (userId: string) => ensureDefaultCategories(userId, { categories }),
+  }
 
   let result
   if (command === 'create') {
@@ -131,6 +140,9 @@ async function main() {
       ? `Dono criado: ${result.email}`
       : `Senha de ${result.email} atualizada. Todas as sessões foram encerradas.`,
   )
+  if (command === 'create' && result.categories) {
+    console.log(`Categorias padrão: ${formatSeedSummary(result.categories)}`)
+  }
 }
 
 main()
