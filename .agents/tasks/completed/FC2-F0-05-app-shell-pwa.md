@@ -1,7 +1,7 @@
 ---
 id: FC2-F0-05
 title: App shell mobile-first + 5 destinos + PWA (iPhone 13 Pro)
-status: active
+status: completed
 type: feature
 phase: F0
 wave: 3
@@ -108,16 +108,16 @@ export const viewport: Viewport = {
 - RN-07: Rotas do grupo `(app)` exigem sessão (proteção formal na F0-06; aqui continua a checagem do layout).
 
 ## Critérios de aceitação
-- [ ] CA-01: `/hoje`, `/lancamentos`, `/planejar`, `/cartoes`, `/mais` respondem 200 autenticado e mostram `ScreenHeader` + empty state; `/` redireciona para `/hoje`.
-- [ ] CA-02: A tab bar mostra 5 slots na ordem correta; o item da rota atual tem `aria-current="page"`; tocar no `+` abre o sheet em qualquer das 5 rotas.
-- [ ] CA-03: `curl -s localhost:3000/hoje` (com cookie) contém: `apple-mobile-web-app-capable`, `black-translucent`, `rel="apple-touch-icon"`, `viewport-fit=cover`, `theme-color` com valor igual ao de `--fc-void`.
-- [ ] CA-04: `GET /manifest.webmanifest` retorna JSON válido com `display: standalone`, `start_url: /hoje`, 3 ícones (um `maskable`), `theme_color` e `background_color` iguais a `--fc-void`; todos os arquivos de `public/icons/*` existem; `apple-touch-icon.png` mede 180x180 e não tem canal alfa transparente (verificar com `file`/`sips`).
-- [ ] CA-05: No Chrome DevTools, 390x844 DPR 3, a tab bar não cobre o último item de conteúdo (rolar até o fim em `/mais`) e o cabeçalho não fica sob a área segura simulada (inset-top 47px, inset-bottom 34px via DevTools Sensors/`env()` override ou verificação do CSS computado).
-- [ ] CA-06: Lighthouse (aba PWA/installability do Chrome DevTools) reporta manifest instalável sem erros.
+- [x] CA-01: 5 páginas 200 autenticado com `ScreenHeader` + empty state; `/` redireciona para `/hoje` (QA 2026-10-06).
+- [x] CA-02: ordem dos slots, `aria-current` e sheet pelo `+` (abre e fecha com Esc) nas 5 rotas verificados em 390x844 DPR 3 (QA 2026-10-06).
+- [x] CA-03: `curl` de `/hoje` autenticado contém todas as tags (QA 2026-10-06).
+- [x] CA-04: `GET /manifest.webmanifest` retorna JSON válido com `display: standalone`, `start_url: /hoje`, 3 ícones (um `maskable`), `theme_color` e `background_color` iguais a `--fc-void`; todos os arquivos de `public/icons/*` existem; `apple-touch-icon.png` mede 180x180 e não tem canal alfa transparente (verificar com `file`/`sips`).
+- [x] CA-05: No Chrome DevTools, 390x844 DPR 3, a tab bar não cobre o último item de conteúdo (rolar até o fim em `/mais`) e o cabeçalho não fica sob a área segura simulada (inset-top 47px, inset-bottom 34px via DevTools Sensors/`env()` override ou verificação do CSS computado).
+- [x] CA-06 (installability via CDP, sem erros; Lighthouse 12+ não tem mais categoria PWA): Lighthouse (aba PWA/installability do Chrome DevTools) reporta manifest instalável sem erros.
 - [ ] CA-07: Em iPhone real (ou registrado como pendência com justificativa): "Compartilhar > Adicionar à Tela de Início" instala com o ícone correto, abre em tela cheia (sem barra do Safari), status bar translucent com o conteúdo abaixo dela, e a aba `Hoje` ativa.
-- [ ] CA-08: `activeTabKey('/hoje')='hoje'`, `('/lancamentos/abc')='lancamentos'`, `('/mais')='mais'`, `('/login')=null` (teste unitário).
-- [ ] CA-09: Teste que lê `tokens.css` e `manifest.ts` falha se `theme_color`/`background_color`/`themeColor` divergirem de `--fc-void`.
-- [ ] CA-10: `npm run lint`, `npm test`, `npx next build`, `npm run format:check` passam; `no-literal-colors` continua verde (com a allowlist documentada).
+- [x] CA-08: `activeTabKey('/hoje')='hoje'`, `('/lancamentos/abc')='lancamentos'`, `('/mais')='mais'`, `('/login')=null` (teste unitário).
+- [x] CA-09: Teste que lê `tokens.css` e `manifest.ts` falha se `theme_color`/`background_color`/`themeColor` divergirem de `--fc-void`.
+- [x] CA-10: `npm run lint`, `npm test`, `npx next build`, `npm run format:check` passam; `no-literal-colors` continua verde (com a allowlist documentada).
 
 ## Impacto técnico
 ### Backend
@@ -158,13 +158,58 @@ Manifest e ícones são públicos (devem passar pelo proxy da F0-06 como exceç�
 
 ## Registro de execução
 ### Alterações realizadas
+- `src/components/shell/`: `nav-items.ts` (+ teste), `tab-bar.tsx`, `screen-header.tsx`, `capture-provider.tsx`, `capture-sheet-stub.tsx`, `shell-aura.tsx`, `app-shell.tsx`, `nav-icons.tsx`, `use-keyboard-open.ts`, `shell.css`, `index.ts`, `shell-ssr.test.ts`.
+- `src/app/(app)/{hoje,lancamentos,planejar,cartoes,mais}/page.tsx` (cabeçalho + estado vazio; `/mais` lista os 7 destinos futuros "Em breve", sem rota nova). `(app)/layout.tsx` mantém `validateSession()` + `redirect('/login')` e envolve com `AppShell`.
+- `src/app/layout.tsx`: `metadata` (PWA/Apple) e `export const viewport` (`viewportFit: 'cover'`, `themeColor`, `colorScheme`); fontes intactas. `src/app/manifest.ts`, `src/app/pwa.test.ts`, import de `shell.css` em `globals.css`.
+- `public/icons/` (`source.svg` + 4 PNGs sem alfa), `scripts/generate-icons.mjs` (usa `sharp` transitivo; `package.json` não foi alterado).
+- Docs: `docs/ui/navegacao-e-pwa.md` (novo), `docs/ui/README.md`, `docs/ui/componentes.md`.
 ### Arquivos principais
+`src/components/shell/*`, `src/app/layout.tsx`, `src/app/manifest.ts`, `public/icons/*`, `scripts/generate-icons.mjs`, `docs/ui/navegacao-e-pwa.md`.
 ### Decisões
+- `themeColor` do layout leva um `// fc-allow-literal-color` (1 das 10 exceções permitidas); o `manifest.ts` fica isento por caminho. O `pwa.test.ts` compara ambos com `--fc-void`.
+- Botão Mais usa `Button asChild` + `Link` (o `IconButton` não aceita `asChild`; `<a>` dentro de `<button>` é inválido). Visual e alvo de 44px idênticos.
+- Tab bar flutuante (8px acima da safe area, raio `--fc-radius-xl` do `GlassCard bar`); a faixa externa tem `pointer-events: none`. `padding-bottom` do `main` cobre barra + safe area + espaço.
+- Rótulo da aba `.fc-tab-label`: tamanho do token de caption (11px) mas em sans e sem caixa alta, porque "LANÇAMENTOS" em mono maiúsculo (~80px) não cabe no slot de ~70px.
+- `ShellAura` é client (usa `usePathname`) para manter o `AppShell` server e a aura só em `/hoje`.
+- `Toaster` montado no `AppShell`, conforme o catálogo.
 ### Divergências
+- Prefixo de título "Em breve" e textos curtos de cada aba seguem a spec; nenhuma divergência de contrato. Os componentes de `src/components/fc/` não foram alterados.
 ### Pendências
+- CA-05/CA-06/CA-07 e a verificação visual 390x844 das páginas autenticadas não foram feitas aqui: sem banco não há login, e o contorno local do `validateSession()` foi negado pelo classificador de permissões do ambiente (e não foi tentado por outra via). Registrar no QA pós-F0-06: login real, 5 telas em 390x844 DPR 3 (sheet aberto, `/mais` até o fim, insets 47/34px), Lighthouse/installability e iPhone real (roteiro em `docs/ui/navegacao-e-pwa.md`).
+- F6: service worker/offline/push e splash screens `apple-touch-startup-image`; medir o jank do `backdrop-filter` da tab bar (F6-01).
+- Ajuste de primitivo: nenhum necessário em `src/components/fc/`.
+- `docs/ui/*.md` tem 20 arquivos de `docs/` que já falhavam em `prettier --check` (tabelas); só o doc novo foi formatado.
 
 ## Validação
-Comandos e resultados.
+Comandos (worktree em CRLF; `DATABASE_URL=postgresql://ci:ci@localhost:5432/ci` só na linha de comando):
+- `npm run lint`: sem erros. `npx tsc --noEmit`: sem erros.
+- `npm test`: 16 arquivos, 202 testes passando (inclui `nav-items.test.ts`, `shell-ssr.test.ts`, `pwa.test.ts` e o guard `no-literal-colors`, com 1 exceção documentada).
+- `npx next build`: compilado; rotas `/hoje`, `/lancamentos`, `/planejar`, `/cartoes`, `/mais` (dinâmicas) e `/manifest.webmanifest` (estática).
+- `npx prettier --check --end-of-line auto src/components/shell src/app scripts docs/ui/navegacao-e-pwa.md`: ok.
+- `next start -p 3107` (processo encerrado depois):
+  - `GET /hoje` sem cookie: 307 para `/login?callbackUrl=%2Fhoje`; `GET /`: 307 para `/hoje`.
+  - HTML de `/login` (mesmo `<head>` do layout raiz de `/hoje`): `viewport` com `viewport-fit=cover`; `theme-color #04060b`; `apple-mobile-web-app-capable=yes`; `apple-mobile-web-app-status-bar-style=black-translucent`; `apple-mobile-web-app-title=FC`; `link rel=manifest`; `link rel=apple-touch-icon href=/icons/apple-touch-icon.png sizes=180x180`; ícones 192 e 512 (CA-03 no que não depende de sessão).
+  - `GET /manifest.webmanifest`: 200, `application/manifest+json`, `display: standalone`, `start_url: /hoje`, 3 ícones (1 `maskable`), `theme_color` e `background_color` `#04060b` (CA-04).
+  - `GET /icons/{icon-192,icon-512,icon-maskable-512,apple-touch-icon}.png`: 200 `image/png` sem sessão.
+- `sharp().metadata()` (sem `file`/`sips` no Windows): `apple-touch-icon.png` 180x180, 3 canais, `hasAlpha: false`; os demais PNGs também sem alfa (CA-04).
+- Teste de componentes por SSR (sem jsdom no projeto): ordem dos 5 slots, `aria-current="page"` só na aba atual, `/mais` e `/login` sem aba ativa, `+` como botão sem `href`, Mais fora da barra, aura só em `/hoje`, 5 páginas com cabeçalho e estado vazio sem `R$` (CA-01/CA-02 no nível de marcação).
+- Abrir o sheet ao tocar `+` (interação) e o layout em 390x844 ficam para o QA pós-F0-06.
+
+## Handoff
+Sem handoff; pendências acima.
 
 ## Handoff
 Link para o handoff ativo, quando aplicável.
+
+### QA pós-F0-06 (qa-revisor, 2026-10-06) — parecer: APROVADO (CA-07 pendente do dono)
+Ambiente: Postgres 16 descartável (Docker, porta 55437, derrubado ao fim), `prisma migrate deploy` só nele, dono fictício `qa@example.test` com senha `<senha>` (hash bcrypt via SQL, nada versionado), `next build` + `next start -p 3112`, login via `curl -c` (`fc_session=<cookie>`), Chrome headless por CDP (WebSocket nativo do Node 22, nada instalado no repo), capturas só na pasta temporária.
+- Comandos (HEAD 5a2cc40): `npm run lint` ok; `npm run typecheck` ok; `npm test` 33 arquivos / 511 testes ok; `npm run guard:data` 3 arquivos / 154 testes ok; `prettier --check --end-of-line auto .` ok; `next build` ok (15 páginas, `/manifest.webmanifest` estático, Proxy).
+- CA-01: `/hoje`, `/lancamentos`, `/planejar`, `/cartoes`, `/mais` -> 200 com cookie; cada um com `h1` correto e "Em breve"; `/` -> 307 `/hoje`; sem cookie `/hoje` -> 307 `/login`; cookie inválido -> 307 `/login` (layout valida no banco).
+- CA-02: tab bar com 5 slots Hoje, Lançamentos, +, Planejar, Cartões em todas as rotas; `aria-current="page"` só na aba da rota (nenhuma em `/mais`); `+` (56x56) via toque abre o dialog "Novo lançamento / A captura chega na F2-04." em todas as 5 rotas, Esc fecha e a URL não muda.
+- CA-03: `/hoje` autenticado: `viewport ... viewport-fit=cover`, `theme-color #04060b`, `apple-mobile-web-app-capable=yes`, `status-bar-style=black-translucent`, `apple-mobile-web-app-title=FC`, `link rel=apple-touch-icon sizes=180x180`, `link rel=manifest`.
+- CA-04 / F0-06 CA-02: sem cookie, `/manifest.webmanifest` 200 `application/manifest+json` e os 4 PNGs 200 `image/png`; JSON com 3 ícones (1 maskable), cores `#04060b` = `--fc-void`; `sharp().metadata()`: apple-touch 180x180, 3 canais, sem alfa (demais PNGs também); arte do maskable dentro do círculo seguro (moeda ~62% da tela).
+- CA-05: insets simulados via `Emulation.setSafeAreaInsetsOverride` (top 47, bottom 34): `padding-top` do cabeçalho 59px (47+12), `h1` em y=65, botão Mais 44x44 em (328,59); padding inferior da barra 42px. Sem overflow horizontal (scrollWidth 390 = clientWidth) e sem erro/aviso de console nas 5 rotas; nenhum link/botão com alvo < 44px. `/mais` em 390x844 não rola (7 itens cabem); para exercitar a compensação, 390x520: rolado até o fim, fim da lista a 8,5px acima da barra (último texto a 34px), sem sobreposição.
+- CA-06: `Page.getInstallabilityErrors` = `[]` e `Page.getAppManifest` sem erros (manifest com `display standalone`, 3 ícones).
+- Paisagem (844x390): sem overflow horizontal, barra centralizada na coluna de 484px.
+- Constituição: guard de cores verde; única literal é `themeColor` com `fc-allow-literal-color`; nenhum dado financeiro nas páginas.
+- Achados: ver parecer (menores: doc cita `middleware.ts`; `source.svg` com cores iris literais fora do guard; Tab/VoiceOver e teclado virtual não exercitados no CDP; CA-07 pendente do dono, roteiro em `docs/ui/navegacao-e-pwa.md`).

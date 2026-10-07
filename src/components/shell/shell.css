@@ -1,0 +1,96 @@
+/* =====================================================================
+   App shell (FC2-F0-05). Só var(--fc-*) e env(): nenhuma cor, raio,
+   sombra ou duração literal (ADR-018). A rolagem é a do corpo da
+   página, para preservar o comportamento da status bar do iOS.
+   ===================================================================== */
+
+/* ---------- Utilitários de safe area ---------- */
+.pt-safe {
+  padding-top: calc(env(safe-area-inset-top) + var(--fc-space-3));
+}
+
+.pb-safe {
+  padding-bottom: calc(env(safe-area-inset-bottom) + var(--fc-space-3));
+}
+
+.px-gutter {
+  padding-inline: var(--fc-gutter);
+}
+
+/* ---------- Coluna central ---------- */
+.fc-shell {
+  /* Nesta fase o desktop mostra a mesma coluna do celular. */
+  --fc-shell-max: 520px;
+
+  position: relative;
+  flex: 1 0 auto;
+  width: 100%;
+  max-width: var(--fc-shell-max);
+  min-height: 100dvh;
+  margin-inline: auto;
+}
+
+.fc-shell-main {
+  position: relative;
+  z-index: 1;
+  padding-inline: var(--fc-gutter);
+  padding-bottom: calc(var(--fc-tabbar-h) + env(safe-area-inset-bottom) + var(--fc-space-4));
+}
+
+/* ---------- Aura de Hoje (decoração, atrás do conteúdo) ---------- */
+.fc-shell-aura {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 320px;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0.6;
+  -webkit-mask-image: linear-gradient(to bottom, var(--fc-void), transparent);
+  mask-image: linear-gradient(to bottom, var(--fc-void), transparent);
+}
+
+/* ---------- Tab bar ---------- */
+.fc-shell-bar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: var(--fc-z-tabbar);
+  width: 100%;
+  max-width: var(--fc-shell-max);
+  margin-inline: auto;
+  padding-inline: var(--fc-gutter);
+  padding-bottom: calc(env(safe-area-inset-bottom) + var(--fc-space-2));
+  /* A faixa transparente não bloqueia toques no conteúdo; a barra reativa. */
+  pointer-events: none;
+  transition:
+    transform var(--fc-dur-base) var(--fc-ease),
+    opacity var(--fc-dur-base) var(--fc-ease);
+}
+
+.fc-shell-bar > .fc-tabbar {
+  height: var(--fc-tabbar-h);
+  pointer-events: auto;
+}
+
+/* Teclado virtual aberto: a barra sai de cena (ver use-keyboard-open). */
+.fc-shell-bar[data-hidden] {
+  transform: translateY(100%);
+  opacity: 0;
+}
+
+.fc-shell-bar[data-hidden] > .fc-tabbar {
+  pointer-events: none;
+  visibility: hidden;
+}
+
+/* Rótulo da aba: 11px do token de caption, mas em sans e sem caixa alta,
+   para "Lançamentos" caber no slot de ~70px a 390px. */
+.fc-tab-label {
+  font: var(--fc-text-caption);
+  font-family: var(--fc-font-ui);
+  letter-spacing: 0;
+  white-space: nowrap;
+}

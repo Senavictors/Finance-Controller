@@ -7,6 +7,7 @@ Fonte de código: `src/styles/tokens.css` (tokens `--fc-*`) e `src/components/fc
 | [`design-system.md`](design-system.md) | Filosofia, tokens, tipografia, espaçamento, raios, vidro, cor semântica, aura, motion, acessibilidade e baseline do iPhone 13 Pro |
 | [`componentes.md`](componentes.md) | Catálogo dos primitivos `src/components/fc/`: props, estados, anatomia, do e don't |
 | [`padroes-de-tela.md`](padroes-de-tela.md) | Layout e hierarquia de Hoje, Lançamentos/Inbox, Captura, Planejar, Cartões e Mais |
+| [`navegacao-e-pwa.md`](navegacao-e-pwa.md) | App shell, tab bar, safe areas, manifest, ícones e instalação como PWA no iPhone |
 
 Regras que valem para todo o código de UI:
 

@@ -91,7 +91,7 @@ Painel modal inferior (captura, edição, filtros), sobre Base UI Dialog.
 - Props: `open`, `onOpenChange`, `title`, `children`, `snap` (`auto` | `tall`), `className`.
 - Scrim `--fc-scrim` (`--fc-z-scrim`), corpo `--fc-glass-sheet` com `--fc-blur-sheet`, cantos `--fc-radius-sheet`, alça, `--fc-z-sheet`, `padding-bottom: calc(var(--fc-space-4) + env(safe-area-inset-bottom))`.
 - Fecha com Esc, toque no scrim ou arrasto > 80px (só pela alça/cabeçalho; não conflita com a rolagem do conteúdo). Prende o foco e o devolve ao elemento de origem.
-- Requer `viewport-fit=cover` no `<meta viewport>` para o `env(safe-area-inset-*)` valer no iPhone (F0-05).
+- Requer `viewport-fit=cover` no `<meta viewport>` para o `env(safe-area-inset-*)` valer no iPhone (declarado em `src/app/layout.tsx` pela F0-05).
 - Don't: empilhar sheets; formulários longos.
 
 ## Toast, useToast e Toaster
@@ -111,9 +111,13 @@ Painel modal inferior (captura, edição, filtros), sobre Base UI Dialog.
 - `Field`: `label`, `error`, `hint`, `children` (nó, ou função que recebe `{ id, 'aria-describedby', 'aria-invalid' }`), `htmlFor`. Erro tem `role="alert"`.
 - `MoneyField`: `label`, `error`, `hint`, `valueCents`, `onChangeCents`, `name`, `placeholder`, `disabled`, `required`, `autoFocus`. Envolve `ui/money-input` (`inputMode="decimal"`), fonte >= 16px, prefixo "R$", altura >= 44px. Estado local em texto (não sobrescreve a digitação); não aceita negativo (o tipo do lançamento define o sinal); usa `parseMoneyToCents`.
 
+## Shell de navegação
+
+`TabBar`, o FAB `+`, `ScreenHeader`, `AppShell` e o sheet de captura (stub) vivem em `src/components/shell/` (específicos do shell, não primitivos de `fc/`); ver [`navegacao-e-pwa.md`](navegacao-e-pwa.md).
+
 ## Planejados (fora da F0-04)
 
-TabBar e Fab (F0-05), Hero (F3-04), StatusPill/Pill, CardCarousel, InboxCard com swipe (F6-01), Sparkline e gráficos (F3-04/F6). Contratos de intenção: `docs/ui/padroes-de-tela.md` e as tasks correspondentes.
+Hero (F3-04), StatusPill/Pill, CardCarousel, InboxCard com swipe (F6-01), Sparkline e gráficos (F3-04/F6). Contratos de intenção: `docs/ui/padroes-de-tela.md` e as tasks correspondentes.
 
 ## Regra anti-cor-literal
 
