@@ -14,22 +14,25 @@ claude                      # sessão principal já abre como orquestrador (Opus
 Onda = conjunto de tasks sem dependência entre si dentro da fase, executadas em paralelo por subagentes Sonnet (worktrees isolados), revisadas pelo `qa-revisor` e integradas em sequência.
 
 ## Ativos
-_(ver `.agents/tasks/active/`)_ — nenhum.
+_(ver `.agents/tasks/active/`)_ — FC2-F1-01 (ledger) e FC2-F1-07 (categorias) em execução; FC2-F0-08 (reset do Neon) aguardando o dono.
 
 ## Planejados
 
 ### F0 — Fundação
 Saída: app abre no iPhone instalado como PWA, com as 4 abas vazias, tokens aplicados e banco novo.
+Status (2026-10-06): **código concluído** (8 de 9 tasks em `completed/`); falta FC2-F0-08 (reset do Neon, portão humano) e o teste em iPhone real.
 
-| ID | Task | Papel | Depende de | Onda |
-|---|---|---|---|---|
-| FC2-F0-01 | Limpeza do legado (CRA, backend/, database/, Postman, demo, landing) | api-servidor | — | 1 |
-| FC2-F0-03 | Tokens dark glass no Tailwind v4/shadcn + fontes | ui-design-system | — | 1 |
-| FC2-F0-02 | Schema Prisma 2.0 do zero + reset do Neon + migration inicial | dados-prisma | F0-01 | 2 |
-| FC2-F0-04 | Primitivos de UI dark glass | ui-design-system | F0-03 | 2 |
-| FC2-F0-07 | Fundação de testes e CI (fixtures anonimizadas) | qa-revisor | F0-01 | 2 |
-| FC2-F0-05 | App shell mobile-first + 5 destinos + PWA (iPhone 13 Pro) | telas-produto | F0-04 | 3 |
-| FC2-F0-06 | Auth single-user com sessão longa renovável | api-servidor | F0-02 | 3 |
+| ID | Task | Papel | Depende de | Onda | Status |
+|---|---|---|---|---|---|
+| FC2-F0-01 | Limpeza do legado (CRA, backend/, database/, Postman, demo, landing) | api-servidor | — | 1 | concluída `22d094f` |
+| FC2-F0-03 | Tokens dark glass no Tailwind v4/shadcn + fontes | ui-design-system | — | 1 | concluída `9ce35c7` |
+| FC2-F0-02 | Schema Prisma 2.0 do zero + migration inicial | dados-prisma | F0-01 | 2 | concluída `4eb5d49` |
+| FC2-F0-04 | Primitivos de UI dark glass | ui-design-system | F0-03 | 2 | concluída `0b0e8ef` |
+| FC2-F0-07 | Fundação de testes e CI (fixtures anonimizadas) | qa-revisor | F0-01 | 2 | concluída `4e5bca8` |
+| FC2-F0-09 | Endurecer guard de cores/estilos literais (nova) | ui-design-system | F0-04 | 3 | concluída `dc8c428` |
+| FC2-F0-06 | Auth single-user com sessão longa renovável | api-servidor | F0-02 | 3 | concluída `6b52448` |
+| FC2-F0-05 | App shell mobile-first + 5 destinos + PWA (iPhone 13 Pro) | telas-produto | F0-04 | 3 | concluída `f736efb` |
+| FC2-F0-08 | Reset do Neon + migration inicial (desmembrada da F0-02) | dados-prisma | F0-02 | 4 | aguardando o dono |
 
 ### F1 — Confiança
 Saída: saldo de cada conta no app = saldo do banco; dívidas e renda modeladas.

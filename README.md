@@ -20,8 +20,8 @@ Sistema de finanças pessoais de uso pessoal, em **reescrita completa** para a v
 
 | Fase | Objetivo                                                              | Status                                                          |
 | ---- | --------------------------------------------------------------------- | --------------------------------------------------------------- |
-| F0   | Fundação: limpeza do legado, schema novo, tokens, shell PWA           | em andamento (FC2-F0-01 limpeza do legado: concluída no branch) |
-| F1   | Confiança: ledger, contas, cartões, dívidas, renda MEI, reconciliação | planejada                                                       |
+| F0   | Fundação: limpeza do legado, schema novo, tokens, shell PWA           | código concluído; falta reset do Neon (FC2-F0-08) |
+| F1   | Confiança: ledger, contas, cartões, dívidas, renda MEI, reconciliação | em andamento |
 | F2   | Captura: parser de texto, memória de merchant, sheet global           | planejada                                                       |
 | F3   | Hoje & Planejar: recorrências, engine Disponível, modo Aperto         | planejada                                                       |
 | F4   | Importação & Inbox: PDF/OFX/CSV, regras, matching                     | planejada                                                       |
@@ -29,7 +29,7 @@ Sistema de finanças pessoais de uso pessoal, em **reescrita completa** para a v
 | F6   | Polimento & hábito: motion, acessibilidade, relatórios                | planejada                                                       |
 | F7   | Futuro: Open Finance, modo casal                                      | backlog                                                         |
 
-**Próximo passo:** seguir a F0 (`executar fase F0`). Detalhe de cada task em [`PLANS.md`](PLANS.md).
+**Próximo passo:** F1 em execução; reset do Neon (FC2-F0-08) aguarda confirmação do dono. Detalhe de cada task em [`PLANS.md`](PLANS.md).
 
 ## Como o projeto é desenvolvido
 
@@ -52,8 +52,9 @@ Requer Node.js ≥ 20.9 e um PostgreSQL (local ou branch do Neon).
 
 ```bash
 npm install
-cp .env.example .env       # preencha DATABASE_URL e SESSION_SECRET
-npx prisma migrate dev
+cp .env.example .env       # preencha DATABASE_URL (e CRON_SECRET, TELEGRAM_WEBHOOK_SECRET, MCP_TOKEN quando usar)
+npx prisma migrate deploy  # contra um banco local/branch; nunca contra produção sem confirmação
+npm run owner:create       # cria o único usuário (senha pedida sem eco)
 npm run dev                # http://localhost:3000
 ```
 
@@ -61,7 +62,9 @@ Validação:
 
 ```bash
 npm run lint
+npm run typecheck
 npm test
+npm run guard:data         # Constituição: nenhum dado real versionado
 npm run format:check
 npx next build             # npm run build também aplica migrations (prisma migrate deploy)
 ```
