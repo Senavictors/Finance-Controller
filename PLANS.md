@@ -14,7 +14,7 @@ claude                      # sessão principal já abre como orquestrador (Opus
 Onda = conjunto de tasks sem dependência entre si dentro da fase, executadas em paralelo por subagentes Sonnet (worktrees isolados), revisadas pelo `qa-revisor` e integradas em sequência.
 
 ## Ativos
-_(ver `.agents/tasks/active/`)_ — FC2-F1-09 (extensões do ledger) em execução; FC2-F0-08 (reset do Neon) aguardando o dono.
+_(ver `.agents/tasks/active/`)_ — onda 3/4 da F1 em execução (ver tabela F1); FC2-F0-08 (reset do Neon) aguardando o dono.
 
 ## Planejados
 
@@ -42,12 +42,13 @@ Saída: saldo de cada conta no app = saldo do banco; dívidas e renda modeladas.
 | FC2-F1-01 | Ledger + AccountBalance + transferências + cheque especial | dominio-financeiro | F0-02 | 1 | concluída `67510b0` |
 | FC2-F1-07 | Categorias padrão BR + natureza Must/Need/Want | dados-prisma | F0-02 | 1 | concluída `4beab5a` |
 | FC2-F1-08 | Ícones das categorias padrão no CategoryIcon (nova) | ui-design-system | F1-07 | 1 | concluída `e5017ce` |
-| FC2-F1-09 | Extensões do ledger: vínculos, occurrenceKey, unit of work (nova) | dominio-financeiro | F1-01 | 2 | em execução |
-| FC2-F1-02 | Contas: CRUD, saldo real, uso do limite | api-servidor | F1-01, F1-09 | 3 | |
-| FC2-F1-03 | Cartões: ciclo de fatura, compras/parcelas, pagamento, mover, estorno | dominio-financeiro | F1-01, F1-09 | 3 | |
-| FC2-F1-05 | Dívidas: consignado (Price), cheque especial, rotativo, Pix no crédito | dominio-financeiro | F1-01, F1-09 | 3 | |
-| FC2-F1-06 | Renda MEI: base + dia presencial, DAS, teto anual | dominio-financeiro | F1-01, F1-09 | 3 | |
+| FC2-F1-09 | Extensões do ledger: vínculos, occurrenceKey, unit of work (nova) | dominio-financeiro | F1-01 | 2 | concluída `c7e9789` |
+| FC2-F1-02 | Contas: CRUD, saldo real, uso do limite | api-servidor | F1-01, F1-09 | 3 | em correção (ciclo 1: alvos de toque) |
+| FC2-F1-03 | Cartões: ciclo de fatura, compras/parcelas, pagamento, mover, estorno | dominio-financeiro | F1-01, F1-09 | 3 | concluída `3cc9079` |
+| FC2-F1-05 | Dívidas: consignado (Price), cheque especial, rotativo, Pix no crédito | dominio-financeiro | F1-01, F1-09 | 3 | concluída `0098ddd` |
+| FC2-F1-06 | Renda MEI: base + dia presencial, DAS, teto anual | dominio-financeiro | F1-01, F1-09 | 3 | QA aprovado; ajuste ADR-032 em curso |
 | FC2-F1-04 | Reconciliação de saldo | api-servidor | F1-02 | 4 | |
+| FC2-F1-10 | Endurecimentos de dívidas (nova) | dominio-financeiro | F1-05 | 4 | em execução |
 
 ### F2 — Captura
 Saída: lançar um gasto em menos de 5 segundos.
