@@ -1,7 +1,7 @@
 ---
 id: FC2-F1-08
 title: Cobrir os ícones das categorias padrão no CategoryIcon
-status: backlog
+status: active
 type: chore
 phase: F1
 wave: 2
