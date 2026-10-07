@@ -1,0 +1,3 @@
+- [Matar processos só por PID](feedback_processos.md) — nunca `taskkill /IM chrome.exe`; perfil temporário + PID (incidente F0-05)
+- [Guard: placeholders em registros](feedback_guard_placeholders.md) — provas do guard em tasks só com `<cpf>`/`<ddd9...>`; fixtures `sintetico-*`
+- [Worktree base e CRLF](feedback_worktrees.md) — worktrees nascem em 5cfb2c9: briefing manda `git merge --ff-only main`; format:check local falha por CRLF

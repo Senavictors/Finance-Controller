@@ -17,6 +17,9 @@ const eslintConfig = defineConfig([
     // Artefatos gerados (relatório de cobertura, cliente Prisma)
     'coverage/**',
     'src/generated/**',
+    // Worktrees de agentes e adaptadores (cópias do repositório)
+    '.claude/**',
+    '.codex/**',
   ]),
 ])
 
