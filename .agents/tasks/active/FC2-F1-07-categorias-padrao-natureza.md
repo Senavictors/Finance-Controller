@@ -1,7 +1,7 @@
 ---
 id: FC2-F1-07
 title: Categorias padrão BR + natureza Must/Need/Want
-status: backlog
+status: active
 type: feature
 phase: F1
 wave: 1
