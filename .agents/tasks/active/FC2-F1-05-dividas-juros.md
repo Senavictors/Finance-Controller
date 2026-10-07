@@ -1,7 +1,7 @@
 ---
 id: FC2-F1-05
 title: "Dívidas: consignado (Price), cheque especial, rotativo, Pix no crédito"
-status: backlog
+status: active
 type: feature
 phase: F1
 wave: 2

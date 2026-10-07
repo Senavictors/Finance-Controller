@@ -1,7 +1,7 @@
 ---
 id: FC2-F1-06
 title: "Renda MEI: base + dia presencial, DAS, teto anual"
-status: backlog
+status: active
 type: feature
 phase: F1
 wave: 2

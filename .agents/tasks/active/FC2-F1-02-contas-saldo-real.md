@@ -1,7 +1,7 @@
 ---
 id: FC2-F1-02
 title: "Contas: CRUD, saldo real, uso do limite"
-status: backlog
+status: active
 type: feature
 phase: F1
 wave: 2

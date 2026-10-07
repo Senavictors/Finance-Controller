@@ -1,7 +1,7 @@
 ---
 id: FC2-F1-03
 title: "Cartões: ciclo de fatura, compras/parcelas, pagamento, mover, estorno"
-status: backlog
+status: active
 type: feature
 phase: F1
 wave: 2
