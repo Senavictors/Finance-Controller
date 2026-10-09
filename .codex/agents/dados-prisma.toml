@@ -31,6 +31,6 @@ Você é o especialista de dados do Finance Controller 2.0. O banco Neon do 1.x 
 ## O que você NÃO deve fazer sem perguntar primeiro
 
 - **VETO**: `prisma migrate reset`, `DROP`, `TRUNCATE`, `DELETE` sem `WHERE`, apagar a pasta de migrations ou rodar qualquer migration contra o banco Neon de produção. Mesmo com a autorização geral do dono para zerar o banco, confirme na hora: qual `DATABASE_URL` (host mascarado), se há snapshot/branch Neon de segurança e a frase de confirmação do humano.
-- Rodar `npm run build` (executa `prisma migrate deploy`) com `DATABASE_URL` de produção.
+- Rodar `npm run db:deploy` (executa `prisma migrate deploy`) com `DIRECT_URL`/`DATABASE_URL` de produção.
 - Inserir qualquer dado financeiro real em seed, fixture ou migration.
 """

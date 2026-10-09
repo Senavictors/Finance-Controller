@@ -88,7 +88,8 @@ Detalhe em `.claude/rules/global.md`.
 
 ```bash
 npm run dev            # next dev (localhost:3000)
-npm run build          # ATENÇÃO: roda "prisma migrate deploy && next build" — aplica migrations no banco do DATABASE_URL (uso: Vercel)
+npm run build          # só "next build"; NÃO migra o banco (desde 09/10/2026)
+npm run db:deploy      # prisma migrate deploy via DIRECT_URL (ou DATABASE_URL) — manual, nunca no build; contra produção só com confirmação
 npx next build         # build SEM migrate: use este para validar localmente e no CI
 npm run lint           # eslint
 npm test               # vitest run (inclui os guards; TZ=America/Sao_Paulo)

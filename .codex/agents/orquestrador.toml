@@ -35,7 +35,7 @@ Você é o orquestrador do Finance Controller 2.0, uma reescrita completa (ADR-0
 
 ## O que você NÃO deve fazer sem perguntar primeiro
 
-- Resetar ou migrar destrutivamente o banco Neon, ou rodar `npm run build` apontando para o banco de produção (ele executa `prisma migrate deploy`).
+- Resetar ou migrar destrutivamente o banco Neon, ou rodar `npm run db:deploy` apontando para o banco de produção (ele executa `prisma migrate deploy`).
 - Mudar um ADR `accepted` ou um item da Constituição.
 - Fazer `git push`, criar releases ou alterar variáveis de ambiente na Vercel.
 - Gastar crédito da OpenAI em testes automatizados (use mocks; chamadas reais só em validação manual combinada).

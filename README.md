@@ -66,7 +66,7 @@ npm run typecheck
 npm test
 npm run guard:data         # Constituição: nenhum dado real versionado
 npm run format:check
-npx next build             # npm run build também aplica migrations (prisma migrate deploy)
+npm run build              # só next build; migração é o npm run db:deploy, manual
 ```
 
 ## Privacidade

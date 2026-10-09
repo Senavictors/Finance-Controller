@@ -26,7 +26,7 @@ Branch de trabalho: `main` (sem push desde o bootstrap; tag local `fc-1.x-final`
 
 - Constituição em `.agents/test-onboarding.md`: dados financeiros reais fora do Git; design system único (tokens `--fc-*`).
 - O banco Neon atual pode ser zerado (autorizado pelo dono em 2026-10-05), mas a operação exige confirmação na hora pelo papel `dados-prisma`.
-- `npm run build` executa `prisma migrate deploy`; para validar build use `npx next build`.
+- Desde 09/10/2026 `npm run build` é só `next build`; a migração saiu do build e virou `npm run db:deploy` (manual, usa `DIRECT_URL` se existir). Um push não migra mais o banco.
 - Orçamento de IA: US$ 5 no total; teto mensal padrão de US$ 1 (ADR-026).
 - Renda do dono como MEI: o sistema precisa acompanhar o teto anual do MEI (ADR-029).
 

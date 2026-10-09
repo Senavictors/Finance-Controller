@@ -35,7 +35,7 @@ Valores vivem em `.env.local` (gitignored) e nas Environment Variables da Vercel
 
 ## Build e migrations
 
-- Atenção: `npm run build` executa `prisma migrate deploy && next build` e **aplica migrations no banco apontado por `DATABASE_URL`**. Em máquina local, com `DATABASE_URL` de produção, isso altera o banco real.
+- Desde 09/10/2026 `npm run build` é só `next build` e **não toca o banco**. A migração é `npm run db:deploy`, rodada à mão, pela conexão direta (`DIRECT_URL`, com fallback para `DATABASE_URL`). Contra produção, só com confirmação do dono.
 - Para validar a compilação sem tocar o banco, use `npx next build`.
 - Migrations novas: `npx prisma migrate dev --name <nome>` em banco de desenvolvimento; `prisma generate` roda no `postinstall`.
 - O reset do Neon da F0 é destrutivo e exige aprovação do dono (veto do papel `dados-prisma`).
@@ -49,6 +49,6 @@ Valores vivem em `.env.local` (gitignored) e nas Environment Variables da Vercel
 
 ## Estado atual (1.x)
 
-- `package.json` já define `"build": "prisma migrate deploy && next build"`.
+- `package.json` define `"build": "next build"` e `"db:deploy": "prisma migrate deploy"`. A Vercel só builda; migrar é passo manual.
 - `.env.example` declara `DATABASE_URL`, `NEXT_PUBLIC_APP_URL`, `SESSION_SECRET` (reservado) e, comentados, `CRON_SECRET`, `TELEGRAM_WEBHOOK_SECRET`, `MCP_TOKEN`, `OWNER_EMAIL` e `OWNER_NAME`.
 - Não há `vercel.json` nem Cron; recorrências dependem de `POST /api/recurring-rules/apply` acionado à mão.

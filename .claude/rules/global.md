@@ -39,7 +39,7 @@ Todo o repositório: `src/`, `prisma/`, `tests/`, `docs/`, `.agents/`, `.claude/
 npm run lint
 npm test
 npm run format:check
-npx next build   # build sem prisma migrate deploy (npm run build aplica migrations)
+npm run build    # só next build; migração é npm run db:deploy, manual
 ```
 
 ## Condições de atualização
