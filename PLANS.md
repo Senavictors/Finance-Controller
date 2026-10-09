@@ -48,7 +48,7 @@ Saída: saldo de cada conta no app = saldo do banco; dívidas e renda modeladas.
 | FC2-F1-05 | Dívidas: consignado (Price), cheque especial, rotativo, Pix no crédito | dominio-financeiro | F1-01, F1-09 | 3 | concluída `0098ddd` |
 | FC2-F1-06 | Renda MEI: base + dia presencial, DAS, teto anual | dominio-financeiro | F1-01, F1-09 | 3 | QA aprovado; ajuste ADR-032 em curso |
 | FC2-F1-04 | Reconciliação de saldo | api-servidor | F1-02 | 4 | |
-| FC2-F1-10 | Endurecimentos de dívidas (nova) | dominio-financeiro | F1-05 | 4 | em execução |
+| FC2-F1-10 | Endurecimentos de dívidas (nova) | dominio-financeiro | F1-05 | 4 | concluída (2026-10-09) |
 
 ### F2 — Captura
 Saída: lançar um gasto em menos de 5 segundos.

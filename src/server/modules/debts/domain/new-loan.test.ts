@@ -1,7 +1,12 @@
 import { describe, expect, it } from 'vitest'
 import { formatCalendarDate } from './calendar'
 import { DebtError } from './errors'
-import { assertNoLongDigits, planNewLoan, roundRateForStorage } from './new-loan'
+import {
+  assertNoLongDigits,
+  assertPercentPrecision,
+  planNewLoan,
+  roundRateForStorage,
+} from './new-loan'
 import { simulateAmortization } from './payoff'
 
 const day = (iso: string) => new Date(`${iso}T12:00:00.000Z`)
@@ -136,6 +141,36 @@ describe('planNewLoan', () => {
     expect(() => planNewLoan({ ...base, name: 'x'.repeat(81) })).toThrow(DebtError)
     expect(() => planNewLoan({ ...base, firstDueDate: new Date('x') })).toThrow(DebtError)
     expect(() => planNewLoan({ ...base, installmentAmountCents: 0 })).toThrow(DebtError)
+  })
+})
+
+describe('precisão de multa e mora (FC2-F1-10, CA-04)', () => {
+  it('recusa percentual com 3 casas (mora 1,275%) com mensagem clara e o campo', () => {
+    let error: unknown
+    try {
+      planNewLoan({ ...base, lateInterestMonthlyRate: 0.01275 })
+    } catch (caught) {
+      error = caught
+    }
+    expect(error).toBeInstanceOf(DebtError)
+    expect(error).toMatchObject({
+      code: 'DEBT_INVALID_INPUT',
+      details: { field: 'lateInterestMonthlyRate' },
+    })
+    expect((error as Error).message).toMatch(/2 casas decimais/)
+    expect(() => planNewLoan({ ...base, lateFeeRate: 0.02001 })).toThrow(DebtError)
+    expect(() => planNewLoan({ ...base, lateFeeRate: 0.000049 })).toThrow(DebtError)
+  })
+
+  it('aceita até 2 casas no percentual (sem falso positivo de ponto flutuante)', () => {
+    for (const rate of [0, 0.0001, 0.0125, 0.0199, 0.0275, 0.0333, 0.07, 0.1234, 1]) {
+      expect(() => assertPercentPrecision(rate, 'x')).not.toThrow()
+      expect(() => planNewLoan({ ...base, lateFeeRate: rate })).not.toThrow()
+    }
+  })
+
+  it('recusa valor não finito', () => {
+    expect(() => assertPercentPrecision(Number.NaN, 'x')).toThrow(DebtError)
   })
 })
 

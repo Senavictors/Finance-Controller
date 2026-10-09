@@ -58,6 +58,16 @@ export interface LoanRepository {
     loan: PlannedLoan,
     installments: readonly PlannedInstallment[],
   ): Promise<LoanRecord>
+  /**
+   * Cadastro atômico de `OVERDRAFT`/`CARD_REVOLVING` (um contrato aberto por conta e tipo):
+   * serializa por `(userId, accountId, kind)`, confere se já existe contrato aberto e só então
+   * grava. Devolve `{ existing }` (sem gravar) se outra criação venceu.
+   */
+  insertLoanForAccountIfAbsent(
+    userId: string,
+    id: string,
+    loan: PlannedLoan,
+  ): Promise<{ loan: LoanRecord } | { existing: LoanRecord }>
   findLoan(userId: string, loanId: string, tx?: TransactionHandle): Promise<LoanRecord | null>
   listLoans(userId: string, filter?: { statuses?: readonly LoanStatus[] }): Promise<LoanRecord[]>
   findLoanByAccount(userId: string, accountId: string, kind: LoanKind): Promise<LoanRecord | null>

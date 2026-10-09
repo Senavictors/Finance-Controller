@@ -65,6 +65,23 @@ export class InMemoryLoanRepository implements LoanRepository {
     return { ...record }
   }
 
+  async insertLoanForAccountIfAbsent(
+    userId: string,
+    id: string,
+    loan: PlannedLoan,
+  ): Promise<{ loan: LoanRecord } | { existing: LoanRecord }> {
+    // Sem `await` entre a checagem e a gravação: atômico no laço de eventos.
+    const existing = [...this.loans.values()].find(
+      (item) =>
+        item.userId === userId &&
+        item.accountId === loan.accountId &&
+        item.kind === loan.kind &&
+        item.status !== 'PAID_OFF',
+    )
+    if (existing) return { existing: { ...existing } }
+    return { loan: await this.insertLoan(userId, id, loan, []) }
+  }
+
   async findLoan(userId: string, loanId: string): Promise<LoanRecord | null> {
     const loan = this.loans.get(loanId)
     return loan && loan.userId === userId ? { ...loan } : null

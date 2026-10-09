@@ -1,7 +1,7 @@
 ---
 estado: real
 fonte: src/server/modules/debts/ (task FC2-F1-05); decisões em ADR-028, ADR-019, ADR-002, ADR-025
-ultima-revisao: FC2-F1-05 2026-10-07
+ultima-revisao: FC2-F1-10 2026-10-09
 ---
 
 # Dívidas e juros
@@ -12,6 +12,7 @@ Módulo `src/server/modules/debts/{domain,application,infra,http}`. Rotas: `src/
 
 - Dinheiro em centavos inteiros; arredondamento `Math.round` (meio para cima) por passo, e a **última parcela fecha o saldo a zero**.
 - Taxas como **fração mensal** (`0.02` = 2% a.m.) em todo o domínio, nos use-cases e na API. O banco guarda `monthlyRate` como `Decimal(9,6)` (fração) e `lateFeePct`/`lateInterestMonthlyPct` como percentual `Decimal(5,2)` (`2` = 2%); a conversão (`.toNumber()` e x100 ou /100) acontece só em `infra/prisma-loan-repository.ts`.
+- Multa e mora aceitam **no máximo 2 casas no percentual** (`0.0125` = 1,25%). Como o banco guarda `Decimal(5,2)`, uma terceira casa seria truncada em silêncio; por isso `assertPercentPrecision` (`domain/new-loan.ts`) recusa na entrada, ao criar e ao editar, com `DEBT_INVALID_INPUT` e o campo (FC2-F1-10).
 - Datas de calendário ao meio-dia UTC (ADR-002); "hoje" é o dia de São Paulo derivado do `now` recebido por parâmetro (`domain/calendar.ts`: `businessCalendarDay`, `addMonthsClamped`, `diffCalendarDays`). Nenhuma função de domínio lê o relógio.
 - Exemplos e testes usam só valores redondos fictícios (R$ 10.000,00 a 2% a.m. em 12 parcelas).
 
@@ -30,6 +31,12 @@ Módulo `src/server/modules/debts/{domain,application,infra,http}`. Rotas: `src/
 | Prazo de quitação        | `n = ceil(−ln(1 − i·B/P) / ln(1+i))`; `Infinity` se `P <= round(B·i)`; `i = 0` => `ceil(B/P)`                                 |
 | Taxa anual equivalente   | `(1+i)^12 − 1` (2% a.m. => 26,82% a.a.)                                                                                      |
 | Ordenação                | taxa mensal desc; desempate por custo mensal desc, saldo desc e `id`. A ordem vem **sempre da taxa**, nunca do tipo           |
+
+## Regras de integridade (FC2-F1-10)
+
+- Pagar parcela de contrato encerrado (quitado ou arquivado) é recusado com `DEBT_NOT_ACTIVE` (409), sem lançamento nem mudança de estado. Contrato inadimplente (`DEFAULTED`) continua aceitando pagamento.
+- Cheque especial e rotativo são **um de cada tipo por conta**: a criação verifica e grava na mesma transação, serializada por `pg_advisory_xact_lock` sobre (usuário, conta, tipo), sem travar as linhas de conta ou saldo do ledger. Criações concorrentes resultam em uma só dívida; dívida quitada (`PAID_OFF`) libera uma nova.
+- `deleteLoan` é bloqueado quando existe parcela paga, inclusive as marcadas como pagas na criação (sem lançamento). Contrato sem pagamento pode ser apagado.
 
 ## Limites das estimativas
 

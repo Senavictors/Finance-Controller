@@ -89,6 +89,21 @@ export function roundRateForStorage(rate: number): number {
 }
 
 /**
+ * Multa e mora são guardadas como percentual `Decimal(5,2)` (2 casas): frações cujo percentual
+ * tem mais de 2 casas (ex.: 0,01275 = 1,275%) seriam truncadas na gravação. Recusa na entrada.
+ */
+export function assertPercentPrecision(rate: number, field: string): void {
+  const hundredths = rate * 1e4 // percentual em centésimos: 0.0199 -> 199
+  if (!Number.isFinite(hundredths) || Math.abs(hundredths - Math.round(hundredths)) > 1e-6) {
+    throw new DebtError(
+      'DEBT_INVALID_INPUT',
+      'Multa e mora aceitam no máximo 2 casas decimais em percentual (ex.: 1,25%).',
+      { field },
+    )
+  }
+}
+
+/**
  * Rejeita sequências longas de dígitos (>= 11, ignorando `.`, `-`, `/` e espaços) em texto livre:
  * evita CPF/CNPJ/conta digitados por engano no nome do contrato ou do credor.
  */
@@ -144,6 +159,8 @@ export function planNewLoan(input: NewLoanInput): LoanPlan {
   ) {
     throw new DebtError('DEBT_INVALID_INPUT', 'Multa e mora devem ser frações entre 0 e 1.')
   }
+  assertPercentPrecision(lateFeeRate, 'lateFeeRate')
+  assertPercentPrecision(lateInterestMonthlyRate, 'lateInterestMonthlyRate')
 
   const common = {
     kind: input.kind,

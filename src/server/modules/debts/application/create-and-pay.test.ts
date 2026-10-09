@@ -486,6 +486,123 @@ describe('registerInstallmentPayment (CA-12)', () => {
   })
 })
 
+describe('FC2-F1-10: endurecimentos de dívidas', () => {
+  it('CA-01: contrato encerrado (archive) recusa pagar parcela com DEBT_NOT_ACTIVE e sem efeitos', async () => {
+    const env = makeDebtsEnv()
+    await seedBalance(env, 'acc-a', 500_000)
+    const { loan } = await createLoan(
+      USER,
+      { ...consignado, firstDueDate: day('2026-10-01') },
+      env.deps,
+    )
+    await archiveLoan(USER, loan.id, env.deps)
+    const txnCount = env.ledger.repo.txns.size
+    const balance = async () =>
+      (await env.ledger.svc.getAccountPosition({ userId: USER }, 'acc-a')).current
+    const before = await balance()
+    expect(
+      await debtErrorCode(() =>
+        registerInstallmentPayment(
+          USER,
+          { loanId: loan.id, number: 1, payDate: day('2026-10-01'), accountId: 'acc-a' },
+          env.deps,
+        ),
+      ),
+    ).toBe('DEBT_NOT_ACTIVE')
+    expect(env.ledger.repo.txns.size).toBe(txnCount)
+    expect(await balance()).toBe(before)
+    const installments = await env.loans.listInstallments(USER, loan.id)
+    expect(installments.every((item) => item.status === 'PENDING')).toBe(true)
+    expect(env.loans.loans.get(loan.id)?.status).toBe('PAID_OFF')
+  })
+
+  it('CA-01: contrato inadimplente (DEFAULTED) continua aceitando pagamento', async () => {
+    const env = makeDebtsEnv()
+    await seedBalance(env, 'acc-a', 500_000)
+    const { loan } = await createLoan(
+      USER,
+      { ...consignado, firstDueDate: day('2026-10-01') },
+      env.deps,
+    )
+    await updateLoan(USER, loan.id, { status: 'DEFAULTED' }, env.deps)
+    const paid = await registerInstallmentPayment(
+      USER,
+      { loanId: loan.id, number: 1, payDate: day('2026-10-01'), accountId: 'acc-a' },
+      env.deps,
+    )
+    expect(paid.loanStatus).toBe('DEFAULTED')
+  })
+
+  it('CA-02: 10 criações concorrentes de cheque especial na mesma conta resultam em 1 dívida', async () => {
+    const env = makeDebtsEnv()
+    const results = await Promise.allSettled(
+      Array.from({ length: 10 }, (_, index) =>
+        createLoan(
+          USER,
+          { kind: 'OVERDRAFT', name: `Cheque ${index}`, accountId: 'acc-a', monthlyRate: 0.08 },
+          env.deps,
+        ),
+      ),
+    )
+    expect(results.filter((item) => item.status === 'fulfilled')).toHaveLength(1)
+    for (const item of results.filter((entry) => entry.status === 'rejected')) {
+      expect((item as PromiseRejectedResult).reason).toMatchObject({
+        code: 'DEBT_INVALID_INPUT',
+        details: { field: 'accountId' },
+      })
+    }
+    expect(
+      (await env.loans.listLoans(USER)).filter((loan) => loan.kind === 'OVERDRAFT'),
+    ).toHaveLength(1)
+  })
+
+  it('CA-02: rotativo concorrente também cria 1; dívida encerrada libera nova criação', async () => {
+    const env = makeDebtsEnv()
+    const results = await Promise.allSettled(
+      Array.from({ length: 5 }, () =>
+        createLoan(
+          USER,
+          { kind: 'CARD_REVOLVING', name: 'Rotativo', accountId: 'acc-card', monthlyRate: 0.12 },
+          env.deps,
+        ),
+      ),
+    )
+    expect(results.filter((item) => item.status === 'fulfilled')).toHaveLength(1)
+    const first = results.find((item) => item.status === 'fulfilled') as PromiseFulfilledResult<{
+      loan: { id: string }
+    }>
+    await archiveLoan(USER, first.value.loan.id, env.deps)
+    const again = await createLoan(
+      USER,
+      { kind: 'CARD_REVOLVING', name: 'Rotativo 2', accountId: 'acc-card', monthlyRate: 0.12 },
+      env.deps,
+    )
+    expect(again.loan.id).not.toBe(first.value.loan.id)
+  })
+
+  it('CA-04: percentual com 3 casas é recusado ao criar e ao editar, com a mensagem clara', async () => {
+    const env = makeDebtsEnv()
+    await expect(
+      createLoan(USER, { ...consignado, lateInterestMonthlyRate: 0.01275 }, env.deps),
+    ).rejects.toThrow(/2 casas decimais/)
+    expect(await env.loans.listLoans(USER)).toEqual([])
+
+    const { loan } = await createLoan(USER, consignado, env.deps)
+    await expect(
+      updateLoan(USER, loan.id, { lateInterestMonthlyRate: 0.01275 }, env.deps),
+    ).rejects.toMatchObject({
+      code: 'DEBT_INVALID_INPUT',
+      details: { field: 'lateInterestMonthlyRate' },
+    })
+    expect(
+      await debtErrorCode(() => updateLoan(USER, loan.id, { lateFeeRate: 0.025001 }, env.deps)),
+    ).toBe('DEBT_INVALID_INPUT')
+    expect(env.loans.loans.get(loan.id)?.lateInterestMonthlyRate).toBe(0.01)
+    const ok = await updateLoan(USER, loan.id, { lateInterestMonthlyRate: 0.0125 }, env.deps)
+    expect(ok.lateInterestMonthlyRate).toBe(0.0125)
+  })
+})
+
 describe('updateLoan, archiveLoan, deleteLoan', () => {
   it('edita campos descritivos; taxa de parcelado não muda; status DEFAULTED; sem patch devolve igual', async () => {
     const env = makeDebtsEnv()
@@ -536,7 +653,7 @@ describe('updateLoan, archiveLoan, deleteLoan', () => {
     ).toBe('DEBT_INVALID_INPUT')
   })
 
-  it('apagar: bloqueado com parcela paga no sistema; livre com parcelas pré-pagas ou sem pagamentos', async () => {
+  it('apagar: bloqueado com parcela paga (no sistema ou pré-marcada na criação); livre sem pagamentos', async () => {
     const env = makeDebtsEnv()
     await seedBalance(env, 'acc-a', 500_000)
     const paid = await createLoan(
@@ -554,11 +671,22 @@ describe('updateLoan, archiveLoan, deleteLoan', () => {
     )
     expect(env.loans.loans.has(paid.loan.id)).toBe(true)
 
+    // CA-03 (FC2-F1-10): parcelas marcadas como pagas na criação (sem lançamento) também bloqueiam.
     const prePaid = await createLoan(USER, { ...consignado, alreadyPaidInstallments: 2 }, env.deps)
-    await deleteLoan(USER, prePaid.loan.id, env.deps)
-    expect(env.loans.loans.has(prePaid.loan.id)).toBe(false)
-    expect(env.loans.installments.has(prePaid.loan.id)).toBe(false)
+    const prePaidInstallments = await env.loans.listInstallments(USER, prePaid.loan.id)
+    expect(prePaidInstallments.filter((item) => item.status === 'PAID')).toHaveLength(2)
+    expect(prePaidInstallments.every((item) => item.transactionId === null)).toBe(true)
     expect(await debtErrorCode(() => deleteLoan(USER, prePaid.loan.id, env.deps))).toBe(
+      'DEBT_LOAN_HAS_PAID_INSTALLMENTS',
+    )
+    expect(env.loans.loans.has(prePaid.loan.id)).toBe(true)
+    expect(env.loans.installments.get(prePaid.loan.id)).toHaveLength(12)
+
+    const fresh = await createLoan(USER, consignado, env.deps)
+    await deleteLoan(USER, fresh.loan.id, env.deps)
+    expect(env.loans.loans.has(fresh.loan.id)).toBe(false)
+    expect(env.loans.installments.has(fresh.loan.id)).toBe(false)
+    expect(await debtErrorCode(() => deleteLoan(USER, fresh.loan.id, env.deps))).toBe(
       'DEBT_LOAN_NOT_FOUND',
     )
     expect(await debtErrorCode(() => deleteLoan(OTHER_USER, paid.loan.id, env.deps))).toBe(

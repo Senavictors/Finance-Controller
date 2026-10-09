@@ -93,6 +93,36 @@ export function createPrismaLoanRepository(db: PrismaClient): LoanRepository {
       return toLoanRecord(row)
     },
 
+    async insertLoanForAccountIfAbsent(userId, id, loan: PlannedLoan) {
+      const { rateInferred: _rateInferred, lateFeeRate, lateInterestMonthlyRate, ...fields } = loan
+      void _rateInferred
+      return db.$transaction(async (trx) => {
+        // Advisory lock da transação por (usuário, conta, tipo): serializa criações concorrentes
+        // sem tocar nas linhas de conta/saldo do ledger; solta no commit/rollback.
+        const lockKey = `debts:loan-account:${userId}:${loan.accountId}:${loan.kind}`
+        await trx.$executeRaw`SELECT pg_advisory_xact_lock(hashtextextended(${lockKey}, 0))`
+        const existing = await trx.loan.findFirst({
+          where: {
+            userId,
+            accountId: loan.accountId,
+            kind: loan.kind,
+            status: { not: 'PAID_OFF' },
+          },
+        })
+        if (existing) return { existing: toLoanRecord(existing) }
+        const row = await trx.loan.create({
+          data: {
+            ...fields,
+            id,
+            userId,
+            lateFeePct: rateToPct(lateFeeRate),
+            lateInterestMonthlyPct: rateToPct(lateInterestMonthlyRate),
+          },
+        })
+        return { loan: toLoanRecord(row) }
+      })
+    },
+
     async findLoan(userId, loanId, tx) {
       const row = await clientOf(tx).loan.findFirst({ where: { id: loanId, userId } })
       return row ? toLoanRecord(row) : null

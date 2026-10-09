@@ -40,6 +40,15 @@ export interface RegisterInstallmentPaymentResult {
   warnings: LedgerWarning[]
 }
 
+/** Contrato encerrado/quitado (`PAID_OFF`, inclui arquivado) não aceita pagamento de parcela. */
+function assertLoanOpen(status: LoanStatus, loanId: string): void {
+  if (status === 'PAID_OFF') {
+    throw new DebtError('DEBT_NOT_ACTIVE', 'Esta dívida está encerrada e não aceita pagamentos.', {
+      loanId,
+    })
+  }
+}
+
 /**
  * Paga uma parcela: cria no ledger o `EXPENSE` da parcela (categoria `parcelas-emprestimos`) e,
  * se houver encargos, `FEE` (`multas-atrasos`) e `INTEREST` (`juros-encargos`) separados, e marca
@@ -71,6 +80,7 @@ export async function registerInstallmentPayment(
   if (!isInstallmentKind(loan.kind)) {
     throw new DebtError('DEBT_NOT_INSTALLMENT_LOAN', 'Esta dívida não tem parcelas.')
   }
+  assertLoanOpen(loan.status, loan.id)
   const account = await loadAccountPosition(deps, userId, input.accountId)
   if (account.accountType === 'CREDIT_CARD') {
     throw new DebtError('DEBT_INVALID_INPUT', 'Pague a parcela com uma conta, não com um cartão.', {
@@ -85,6 +95,7 @@ export async function registerInstallmentPayment(
     await deps.loans.lockLoan(userId, loan.id, uow.tx)
     const current = await deps.loans.findLoan(userId, loan.id, uow.tx)
     if (!current) throw new DebtError('DEBT_LOAN_NOT_FOUND', 'Dívida não encontrada.')
+    assertLoanOpen(current.status, current.id)
     const installments = await deps.loans.listInstallments(userId, loan.id, uow.tx)
     const installment = installments.find((item) => item.number === input.number)
     if (!installment) {

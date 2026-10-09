@@ -111,3 +111,13 @@ Ressalva: para validar build sem tocar o banco, use `npx next build` (sem migrat
 - `npm run lint`, `npm test` e `npx next build` executados conforme o escopo alterado.
 - Docs em `docs/` atualizados (frontmatter `estado`/`ultima-revisao`).
 - Riscos e pendências declarados; handoff em `.agents/handoffs/` quando houver continuação.
+
+<!-- BEGIN:nextjs-agent-rules -->
+
+# This is NOT the Next.js you know
+
+This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` (resolved from this file's directory; in monorepos the `next` package may not be visible from the repo root) before writing any code. Heed deprecation notices.
+
+This block is written and re-added by `next dev` — verify at `node_modules/next/dist/server/lib/generate-agent-files.js`. Removing it from a diff only re-creates the uncommitted change; committing it with your work keeps the tree clean.
+
+<!-- END:nextjs-agent-rules -->

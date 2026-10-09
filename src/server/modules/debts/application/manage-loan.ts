@@ -1,5 +1,5 @@
 import { DebtError } from '../domain/errors'
-import { assertNoLongDigits, roundRateForStorage } from '../domain/new-loan'
+import { assertNoLongDigits, assertPercentPrecision, roundRateForStorage } from '../domain/new-loan'
 import {
   isInstallmentKind,
   MAX_MONTHLY_RATE,
@@ -87,6 +87,7 @@ export async function updateLoan(
         field,
       })
     }
+    assertPercentPrecision(value, field)
     patch[field] = value
   }
   if (input.status !== undefined) {
@@ -120,17 +121,17 @@ export async function archiveLoan(
 }
 
 /**
- * Apaga o contrato e as parcelas. Bloqueado se alguma parcela foi paga pelo sistema (há lançamento
- * no ledger): nesse caso use `archiveLoan`. Parcelas cadastradas como "já pagas" (sem lançamento)
- * não bloqueiam.
+ * Apaga o contrato e as parcelas. Bloqueado se QUALQUER parcela está paga, seja pelo sistema (há
+ * lançamento no ledger) ou marcada como "já paga" na criação (sem lançamento): nesse caso use
+ * `archiveLoan`, que preserva o histórico.
  */
 export async function deleteLoan(userId: string, loanId: string, deps: DebtsDeps): Promise<void> {
   await requireLoan(deps, userId, loanId)
   const installments = await deps.loans.listInstallments(userId, loanId)
-  if (installments.some((item) => item.status === 'PAID' && item.transactionId !== null)) {
+  if (installments.some((item) => item.status === 'PAID')) {
     throw new DebtError(
       'DEBT_LOAN_HAS_PAID_INSTALLMENTS',
-      'Esta dívida tem parcelas pagas no sistema. Encerre-a em vez de apagar.',
+      'Esta dívida tem parcelas pagas. Encerre-a em vez de apagar.',
     )
   }
   const deleted = await deps.loans.deleteLoan(userId, loanId)

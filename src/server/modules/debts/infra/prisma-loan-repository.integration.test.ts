@@ -7,7 +7,7 @@ import { prisma } from '@/server/db'
 import { createLoan } from '../application/create-loan'
 import { getDebtDetail, listDebts } from '../application/list-debts'
 import { listPendingDebtObligations } from '../application/list-pending-obligations'
-import { deleteLoan } from '../application/manage-loan'
+import { archiveLoan, deleteLoan } from '../application/manage-loan'
 import type { DebtsDeps } from '../application/ports'
 import { registerInstallmentPayment } from '../application/register-installment-payment'
 import { createPrismaLoanRepository } from './prisma-loan-repository'
@@ -349,5 +349,77 @@ describe.skipIf(!db)('debts: repositório Prisma (DATABASE_URL_TEST)', { timeout
       code: expect.stringMatching(/^DEBT_/),
     })
     expect(await client.loan.count({ where: { id: loan.id } })).toBe(1)
+  })
+
+  it('CA-01: contrato arquivado recusa pagar parcela (DEBT_NOT_ACTIVE) sem lançamentos nem mudança', async () => {
+    const { loan } = await createLoan(userId, { ...consignado, accountId }, deps)
+    await archiveLoan(userId, loan.id, deps)
+    const balanceBefore = await currentBalance(accountId)
+    const txnCountBefore = await client.transaction.count({ where: { accountId } })
+    await expect(
+      registerInstallmentPayment(
+        userId,
+        { loanId: loan.id, number: 1, payDate: day('2026-09-11'), accountId },
+        deps,
+      ),
+    ).rejects.toMatchObject({ code: 'DEBT_NOT_ACTIVE' })
+    expect(await client.transaction.count({ where: { accountId } })).toBe(txnCountBefore)
+    expect(await currentBalance(accountId)).toBe(balanceBefore)
+    const installment = await client.loanInstallment.findFirstOrThrow({
+      where: { loanId: loan.id, number: 1 },
+    })
+    expect(installment.status).toBe('PENDING')
+    expect(installment.transactionId).toBeNull()
+  })
+
+  it('CA-02: 10 criações concorrentes de cheque especial na mesma conta resultam em 1 dívida', async () => {
+    const account = await newAccount('Corrente concorrente', { overdraftLimit: 50_000 })
+    const results = await Promise.allSettled(
+      Array.from({ length: 10 }, (_, index) =>
+        createLoan(
+          userId,
+          {
+            kind: 'OVERDRAFT',
+            name: `Cheque especial fictício ${index}`,
+            accountId: account.id,
+            monthlyRate: 0.08,
+          },
+          deps,
+        ),
+      ),
+    )
+    expect(results.filter((item) => item.status === 'fulfilled')).toHaveLength(1)
+    for (const item of results.filter((entry) => entry.status === 'rejected')) {
+      expect((item as PromiseRejectedResult).reason).toMatchObject({
+        code: 'DEBT_INVALID_INPUT',
+        details: { field: 'accountId' },
+      })
+    }
+    expect(
+      await client.loan.count({
+        where: { userId, accountId: account.id, kind: 'OVERDRAFT' },
+      }),
+    ).toBe(1)
+  })
+
+  it('CA-03: contrato com parcela pré-marcada como paga na criação não pode ser apagado', async () => {
+    const { loan } = await createLoan(
+      userId,
+      { ...consignado, accountId, alreadyPaidInstallments: 2 },
+      deps,
+    )
+    await expect(deleteLoan(userId, loan.id, deps)).rejects.toMatchObject({
+      code: 'DEBT_LOAN_HAS_PAID_INSTALLMENTS',
+    })
+    expect(await client.loan.count({ where: { id: loan.id } })).toBe(1)
+    expect(await client.loanInstallment.count({ where: { loanId: loan.id } })).toBe(12)
+  })
+
+  it('CA-04: percentual com 3 casas é recusado e nada é gravado', async () => {
+    const before = await client.loan.count({ where: { userId } })
+    await expect(
+      createLoan(userId, { ...consignado, accountId, lateInterestMonthlyRate: 0.01275 }, deps),
+    ).rejects.toThrow(/2 casas decimais/)
+    expect(await client.loan.count({ where: { userId } })).toBe(before)
   })
 })

@@ -13,6 +13,7 @@ export const DEBT_ERROR_CODES = [
   'DEBT_PARTIAL_PAYMENT_UNSUPPORTED',
   'DEBT_LOAN_HAS_PAID_INSTALLMENTS',
   'DEBT_NOT_INSTALLMENT_LOAN',
+  'DEBT_NOT_ACTIVE',
 ] as const
 
 export type DebtErrorCode = (typeof DEBT_ERROR_CODES)[number]
@@ -30,6 +31,7 @@ const CATEGORY_BY_CODE: Record<DebtErrorCode, DebtErrorCategory> = {
   DEBT_PARTIAL_PAYMENT_UNSUPPORTED: 'INVALID',
   DEBT_LOAN_HAS_PAID_INSTALLMENTS: 'CONFLICT',
   DEBT_NOT_INSTALLMENT_LOAN: 'INVALID',
+  DEBT_NOT_ACTIVE: 'CONFLICT',
 }
 
 /** Erro de regra de negócio de dívidas; a camada HTTP traduz `code` para o status. */

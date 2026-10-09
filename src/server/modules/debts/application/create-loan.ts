@@ -50,17 +50,16 @@ export async function createLoan(
   }
 
   if (plan.loan.accountId && !isInstallmentKind(plan.loan.kind)) {
-    const existing = await deps.loans.findLoanByAccount(userId, plan.loan.accountId, plan.loan.kind)
-    if (existing) {
+    // Verificação + gravação atômicas: duas criações concorrentes na mesma conta, só uma vence.
+    const result = await deps.loans.insertLoanForAccountIfAbsent(userId, deps.newId(), plan.loan)
+    if ('existing' in result) {
       throw new DebtError(
         'DEBT_INVALID_INPUT',
         'Esta conta já tem uma dívida cadastrada deste tipo.',
-        {
-          field: 'accountId',
-          loanId: existing.id,
-        },
+        { field: 'accountId', loanId: result.existing.id },
       )
     }
+    return { loan: result.loan, rateInferred: false, installmentCount: 0 }
   }
 
   const loan = await deps.loans.insertLoan(userId, deps.newId(), plan.loan, plan.installments)

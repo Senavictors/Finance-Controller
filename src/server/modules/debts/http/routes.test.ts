@@ -193,6 +193,13 @@ describe('fluxo completo pela API', () => {
 
     const archived = await itemRoute.PATCH(req('PATCH', `/${id}`, { archive: true }), ctx({ id }))
     expect((await archived.json()).loan.status).toBe('PAID_OFF')
+
+    const closed = await payRoute.POST(
+      req('POST', `/${id}/installments/2/pay`, { payDate: '2026-10-11', accountId: 'acc-a' }),
+      ctx({ id, number: '2' }),
+    )
+    expect(closed.status).toBe(409)
+    expect((await closed.json()).code).toBe('DEBT_NOT_ACTIVE')
   })
 
   it('simulação "nunca quita" serializa months como null', async () => {
