@@ -79,7 +79,7 @@ export function BrandPicker({
         value={query}
         onChange={(e) => setQuery(e.target.value)}
         placeholder="Buscar marca..."
-        className="border-border bg-background focus-visible:ring-primary/20 h-9 rounded-lg border px-3 text-sm outline-none focus-visible:ring-2"
+        className="border-border bg-background focus-visible:ring-primary/20 min-h-fc-touch rounded-lg border px-3 text-base outline-none focus-visible:ring-2"
       />
 
       <div className="max-h-64 space-y-3 overflow-y-auto pr-1">

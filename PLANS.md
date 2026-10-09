@@ -43,7 +43,7 @@ Saída: saldo de cada conta no app = saldo do banco; dívidas e renda modeladas.
 | FC2-F1-07 | Categorias padrão BR + natureza Must/Need/Want | dados-prisma | F0-02 | 1 | concluída `4beab5a` |
 | FC2-F1-08 | Ícones das categorias padrão no CategoryIcon (nova) | ui-design-system | F1-07 | 1 | concluída `e5017ce` |
 | FC2-F1-09 | Extensões do ledger: vínculos, occurrenceKey, unit of work (nova) | dominio-financeiro | F1-01 | 2 | concluída `c7e9789` |
-| FC2-F1-02 | Contas: CRUD, saldo real, uso do limite | api-servidor | F1-01, F1-09 | 3 | em correção (ciclo 1: alvos de toque) |
+| FC2-F1-02 | Contas: CRUD, saldo real, uso do limite | api-servidor | F1-01, F1-09 | 3 | concluída (2026-10-09) |
 | FC2-F1-03 | Cartões: ciclo de fatura, compras/parcelas, pagamento, mover, estorno | dominio-financeiro | F1-01, F1-09 | 3 | concluída `3cc9079` |
 | FC2-F1-05 | Dívidas: consignado (Price), cheque especial, rotativo, Pix no crédito | dominio-financeiro | F1-01, F1-09 | 3 | concluída `0098ddd` |
 | FC2-F1-06 | Renda MEI: base + dia presencial, DAS, teto anual | dominio-financeiro | F1-01, F1-09 | 3 | QA aprovado; ajuste ADR-032 em curso |

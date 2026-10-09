@@ -110,7 +110,7 @@ describe('páginas (CA-01, RN-06)', () => {
     expect(html).not.toMatch(/R\$/)
   })
 
-  it('Mais: lista os 7 destinos futuros sem rota', () => {
+  it('Mais: lista os 7 destinos; só Contas tem rota, os outros 6 seguem "Em breve"', () => {
     const html = render(createElement(MaisPage))
     for (const label of [
       'Relatórios',
@@ -123,7 +123,7 @@ describe('páginas (CA-01, RN-06)', () => {
     ]) {
       expect(html).toContain(`>${label}<`)
     }
-    expect(html.match(/Em breve/g)).toHaveLength(7)
-    expect(html).not.toContain('href="/mais')
+    expect(html.match(/Em breve/g)).toHaveLength(6)
+    expect(html.match(/href="\/mais[^"]*"/g)).toEqual(['href="/mais/contas"'])
   })
 })
